@@ -117,6 +117,64 @@ jobs:
           name: image-info-${{ github.ref_name }}
           path: image-info.txt
 
+  generate-sbom:
+    name: Generate SBOM for image
+    runs-on: ubuntu-latest
+    needs: publish-image
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate SBOM with Syft
+        uses: anchore/syft-action@v0.12.1
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/semptifygui:${{ github.ref_name }}
+          output: sbom.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.ref_name }}
+          path: sbom.json
+
+  integration-test:
+    name: Integration test (run container and smoke test)
+    runs-on: ubuntu-latest
+    needs: scan-image
+    if: github.event_name != 'schedule'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build docker image for integration test
+        run: |
+          docker build -t semptifygui:integration .
+
+      - name: Run container
+        run: |
+          docker run -d --name semptify-integration -p 127.0.0.1:8081:8080 semptifygui:integration || (docker ps -a && docker logs semptify-integration && false)
+
+      - name: Wait for HTTP health (max 30s)
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8081/health; then
+              echo "healthy"; break
+            fi
+            sleep 1
+            echo "waiting... $i"
+          done
+
+      - name: Check index page
+        run: |
+          curl -fsS http://127.0.0.1:8081/ | grep -q "SemptifyGUI is live"
+
+      - name: Tear down container and image
+        run: |
+          docker stop semptify-integration || true
+          docker rm semptify-integration || true
+          docker rmi semptifygui:integration || true
+
   publish-dockerhub:
     name: Publish image to Docker Hub
     runs-on: ubuntu-latest
@@ -169,6 +227,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: image-info-${{ github.ref_name }}
+
+      - name: Download SBOM artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: sbom-${{ github.ref_name }}
 
       - name: Attach image info to release
         uses: actions/upload-release-asset@v1
