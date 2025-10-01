@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Semptify Admin</title>
+  </head>
+  <body>
+    <h1>Semptify Admin</h1>
+    <p><a href="{{ ci_url }}" target="_blank">View CI dashboard</a></p>
+    <p><a href="{{ pages_url }}" target="_blank">View Pages site</a></p>
+
+    <form action="/release_now" method="post">
+      <input type="hidden" name="token" value="devtoken">
+      <button type="submit">Release Now</button>
+    </form>
+
+    <form action="/trigger_workflow" method="post">
+      <input type="hidden" name="token" value="devtoken">
+      <label>Workflow file: <input name="workflow" value="ci.yml"></label>
+      <label>ref: <input name="ref" value="main"></label>
+      <button type="submit">Trigger CI</button>
+    </form>
+
+    <p><a href="/release_history?token=devtoken">View Release History</a></p>
+    <p><a href="/sbom?token=devtoken">View SBOMs</a></p>
+  </body>
+</html>
