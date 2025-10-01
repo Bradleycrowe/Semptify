@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SemptifyGUI</title>
+  </head>
+  <body>
+    <h1>{{ message }}</h1>
+    <p>Available runtime folders:</p>
+    <ul>
+      {% for f in folders %}
+      <li>{{ f }}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
