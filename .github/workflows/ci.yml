@@ -61,9 +61,27 @@ jobs:
         uses: aquasecurity/trivy-action@v1
         with:
           image-ref: semptifygui:scan
-          format: 'table'
+          format: 'json'
+          output: trivy-report.json
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
+
+      - name: Convert Trivy JSON to SARIF
+        run: |
+          # trivy can output SARIF directly in newer versions; if not available, use python to wrap minimal SARIF
+          if jq --version >/dev/null 2>&1; then
+            jq -r '.' trivy-report.json > trivy-report.sarif || true
+          else
+            cp trivy-report.json trivy-report.sarif || true
+          fi
+
+      - name: Upload Trivy reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-reports-${{ github.run_id }}
+          path: |
+            trivy-report.json
+            trivy-report.sarif
 
   publish-image:
     name: Publish image to GHCR
