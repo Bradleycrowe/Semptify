@@ -1,4 +1,4 @@
-Set-Location D:\Semptify\SemptifyGUI; .\scripts\full_setup.ps1name: Nightly SBOM & Vulnerability Scan
+name: Nightly SBOM & Vulnerability Scan
 
 on:
   schedule:

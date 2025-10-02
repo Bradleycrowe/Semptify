@@ -2,6 +2,5 @@ Flask>=2.2
 waitress>=2.1.2
 requests>=2.31.0
 
-'
 flask-wtf>=1.1.1
 flask-login>=0.6.3
