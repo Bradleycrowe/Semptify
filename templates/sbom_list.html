@@ -3,15 +3,25 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SBOMs</title>
+    <title>SBOMs - SemptifyGUI</title>
   </head>
   <body>
     <h1>SBOM files</h1>
+
+    {% if files %}
     <ul>
       {% for f in files %}
-      <li><a href="/sbom/{{ f }}?token=devtoken">{{ f }}</a></li>
+      <li>
+        <a href="/sbom/{{ f|urlencode }}?token={{ admin_token }}">{{ f }}</a>
+      </li>
       {% endfor %}
     </ul>
-    <p><a href="/admin?token=devtoken">Back</a></p>
+    {% else %}
+    <p>No SBOM files found.</p>
+    {% endif %}
+
+    <p>
+      <a href="/admin?token={{ admin_token }}">Back to admin</a>
+    </p>
   </body>
 </html>

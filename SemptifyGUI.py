@@ -8,7 +8,7 @@ import time
 app = Flask(__name__)
 
 # Required folders
-folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
+folders = ["uploads", "logs", "copilot_sync", "final_notices", "security", "sbom"]
 
 # Create folders if missing
 for folder in folders:
@@ -53,7 +53,7 @@ def admin():
     repo = os.environ.get('GITHUB_REPO', 'SemptifyGUI')
     ci_url = f"https://github.com/{owner}/{repo}/actions"
     pages_url = f"https://{owner}.github.io/{repo}/"
-    return render_template('admin.html', ci_url=ci_url, pages_url=pages_url, folders=folders)
+    return render_template('admin.html', ci_url=ci_url, pages_url=pages_url, folders=folders, admin_token=admin_token)
 
 
 @app.route('/release_now', methods=['POST'])
@@ -163,7 +163,7 @@ def sbom_list():
     files = []
     if os.path.exists(sbom_dir):
         files = sorted(os.listdir(sbom_dir), reverse=True)
-    return render_template('sbom_list.html', files=files)
+    return render_template('sbom_list.html', files=files, admin_token=admin_token)
 
 
 @app.route('/sbom/<path:filename>')

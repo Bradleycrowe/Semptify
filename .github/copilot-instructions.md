@@ -4,14 +4,14 @@ Concise, actionable guide for AI coding agents working on SemptifyGUI — a smal
 
 ## Quick architecture snapshot
 - Entry point: `SemptifyGUI.py` — a single-process Flask app (calls `app.run(debug=True)`).
-- Runtime-created folders (the app ensures these exist at startup): `uploads`, `logs`, `copilot_sync`, `final_notices`, `security`.
+- Runtime-created folders (the app ensures these exist at startup): `uploads`, `logs`, `copilot_sync`, `final_notices`, `security`, `sbom`.
 - High-level flow: HTTP route → filesystem write/read (uploads, final notices) → append logs (`logs/init.log`) → return response.
 
 ## Concrete signals & examples (from `SemptifyGUI.py`)
 - Folder creation is idempotent:
 
   ```py
-  folders = ["uploads","logs","copilot_sync","final_notices","security"]
+  folders = ["uploads","logs","copilot_sync","final_notices","security","sbom"]
   for folder in folders:
       if not os.path.exists(folder):
           os.makedirs(folder)
@@ -27,12 +27,12 @@ Concise, actionable guide for AI coding agents working on SemptifyGUI — a smal
 - The app imports `render_template` and `send_file` but currently returns inline HTML on `/` — add `templates/` and `static/` when you introduce pages or assets.
 
 ## How to run (Windows PowerShell, minimal)
-Recommended: use a venv and install Flask. Run these from the repository root (`d:\Semptify\SemptifyGUI`).
+Recommended: use a venv and install dependencies. Run these from the repository root.
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install Flask
+pip install -r requirements.txt
 python .\SemptifyGUI.py
 ```
 
@@ -52,7 +52,7 @@ Expected quick check: the response contains "SemptifyGUI is live. Buttons coming
 - File-serving or downloads should use `send_file` (already imported in `SemptifyGUI.py`). Serve only sanitized, access-controlled files (specially in `uploads/` and `final_notices/`).
 
 ## Integration points & dependencies
-- External runtime dependency: Flask (no `requirements.txt` present). If you add dependencies, create a top-level `requirements.txt`.
+- External runtime dependencies: Flask, waitress, requests (see `requirements.txt`).
 - The app writes to disk — CI or runners must give the workspace write permissions.
 
 ## Contribution guidance for AI agents
@@ -61,8 +61,7 @@ Expected quick check: the response contains "SemptifyGUI is live. Buttons coming
 - Avoid committing anything under `security/` or large binary files in `uploads/` and `copilot_sync/`.
 
 ## Safe quick tasks an AI agent can do now
-- Add `requirements.txt` with `Flask`.
-- Add `templates/index.html` and switch `index()` to `render_template("index.html")`.
-- Add a tiny test using Flask's test client (under `tests/test_app.py`) that asserts `/` returns 200 and expected HTML.
+- Add templates or static assets under `templates/` or `static/` directories.
+- Add a tiny test using Flask's test client (under `tests/test_app.py`) that asserts endpoints return expected responses.
 
 If anything above is unclear or you want me to implement one of the safe quick tasks, tell me which and I'll proceed.

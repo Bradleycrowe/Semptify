@@ -7,8 +7,8 @@ if __name__ == '__main__':
     host = os.environ.get('SEMPTIFY_HOST', '0.0.0.0')
     port = int(os.environ.get('SEMPTIFY_PORT', '8080'))
 
-    # Ensure runtime folders exist (app already does this on import but keep-safe)
-    folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
+    # Required folders
+    folders = ["uploads", "logs", "copilot_sync", "final_notices", "security", "sbom"]
     for folder in folders:
         if not os.path.exists(folder):
             os.makedirs(folder)
