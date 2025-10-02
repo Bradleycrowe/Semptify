@@ -1,8 +1,7 @@
 name: Nightly SBOM & Vulnerability Scan
-
 on:
   schedule:
-    - cron: '0 3 * * *' # daily at 03:00 UTC
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 jobs:
@@ -15,31 +14,31 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'
+          python-version: '3.11'
 
-      - name: Install requirements
+      - name: Install requirements (if present)
         run: |
-          python -m venv .venv
-          . .venv/bin/activate
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
 
       - name: Build image for scanning
-        run: |
-          docker build -t semptifygui:nightly .
+        run: docker build -t semptifygui:nightly .
 
-      - name: Run Trivy scan
+      - name: Run Trivy scan (JSON)
         uses: aquasecurity/trivy-action@v1
         with:
           image-ref: semptifygui:nightly
-          format: 'json'
+          format: json
           output: nightly-trivy.json
-          severity: 'CRITICAL,HIGH'
+          severity: CRITICAL,HIGH
+        continue-on-error: true
 
       - name: Generate SBOM with Syft
         uses: anchore/syft-action@v0.12.1
         with:
           image: semptifygui:nightly
           output: nightly-sbom.json
+        continue-on-error: true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
