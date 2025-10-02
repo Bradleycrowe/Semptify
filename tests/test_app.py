@@ -1,5 +1,3 @@
-import os
-import tempfile
 import pytest
 from SemptifyGUI import app
 
@@ -10,6 +8,6 @@ def client():
         yield client
 
 def test_index(client):
-    rv = client.get('/')
-    assert rv.status_code == 200
-    assert b"SemptifyGUI is live" in rv.data
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b"SemptifyGUI is live" in response.data
