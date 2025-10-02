@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: semptifygui
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python SemptifyGUI.py
+    autoDeploy: true
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
