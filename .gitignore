@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime folders - content should not be committed
+uploads/*
+!uploads/.gitkeep
+logs/*
+!logs/.gitkeep
+copilot_sync/*
+!copilot_sync/.gitkeep
+final_notices/*
+!final_notices/.gitkeep
+sbom/*
+!sbom/.gitkeep
+
+# Security - never commit secrets
+security/
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Service PID file
+.service_semptify.pid
+
+# Logs
+*.log
