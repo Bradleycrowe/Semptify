@@ -9,19 +9,36 @@
     <p><a href="{{ ci_url }}" target="_blank">View CI dashboard</a></p>
     <p><a href="{{ pages_url }}" target="_blank">View Pages site</a></p>
 
-    <form action="/release_now" method="post">
-      <input type="hidden" name="token" value="devtoken">
+    <p><strong>Admin token must be set via environment variable ADMIN_TOKEN for these actions to work.</strong></p>
+
+    <form id="actions" action="/release_now" method="post">
+      <input type="hidden" name="token" id="token_field" value="">
       <button type="submit">Release Now</button>
     </form>
 
-    <form action="/trigger_workflow" method="post">
-      <input type="hidden" name="token" value="devtoken">
+    <form id="workflow" action="/trigger_workflow" method="post">
+      <input type="hidden" name="token" id="token_field2" value="">
       <label>Workflow file: <input name="workflow" value="ci.yml"></label>
       <label>ref: <input name="ref" value="main"></label>
       <button type="submit">Trigger CI</button>
     </form>
 
-    <p><a href="/release_history?token=devtoken">View Release History</a></p>
-    <p><a href="/sbom?token=devtoken">View SBOMs</a></p>
+    <p><a href="/release_history">View Release History</a></p>
+    <p><a href="/sbom">View SBOMs</a></p>
+
+    <h3>Temporary token for this session (not persisted)</h3>
+    <form onsubmit="setToken(); return false;">
+      <label>ADMIN_TOKEN: <input id="admin_token_input" type="password"></label>
+      <button type="submit">Set token for session</button>
+    </form>
+
+    <script>
+    function setToken(){
+      var t = document.getElementById('admin_token_input').value;
+      document.getElementById('token_field').value = t;
+      document.getElementById('token_field2').value = t;
+      alert('Token set for this session (sent in forms).');
+    }
+    </script>
   </body>
 </html>

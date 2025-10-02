@@ -7,11 +7,30 @@
   </head>
   <body>
     <h1>Release History</h1>
-    <ul>
+
+    <p>
+      <a href="/admin">Back to Admin</a>
+      {% if session.admin_logged_in or (current_user and current_user.is_authenticated) %}
+        | <a href="/logout">Logout</a>
+      {% endif %}
+      | <a href="/release_log_raw">Download JSON</a>
+    </p>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+      <thead>
+        <tr><th>Tag</th><th>SHA</th><th>Timestamp</th></tr>
+      </thead>
+      <tbody>
       {% for r in data %}
-      <li>{{ r.tag }} - {{ r.sha }} - {{ r.timestamp }}</li>
+        <tr>
+          <td><a href="https://github.com/{{ (r.get('repo_owner') or request.environ.get('GITHUB_OWNER') or 'Bradleycrowe') }}/{{ (r.get('repo') or request.environ.get('GITHUB_REPO') or 'SemptifyGUI') }}/releases/tag/{{ r.tag }}">{{ r.tag }}</a></td>
+          <td><code>{{ r.sha }}</code></td>
+          <td>{{ r.timestamp }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3">No releases recorded yet.</td></tr>
       {% endfor %}
-    </ul>
-    <p><a href="/admin?token=devtoken">Back</a></p>
+      </tbody>
+    </table>
   </body>
 </html>

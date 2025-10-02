@@ -1,11 +1,37 @@
-from flask import Flask, render_template, request, redirect, send_file
+from flask import Flask, render_template, request, redirect, send_file, session
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import requests
 import time
+from flask_wtf import CSRFProtect
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'please-change-me')
+
+# Session cookie security (set FLASK_COOKIE_SECURE=true in production to enable)
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_COOKIE_SECURE', 'False').lower() == 'true'
+
+# Initialize CSRF and Flask-Login
+csrf = CSRFProtect(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+class User(UserMixin):
+    def __init__(self, id: str = 'admin'):
+        self.id = id
+
+
+@login_manager.user_loader
+def load_user(user_id: str):
+    # Only a single admin user is supported by this simple app and only if ADMIN_PASSWORD is set
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    if admin_password and user_id == 'admin':
+        return User('admin')
+    return None
 
 # Required folders
 folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
@@ -17,7 +43,7 @@ for folder in folders:
 
 # Log initialization
 log_path = os.path.join("logs", "init.log")
-timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
 with open(log_path, "a") as log_file:
     log_file.write(f"[{timestamp}] SemptifyGUI initialized with folders: {', '.join(folders)}\n")
 
@@ -36,17 +62,38 @@ def health():
 
 def _append_log(line: str):
     log_path = os.path.join("logs", "init.log")
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     with open(log_path, "a") as f:
         f.write(f"[{timestamp}] {line}\n")
 
 
+def _is_admin_authenticated() -> bool:
+    """Return True if the current request is authenticated as admin.
+
+    Checks (in order):
+    - Flask-Login current_user.is_authenticated
+    - legacy session flag 'admin_logged_in'
+    - ADMIN_TOKEN provided via query/header/form
+    """
+    try:
+        if current_user and getattr(current_user, 'is_authenticated', False):
+            return True
+    except Exception:
+        pass
+    if session.get('admin_logged_in'):
+        return True
+    # token fallback
+    token = request.args.get('token') or request.form.get('token') or request.headers.get('X-Admin-Token')
+    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN')
+    if admin_token and token == admin_token:
+        return True
+    return False
+
+
 @app.route('/admin', methods=['GET'])
 def admin():
-    # Simple token check
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    # Allow Flask-Login session OR legacy session flag OR token for scripts
+    if not _is_admin_authenticated():
         return "Unauthorized", 401
 
     owner = os.environ.get('GITHUB_OWNER', 'Bradleycrowe')
@@ -57,10 +104,9 @@ def admin():
 
 
 @app.route('/release_now', methods=['POST'])
+@csrf.exempt
 def release_now():
-    token = request.form.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _is_admin_authenticated():
         return "Unauthorized", 401
 
     github_token = os.environ.get('GITHUB_TOKEN')
@@ -83,8 +129,8 @@ def release_now():
         return f'Failed to read ref: {r.status_code}', 500
     sha = r.json().get('object', {}).get('sha')
 
-    # Create a timestamped tag
-    tag_name = f'v{datetime.utcnow().strftime("%Y%m%d%H%M%S")}'
+    # Create a timestamped tag (use timezone-aware UTC)
+    tag_name = f'v{datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")}'
     create_ref_url = f'https://api.github.com/repos/{owner}/{repo}/git/refs'
     payload = { 'ref': f'refs/tags/{tag_name}', 'sha': sha }
     r = requests.post(create_ref_url, headers=headers, json=payload)
@@ -92,7 +138,7 @@ def release_now():
         _append_log(f'Created tag {tag_name} via API')
         # record release in release-log.json
         log_path = os.path.join('logs', 'release-log.json')
-        entry = { 'tag': tag_name, 'sha': sha, 'timestamp': datetime.utcnow().isoformat() }
+        entry = { 'tag': tag_name, 'sha': sha, 'timestamp': datetime.now(timezone.utc).isoformat() }
         try:
             if os.path.exists(log_path):
                 with open(log_path, 'r') as f:
@@ -112,10 +158,9 @@ def release_now():
 
 
 @app.route('/trigger_workflow', methods=['POST'])
+@csrf.exempt
 def trigger_workflow():
-    token = request.form.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _is_admin_authenticated():
         return "Unauthorized", 401
 
     workflow = request.form.get('workflow', 'ci.yml')
@@ -140,9 +185,7 @@ def trigger_workflow():
 
 @app.route('/release_history')
 def release_history():
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _is_admin_authenticated():
         return "Unauthorized", 401
     log_path = os.path.join('logs', 'release-log.json')
     if os.path.exists(log_path):
@@ -153,11 +196,20 @@ def release_history():
     return render_template('release_history.html', data=data)
 
 
+@app.route('/release_log_raw')
+def release_log_raw():
+    """Return the raw release-log.json contents (protected by admin auth)."""
+    if not _is_admin_authenticated():
+        return "Unauthorized", 401
+    log_path = os.path.join('logs', 'release-log.json')
+    if os.path.exists(log_path):
+        return send_file(log_path, as_attachment=True)
+    return "Not found", 404
+
+
 @app.route('/sbom')
 def sbom_list():
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _is_admin_authenticated():
         return "Unauthorized", 401
     sbom_dir = os.path.join('.', 'sbom')
     files = []
@@ -168,15 +220,42 @@ def sbom_list():
 
 @app.route('/sbom/<path:filename>')
 def sbom_get(filename):
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _is_admin_authenticated():
         return "Unauthorized", 401
     sbom_dir = os.path.join('.', 'sbom')
-    path = os.path.join(sbom_dir, filename)
-    if os.path.exists(path):
-        return send_file(path, as_attachment=True)
+    # Prevent path traversal
+    requested_path = os.path.abspath(os.path.join(sbom_dir, filename))
+    if not requested_path.startswith(os.path.abspath(sbom_dir) + os.sep) and os.path.abspath(sbom_dir) != requested_path:
+        return "Invalid path", 400
+    if os.path.exists(requested_path) and os.path.isfile(requested_path):
+        return send_file(requested_path, as_attachment=True)
     return "Not found", 404
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        password = request.form.get('password')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+        if admin_password and password == admin_password:
+            # Login via Flask-Login
+            user = User('admin')
+            login_user(user)
+            # preserve legacy flag for compatibility
+            session['admin_logged_in'] = True
+            return redirect('/admin')
+        return "Invalid credentials", 403
+    return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('admin_logged_in', None)
+    try:
+        logout_user()
+    except Exception:
+        pass
+    return redirect('/')
 
 if __name__ == "__main__":
     app.run(debug=True)
