@@ -260,6 +260,7 @@ def logout():
 if __name__ == "__main__":
     app.run(debug=True)
 @app.route('/cleanup', methods=['GET', 'POST'])
+@app.route('/cleanup', methods=['GET', 'POST'])
 def cleanup():
     if request.method == 'POST':
         result = run_cleanup()
