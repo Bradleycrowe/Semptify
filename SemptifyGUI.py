@@ -309,3 +309,28 @@ def run_cleanup():
         logs.append(f"Error resetting case: {str(e)}")
 
     return logs
+@app.route('/cleanup', methods=['GET', 'POST'])
+def cleanup():
+    if request.method == 'POST':
+        result = run_cleanup()
+        return render_template('cleanup_result.html', result=result)
+    return render_template('cleanup.html')
+
+def run_cleanup():
+    logs = []
+    try:
+        os.remove('temp/transcript_WR-JD.txt')
+        logs.append("Transcript deleted.")
+    except FileNotFoundError:
+        logs.append("Transcript not found.")
+    except Exception as e:
+        logs.append(f"Error deleting transcript: {str(e)}")
+
+    try:
+        with open('cases/WR-JD/status.txt', 'w') as f:
+            f.write('reset')
+        logs.append("Case WR-JD reset.")
+    except Exception as e:
+        logs.append(f"Error resetting case: {str(e)}")
+
+    return logs
