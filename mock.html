@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Semptify: Tenant Justice Automation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    header, footer { background: #333; color: white; padding: 1em; text-align: center; }
+    .container { padding: 2em; max-width: 1000px; margin: auto; background: white; }
+    .section { margin-bottom: 2em; }
+    label { display: block; margin-top: 1em; }
+    input, select, textarea { width: 100%; padding: 0.5em; margin-top: 0.5em; }
+    button { padding: 0.7em 1.5em; margin-top: 1em; background: #0077cc; color: white; border: none; cursor: pointer; }
+    .button-group { display: flex; gap: 1em; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Semptify: Tenant Justice Automation</h1>
+    <nav>
+      <button>Sign In</button>
+      <button>Messages</button>
+      <button>Attorney Access</button>
+      <button>Worker Panel</button>
+      <select>
+        <option>English</option>
+        <option>Spanish</option>
+        <option>Somali</option>
+        <option>Hmong</option>
+        <option>Oromo</option>
+        <option>Arabic</option>
+      </select>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="section">
+      <h2>Case Info</h2>
+      <label>Auto-Generated Case ID: <strong>WR-JD-20251002-X7F3</strong></label>
+      <label>Tenant Name</label><input type="text" />
+      <label>Unit Number</label><input type="text" />
+      <label>Incident Date</label><input type="date" />
+      <label>Notice Date</label><input type="date" />
+      <label>Deadline Date</label><input type="date" />
+      <label>Custom Message</label><textarea rows="3"></textarea>
+    </div>
+
+    <div class="section">
+      <h2>Actions</h2>
+      <label>Action Type</label>
+      <select>
+        <option>Cleanup</option>
+        <option>Generate Notice</option>
+        <option>Sync Logs</option>
+        <option>Encrypt Evidence</option>
+      </select>
+      <label>Tenant Type</label>
+      <select>
+        <option>Individual</option>
+        <option>Group</option>
+        <option>Anonymous</option>
+      </select>
+      <label><input type="checkbox" /> Enable Logging</label>
+      <label><input type="checkbox" /> Include Evidence</label>
+      <label><input type="checkbox" /> Encrypt Output</label>
+      <label><input type="checkbox" /> Sync with Copilot</label>
+      <div class="button-group">
+        <button>Submit Form</button>
+        <button>Reset Fields</button>
+        <button>Generate Final Notice</button>
+        <button>Download Logs</button>
+        <button>Sync with Copilot</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>File Upload</h2>
+      <input type="file" multiple />
+    </div>
+
+    <div class="section">
+      <h2>Messaging</h2>
+      <label>Filter by Case ID</label><input type="text" placeholder="e.g. WR-JD-20251002-X7F3" />
+      <label>Recipient Role</label>
+      <select>
+        <option>Attorney</option>
+        <option>Worker</option>
+        <option>Organizer</option>
+        <option>Advocate</option>
+      </select>
+      <label>Subject</label><input type="text" />
+      <label>Message</label><textarea rows="4"></textarea>
+      <label>Attach File</label><input type="file" />
+      <button>Send Message</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>Status: Notice generated successfully | Last sync: 10/02/2025 7:45 PM</p>
+  </footer>
+</body>
+</html>
