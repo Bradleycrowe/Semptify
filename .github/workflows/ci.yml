@@ -224,19 +224,29 @@ jobs:
             ${{ github.event.head_commit.message }}
 
       - name: Download image info artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: image-info-${{ github.ref_name }}
 
       - name: Download SBOM artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sbom-${{ github.ref_name }}
 
-      - name: Attach image info to release
-        uses: actions/upload-release-asset@v1
+      - name: Upload Trivy reports (artifact)
+        uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./image-info.txt
-          asset_name: image-info-${{ github.ref_name }}.txt
-          asset_content_type: text/plain
+          name: trivy-reports-${{ github.run_id }}
+          path: trivy-report.sarif
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.ref_name }}
+          path: sbom.json
+
+      - name: Upload image info artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-info-${{ github.ref_name }}
+          path: image-info.txt
