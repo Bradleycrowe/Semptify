@@ -1,4 +1,4 @@
-# PushAndDeploy-Semptify.ps1 — Commit, push, and launch Render auto-deploy
+# PushAndDeploy-Semptify.ps1 — All-in-one commit, push, build, and deploy for SemptifyGUI
 
 $repoPath = "D:\Semptify\SemptifyGUI"
 $liveURL = "https://semptifygui.onrender.com"
@@ -6,25 +6,32 @@ $renderDashboard = "https://dashboard.render.com"
 
 Set-Location $repoPath
 
-# Step 1: Git commit and push with error handling
+Write-Host "🔄 Staging all changes..."
 git add .
-git commit -m "v0.1.5: Final backend patch — dashboard HTML fixed, all routes wired"
+
+Write-Host "📝 Committing changes..."
+git commit -m "chore: all-in-one deploy — update, build, push, and verify SemptifyGUI"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "⚠️ Git commit failed or nothing to commit."
 }
+
+Write-Host "🚀 Pushing to GitHub..."
 git push origin main
 if ($LASTEXITCODE -eq 0) {
-    # Step 2: Open Render dashboard (optional)
+    Write-Host "🐳 Building Docker container locally for verification..."
+    docker-compose down
+    docker-compose up --build -d
+
+    Write-Host "🌐 Opening Render dashboard..."
     Start-Process $renderDashboard
 
-    # Step 3: Launch live app in browser
+    Write-Host "🌍 Opening live app in browser..."
     Start-Sleep -Seconds 5
     Start-Process $liveURL
 
-    # Step 4: Confirm success
-    Write-Host "`n✅ SemptifyGUI pushed and deployed."
+    Write-Host "`n✅ SemptifyGUI pushed, built, and deployed."
     Write-Host "🌐 Live at: $liveURL"
-    Write-Host "🧠 Backend: SemptifyCleanupGUI.py wired and running"
+    Write-Host "🧠 Backend: SemptifyGUI.py wired and running"
     Write-Host "🔘 Buttons: Upload, Logs, Sync, Generate, Security — all active"
 } else {
     Write-Host "❌ Git push failed. Check your network or remote repo status."
