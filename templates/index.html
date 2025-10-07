@@ -3,14 +3,18 @@
   <head>
     <meta charset="utf-8">
     <title>SemptifyGUI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
-    <h1>{{ message }}</h1>
-    <p>Available runtime folders:</p>
+    <h1>SemptifyGUI is live</h1>
+
+    <h2>Runtime folders</h2>
     <ul>
-      {% for f in folders %}
-      <li>{{ f }}</li>
-      {% endfor %}
+    {%- for f in folders %}
+        <li>{{ f }}</li>
+    {%- endfor %}
     </ul>
+
+    <p>Add more UI components here.</p>
   </body>
 </html>
