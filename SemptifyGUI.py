@@ -160,7 +160,20 @@ def index():
     # Use a Jinja2 template so UI can be extended without changing the route.
     message = "SemptifyGUI is live. Buttons coming next."
     _inc('requests_total')
-    return render_template("index.html", message=message, folders=folders)
+    
+    # Folder descriptions for the landing page
+    folder_descriptions = {
+        'uploads': 'File uploads and temporary processing',
+        'logs': 'Application logs and event history',
+        'copilot_sync': 'Copilot synchronization data',
+        'final_notices': 'Generated notices and documents',
+        'security': 'Token files and security credentials'
+    }
+    
+    return render_template("index.html", 
+                         message=message, 
+                         folders=folders,
+                         folder_descriptions=folder_descriptions)
 
 
 @app.route("/health")
