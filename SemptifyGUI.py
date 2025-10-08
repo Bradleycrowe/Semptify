@@ -430,7 +430,8 @@ def sbom_list():
     files = []
     if os.path.exists(sbom_dir):
         files = sorted(os.listdir(sbom_dir), reverse=True)
-    return render_template('sbom_list.html', files=files)
+    supplied = request.args.get('token') or request.form.get('token') or request.headers.get('X-Admin-Token')
+    return render_template('sbom_list.html', files=files, token=supplied)
 
 
 @app.route('/sbom/<path:filename>')
