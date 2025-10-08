@@ -15,13 +15,15 @@
     <p><a href="{{ ci_url }}" target="_blank">View CI dashboard</a></p>
     <p><a href="{{ pages_url }}" target="_blank">View Pages site</a></p>
 
-    <form action="/release_now" method="post">
+    <form action="/release_now" method="post" onsubmit="return confirmRelease(this);">
       <input type="hidden" name="token" value="{{ admin_token }}">
+      <input type="hidden" name="confirm_release" value="yes">
       <button type="submit">Release Now</button>
     </form>
 
-    <form action="/trigger_workflow" method="post">
+    <form action="/trigger_workflow" method="post" onsubmit="return confirmTrigger(this);">
       <input type="hidden" name="token" value="{{ admin_token }}">
+      <input type="hidden" name="confirm_trigger" value="yes">
       <label>Workflow file: <input name="workflow" value="ci.yml"></label>
       <label>ref: <input name="ref" value="main"></label>
       <button type="submit">Trigger CI</button>
@@ -29,5 +31,13 @@
 
   <p><a href="/release_history?token={{ admin_token }}">View Release History</a></p>
   <p><a href="/sbom?token={{ admin_token }}">View SBOMs</a></p>
+  <script>
+    function confirmRelease(form){
+      return confirm('Confirm creating a release tag now?');
+    }
+    function confirmTrigger(form){
+      return confirm('Trigger the specified workflow now?');
+    }
+  </script>
   </body>
 </html>
