@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: semptifygui
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run_prod.py
+    envVars:
+      - key: SEMPTIFY_PORT
+        value: 8080
+      - key: ADMIN_TOKEN
+        sync: false
+    autoDeploy: true
+    healthCheckPath: /health
+    disk:
+      name: semptify-data
+      mountPath: /app/uploads
+      sizeGB: 1
