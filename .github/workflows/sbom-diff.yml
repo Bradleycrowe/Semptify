@@ -1,0 +1,35 @@
+name: sbom-diff
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sbom/**'
+      - '.github/workflows/sbom-diff.yml'
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find two newest SBOMs
+        id: find
+        run: |
+          ls -1t sbom/*.json > sbom_list.txt || true
+          COUNT=$(wc -l < sbom_list.txt || echo 0)
+          if [ "$COUNT" -lt 2 ]; then echo "insufficient=1" >> $GITHUB_OUTPUT; exit 0; fi
+          PREV=$(sed -n '2p' sbom_list.txt)
+            CURR=$(sed -n '1p' sbom_list.txt)
+          echo "prev=$PREV" >> $GITHUB_OUTPUT
+          echo "curr=$CURR" >> $GITHUB_OUTPUT
+      - name: Run diff
+        if: steps.find.outputs.insufficient != '1'
+        run: |
+          python scripts/sbom_diff.py "${{ steps.find.outputs.prev }}" "${{ steps.find.outputs.curr }}" > sbom_diff.txt
+          cat sbom_diff.txt
+      - name: Upload diff artifact
+        if: steps.find.outputs.insufficient != '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-diff
+          path: sbom_diff.txt
