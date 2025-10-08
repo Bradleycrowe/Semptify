@@ -14,12 +14,13 @@
       {% if token_ids %}
         <p><strong>Active Token IDs:</strong> {{ token_ids|join(', ') }}</p>
         <p><small>Break-glass requires file <code>security/breakglass.flag</code> + a breakglass token.</small></p>
-        <form action="/rotate_token" method="post" style="margin-top:1rem;">
+        <form action="/rotate_token" method="post" class="rotate-form">
           <fieldset>
             <legend>Rotate Token</legend>
             <label>Token ID: <input name="target_id" placeholder="primary" required></label>
             <label>New Value: <input name="new_value" required></label>
             <input type="hidden" name="token" value="{{ admin_token }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button type="submit" onclick="return confirm('Rotate this token now?');">Rotate</button>
           </fieldset>
         </form>
@@ -31,12 +32,14 @@
     <form action="/release_now" method="post" onsubmit="return confirmRelease(this);">
       <input type="hidden" name="token" value="{{ admin_token }}">
       <input type="hidden" name="confirm_release" value="yes">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <button type="submit">Release Now</button>
     </form>
 
     <form action="/trigger_workflow" method="post" onsubmit="return confirmTrigger(this);">
       <input type="hidden" name="token" value="{{ admin_token }}">
       <input type="hidden" name="confirm_trigger" value="yes">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <label>Workflow file: <input name="workflow" value="ci.yml"></label>
       <label>ref: <input name="ref" value="main"></label>
       <button type="submit">Trigger CI</button>
