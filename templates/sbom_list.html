@@ -7,11 +7,9 @@
   </head>
   <body>
     <h1>SBOM files</h1>
-    <ul>
-      {% for f in files %}
-      <li><a href="/sbom/{{ f }}?token=devtoken">{{ f }}</a></li>
-      {% endfor %}
-    </ul>
-    <p><a href="/admin?token=devtoken">Back</a></p>
+    <ul>{% for f in files %}
+      <li><a href="/sbom/{{ f }}{% if token %}?token={{ token }}{% endif %}">{{ f }}</a></li>
+    {% endfor %}</ul>
+    <p><a href="/admin{% if token %}?token={{ token }}{% endif %}">Back</a></p>
   </body>
 </html>
