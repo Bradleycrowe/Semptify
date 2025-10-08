@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, send_file, jsonify, abort
+from flask import Flask, render_template, request, redirect, send_file, jsonify, abort, session
 import os
 from datetime import datetime
 import json
@@ -39,6 +39,9 @@ METRICS = {
     'admin_actions_total': 0,
     'errors_total': 0,
     'releases_total': 0,
+    'rate_limited_total': 0,
+    'breakglass_used_total': 0,
+    'token_rotations_total': 0,
 }
 _metrics_lock = threading.Lock()
 
@@ -53,6 +56,8 @@ def _metrics_text() -> str:
     return "\n".join(lines) + "\n"
 
 app = Flask(__name__)
+# Secret key for session/CSRF (set FLASK_SECRET in production)
+app.secret_key = os.environ.get('FLASK_SECRET', os.urandom(32))
 
 # Required folders
 folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
@@ -220,6 +225,7 @@ def _is_authorized(req) -> bool:
             except OSError:
                 pass
             _event_log('breakglass_used', token_id=token_entry['id'], path=req.path, ip=req.remote_addr)
+            _inc('breakglass_used_total')
             return True
     # Legacy single token fallback (for transitional period)
     legacy = _get_admin_token_legacy()
@@ -240,11 +246,32 @@ def _require_admin_or_401():
         _append_log(f"RATE_LIMIT path={request.path} ip={request.remote_addr}")
         _event_log('rate_limited', path=request.path, ip=request.remote_addr)
         _inc('errors_total')
+        _inc('rate_limited_total')
         return False
     if SECURITY_MODE == "open":
         # Still log accesses to admin endpoints while open
         _append_log(f"OPEN_MODE admin access path={request.path} ip={request.remote_addr}")
     _inc('admin_requests_total')
+    return True
+
+def _get_or_create_csrf_token():
+    token = session.get('_csrf_token')
+    if not token:
+        token = hashlib.sha256(os.urandom(32)).hexdigest()
+        session['_csrf_token'] = token
+    return token
+
+def _validate_csrf(req):
+    # Only enforce CSRF for state-changing POST requests when enforced mode is active
+    if SECURITY_MODE != 'enforced':
+        return True
+    sent = req.form.get('csrf_token') or req.headers.get('X-CSRF-Token')
+    token = session.get('_csrf_token')
+    if not token or not sent or sent != token:
+        _append_log(f"CSRF_FAIL path={req.path} ip={req.remote_addr}")
+        _event_log('csrf_fail', path=req.path, ip=req.remote_addr)
+        _inc('errors_total')
+        return False
     return True
 
 
@@ -261,17 +288,35 @@ def admin():
     # Expose token ids (not hashes) for visibility if enforced
     _load_tokens()
     token_ids = [t['id'] + (' (breakglass)' if t.get('breakglass') else '') for t in TOKENS_CACHE['tokens']]
+    csrf_token = _get_or_create_csrf_token()
     return render_template('admin.html',
                            ci_url=ci_url,
                            pages_url=pages_url,
                            folders=folders,
                            security_mode=SECURITY_MODE,
                            token_ids=token_ids,
-                           admin_token=_get_admin_token_legacy())
+                           admin_token=_get_admin_token_legacy(),
+                           csrf_token=csrf_token)
+
+@app.route('/admin/status')
+def admin_status():
+    if not _require_admin_or_401():
+        return "Unauthorized", 401
+    _inc('admin_requests_total')
+    _load_tokens()
+    token_summaries = [{'id': t['id'], 'breakglass': t.get('breakglass', False)} for t in TOKENS_CACHE['tokens']]
+    return jsonify({
+        'security_mode': SECURITY_MODE,
+        'metrics': METRICS,
+        'tokens': token_summaries,
+        'time': datetime.utcnow().isoformat() + 'Z'
+    })
 
 
 @app.route('/release_now', methods=['POST'])
 def release_now():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
     if not _require_admin_or_401():
         return "Unauthorized", 401
 
@@ -332,6 +377,8 @@ def release_now():
 
 @app.route('/trigger_workflow', methods=['POST'])
 def trigger_workflow():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
     if not _require_admin_or_401():
         return "Unauthorized", 401
 
@@ -419,6 +466,8 @@ def _write_tokens(tokens: list):
 
 @app.route('/rotate_token', methods=['POST'])
 def rotate_token():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
     if not _require_admin_or_401():
         return "Unauthorized", 401
     # current auth token already validated; now require target id & new token value
@@ -444,6 +493,7 @@ def rotate_token():
         return "Target token id not found", 404
     _write_tokens(data)
     _event_log('token_rotated', token_id=target_id, ip=request.remote_addr)
+    _inc('token_rotations_total')
     return redirect('/admin')
 
 if __name__ == "__main__":
