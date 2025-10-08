@@ -4,8 +4,9 @@ from SemptifyGUI import app
 
 if __name__ == '__main__':
     # Read host/port from environment with sane defaults
+    # Accept both custom SEMPTIFY_PORT and platform-provided PORT (Render/Heroku style)
     host = os.environ.get('SEMPTIFY_HOST', '0.0.0.0')
-    port = int(os.environ.get('SEMPTIFY_PORT', '8080'))
+    port = int(os.environ.get('SEMPTIFY_PORT') or os.environ.get('PORT', '8080'))
 
     # Ensure runtime folders exist (app already does this on import but keep-safe)
     folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
@@ -13,5 +14,5 @@ if __name__ == '__main__':
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-    print(f"Starting SemptifyGUI (production) on {host}:{port}")
+    print(f"Starting SemptifyGUI (production) on {host}:{port} (PORT env fallback supported)")
     serve(app, host=host, port=port)
