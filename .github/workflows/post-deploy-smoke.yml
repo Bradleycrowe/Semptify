@@ -1,0 +1,45 @@
+name: Post-Deploy Smoke Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (for script access)
+        uses: actions/checkout@v4
+
+      - name: Wait for Render (basic retries)
+        run: |
+          URL="https://semptifygui.onrender.com/health"
+          for i in {1..30}; do
+            echo "Attempt $i"
+            if curl -fsS "$URL"; then echo "Up"; exit 0; fi
+            sleep 5
+          done
+          echo "Service not healthy in time" >&2
+          exit 1
+
+      - name: Fetch version
+        run: |
+          curl -fsS https://semptifygui.onrender.com/version | tee version.json
+
+      - name: Fetch metrics
+        run: |
+            curl -fsS https://semptifygui.onrender.com/metrics | tee metrics.txt
+
+      - name: Basic assertions
+        run: |
+          grep -q 'git_sha' version.json || (echo 'Missing git_sha key' && exit 1)
+          grep -q 'requests_total' metrics.txt || (echo 'Missing requests_total metric' && exit 1)
+
+      - name: Upload smoke artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deploy-smoke-${{ github.run_id }}
+          path: |
+            version.json
+            metrics.txt
