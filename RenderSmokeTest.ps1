@@ -2,7 +2,8 @@ param(
     [Parameter(Mandatory=$true)][string]$BaseUrl,
     [string]$AdminToken,
     [int]$TimeoutSeconds = 120,
-    [int]$IntervalSeconds = 5
+    [int]$IntervalSeconds = 5,
+    [switch]$Json
 )
 
 Write-Host "Starting smoke test against $BaseUrl" -ForegroundColor Cyan
@@ -47,4 +48,21 @@ try {
     }
 } catch { Write-Warning "Admin check failed: $_" }
 
-Write-Host "Smoke test complete." -ForegroundColor Cyan
+try {
+    $metrics = Invoke-WebRequest -Uri ("$BaseUrl/metrics") -UseBasicParsing -TimeoutSec 10
+    $metricsContent = $metrics.Content
+    Write-Host "Metrics fetched." -ForegroundColor Green
+} catch { $metricsContent = $null; Write-Warning 'Metrics fetch failed' }
+
+if($Json){
+    $obj = [ordered]@{
+        baseUrl = $BaseUrl
+        health = $health.StatusCode
+        versionRaw = $version.Content
+        metrics = $metricsContent
+        timestamp = (Get-Date).ToUniversalTime().ToString('o')
+    }
+    $obj | ConvertTo-Json -Depth 4
+} else {
+    Write-Host "Smoke test complete." -ForegroundColor Cyan
+}
