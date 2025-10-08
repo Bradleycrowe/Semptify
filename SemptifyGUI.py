@@ -1,9 +1,30 @@
-from flask import Flask, render_template, request, redirect, send_file, jsonify
+from flask import Flask, render_template, request, redirect, send_file, jsonify, abort
 import os
 from datetime import datetime
 import json
 import requests
 import time
+import threading
+
+# In-memory metrics (simple counters; reset on restart)
+METRICS = {
+    'requests_total': 0,
+    'admin_requests_total': 0,
+    'admin_actions_total': 0,
+    'errors_total': 0,
+    'releases_total': 0,
+}
+_metrics_lock = threading.Lock()
+
+def _inc(metric: str, amt: int = 1):
+    with _metrics_lock:
+        METRICS[metric] = METRICS.get(metric, 0) + amt
+
+def _metrics_text() -> str:
+    lines = []
+    for k, v in METRICS.items():
+        lines.append(f"{k} {v}")
+    return "\n".join(lines) + "\n"
 
 app = Flask(__name__)
 
@@ -21,6 +42,20 @@ def _append_log(line: str):
     with open(log_path_local, "a") as f:
         f.write(f"[{timestamp_local}] {line}\n")
 
+def _event_log(event: str, **fields):
+    """Structured JSON event log (append-only)."""
+    log_path = os.path.join('logs', 'events.log')
+    payload = {
+        'ts': datetime.utcnow().isoformat() + 'Z',
+        'event': event,
+        **fields
+    }
+    try:
+        with open(log_path, 'a') as f:
+            f.write(json.dumps(payload) + "\n")
+    except Exception as e:
+        _append_log(f"event_log_error {e}")
+
 # Security mode: "open" (no admin token enforced) or "enforced"
 SECURITY_MODE = os.environ.get("SECURITY_MODE", "open").lower()
 if SECURITY_MODE not in ("open", "enforced"):
@@ -33,15 +68,18 @@ _append_log(f"SemptifyGUI initialized with folders: {', '.join(folders)} | secur
 def index():
     # Use a Jinja2 template so UI can be extended without changing the route.
     message = "SemptifyGUI is live. Buttons coming next."
+    _inc('requests_total')
     return render_template("index.html", message=message, folders=folders)
 
 
 @app.route("/health")
 def health():
+    _inc('requests_total')
     return "OK", 200
 
 @app.route("/healthz")
 def healthz():
+    _inc('requests_total')
     return jsonify({
         "status": "ok",
         "time": datetime.utcnow().isoformat(),
@@ -50,6 +88,7 @@ def healthz():
 
 @app.route("/version")
 def version():
+    _inc('requests_total')
     git_sha = os.environ.get("GIT_SHA", "unknown")
     build_time = os.environ.get("BUILD_TIME", "unknown")
     return jsonify({
@@ -57,6 +96,12 @@ def version():
         "build_time": build_time,
         "app": "SemptifyGUI"
     }), 200
+
+@app.route('/metrics')
+def metrics():
+    _inc('requests_total')
+    txt = _metrics_text()
+    return txt, 200, { 'Content-Type': 'text/plain; version=0.0.4' }
 
 
 def _get_admin_token():
@@ -76,10 +121,13 @@ def _is_authorized(req) -> bool:
 def _require_admin_or_401():
     if not _is_authorized(request):
         _append_log(f"UNAUTHORIZED admin attempt path={request.path} ip={request.remote_addr}")
+        _event_log('admin_unauthorized', path=request.path, ip=request.remote_addr)
+        _inc('errors_total')
         return False
     if SECURITY_MODE == "open":
         # Still log accesses to admin endpoints while open
         _append_log(f"OPEN_MODE admin access path={request.path} ip={request.remote_addr}")
+    _inc('admin_requests_total')
     return True
 
 
@@ -105,6 +153,10 @@ def admin():
 def release_now():
     if not _require_admin_or_401():
         return "Unauthorized", 401
+
+    # Soft confirmation: require hidden field confirm_release=yes
+    if request.form.get('confirm_release') != 'yes':
+        return abort(400, description="Missing confirmation field")
 
     github_token = os.environ.get('GITHUB_TOKEN')
     owner = os.environ.get('GITHUB_OWNER', 'Bradleycrowe')
@@ -133,6 +185,9 @@ def release_now():
     r = requests.post(create_ref_url, headers=headers, json=payload)
     if r.status_code in (201, 200):
         _append_log(f'Created tag {tag_name} via API')
+        _event_log('release_created', tag=tag_name, sha=sha, ip=request.remote_addr)
+        _inc('releases_total')
+        _inc('admin_actions_total')
         # record release in release-log.json
         log_path = os.path.join('logs', 'release-log.json')
         entry = { 'tag': tag_name, 'sha': sha, 'timestamp': datetime.utcnow().isoformat() }
@@ -159,6 +214,9 @@ def trigger_workflow():
     if not _require_admin_or_401():
         return "Unauthorized", 401
 
+    if request.form.get('confirm_trigger') != 'yes':
+        return abort(400, description="Missing confirmation field")
+
     workflow = request.form.get('workflow', 'ci.yml')
     ref = request.form.get('ref', 'main')
     github_token = os.environ.get('GITHUB_TOKEN')
@@ -173,6 +231,8 @@ def trigger_workflow():
     r = requests.post(dispatch_url, headers=headers, json=payload)
     if r.status_code in (204, 201):
         _append_log(f'Triggered workflow {workflow} on {ref}')
+        _event_log('workflow_dispatch', workflow=workflow, ref=ref, ip=request.remote_addr)
+        _inc('admin_actions_total')
         return redirect(f'https://github.com/{owner}/{repo}/actions')
     else:
         _append_log(f'Failed to trigger workflow {workflow}: {r.status_code} {r.text}')
@@ -183,6 +243,7 @@ def trigger_workflow():
 def release_history():
     if not _require_admin_or_401():
         return "Unauthorized", 401
+    _inc('admin_requests_total')
     log_path = os.path.join('logs', 'release-log.json')
     if os.path.exists(log_path):
         with open(log_path, 'r') as f:
@@ -196,6 +257,7 @@ def release_history():
 def sbom_list():
     if not _require_admin_or_401():
         return "Unauthorized", 401
+    _inc('admin_requests_total')
     sbom_dir = os.path.join('.', 'sbom')
     files = []
     if os.path.exists(sbom_dir):
@@ -207,7 +269,13 @@ def sbom_list():
 def sbom_get(filename):
     if not _require_admin_or_401():
         return "Unauthorized", 401
+    _inc('admin_requests_total')
     sbom_dir = os.path.join('.', 'sbom')
+@app.route('/offline')
+def offline():
+    # Simple offline fallback route (also cached by SW if added there)
+    _inc('requests_total')
+    return "You are offline. Limited functionality.", 200, { 'Content-Type': 'text/plain' }
     path = os.path.join(sbom_dir, filename)
     if os.path.exists(path):
         return send_file(path, as_attachment=True)
