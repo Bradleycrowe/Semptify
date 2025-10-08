@@ -13,6 +13,7 @@ from collections import deque, defaultdict
 # -----------------------------
 RATE_LIMIT_WINDOW_SECONDS = int(os.environ.get('ADMIN_RATE_WINDOW', '60'))
 RATE_LIMIT_MAX_REQUESTS = int(os.environ.get('ADMIN_RATE_MAX', '60'))  # per window per IP
+RATE_LIMIT_STATUS = int(os.environ.get('ADMIN_RATE_STATUS', '429'))  # HTTP status for rate limiting
 _RATE_HISTORY = defaultdict(lambda: deque())  # key -> deque[timestamps]
 _rate_lock = threading.Lock()
 
@@ -261,6 +262,8 @@ def _require_admin_or_401():
         _event_log('rate_limited', path=request.path, ip=request.remote_addr)
         _inc('errors_total')
         _inc('rate_limited_total')
+        # Store marker so caller can translate to proper HTTP status
+        request._rate_limited = True  # pylint: disable=protected-access
         return False
     if SECURITY_MODE == "open":
         # Still log accesses to admin endpoints while open
@@ -293,6 +296,8 @@ def _validate_csrf(req):
 def admin():
     # Simple token check
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
 
     owner = os.environ.get('GITHUB_OWNER', 'Bradleycrowe')
@@ -315,6 +320,8 @@ def admin():
 @app.route('/admin/status')
 def admin_status():
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
     _inc('admin_requests_total')
     _load_tokens()
@@ -332,6 +339,8 @@ def release_now():
     if not _validate_csrf(request):
         return "CSRF validation failed", 400
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
 
     # Soft confirmation: require hidden field confirm_release=yes
@@ -394,6 +403,8 @@ def trigger_workflow():
     if not _validate_csrf(request):
         return "CSRF validation failed", 400
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
 
     if request.form.get('confirm_trigger') != 'yes':
@@ -424,6 +435,8 @@ def trigger_workflow():
 @app.route('/release_history')
 def release_history():
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
     _inc('admin_requests_total')
     log_path = os.path.join('logs', 'release-log.json')
@@ -438,6 +451,8 @@ def release_history():
 @app.route('/sbom')
 def sbom_list():
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
     _inc('admin_requests_total')
     sbom_dir = os.path.join('.', 'sbom')
@@ -451,6 +466,8 @@ def sbom_list():
 @app.route('/sbom/<path:filename>')
 def sbom_get(filename):
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
     _inc('admin_requests_total')
     sbom_dir = os.path.join('.', 'sbom')
@@ -484,6 +501,8 @@ def rotate_token():
     if not _validate_csrf(request):
         return "CSRF validation failed", 400
     if not _require_admin_or_401():
+        if getattr(request, '_rate_limited', False):
+            return "Rate limited", RATE_LIMIT_STATUS
         return "Unauthorized", 401
     # current auth token already validated; now require target id & new token value
     target_id = request.form.get('target_id')
