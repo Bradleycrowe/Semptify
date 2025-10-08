@@ -54,6 +54,37 @@ If you need me to add deploy manifests (Kubernetes/Helm) or automated tagging, t
 
 Change mode by setting the environment variable before starting the app or updating the Render service env vars.
 
+### Multi-Token & Break-Glass (Advanced)
+
+Create `security/admin_tokens.json` (not committed) with entries:
+
+```jsonc
+[
+  { "id": "primary", "hash": "sha256:<hash-of-token>", "enabled": true },
+  { "id": "ops-breakglass", "hash": "sha256:<hash-of-token>", "enabled": true, "breakglass": true }
+]
+```
+
+Generate a hash (PowerShell example):
+
+```powershell
+$raw = 'SuperSecretTokenValue'
+$hash = (python - <<'PY'
+import hashlib,os
+print('sha256:' + hashlib.sha256(os.environ['RAW'].encode()).hexdigest())
+PY
+)
+```
+
+Or via Python directly in a REPL:
+
+```python
+import hashlib
+print('sha256:' + hashlib.sha256(b'SuperSecretTokenValue').hexdigest())
+```
+
+Break-glass activation: create an empty file `security/breakglass.flag` on the server. The next request using a token marked `"breakglass": true` will authenticate and remove the flag (one-shot). All events append structured JSON lines in `logs/events.log`.
+
 ## Render Deployment
 
 The `render.yaml` describes the service. Key env vars:

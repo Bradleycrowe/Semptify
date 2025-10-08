@@ -5,6 +5,7 @@ import json
 import requests
 import time
 import threading
+import hashlib
 
 # In-memory metrics (simple counters; reset on restart)
 METRICS = {
@@ -104,19 +105,87 @@ def metrics():
     return txt, 200, { 'Content-Type': 'text/plain; version=0.0.4' }
 
 
-def _get_admin_token():
+TOKENS_CACHE = { 'loaded_at': 0, 'tokens': [], 'path': os.path.join('security','admin_tokens.json'), 'mtime': None }
+
+def _hash_token(raw: str) -> str:
+    return 'sha256:' + hashlib.sha256(raw.encode('utf-8')).hexdigest()
+
+def _load_tokens(force: bool=False):
+    path = TOKENS_CACHE['path']
+    try:
+        if not os.path.exists(path):
+            if force:
+                TOKENS_CACHE['tokens'] = []
+            return
+        mtime = os.path.getmtime(path)
+        if force or TOKENS_CACHE['mtime'] != mtime:
+            with open(path,'r') as f:
+                data = json.load(f)
+            # Normalize
+            norm = []
+            for entry in data:
+                if not entry.get('enabled', True):
+                    continue
+                h = entry.get('hash')
+                if not h:
+                    continue
+                norm.append({
+                    'id': entry.get('id','unknown'),
+                    'hash': h,
+                    'breakglass': entry.get('breakglass', False)
+                })
+            TOKENS_CACHE['tokens'] = norm
+            TOKENS_CACHE['mtime'] = mtime
+    except Exception as e:
+        _append_log(f"token_load_error {e}")
+
+def _match_token(raw: str):
+    if raw is None:
+        return None
+    _load_tokens()
+    h = _hash_token(raw)
+    for t in TOKENS_CACHE['tokens']:
+        if t['hash'] == h:
+            return t
+    return None
+
+def _get_admin_token_legacy():
+    # Legacy single-token fallback
     return app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
 
 def _is_authorized(req) -> bool:
-    """Return True if request is authorized for admin access under current security mode.
+    """Authorization logic with multi-token & optional break-glass.
 
-    open mode: always True (logged for audit)
-    enforced mode: token (query/header/form) must match ADMIN_TOKEN
+    open mode: always True.
+    enforced: verify against tokens file (hash matches). If no file, fallback to legacy single token.
+    break-glass: requires security/breakglass.flag present AND token marked breakglass.
+    After successful break-glass use, flag file is removed (one-shot) and event logged.
     """
     if SECURITY_MODE == "open":
         return True
     supplied = req.args.get('token') or req.headers.get('X-Admin-Token') or req.form.get('token')
-    return supplied == _get_admin_token()
+    # Primary multi-token path
+    token_entry = _match_token(supplied)
+    if token_entry:
+        _event_log('admin_auth', method='multi-token', token_id=token_entry['id'], path=req.path, ip=req.remote_addr)
+        return True
+    # Break-glass path
+    flag_path = os.path.join('security','breakglass.flag')
+    if os.path.exists(flag_path):
+        token_entry = _match_token(supplied)
+        if token_entry and token_entry.get('breakglass'):
+            try:
+                os.remove(flag_path)
+            except OSError:
+                pass
+            _event_log('breakglass_used', token_id=token_entry['id'], path=req.path, ip=req.remote_addr)
+            return True
+    # Legacy single token fallback (for transitional period)
+    legacy = _get_admin_token_legacy()
+    if supplied == legacy:
+        _event_log('admin_auth', method='legacy-token', token_id='legacy', path=req.path, ip=req.remote_addr)
+        return True
+    return False
 
 def _require_admin_or_401():
     if not _is_authorized(request):
@@ -141,12 +210,16 @@ def admin():
     repo = os.environ.get('GITHUB_REPO', 'SemptifyGUI')
     ci_url = f"https://github.com/{owner}/{repo}/actions"
     pages_url = f"https://{owner}.github.io/{repo}/"
+    # Expose token ids (not hashes) for visibility if enforced
+    _load_tokens()
+    token_ids = [t['id'] + (' (breakglass)' if t.get('breakglass') else '') for t in TOKENS_CACHE['tokens']]
     return render_template('admin.html',
                            ci_url=ci_url,
                            pages_url=pages_url,
                            folders=folders,
                            security_mode=SECURITY_MODE,
-                           admin_token=_get_admin_token())
+                           token_ids=token_ids,
+                           admin_token=_get_admin_token_legacy())
 
 
 @app.route('/release_now', methods=['POST'])

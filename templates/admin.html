@@ -11,6 +11,10 @@
       <div class="banner banner-open">SECURITY MODE: OPEN (no admin token enforcement). Do not use in production.</div>
     {% else %}
       <div class="banner banner-enforced">SECURITY MODE: ENFORCED</div>
+      {% if token_ids %}
+        <p><strong>Active Token IDs:</strong> {{ token_ids|join(', ') }}</p>
+        <p><small>Break-glass requires file <code>security/breakglass.flag</code> + a breakglass token.</small></p>
+      {% endif %}
     {% endif %}
     <p><a href="{{ ci_url }}" target="_blank">View CI dashboard</a></p>
     <p><a href="{{ pages_url }}" target="_blank">View Pages site</a></p>
