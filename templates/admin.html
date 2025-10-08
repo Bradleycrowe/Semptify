@@ -2,26 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Semptify Admin</title>
+  <title>Semptify Admin</title>
+  <link rel="stylesheet" href="/static/css/admin.css" />
   </head>
   <body>
     <h1>Semptify Admin</h1>
+    {% if security_mode == 'open' %}
+      <div class="banner banner-open">SECURITY MODE: OPEN (no admin token enforcement). Do not use in production.</div>
+    {% else %}
+      <div class="banner banner-enforced">SECURITY MODE: ENFORCED</div>
+    {% endif %}
     <p><a href="{{ ci_url }}" target="_blank">View CI dashboard</a></p>
     <p><a href="{{ pages_url }}" target="_blank">View Pages site</a></p>
 
     <form action="/release_now" method="post">
-      <input type="hidden" name="token" value="devtoken">
+      <input type="hidden" name="token" value="{{ admin_token }}">
       <button type="submit">Release Now</button>
     </form>
 
     <form action="/trigger_workflow" method="post">
-      <input type="hidden" name="token" value="devtoken">
+      <input type="hidden" name="token" value="{{ admin_token }}">
       <label>Workflow file: <input name="workflow" value="ci.yml"></label>
       <label>ref: <input name="ref" value="main"></label>
       <button type="submit">Trigger CI</button>
     </form>
 
-    <p><a href="/release_history?token=devtoken">View Release History</a></p>
-    <p><a href="/sbom?token=devtoken">View SBOMs</a></p>
+  <p><a href="/release_history?token={{ admin_token }}">View Release History</a></p>
+  <p><a href="/sbom?token={{ admin_token }}">View SBOMs</a></p>
   </body>
 </html>

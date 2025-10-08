@@ -15,11 +15,19 @@ for folder in folders:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-# Log initialization
-log_path = os.path.join("logs", "init.log")
-timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-with open(log_path, "a") as log_file:
-    log_file.write(f"[{timestamp}] SemptifyGUI initialized with folders: {', '.join(folders)}\n")
+def _append_log(line: str):
+    log_path_local = os.path.join("logs", "init.log")
+    timestamp_local = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(log_path_local, "a") as f:
+        f.write(f"[{timestamp_local}] {line}\n")
+
+# Security mode: "open" (no admin token enforced) or "enforced"
+SECURITY_MODE = os.environ.get("SECURITY_MODE", "open").lower()
+if SECURITY_MODE not in ("open", "enforced"):
+    SECURITY_MODE = "open"
+
+# Log initialization (and security mode)
+_append_log(f"SemptifyGUI initialized with folders: {', '.join(folders)} | security_mode={SECURITY_MODE}")
 
 @app.route("/")
 def index():
@@ -51,33 +59,51 @@ def version():
     }), 200
 
 
-def _append_log(line: str):
-    log_path = os.path.join("logs", "init.log")
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(log_path, "a") as f:
-        f.write(f"[{timestamp}] {line}\n")
+def _get_admin_token():
+    return app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
+
+def _is_authorized(req) -> bool:
+    """Return True if request is authorized for admin access under current security mode.
+
+    open mode: always True (logged for audit)
+    enforced mode: token (query/header/form) must match ADMIN_TOKEN
+    """
+    if SECURITY_MODE == "open":
+        return True
+    supplied = req.args.get('token') or req.headers.get('X-Admin-Token') or req.form.get('token')
+    return supplied == _get_admin_token()
+
+def _require_admin_or_401():
+    if not _is_authorized(request):
+        _append_log(f"UNAUTHORIZED admin attempt path={request.path} ip={request.remote_addr}")
+        return False
+    if SECURITY_MODE == "open":
+        # Still log accesses to admin endpoints while open
+        _append_log(f"OPEN_MODE admin access path={request.path} ip={request.remote_addr}")
+    return True
 
 
 @app.route('/admin', methods=['GET'])
 def admin():
     # Simple token check
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _require_admin_or_401():
         return "Unauthorized", 401
 
     owner = os.environ.get('GITHUB_OWNER', 'Bradleycrowe')
     repo = os.environ.get('GITHUB_REPO', 'SemptifyGUI')
     ci_url = f"https://github.com/{owner}/{repo}/actions"
     pages_url = f"https://{owner}.github.io/{repo}/"
-    return render_template('admin.html', ci_url=ci_url, pages_url=pages_url, folders=folders)
+    return render_template('admin.html',
+                           ci_url=ci_url,
+                           pages_url=pages_url,
+                           folders=folders,
+                           security_mode=SECURITY_MODE,
+                           admin_token=_get_admin_token())
 
 
 @app.route('/release_now', methods=['POST'])
 def release_now():
-    token = request.form.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _require_admin_or_401():
         return "Unauthorized", 401
 
     github_token = os.environ.get('GITHUB_TOKEN')
@@ -130,9 +156,7 @@ def release_now():
 
 @app.route('/trigger_workflow', methods=['POST'])
 def trigger_workflow():
-    token = request.form.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _require_admin_or_401():
         return "Unauthorized", 401
 
     workflow = request.form.get('workflow', 'ci.yml')
@@ -157,9 +181,7 @@ def trigger_workflow():
 
 @app.route('/release_history')
 def release_history():
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _require_admin_or_401():
         return "Unauthorized", 401
     log_path = os.path.join('logs', 'release-log.json')
     if os.path.exists(log_path):
@@ -172,9 +194,7 @@ def release_history():
 
 @app.route('/sbom')
 def sbom_list():
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _require_admin_or_401():
         return "Unauthorized", 401
     sbom_dir = os.path.join('.', 'sbom')
     files = []
@@ -185,9 +205,7 @@ def sbom_list():
 
 @app.route('/sbom/<path:filename>')
 def sbom_get(filename):
-    token = request.args.get('token') or request.headers.get('X-Admin-Token')
-    admin_token = app.config.get('ADMIN_TOKEN') or os.environ.get('ADMIN_TOKEN', 'devtoken')
-    if token != admin_token:
+    if not _require_admin_or_401():
         return "Unauthorized", 401
     sbom_dir = os.path.join('.', 'sbom')
     path = os.path.join(sbom_dir, filename)
