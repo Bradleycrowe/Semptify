@@ -14,6 +14,15 @@
       {% if token_ids %}
         <p><strong>Active Token IDs:</strong> {{ token_ids|join(', ') }}</p>
         <p><small>Break-glass requires file <code>security/breakglass.flag</code> + a breakglass token.</small></p>
+        <form action="/rotate_token" method="post" style="margin-top:1rem;">
+          <fieldset>
+            <legend>Rotate Token</legend>
+            <label>Token ID: <input name="target_id" placeholder="primary" required></label>
+            <label>New Value: <input name="new_value" required></label>
+            <input type="hidden" name="token" value="{{ admin_token }}">
+            <button type="submit" onclick="return confirm('Rotate this token now?');">Rotate</button>
+          </fieldset>
+        </form>
       {% endif %}
     {% endif %}
     <p><a href="{{ ci_url }}" target="_blank">View CI dashboard</a></p>

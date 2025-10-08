@@ -6,6 +6,31 @@ import requests
 import time
 import threading
 import hashlib
+from collections import deque, defaultdict
+
+# -----------------------------
+# Rate limiting (simple sliding window) & config
+# -----------------------------
+RATE_LIMIT_WINDOW_SECONDS = int(os.environ.get('ADMIN_RATE_WINDOW', '60'))
+RATE_LIMIT_MAX_REQUESTS = int(os.environ.get('ADMIN_RATE_MAX', '60'))  # per window per IP
+_RATE_HISTORY = defaultdict(lambda: deque())  # key -> deque[timestamps]
+_rate_lock = threading.Lock()
+
+def _rate_limit(key: str) -> bool:
+    """Return True if allowed, False if over limit."""
+    if RATE_LIMIT_MAX_REQUESTS <= 0:
+        return True
+    now = time.time()
+    window_start = now - RATE_LIMIT_WINDOW_SECONDS
+    with _rate_lock:
+        dq = _RATE_HISTORY[key]
+        # Purge old
+        while dq and dq[0] < window_start:
+            dq.popleft()
+        if len(dq) >= RATE_LIMIT_MAX_REQUESTS:
+            return False
+        dq.append(now)
+    return True
 
 # In-memory metrics (simple counters; reset on restart)
 METRICS = {
@@ -37,8 +62,23 @@ for folder in folders:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+def _rotate_if_needed(path: str):
+    max_bytes = int(os.environ.get('LOG_MAX_BYTES', '1048576'))  # 1 MB default
+    if not os.path.exists(path):
+        return
+    try:
+        size = os.path.getsize(path)
+        if size < max_bytes:
+            return
+        ts = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+        rotated = f"{path}.{ts}"
+        os.rename(path, rotated)
+    except Exception:
+        pass
+
 def _append_log(line: str):
     log_path_local = os.path.join("logs", "init.log")
+    _rotate_if_needed(log_path_local)
     timestamp_local = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(log_path_local, "a") as f:
         f.write(f"[{timestamp_local}] {line}\n")
@@ -46,6 +86,7 @@ def _append_log(line: str):
 def _event_log(event: str, **fields):
     """Structured JSON event log (append-only)."""
     log_path = os.path.join('logs', 'events.log')
+    _rotate_if_needed(log_path)
     payload = {
         'ts': datetime.utcnow().isoformat() + 'Z',
         'event': event,
@@ -191,6 +232,13 @@ def _require_admin_or_401():
     if not _is_authorized(request):
         _append_log(f"UNAUTHORIZED admin attempt path={request.path} ip={request.remote_addr}")
         _event_log('admin_unauthorized', path=request.path, ip=request.remote_addr)
+        _inc('errors_total')
+        return False
+    # Apply rate limiting AFTER auth so attackers do not cause noise with unauth attempts
+    rl_key = f"admin:{request.remote_addr}:{request.path}"
+    if not _rate_limit(rl_key):
+        _append_log(f"RATE_LIMIT path={request.path} ip={request.remote_addr}")
+        _event_log('rate_limited', path=request.path, ip=request.remote_addr)
         _inc('errors_total')
         return False
     if SECURITY_MODE == "open":
@@ -344,15 +392,59 @@ def sbom_get(filename):
         return "Unauthorized", 401
     _inc('admin_requests_total')
     sbom_dir = os.path.join('.', 'sbom')
+    path = os.path.join(sbom_dir, filename)
+    if os.path.exists(path):
+        return send_file(path, as_attachment=True)
+    return "Not found", 404
+
 @app.route('/offline')
 def offline():
     # Simple offline fallback route (also cached by SW if added there)
     _inc('requests_total')
     return "You are offline. Limited functionality.", 200, { 'Content-Type': 'text/plain' }
-    path = os.path.join(sbom_dir, filename)
-    if os.path.exists(path):
-        return send_file(path, as_attachment=True)
-    return "Not found", 404
+
+# -----------------------------
+# Token rotation endpoint
+# -----------------------------
+def _write_tokens(tokens: list):
+    path = TOKENS_CACHE['path']
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as f:
+            json.dump(tokens, f, indent=2)
+        # force reload
+        _load_tokens(force=True)
+    except Exception as e:
+        _append_log(f"token_write_error {e}")
+
+@app.route('/rotate_token', methods=['POST'])
+def rotate_token():
+    if not _require_admin_or_401():
+        return "Unauthorized", 401
+    # current auth token already validated; now require target id & new token value
+    target_id = request.form.get('target_id')
+    new_value = request.form.get('new_value')
+    if not target_id or not new_value:
+        return "Missing target_id or new_value", 400
+    path = TOKENS_CACHE['path']
+    if not os.path.exists(path):
+        return "Token file missing", 400
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        return f"Failed to read tokens: {e}", 500
+    found = False
+    for entry in data:
+        if entry.get('id') == target_id:
+            entry['hash'] = _hash_token(new_value)
+            found = True
+            break
+    if not found:
+        return "Target token id not found", 404
+    _write_tokens(data)
+    _event_log('token_rotated', token_id=target_id, ip=request.remote_addr)
+    return redirect('/admin')
 
 if __name__ == "__main__":
     app.run(debug=True)
