@@ -50,8 +50,22 @@ def _inc(metric: str, amt: int = 1):
         METRICS[metric] = METRICS.get(metric, 0) + amt
 
 def _metrics_text() -> str:
+    # Expose simple Prometheus style with HELP/TYPE
+    help_map = {
+        'requests_total': 'Total HTTP requests (all endpoints)',
+        'admin_requests_total': 'Total authenticated admin requests',
+        'admin_actions_total': 'Total mutating admin actions performed',
+        'errors_total': 'Total error responses (admin + general)',
+        'releases_total': 'Total release tags created via UI',
+        'rate_limited_total': 'Total admin requests blocked by rate limiting',
+        'breakglass_used_total': 'Total successful break-glass authentications',
+        'token_rotations_total': 'Total admin token rotations executed'
+    }
     lines = []
     for k, v in METRICS.items():
+        if k in help_map:
+            lines.append(f"# HELP {k} {help_map[k]}")
+            lines.append(f"# TYPE {k} counter")
         lines.append(f"{k} {v}")
     return "\n".join(lines) + "\n"
 

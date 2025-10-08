@@ -108,7 +108,7 @@ When exceeded the attempt is logged (`rate_limited`) and increments `rate_limite
 
 ### Extended Metrics
 
-The `/metrics` endpoint (Prometheus plaintext) now exposes:
+The `/metrics` endpoint (Prometheus plaintext) now exposes counters with HELP/TYPE preambles:
 
 - `requests_total`
 - `admin_requests_total`
@@ -172,7 +172,7 @@ Invoke-RestMethod "https://<your-app>/admin/status?token=$env:ADMIN_TOKEN" | Con
 
 ### Offline / PWA Support
 
-The app ships a service worker + manifest. The `/offline` route serves a fallback message when the network is unavailable. Future iterations may add richer offline caching.
+The app ships a service worker + manifest, maskable icon, and dark/light theme toggle. The `/offline` route serves a fallback message when the network is unavailable. Future iterations may add richer offline caching (admin read-only panel).
 
 ---
 
