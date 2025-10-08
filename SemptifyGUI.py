@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, send_file
+from flask import Flask, render_template, request, redirect, send_file, jsonify
 import os
 from datetime import datetime
 import json
@@ -30,8 +30,25 @@ def index():
 
 @app.route("/health")
 def health():
-    # Simple health endpoint for readiness checks
     return "OK", 200
+
+@app.route("/healthz")
+def healthz():
+    return jsonify({
+        "status": "ok",
+        "time": datetime.utcnow().isoformat(),
+        "folders": folders,
+    }), 200
+
+@app.route("/version")
+def version():
+    git_sha = os.environ.get("GIT_SHA", "unknown")
+    build_time = os.environ.get("BUILD_TIME", "unknown")
+    return jsonify({
+        "git_sha": git_sha,
+        "build_time": build_time,
+        "app": "SemptifyGUI"
+    }), 200
 
 
 def _append_log(line: str):

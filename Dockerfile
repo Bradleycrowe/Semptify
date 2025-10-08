@@ -1,5 +1,7 @@
 # Multi-stage Dockerfile
 FROM python:3.13-slim AS builder
+ARG GIT_SHA="dev"
+ARG BUILD_TIME="unknown"
 WORKDIR /app
 
 # Install build/test dependencies and app requirements
@@ -15,6 +17,10 @@ RUN pip install --no-cache-dir pytest && pytest -q tests
 
 ### Final image (runtime)
 FROM python:3.13-slim
+ARG GIT_SHA="dev"
+ARG BUILD_TIME="unknown"
+ENV GIT_SHA=${GIT_SHA} \
+	BUILD_TIME=${BUILD_TIME}
 WORKDIR /app
 
 # Install runtime dependencies

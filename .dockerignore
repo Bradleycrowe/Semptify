@@ -1,4 +1,4 @@
-__pycache__
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -15,5 +15,10 @@ logs/
 copilot_sync/
 final_notices/
 security/
+sbom/
+.pytest_cache/
 .git
 .gitignore
+docs/
+.releaserc.json
+*.md
