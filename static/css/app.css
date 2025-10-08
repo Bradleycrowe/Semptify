@@ -1,0 +1,14 @@
+/* Basic responsive layout */
+:root { --bg:#f6f9fc; --card:#ffffff; --border:#d9e2ec; --primary:#1d3557; --accent:#457b9d; --radius:10px; font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }
+body { margin:0; background:var(--bg); color:#222; }
+.app-header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; background:var(--primary); color:#fff; padding:0.75rem 1rem; }
+.app-header h1 { margin:0; font-size:1.25rem; }
+.app-header nav a { color:#fff; text-decoration:none; margin-right:1rem; font-size:0.9rem; }
+.app-header nav a:last-child { margin-right:0; }
+.content { max-width:1100px; margin:1rem auto 3rem; padding:0 1rem; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.04); }
+.card h2 { margin-top:0; font-size:1.1rem; }
+#installBtn { background:var(--accent); border:none; color:#fff; padding:0.6rem 1rem; border-radius:6px; cursor:pointer; }
+#installBtn:disabled { opacity:0.5; cursor:not-allowed; }
+.app-footer { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--border); padding:0.5rem 1rem; font-size:0.75rem; text-align:center; }
+@media (max-width:600px){ .content { grid-template-columns:1fr; } .app-header nav a { margin-right:0.6rem; } }
