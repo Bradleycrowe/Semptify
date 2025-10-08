@@ -11,6 +11,8 @@ services:
         value: 8080
       - key: ADMIN_TOKEN
         sync: false
+      - key: SECURITY_MODE
+        value: open
     autoDeploy: true
     healthCheckPath: /health
     disk:
