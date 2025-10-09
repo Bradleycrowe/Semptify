@@ -144,6 +144,7 @@ The `/metrics` endpoint (Prometheus plaintext) now exposes counters with HELP/TY
 - `rate_limited_total`
 - `breakglass_used_total`
 - `token_rotations_total`
+ - `uptime_seconds` (gauge)
 
 ### Admin Status Endpoint
 
@@ -159,6 +160,22 @@ The `/metrics` endpoint (Prometheus plaintext) now exposes counters with HELP/TY
 ```
 
 ### Token Rotation
+
+### Unified Info Endpoint
+
+`/info` returns aggregated metadata (app, git SHA, build time), current security mode, and readiness snapshot in one call for dashboards.
+
+### Structured Access Logging
+
+Enable JSON access logs (one line per request) by setting `ACCESS_LOG_JSON=1`. Each entry includes method, path, status, IP, latency (ms), and `request_id`.
+
+### Request Correlation
+
+Each request receives an `X-Request-Id` header (preserved if a proxy already supplies one). Access log entries include this `request_id` for log correlation.
+
+### Vulnerability Allowlist
+
+Add an optional `security/vuln_allowlist.json` (example provided) to suppress known, time‑bounded CVEs in the vuln delta workflow. Suppressed counts appear in delta output (`new_effective`).
 
 Rotate an existing entry in `security/admin_tokens.json` via the admin UI Rotate Token form. This updates the token hash atomically and increments `token_rotations_total`. (In enforced mode, CSRF + admin token are both required.)
 
@@ -309,10 +326,12 @@ It pulls `hello-world`, prints a short run excerpt, and (if the repo has a `Dock
 This repo includes a `.devcontainer/devcontainer.json` for a ready-to-code environment:
 
 What happens on creation:
+
 1. Base image: `mcr.microsoft.com/devcontainers/python:3.13`.
 2. Installs requirements.
 3. Runs pytest (non-fatal if failures) for quick feedback.
 4. Provides Pylance + Python extensions.
+
 
 To use locally with VS Code + Dev Containers extension:
 
