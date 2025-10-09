@@ -7,11 +7,7 @@
   </head>
   <body>
     <h1>Release History</h1>
-    <ul>
-      {% for r in data %}
-      <li>{{ r.tag }} - {{ r.sha }} - {{ r.timestamp }}</li>
-      {% endfor %}
-    </ul>
+    <ul>{% for r in data %}<li>{{ r.tag }} - {{ r.sha }} - {{ r.timestamp }}</li>{% endfor %}</ul>
     <p><a href="/admin?token=devtoken">Back</a></p>
   </body>
 </html>
