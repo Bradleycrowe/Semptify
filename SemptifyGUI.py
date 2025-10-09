@@ -96,6 +96,27 @@ for folder in folders:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+def _bootstrap_tokens_if_needed():
+    """If in enforced mode and tokens file missing but ADMIN_TOKEN env provided, create a single-entry tokens file.
+    This eases first-time hardened deployments without manually crafting JSON. Idempotent: does nothing if file exists.
+    """
+    if _current_security_mode() != 'enforced':
+        return
+    path = os.path.join('security','admin_tokens.json')
+    if os.path.exists(path):
+        return
+    legacy = os.environ.get('ADMIN_TOKEN')
+    if not legacy:
+        return
+    entry = [{ 'id': 'legacy-bootstrap', 'hash': _hash_token(legacy), 'enabled': True }]
+    try:
+        with open(path,'w') as f:
+            json.dump(entry, f, indent=2)
+        _append_log('Bootstrapped admin_tokens.json from ADMIN_TOKEN env (legacy-bootstrap)')
+        _event_log('tokens_bootstrap_created')
+    except Exception as e:  # pragma: no cover
+        _append_log(f'tokens_bootstrap_failed {e}')
+
 def _utc_now():
     """Return an aware UTC datetime."""
     return datetime.now(timezone.utc)
@@ -164,6 +185,7 @@ def load_dotenv(path: str = '.env') -> None:
 
 # Attempt to load .env from project root (idempotent)
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
+_bootstrap_tokens_if_needed()
 
 def _current_security_mode():
     mode = os.environ.get("SECURITY_MODE", "open").lower()
@@ -230,6 +252,11 @@ def healthz():
 def readyz():
     """Readiness probe verifying writable runtime dirs & token file load."""
     _inc('requests_total')
+    snapshot, status_ok = _readiness_snapshot()
+    return jsonify(snapshot), 200 if status_ok else 503
+
+def _readiness_snapshot():
+    """Return (snapshot_dict, healthy_bool)."""
     writable = {}
     for d in folders:
         test_file = os.path.join(d, '.readyz.tmp')
@@ -246,12 +273,13 @@ def readyz():
     except Exception:
         tokens_ok = False
     status_ok = all(writable.values()) and tokens_ok
-    return jsonify({
+    snapshot = {
         'status': 'ready' if status_ok else 'degraded',
         'writable': writable,
         'tokens_load': tokens_ok,
         'time': _utc_now_iso()
-    }), 200 if status_ok else 503
+    }
+    return snapshot, status_ok
 
 def _rate_or_unauth_response():
     """Return a standardized JSON response for rate limited or unauthorized admin access."""
@@ -288,6 +316,21 @@ def metrics():
     _inc('requests_total')
     txt = _metrics_text()
     return txt, 200, { 'Content-Type': 'text/plain; version=0.0.4' }
+
+@app.route('/info')
+def info():
+    """Aggregated lightweight info: version + readiness + security mode."""
+    _inc('requests_total')
+    snapshot, _status = _readiness_snapshot()
+    git_sha = os.environ.get("GIT_SHA", "unknown")
+    build_time = os.environ.get("BUILD_TIME", "unknown")
+    return jsonify({
+        'app': 'SemptifyGUI',
+        'git_sha': git_sha,
+        'build_time': build_time,
+        'security_mode': _current_security_mode(),
+        'readiness': snapshot
+    })
 
 
 TOKENS_CACHE = { 'loaded_at': 0, 'tokens': [], 'path': os.path.join('security','admin_tokens.json'), 'mtime': None }
