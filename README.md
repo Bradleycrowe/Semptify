@@ -45,6 +45,10 @@ CI and Releases
 
 If you need me to add deploy manifests (Kubernetes/Helm) or automated tagging, tell me and I will add them.
 
+## Test Mode Release Simulation
+
+In test mode (Flask `app.config['TESTING']=True`) when `GITHUB_TOKEN` is absent, `/release_now` creates a simulated tag (`vTEST-<timestamp>`) locally and records it in `logs/release-log.json` with `"simulated": true` instead of calling the GitHub API.
+
 ## Security Modes
 
 `SECURITY_MODE` controls admin protection:
@@ -210,6 +214,45 @@ The app ships a service worker + manifest, maskable icon, and dark/light theme t
 - [ ] Expanded test coverage for security edge cases
 
 Contributions or feature requests: open an issue or describe the desired end-user workflow and the automation you want.
+
+## Open Doors Checklist
+
+Validate these before public production exposure:
+
+1. **Secrets & Auth**
+  - FLASK_SECRET strong random
+  - Multi-token file present (if enforced) and stored securely
+  - GITHUB_TOKEN configured (if using release UI)
+2. **Security Mode**
+  - SECURITY_MODE explicitly set (avoid implicit default)
+3. **Rate Limiting**
+  - ADMIN_RATE_WINDOW / ADMIN_RATE_MAX tuned
+4. **Observability**
+  - /metrics scraped; logs/events.log ingestion working
+5. **Supply Chain**
+  - Trivy scan passes (no unresolved CRITICAL/HIGH)
+  - SBOM artifact attached; diff reviewed
+6. **PWA / UX**
+  - Icons + manifest valid; offline route reachable
+7. **Admin Ops**
+  - /admin/status returns healthy snapshot
+  - Token rotation and (if needed) break-glass validated
+8. **Health & Readiness**
+  - /health, /healthz, /readyz 200 (simulate a failure to observe 503)
+9. **Backups**
+  - Secure copy of token file & essential logs (policy permitting)
+10. **Automation**
+  - Post-deploy smoke workflow green
+
+## Environment Configuration
+
+An `.env.example` file documents common variables. For local development:
+
+```bash
+cp .env.example .env
+```
+
+The app auto-loads `.env` at import time (without overriding already-set environment variables). Never commit real secrets.
 
 ## WSL Quick Setup
 
