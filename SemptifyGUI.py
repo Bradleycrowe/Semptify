@@ -193,6 +193,14 @@ def _current_security_mode():
         mode = "open"
     return mode
 
+# Optional HTTPS enforcement & HSTS
+def _truthy(s: str) -> bool:
+    return str(s).lower() in ("1", "true", "yes", "on")
+
+FORCE_HTTPS = _truthy(os.environ.get('FORCE_HTTPS', '0'))
+HSTS_MAX_AGE = int(os.environ.get('HSTS_MAX_AGE', '31536000'))  # 1 year
+HSTS_PRELOAD = _truthy(os.environ.get('HSTS_PRELOAD', '0'))
+
 # Security mode snapshot used only for initial startup log; all runtime checks call _current_security_mode()
 SECURITY_MODE = _current_security_mode()
 
@@ -224,6 +232,16 @@ def _set_security_headers(resp):  # pragma: no cover (headers logic simple)
     # Mild default CSP allowing same-origin scripts/styles/images & data: images
     csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     resp.headers.setdefault('Content-Security-Policy', csp)
+    # HSTS only when secure or when forced (useful with local self-signed certs)
+    try:
+        is_secure = request.is_secure or request.headers.get('X-Forwarded-Proto', '').lower() == 'https'
+    except Exception:
+        is_secure = False
+    if is_secure or FORCE_HTTPS:
+        hsts_val = f"max-age={HSTS_MAX_AGE}; includeSubDomains"
+        if HSTS_PRELOAD:
+            hsts_val += "; preload"
+        resp.headers.setdefault('Strict-Transport-Security', hsts_val)
     # Propagate request id
     rid = getattr(request, 'request_id', None)
     if rid:
@@ -254,6 +272,26 @@ def _access_start():  # pragma: no cover (timing capture)
     # Generate a request id (idempotent if reverse proxy already set one via header)
     incoming = request.headers.get('X-Request-Id')
     request.request_id = incoming or uuid.uuid4().hex  # type: ignore[attr-defined]
+
+@app.before_request
+def _enforce_https_redirect():
+    """If FORCE_HTTPS is enabled and request is not HTTPS, redirect to HTTPS.
+    Honors X-Forwarded-Proto for reverse proxies. Health/metrics still redirect for consistency.
+    """
+    if not FORCE_HTTPS:
+        return None
+    # If behind a proxy sending X-Forwarded-Proto, respect it
+    xf_proto = request.headers.get('X-Forwarded-Proto', '').lower()
+    is_secure = request.is_secure or xf_proto == 'https'
+    if is_secure:
+        return None
+    # Only redirect if Host header exists and scheme is http
+    host = request.host
+    if not host:
+        return None
+    # Preserve full path and query string; swap scheme
+    new_url = request.url.replace('http://', 'https://', 1)
+    return redirect(new_url, code=301)
 
 @app.route("/")
 def index():

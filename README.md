@@ -365,3 +365,31 @@ To use locally with VS Code + Dev Containers extension:
 
 Environment variables (e.g. `SECURITY_MODE`, `ADMIN_TOKEN`) can be added via a `.env` file or the devcontainer JSON `containerEnv` property if needed.
 
+
+## Local HTTPS (dev/testing)
+
+If you need local HTTP to be secured, you can run the app over HTTPS with a self-signed certificate.
+
+1) Generate a dev cert and key (PowerShell with OpenSSL):
+
+```powershell
+New-Item -ItemType Directory -Force -Path security | Out-Null
+$certBase = "security/dev-local"
+openssl req -x509 -nodes -newkey rsa:2048 -keyout "$certBase.key" -out "$certBase.crt" -subj "/CN=localhost" -days 365
+```
+
+2) Start the app over HTTPS:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+$env:SECURITY_MODE = 'open'
+$env:FORCE_HTTPS = '1'
+python .\run_dev_ssl.py
+```
+
+3) Visit https://localhost:8443 and accept the self-signed cert. The `/info` endpoint will show `security_mode` and responses will include HSTS headers.
+
+Notes:
+- `FORCE_HTTPS=1` enforces HTTPS redirects and adds HSTS headers (also active when a request is already secure via a reverse proxy).
+- For production, terminate TLS at your reverse proxy/load balancer and keep using `run_prod.py` behind it.
+
