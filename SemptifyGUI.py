@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, send_file, jsonify, abort, session
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import requests
 import time
@@ -90,6 +90,14 @@ for folder in folders:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+def _utc_now():
+    """Return an aware UTC datetime."""
+    return datetime.now(timezone.utc)
+
+def _utc_now_iso():
+    """Return RFC3339-ish UTC timestamp with trailing Z."""
+    return _utc_now().isoformat().replace('+00:00', 'Z')
+
 def _rotate_if_needed(path: str):
     max_bytes = int(os.environ.get('LOG_MAX_BYTES', '1048576'))  # 1 MB default
     if not os.path.exists(path):
@@ -98,16 +106,17 @@ def _rotate_if_needed(path: str):
         size = os.path.getsize(path)
         if size < max_bytes:
             return
-        ts = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+        ts = _utc_now().strftime('%Y%m%d%H%M%S')
         rotated = f"{path}.{ts}"
         os.rename(path, rotated)
     except Exception:
+        # Silent failure; rotation is best-effort
         pass
 
 def _append_log(line: str):
     log_path_local = os.path.join("logs", "init.log")
     _rotate_if_needed(log_path_local)
-    timestamp_local = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp_local = _utc_now().strftime("%Y-%m-%d %H:%M:%S")
     with open(log_path_local, "a") as f:
         f.write(f"[{timestamp_local}] {line}\n")
 
@@ -116,7 +125,7 @@ def _event_log(event: str, **fields):
     log_path = os.path.join('logs', 'events.log')
     _rotate_if_needed(log_path)
     payload = {
-        'ts': datetime.utcnow().isoformat() + 'Z',
+        'ts': _utc_now_iso(),
         'event': event,
         **fields
     }
@@ -146,6 +155,9 @@ def load_dotenv(path: str = '.env') -> None:
                 os.environ.setdefault(k, v)  # do not override existing explicit env
     except Exception as e:  # pragma: no cover
         _append_log(f"dotenv_load_error {e}")
+
+# Attempt to load .env from project root (idempotent)
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 
 def _current_security_mode():
     mode = os.environ.get("SECURITY_MODE", "open").lower()
@@ -190,7 +202,7 @@ def healthz():
     _inc('requests_total')
     return jsonify({
         "status": "ok",
-        "time": datetime.utcnow().isoformat(),
+        "time": _utc_now_iso(),
         "folders": folders,
     }), 200
 
@@ -218,7 +230,7 @@ def readyz():
         'status': 'ready' if status_ok else 'degraded',
         'writable': writable,
         'tokens_load': tokens_ok,
-        'time': datetime.utcnow().isoformat() + 'Z'
+        'time': _utc_now_iso()
     }), 200 if status_ok else 503
 
 def _rate_or_unauth_response():
@@ -363,9 +375,9 @@ def _github_request(method: str, url: str, headers: dict, json_payload: Optional
     raise RuntimeError('github_request_exhausted')
 
 def _simulate_release_for_test(owner: str, repo: str) -> str:
-    tag_name = f"vTEST-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    tag_name = f"vTEST-{_utc_now().strftime('%Y%m%d%H%M%S')}"
     log_path = os.path.join('logs', 'release-log.json')
-    entry = { 'tag': tag_name, 'sha': 'testing-sha', 'timestamp': datetime.utcnow().isoformat(), 'simulated': True }
+    entry = { 'tag': tag_name, 'sha': 'testing-sha', 'timestamp': _utc_now_iso(), 'simulated': True }
     try:
         if os.path.exists(log_path):
             with open(log_path, 'r') as f:
@@ -458,7 +470,7 @@ def admin_status():
         'security_mode': _current_security_mode(),
         'metrics': METRICS,
         'tokens': token_summaries,
-        'time': datetime.utcnow().isoformat() + 'Z'
+        'time': _utc_now_iso()
     })
 
 
@@ -500,7 +512,7 @@ def release_now():
     sha = r.json().get('object', {}).get('sha')
 
     # Create a timestamped tag
-    tag_name = f'v{datetime.utcnow().strftime("%Y%m%d%H%M%S")}'
+    tag_name = f'v{_utc_now().strftime("%Y%m%d%H%M%S")}'
     create_ref_url = f'https://api.github.com/repos/{owner}/{repo}/git/refs'
     payload = { 'ref': f'refs/tags/{tag_name}', 'sha': sha }
     r = _github_request('POST', create_ref_url, headers=headers, json_payload=payload)
@@ -511,7 +523,7 @@ def release_now():
         _inc('admin_actions_total')
         # record release in release-log.json
         log_path = os.path.join('logs', 'release-log.json')
-        entry = { 'tag': tag_name, 'sha': sha, 'timestamp': datetime.utcnow().isoformat() }
+        entry = { 'tag': tag_name, 'sha': sha, 'timestamp': _utc_now_iso() }
         try:
             if os.path.exists(log_path):
                 with open(log_path, 'r') as f:
