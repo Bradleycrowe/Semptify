@@ -28,7 +28,7 @@ jobs:
           docker build -t semptifygui:nightly .
 
       - name: Run Trivy scan
-        uses: aquasecurity/trivy-action@v0.13.0
+        uses: aquasecurity/trivy-action@v0.14.0
         with:
           image-ref: semptifygui:nightly
           format: 'sarif'
