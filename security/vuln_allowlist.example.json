@@ -1,0 +1,7 @@
+[
+  {
+    "cve": "CVE-YYYY-XXXX",
+    "reason": "Library X used transiently; patch pending upstream",
+    "expires": "2025-12-31"
+  }
+]
