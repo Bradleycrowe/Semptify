@@ -17,14 +17,17 @@ TARGET_DIR=""
 WITH_DOCKER=0
 FORCE_VENV=0
 
-for arg in "$@"; do
-	case "$arg" in
-		--with-docker) WITH_DOCKER=1 ; shift ;;
-		--force-venv) FORCE_VENV=1 ; shift ;;
-		--dir=*) TARGET_DIR="${arg#*=}" ; shift ;;
+# Robust argument parsing (avoids shifting inside a for loop; passes shellcheck)
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--with-docker) WITH_DOCKER=1; shift ;;
+		--force-venv) FORCE_VENV=1; shift ;;
+		--dir=*) TARGET_DIR="${1#*=}"; shift ;;
 		-h|--help)
 			grep '^#' "$0" | sed 's/^# \{0,1\}//'
 			exit 0 ;;
+		*)
+			echo "[WARN] Unknown argument: $1" >&2; shift ;;
 	esac
 done
 
@@ -41,12 +44,12 @@ if ! command -v apt >/dev/null 2>&1; then
 fi
 
 # -------- Choose target directory --------
-if [[ -z "$TARGET_DIR" ]]; then
-	if [[ -d "$DEFAULT_WIN_PATH/.git" ]]; then
-		TARGET_DIR="$DEFAULT_WIN_PATH"
-	else
-		TARGET_DIR="$HOME/${PROJECT_NAME}"
-	fi
+if [ -z "$TARGET_DIR" ]; then
+  if [ -d "$DEFAULT_WIN_PATH/.git" ]; then
+    TARGET_DIR="$DEFAULT_WIN_PATH"
+  else
+    TARGET_DIR="$HOME/${PROJECT_NAME}"
+  fi
 fi
 echo "[INFO] Target directory: $TARGET_DIR"
 
@@ -57,7 +60,7 @@ echo "[INFO] Installing base packages"
 sudo apt install -y --no-install-recommends \
 	python3 python3-venv python3-pip git ca-certificates curl build-essential
 
-if [[ $WITH_DOCKER -eq 1 ]]; then
+if [ "$WITH_DOCKER" -eq 1 ]; then
 	echo "[INFO] Installing Docker (engine + CLI)"
 	if ! command -v docker >/dev/null 2>&1; then
 		# Reference: https://docs.docker.com/engine/install/ubuntu/
@@ -76,7 +79,7 @@ if [[ $WITH_DOCKER -eq 1 ]]; then
 fi
 
 # -------- Clone or reuse repo --------
-if [[ -d "$TARGET_DIR/.git" ]]; then
+if [ -d "$TARGET_DIR/.git" ]; then
 	echo "[INFO] Existing git repo detected. Pulling latest main."
 	(cd "$TARGET_DIR" && git fetch --all --prune && git checkout main && git pull --ff-only) || echo "[WARN] Git pull failed; continuing."
 else
@@ -88,12 +91,12 @@ fi
 cd "$TARGET_DIR"
 
 # -------- Python virtual environment --------
-if [[ -d .venv ]] && [[ $FORCE_VENV -eq 1 ]]; then
+if [ -d .venv ] && [ "$FORCE_VENV" -eq 1 ]; then
 	echo "[INFO] --force-venv specified; removing existing .venv"
 	rm -rf .venv
 fi
 
-if [[ ! -d .venv ]]; then
+if [ ! -d .venv ]; then
 	echo "[INFO] Creating virtualenv (.venv)"
 	python3 -m venv .venv
 fi
