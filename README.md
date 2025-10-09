@@ -102,9 +102,30 @@ Admin routes apply a sliding-window rate limit (default 60 requests / 60 seconds
 ```
 ADMIN_RATE_WINDOW=60   # window seconds
 ADMIN_RATE_MAX=60      # max requests per window
+yADMIN_RATE_STATUS=429  # HTTP status for limited requests (override if an upstream expects 503)
+ADMIN_RATE_RETRY_AFTER=60 # (optional) seconds clients should wait before retry (defaults to ADMIN_RATE_WINDOW)
 ```
 
-When exceeded the attempt is logged (`rate_limited`) and increments `rate_limited_total`.
+When exceeded the attempt is logged (`rate_limited`) and increments `rate_limited_total`. Responses now include:
+
+```jsonc
+{
+  "error": "rate_limited",
+  "retry_after": 60
+}
+```
+
+And a `Retry-After` header with the same number of seconds. Unauthorized admin attempts return:
+
+```json
+{ "error": "unauthorized" }
+```
+
+HTML admin UI accesses still render templates; API/automation clients should inspect status codes (401 vs 429/ configured) and JSON body.
+
+### Readiness Endpoint
+
+`/readyz` performs writable checks for runtime directories and (if present) attempts to load the token file. Returns 200 with `{ "status": "ready" }` on success, or 503 with `{ "status": "degraded" }` if any directory is not writable or tokens fail to load.
 
 ### Extended Metrics
 
@@ -189,3 +210,35 @@ The app ships a service worker + manifest, maskable icon, and dark/light theme t
 - [ ] Expanded test coverage for security edge cases
 
 Contributions or feature requests: open an issue or describe the desired end-user workflow and the automation you want.
+
+## WSL Quick Setup
+
+You can bootstrap a working SemptifyGUI environment inside Ubuntu on WSL2 with the helper script:
+
+```bash
+bash scripts/wsl_setup.sh            # basic Python env
+bash scripts/wsl_setup.sh --force-venv  # recreate venv if needed
+bash scripts/wsl_setup.sh --with-docker # also install Docker Engine (optional)
+```
+
+The script will:
+
+1. Install required apt packages (python3, venv, build tools, git).
+2. Clone or update this repository.
+3. Create / reuse a `.venv` and install `requirements.txt`.
+4. Run a light smoke test subset.
+5. Print next‑step commands for dev (`python SemptifyGUI.py`) or prod (`python run_prod.py`).
+
+Environment variables for security modes (examples):
+
+```bash
+export SECURITY_MODE=open
+export ADMIN_TOKEN=changeme
+export FLASK_SECRET=$(python - <<PY
+import secrets; print(secrets.token_hex(32))
+PY
+)
+```
+
+If you pass `--with-docker`, the script installs Docker Engine under WSL; log out/in (or restart WSL) to activate group membership.
+
