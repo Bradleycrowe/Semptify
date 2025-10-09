@@ -47,6 +47,7 @@ METRICS = {
     'token_rotations_total': 0,
 }
 _metrics_lock = threading.Lock()
+_START_TIME = time.time()
 
 def _inc(metric: str, amt: int = 1):
     with _metrics_lock:
@@ -70,6 +71,11 @@ def _metrics_text() -> str:
             lines.append(f"# HELP {k} {help_map[k]}")
             lines.append(f"# TYPE {k} counter")
         lines.append(f"{k} {v}")
+    # Dynamic uptime gauge (not stored in METRICS since it changes continuously)
+    uptime = int(time.time() - _START_TIME)
+    lines.append("# HELP uptime_seconds Application uptime in seconds")
+    lines.append("# TYPE uptime_seconds gauge")
+    lines.append(f"uptime_seconds {uptime}")
     return "\n".join(lines) + "\n"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -183,6 +189,20 @@ try:
     )
 except Exception as e:  # pragma: no cover (best effort)
     _append_log(f"asset_check_error {e}")
+
+# -----------------------------
+# Security headers middleware
+# -----------------------------
+@app.after_request
+def _set_security_headers(resp):  # pragma: no cover (headers logic simple)
+    resp.headers.setdefault('X-Content-Type-Options', 'nosniff')
+    resp.headers.setdefault('X-Frame-Options', 'DENY')
+    resp.headers.setdefault('Referrer-Policy', 'no-referrer')
+    resp.headers.setdefault('X-XSS-Protection', '0')  # modern browsers ignore / CSP recommended
+    # Mild default CSP allowing same-origin scripts/styles/images & data: images
+    csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    resp.headers.setdefault('Content-Security-Policy', csp)
+    return resp
 
 @app.route("/")
 def index():
