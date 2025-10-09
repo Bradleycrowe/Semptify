@@ -45,9 +45,7 @@ jobs:
       run: |
         sudo apt-get update -y
         sudo apt-get install -y shellcheck
-        set -e
-        echo "Running ShellCheck on scripts/*.sh"
-        shellcheck scripts/*.sh || (echo 'ShellCheck failed' && exit 1)
+        bash scripts/lint.sh
 
     - name: Run tests
       run: |

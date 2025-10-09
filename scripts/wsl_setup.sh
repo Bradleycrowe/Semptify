@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck shell=bash
 set -euo pipefail
 
 # SemptifyGUI WSL bootstrap script
@@ -66,9 +67,7 @@ if [ "$WITH_DOCKER" -eq 1 ]; then
 		# Reference: https://docs.docker.com/engine/install/ubuntu/
 		sudo apt install -y apt-transport-https gnupg lsb-release
 		curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg
-		echo \
-			"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-			$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+		echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 		sudo apt update -y
 		sudo apt install -y docker-ce docker-ce-cli containerd.io
 		sudo usermod -aG docker "$USER" || true
@@ -102,6 +101,7 @@ if [ ! -d .venv ]; then
 fi
 
 echo "[INFO] Upgrading pip & installing requirements"
+# shellcheck disable=SC1091  # virtualenv activation script is generated at runtime
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -132,10 +132,10 @@ Production-style (waitress):
 Environment variables (examples):
 	export SECURITY_MODE=open
 	export ADMIN_TOKEN=changeme
-	export FLASK_SECRET=$(python - <<PY
+	export FLASK_SECRET="$(python - <<'PY'
 import secrets; print(secrets.token_hex(32))
 PY
-	)
+)"
 
 If you enabled Docker and just added your user to the docker group, restart your WSL session for group membership to refresh.
 EOF
