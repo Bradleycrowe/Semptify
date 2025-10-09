@@ -103,10 +103,11 @@ In `open` mode CSRF validation is skipped to keep friction low during early adop
 
 Admin routes apply a sliding-window rate limit (default 60 requests / 60 seconds / (IP, path) tuple). Configure via env vars:
 
-```
-ADMIN_RATE_WINDOW=60   # window seconds
-ADMIN_RATE_MAX=60      # max requests per window
 yADMIN_RATE_STATUS=429  # HTTP status for limited requests (override if an upstream expects 503)
+```
+ADMIN_RATE_WINDOW=60    # window seconds
+ADMIN_RATE_MAX=60       # max requests per window
+ADMIN_RATE_STATUS=429   # HTTP status for limited requests (override if an upstream expects 503)
 ADMIN_RATE_RETRY_AFTER=60 # (optional) seconds clients should wait before retry (defaults to ADMIN_RATE_WINDOW)
 ```
 
@@ -176,7 +177,7 @@ After a push to `main`, Render auto deploys (if configured). Health check: `/hea
 Use the provided PowerShell script:
 
 ```powershell
-.\n+RenderSmokeTest.ps1 -BaseUrl https://semptifygui.onrender.com
+./RenderSmokeTest.ps1 -BaseUrl https://semptifygui.onrender.com
 ```
 
 If in enforced mode:
@@ -220,29 +221,29 @@ Contributions or feature requests: open an issue or describe the desired end-use
 Validate these before public production exposure:
 
 1. **Secrets & Auth**
-  - FLASK_SECRET strong random
-  - Multi-token file present (if enforced) and stored securely
-  - GITHUB_TOKEN configured (if using release UI)
+   - FLASK_SECRET strong random
+   - Multi-token file present (if enforced) and stored securely
+   - GITHUB_TOKEN configured (if using release UI)
 2. **Security Mode**
-  - SECURITY_MODE explicitly set (avoid implicit default)
+   - SECURITY_MODE explicitly set (avoid implicit default)
 3. **Rate Limiting**
-  - ADMIN_RATE_WINDOW / ADMIN_RATE_MAX tuned
+   - ADMIN_RATE_WINDOW / ADMIN_RATE_MAX tuned
 4. **Observability**
-  - /metrics scraped; logs/events.log ingestion working
+   - /metrics scraped; logs/events.log ingestion working
 5. **Supply Chain**
-  - Trivy scan passes (no unresolved CRITICAL/HIGH)
-  - SBOM artifact attached; diff reviewed
+   - Trivy scan passes (no unresolved CRITICAL/HIGH)
+   - SBOM artifact attached; diff reviewed
 6. **PWA / UX**
-  - Icons + manifest valid; offline route reachable
+   - Icons + manifest valid; offline route reachable
 7. **Admin Ops**
-  - /admin/status returns healthy snapshot
-  - Token rotation and (if needed) break-glass validated
+   - /admin/status returns healthy snapshot
+   - Token rotation and (if needed) break-glass validated
 8. **Health & Readiness**
-  - /health, /healthz, /readyz 200 (simulate a failure to observe 503)
+   - /health, /healthz, /readyz 200 (simulate a failure to observe 503)
 9. **Backups**
-  - Secure copy of token file & essential logs (policy permitting)
+   - Secure copy of token file & essential logs (policy permitting)
 10. **Automation**
-  - Post-deploy smoke workflow green
+    - Post-deploy smoke workflow green
 
 ## Environment Configuration
 
