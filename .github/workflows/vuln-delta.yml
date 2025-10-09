@@ -1,0 +1,41 @@
+name: Vulnerability Delta Check
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: ["completed"]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  vuln-delta:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch previous and current Trivy SARIF artifacts (placeholder)
+        run: |
+          echo "In a full setup, download previous run artifact via API. For now, skipping." > old.json
+          echo '{"Results": []}' > new.json
+
+      - name: Run vuln delta script
+        run: |
+          python scripts/sbom_vuln_delta.py old.json new.json || echo "Delta script exited with code $?" > delta_status.txt
+
+      - name: Create issue if regression
+        run: |
+          set -e
+          python scripts/sbom_vuln_delta.py old.json new.json > delta_output.txt || echo "nonzero" > regression.flag
+          if [ -f regression.flag ]; then
+            body=$(printf 'Automated vulnerability regression detected.\n\n````\n%s\n````' "$(cat delta_output.txt)")
+            gh issue create --title "Vulnerability Regression Detected" --body "$body" || echo "Issue creation failed"
+          else
+            echo "No regression detected"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
