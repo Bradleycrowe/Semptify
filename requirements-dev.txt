@@ -1,0 +1,4 @@
+-r requirements.txt
+robotframework>=7.0
+robotframework-requests>=0.9.6
+ruff>=0.6.0,<1

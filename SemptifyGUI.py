@@ -186,7 +186,6 @@ def load_dotenv(path: str = '.env') -> None:
 
 # Attempt to load .env from project root (idempotent)
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
-_bootstrap_tokens_if_needed()
 
 def _current_security_mode():
     mode = os.environ.get("SECURITY_MODE", "open").lower()
@@ -367,6 +366,9 @@ TOKENS_CACHE = { 'loaded_at': 0, 'tokens': [], 'path': os.path.join('security','
 
 def _hash_token(raw: str) -> str:
     return 'sha256:' + hashlib.sha256(raw.encode('utf-8')).hexdigest()
+
+# Perform legacy token bootstrap only after required helpers are defined
+_bootstrap_tokens_if_needed()
 
 def _load_tokens(force: bool=False):
     path = TOKENS_CACHE['path']

@@ -11,6 +11,8 @@ fi
 
 echo "[lint] Shell (shellcheck)"
 if command -v shellcheck >/dev/null 2>&1; then
+  echo "[lint] shellcheck path: $(command -v shellcheck)"
+  shellcheck --version | head -n 1 || true
   shellcheck scripts/*.sh
 else
   echo "[lint] shellcheck not installed (skipping)"

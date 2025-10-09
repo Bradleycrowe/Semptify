@@ -30,6 +30,30 @@ docker build -t semptifygui:latest .
 docker run --rm -p 8080:8080 semptifygui:latest
 ```
 
+## Podman (Rootless)
+
+The dev container now includes Podman. You can switch between Docker and Podman using the `Makefile`:
+
+```bash
+make build          # docker build
+make build PODMAN=1 # podman build
+make run            # run via docker
+make run PODMAN=1   # run via podman
+```
+
+Direct Podman commands:
+
+```bash
+podman build -t semptifygui:dev .
+podman run --rm -p 8080:8080 semptifygui:dev
+```
+
+If you prefer docker CLI semantics with podman under the hood:
+
+```bash
+alias docker=podman
+```
+
 Tests
 
 ```powershell
@@ -144,7 +168,7 @@ The `/metrics` endpoint (Prometheus plaintext) now exposes counters with HELP/TY
 - `rate_limited_total`
 - `breakglass_used_total`
 - `token_rotations_total`
- - `uptime_seconds` (gauge)
+- `uptime_seconds` (gauge)
 
 ### Admin Status Endpoint
 

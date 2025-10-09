@@ -11,10 +11,13 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ '3.12', '3.13' ]
     permissions:
       contents: read
       packages: write
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -22,7 +25,9 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.13'
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+        cache-dependency-path: 'requirements.txt'
 
     - name: Install dependencies
       run: |
@@ -35,6 +40,17 @@ jobs:
         echo "Installing hadolint & actionlint binaries" 
         curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint && chmod +x /usr/local/bin/hadolint
         curl -sL https://github.com/rhysd/actionlint/releases/download/v1.7.1/actionlint_Linux_x86_64.tar.gz | tar xz -C /usr/local/bin actionlint
+
+    - name: Generate SBOM (source deps) with Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin v1.19.0
+        syft dir:. -o json > sbom-source-${{ matrix.python-version }}.json
+        test -s sbom-source-${{ matrix.python-version }}.json
+    - name: Upload SBOM (source) artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom-source-${{ matrix.python-version }}-${{ github.run_id }}
+        path: sbom-source-${{ matrix.python-version }}.json
 
     - name: Lint (ruff)
       run: |
@@ -59,7 +75,14 @@ jobs:
     - name: Run tests
       run: |
         . .venv/bin/activate
-        python -m pytest -q
+        mkdir -p test-results
+        python -m pytest -q --junitxml=test-results/junit-${{ matrix.python-version }}.xml
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: junit-${{ matrix.python-version }}-${{ github.run_id }}
+        path: test-results/junit-${{ matrix.python-version }}.xml
 
     - name: Build Docker image (tests already ran)
       run: |
@@ -163,41 +186,78 @@ jobs:
           path: sbom.json
 
   integration-test:
-    name: Integration test (run container and smoke test)
+    name: Integration test (docker & podman matrix)
     runs-on: ubuntu-latest
     needs: scan-image
     if: github.event_name != 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: docker
+            port: 8081
+          - engine: podman
+            port: 8082
     steps:
+      - name: Install engine (podman)
+        if: matrix.engine == 'podman'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+          podman info | grep -E 'version|graphDriverName' || true
+          echo "Podman installed"
+      - name: Enable podman layer cache
+        if: matrix.engine == 'podman'
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-storage-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            podman-storage-${{ runner.os }}-
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Build docker image for integration test
-        run: |
-          docker build -t semptifygui:integration .
-
+      - name: Build image (docker)
+        if: matrix.engine == 'docker'
+        run: docker build -t semptifygui:integration .
+      - name: Build image (podman)
+        if: matrix.engine == 'podman'
+        run: podman build -t semptifygui:integration .
       - name: Run container
         run: |
-          docker run -d --name semptify-integration -p 127.0.0.1:8081:8080 semptifygui:integration || (docker ps -a && docker logs semptify-integration && false)
-
+          if [ "${{ matrix.engine }}" = docker ]; then \
+             docker run -d --name semptify-integration -p 127.0.0.1:${{ matrix.port }}:8080 semptifygui:integration || (docker ps -a && docker logs semptify-integration && false); \
+          else \
+             podman run -d --name semptify-integration -p 127.0.0.1:${{ matrix.port }}:8080 semptifygui:integration || (podman ps -a && podman logs semptify-integration && false); \
+          fi
       - name: Wait for HTTP health (max 30s)
         run: |
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:8081/health; then
-              echo "healthy"; break
-            fi
-            sleep 1
-            echo "waiting... $i"
-          done
-
-      - name: Check index page
+            if curl -fsS http://127.0.0.1:${{ matrix.port }}/health; then echo healthy; break; fi
+            sleep 1; echo waiting... $i; done
+      - name: Smoke checks
         run: |
-          curl -fsS http://127.0.0.1:8081/ | grep -q "SemptifyGUI is live"
-
-      - name: Tear down container and image
+          curl -fsS http://127.0.0.1:${{ matrix.port }}/ | grep -q "SemptifyGUI is live"
+          curl -fsS http://127.0.0.1:${{ matrix.port }}/readyz
+      - name: Robot Framework smoke suite
         run: |
-          docker stop semptify-integration || true
-          docker rm semptify-integration || true
-          docker rmi semptifygui:integration || true
+          python -m pip install -r requirements-dev.txt
+          robot -v BASE_URL:http://127.0.0.1:${{ matrix.port }} robot/smoke.robot
+      - name: Trivy scan (podman image parity)
+        if: matrix.engine == 'podman'
+        uses: aquasecurity/trivy-action@0.21.0
+        with:
+          image-ref: semptifygui:integration
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+      - name: Teardown
+        if: always()
+        run: |
+          if [ "${{ matrix.engine }}" = docker ]; then \
+             docker stop semptify-integration || true; docker rm semptify-integration || true; docker rmi semptifygui:integration || true; \
+          else \
+             podman stop semptify-integration || true; podman rm semptify-integration || true; podman rmi semptifygui:integration || true; \
+          fi
 
   publish-dockerhub:
     name: Publish image to Docker Hub
