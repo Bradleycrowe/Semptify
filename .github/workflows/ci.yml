@@ -41,6 +41,14 @@ jobs:
       run: |
         pwsh -NoLogo -NoProfile -Command "Install-Module PSScriptAnalyzer -Force -Scope CurrentUser; $errs = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error,Warning; if($errs){ $errs | Format-Table; Write-Host 'PowerShell lint failed' -ForegroundColor Red; exit 1 } else { Write-Host 'PSScriptAnalyzer passed' -ForegroundColor Green }"
 
+    - name: Lint Shell (ShellCheck)
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y shellcheck
+        set -e
+        echo "Running ShellCheck on scripts/*.sh"
+        shellcheck scripts/*.sh || (echo 'ShellCheck failed' && exit 1)
+
     - name: Run tests
       run: |
         . .venv/bin/activate
