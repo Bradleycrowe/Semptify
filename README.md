@@ -242,3 +242,39 @@ PY
 
 If you pass `--with-docker`, the script installs Docker Engine under WSL; log out/in (or restart WSL) to activate group membership.
 
+### Windows Wrapper
+
+From PowerShell you can call a convenience wrapper instead of remembering bash flags:
+
+```powershell
+pwsh ./scripts/wsl_setup.ps1 -WithDocker -ForceVenv -Dir /mnt/d/Semptify/SemptifyGUI
+```
+
+### Docker Verification inside WSL
+
+After enabling Docker (and restarting WSL session):
+
+```bash
+bash scripts/wsl_docker_verify.sh
+```
+
+It pulls `hello-world`, prints a short run excerpt, and (if the repo has a `Dockerfile`) builds a local image `semptifygui:local`.
+
+### GitHub Codespaces / Dev Container
+
+This repo includes a `.devcontainer/devcontainer.json` for a ready-to-code environment:
+
+What happens on creation:
+1. Base image: `mcr.microsoft.com/devcontainers/python:3.13`.
+2. Installs requirements.
+3. Runs pytest (non-fatal if failures) for quick feedback.
+4. Provides Pylance + Python extensions.
+
+To use locally with VS Code + Dev Containers extension:
+
+1. Install the Dev Containers extension.
+2. Command Palette: "Dev Containers: Reopen in Container".
+3. On first build it seeds dependencies and runs the smoke tests.
+
+Environment variables (e.g. `SECURITY_MODE`, `ADMIN_TOKEN`) can be added via a `.env` file or the devcontainer JSON `containerEnv` property if needed.
+
