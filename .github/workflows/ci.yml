@@ -31,6 +31,10 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
         pip install ruff
+        pip install pre-commit
+        echo "Installing hadolint & actionlint binaries" 
+        curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint && chmod +x /usr/local/bin/hadolint
+        curl -sL https://github.com/rhysd/actionlint/releases/download/v1.7.1/actionlint_Linux_x86_64.tar.gz | tar xz -C /usr/local/bin actionlint
 
     - name: Lint (ruff)
       run: |
@@ -46,6 +50,11 @@ jobs:
         sudo apt-get update -y
         sudo apt-get install -y shellcheck
         bash scripts/lint.sh
+
+    - name: Pre-commit (ruff + hooks)
+      run: |
+        . .venv/bin/activate
+        pre-commit run --all-files || (echo 'pre-commit hooks failed' && exit 1)
 
     - name: Run tests
       run: |

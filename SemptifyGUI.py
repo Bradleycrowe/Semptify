@@ -224,7 +224,28 @@ def _set_security_headers(resp):  # pragma: no cover (headers logic simple)
     # Mild default CSP allowing same-origin scripts/styles/images & data: images
     csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     resp.headers.setdefault('Content-Security-Policy', csp)
+    # Optional structured access log (enabled by ACCESS_LOG_JSON=1)
+    if os.environ.get('ACCESS_LOG_JSON') == '1':
+        try:
+            started = getattr(request, '_start_time', None)
+            dur_ms = None
+            if started is not None:
+                dur_ms = int((time.time() - started) * 1000)
+            _event_log('access',
+                       method=request.method,
+                       path=request.full_path.rstrip('?'),
+                       status=resp.status_code,
+                       ip=request.remote_addr,
+                       dur_ms=dur_ms)
+        except Exception as e:  # pragma: no cover
+            _append_log(f'access_log_error {e}')
     return resp
+
+@app.before_request
+def _access_start():  # pragma: no cover (timing capture)
+    # Store start timestamp for latency computation if access logging is enabled
+    if os.environ.get('ACCESS_LOG_JSON') == '1':
+        request._start_time = time.time()  # pylint: disable=protected-access
 
 @app.route("/")
 def index():

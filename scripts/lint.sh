@@ -16,4 +16,18 @@ else
   echo "[lint] shellcheck not installed (skipping)"
 fi
 
+echo "[lint] Dockerfile (hadolint)"
+if command -v hadolint >/dev/null 2>&1; then
+  hadolint Dockerfile || exit 1
+else
+  echo "[lint] hadolint not installed (skipping)"
+fi
+
+echo "[lint] GitHub Workflows (actionlint)"
+if command -v actionlint >/dev/null 2>&1; then
+  actionlint || exit 1
+else
+  echo "[lint] actionlint not installed (skipping)"
+fi
+
 echo "[lint] Done"
