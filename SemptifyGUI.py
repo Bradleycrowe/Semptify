@@ -1193,7 +1193,7 @@ def packet_save():
 @app.route('/resources/service_animal', methods=['GET'])
 def sa_form():
     _inc('requests_total')
-    return render_template('service_animal_form.html', csrf_token=_render_csrf())
+    return render_template('service_animal_form.html', csrf_token=_render_csrf(), provider=_ai_provider())
 
 @app.route('/resources/service_animal_preview', methods=['POST'])
 def sa_preview():
