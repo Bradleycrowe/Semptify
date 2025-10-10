@@ -1,0 +1,35 @@
+/* Service Animal Form AI Helper Styles */
+.ai-helper { 
+  margin: 1rem 0; 
+  padding: 1rem; 
+  background: #f6f8fa; 
+  border-radius: 6px; 
+  border: 1px solid #d0d7de; 
+}
+.ai-helper h3 { 
+  margin-top: 0; 
+  font-size: 1.1em; 
+}
+.ai-helper textarea { 
+  width: 100%; 
+  min-height: 80px; 
+  margin: 0.5rem 0; 
+}
+.ai-helper button { 
+  margin-right: 0.5rem; 
+}
+.ai-helper pre { 
+  white-space: pre-wrap; 
+  background: #fff; 
+  padding: 8px; 
+  border-radius: 4px; 
+  margin: 0.5rem 0; 
+  font-size: 0.9em; 
+}
+.ai-helper .muted { 
+  color: #666; 
+  font-size: 0.9em; 
+}
+.ai-helper .hidden {
+  display: none;
+}

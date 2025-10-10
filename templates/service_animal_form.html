@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Service/Support Animal Request</title>
     <link rel="stylesheet" href="/static/css/app.css" />
+    {% if provider not in ['none',''] %}
+    <link rel="stylesheet" href="/static/css/service_animal_ai.css" />
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    {% endif %}
   </head>
   <body>
     <h1>Service/Support Animal Accommodation Request</h1>
@@ -15,9 +19,27 @@
       <label>Property address <input name="property_address"></label>
       <label>Date <input name="date" placeholder="YYYY-MM-DD"></label>
       <label>Animal description <input name="animal_description" placeholder="e.g., small dog for anxiety"></label>
+      
       <label>Why this is needed<br>
-        <textarea name="need_summary" rows="6" cols="80" required placeholder="Brief explanation of necessity..."></textarea>
+        <textarea id="need_summary" name="need_summary" rows="6" cols="80" required placeholder="Brief explanation of necessity..."></textarea>
       </label>
+
+      {% if provider not in ['none',''] %}
+      <div class="ai-helper">
+        <h3>🤖 AI Help (Provider: {{ provider }})</h3>
+        <p class="muted">Describe your situation briefly, and AI will help you write a professional explanation:</p>
+        <textarea id="ai-prompt" placeholder="e.g., I have severe anxiety and my dog helps me stay calm and manage panic attacks"></textarea>
+        <button type="button" id="ai-generate-btn">Generate Explanation with AI</button>
+        <button type="button" id="ai-insert-btn" class="hidden">Insert into Form</button>
+        <div id="ai-response" class="hidden">
+          <p class="muted">AI-generated explanation:</p>
+          <pre id="ai-output"></pre>
+        </div>
+      </div>
+      {% else %}
+      <p class="muted">💡 Tip: Configure AI_PROVIDER on the server to get AI assistance for drafting this section.</p>
+      {% endif %}
+
       <fieldset>
         <legend>E-sign</legend>
         <label><input type="checkbox" name="sig_consented"> I agree to use an electronic signature for this request.</label>
@@ -26,5 +48,9 @@
       <label>Your user token (optional to save to your Vault) <input name="user_token" placeholder="paste your user_token"></label>
       <button type="submit">Preview</button>
     </form>
+
+    {% if provider not in ['none',''] %}
+    <script src="/static/js/service_animal_ai.js"></script>
+    {% endif %}
   </body>
 </html>
