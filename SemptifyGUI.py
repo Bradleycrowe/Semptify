@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, send_file, jsonify, abort, session
+from werkzeug.utils import secure_filename
 import os
 from datetime import datetime, timezone
 import json
@@ -162,6 +163,67 @@ def _event_log(event: str, **fields):
             f.write(json.dumps(payload) + "\n")
     except Exception as e:
         _append_log(f"event_log_error {e}")
+
+def _sha256_hex(text: str) -> str:
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+# -----------------------------
+# Users registry for Document Vault
+# -----------------------------
+USERS_CACHE = {
+    'path': os.path.join('security', 'users.json'),
+    'mtime': None,
+    'users': []  # list of { id, name, hash, enabled }
+}
+
+def _load_users(force: bool = False):
+    path = USERS_CACHE['path']
+    try:
+        if not os.path.exists(path):
+            if force:
+                USERS_CACHE['users'] = []
+            return
+        mtime = os.path.getmtime(path)
+        if force or USERS_CACHE['mtime'] != mtime:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            norm = []
+            for u in data:
+                if not u.get('enabled', True):
+                    continue
+                if 'hash' not in u or 'id' not in u:
+                    continue
+                norm.append({
+                    'id': u.get('id'),
+                    'name': u.get('name', u.get('id')),
+                    'hash': u.get('hash'),
+                    'enabled': True
+                })
+            USERS_CACHE['users'] = norm
+            USERS_CACHE['mtime'] = mtime
+    except Exception as e:  # pragma: no cover
+        _append_log(f"users_load_error {e}")
+
+def _match_user_token(raw: Optional[str]):
+    if not raw:
+        return None
+    _load_users()
+    h = _hash_token(raw)
+    for u in USERS_CACHE['users']:
+        if u['hash'] == h:
+            return u
+    return None
+
+def _require_user_or_401():
+    """Authenticate a regular user for the Document Vault.
+    Accept token via query, header, or form. Returns user dict or (json,401).
+    """
+    supplied = request.args.get('user_token') or request.headers.get('X-User-Token') or request.form.get('user_token')
+    user = _match_user_token(supplied)
+    if not user:
+        _event_log('user_unauthorized', path=request.path, ip=request.remote_addr)
+        return None
+    return user
 
 # -----------------------------
 # Simple .env loader (no external dependency) executed *before* using env vars in prod runner
@@ -339,11 +401,18 @@ def _readiness_snapshot():
         _load_tokens(force=True)
     except Exception:
         tokens_ok = False
+    # Users file optional: do not fail readiness if missing, but record status
+    users_ok = True
+    try:
+        _load_users(force=True)
+    except Exception:
+        users_ok = False
     status_ok = all(writable.values()) and tokens_ok
     snapshot = {
         'status': 'ready' if status_ok else 'degraded',
         'writable': writable,
         'tokens_load': tokens_ok,
+        'users_load': users_ok,
         'time': _utc_now_iso()
     }
     return snapshot, status_ok
@@ -749,6 +818,506 @@ def offline():
     # Simple offline fallback route (also cached by SW if added there)
     _inc('requests_total')
     return "You are offline. Limited functionality.", 200, { 'Content-Type': 'text/plain' }
+
+# -----------------------------
+# Resources: witness statements and filing packet checklist
+# -----------------------------
+
+@app.route('/resources')
+def resources():
+    _inc('requests_total')
+    return render_template('resources.html')
+
+@app.route('/resources/download/<name>.txt')
+def resources_download(name: str):
+    _inc('requests_total')
+    # Whitelist known templates
+    allowed = {
+        'witness_statement': os.path.join(BASE_DIR, 'docs', 'templates', 'witness_statement_template.txt'),
+        'filing_packet_checklist': os.path.join(BASE_DIR, 'docs', 'templates', 'filing_packet_checklist.txt')
+    }
+    path = allowed.get(name)
+    if not path or not os.path.exists(path):
+        return "Not found", 404
+    return send_file(path, as_attachment=True, download_name=f"{name}.txt")
+
+# -----------------------------
+# Fillable forms: Witness Statement and Filing Packet Builder
+# -----------------------------
+
+def _render_csrf():
+    return _get_or_create_csrf_token()
+
+@app.route('/resources/witness_statement', methods=['GET'])
+def witness_form():
+    _inc('requests_total')
+    return render_template('witness_form.html', csrf_token=_render_csrf())
+
+@app.route('/resources/witness_statement_preview', methods=['POST'])
+def witness_preview():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    _inc('requests_total')
+    data = {
+        'full_name': (request.form.get('full_name') or '').strip(),
+        'contact': (request.form.get('contact') or '').strip(),
+        'statement': (request.form.get('statement') or '').strip(),
+        'date': (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip(),
+        'sig_name': (request.form.get('sig_name') or '').strip(),
+        'sig_consented': 'yes' if (request.form.get('sig_consented') in ('on','yes','true','1')) else 'no'
+    }
+    user_token = request.form.get('user_token') or ''
+    return render_template('witness_preview.html', data=data, user_token=user_token, csrf_token=_render_csrf())
+
+@app.route('/resources/witness_statement_save', methods=['POST'])
+def witness_save():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    # Compose text content
+    full_name = (request.form.get('full_name') or '').strip()
+    contact = (request.form.get('contact') or '').strip()
+    statement = (request.form.get('statement') or '').strip()
+    date = (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip()
+    sig_name = (request.form.get('sig_name') or '').strip()
+    sig_consented = request.form.get('sig_consented') in ('on','yes','true','1')
+    if not sig_name or not sig_consented:
+        return "Electronic signature consent and typed name are required to save", 400
+    content = (
+        "Witness Statement\n"
+        "==================\n\n"
+        f"Full name: {full_name}\n"
+        f"Contact: {contact}\n\n"
+        f"Statement (dated {date}):\n{statement}\n\n"
+        "Unsworn Declaration (28 U.S.C. § 1746):\n"
+        "I declare under penalty of perjury that the foregoing is true and correct.\n"
+        f"Executed on {date}.\n\n"
+        f"Signature (typed): {sig_name}\n"
+        f"Printed Name: {full_name}\n"
+    )
+    # Save to user's vault
+    ts = _utc_now().strftime('%Y%m%d_%H%M%S')
+    filename = f"witness_{ts}.txt"
+    dest = os.path.join(_vault_user_dir(user['id']), filename)
+    try:
+        with open(dest, 'w', encoding='utf-8') as f:
+            f.write(content)
+        # Write certificate JSON with hash and context
+        cert = {
+            'type': 'witness_statement',
+            'file': filename,
+            'sha256': _sha256_hex(content),
+            'user_id': user['id'],
+            'executed_date': date,
+            'sig_name': sig_name,
+            'sig_consented': True,
+            'ts': _utc_now_iso(),
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent'),
+            'request_id': getattr(request, 'request_id', None)
+        }
+        cert_path = os.path.join(_vault_user_dir(user['id']), f"witness_{ts}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, indent=2)
+        _event_log('witness_saved', user_id=user['id'], filename=filename, size=os.path.getsize(dest), sha256=cert['sha256'])
+    except Exception as e:  # pragma: no cover
+        _append_log(f"witness_save_error {e}")
+        return "Failed to save file", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+@app.route('/resources/filing_packet', methods=['GET'])
+def packet_form():
+    _inc('requests_total')
+    return render_template('packet_form.html', csrf_token=_render_csrf())
+
+@app.route('/resources/filing_packet_preview', methods=['POST'])
+def packet_preview():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    _inc('requests_total')
+    data = {
+        'title': (request.form.get('title') or '').strip(),
+        'summary': (request.form.get('summary') or '').strip(),
+        'issues': (request.form.get('issues') or '').strip(),
+        'parties': (request.form.get('parties') or '').strip(),
+        'date': (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip(),
+        'sig_name': (request.form.get('sig_name') or '').strip(),
+        'sig_consented': 'yes' if (request.form.get('sig_consented') in ('on','yes','true','1')) else 'no'
+    }
+    user_token = request.form.get('user_token') or ''
+    return render_template('packet_preview.html', data=data, user_token=user_token, csrf_token=_render_csrf())
+
+@app.route('/resources/filing_packet_save', methods=['POST'])
+def packet_save():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    title = (request.form.get('title') or '').strip()
+    summary = (request.form.get('summary') or '').strip()
+    issues = (request.form.get('issues') or '').strip()
+    parties = (request.form.get('parties') or '').strip()
+    date = (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip()
+    sig_name = (request.form.get('sig_name') or '').strip()
+    sig_consented = request.form.get('sig_consented') in ('on','yes','true','1')
+    if not sig_name or not sig_consented:
+        return "Electronic signature consent and typed name are required to save", 400
+    content = (
+        "Filing Packet Summary\n"
+        "=====================\n\n"
+        f"Title: {title}\n"
+        f"Date: {date}\n"
+        f"Parties: {parties}\n\n"
+        "Summary:\n"
+        f"{summary}\n\n"
+        "Key Issues:\n"
+        f"{issues}\n\n"
+        "Checklist:\n"
+        "- Cover Page\n- Summary Sheet\n- Evidence Index\n- Exhibits\n- Timeline\n- Witness Statements\n- Final Page (signature/date)\n\n"
+        "Attestation:\n"
+        "I declare under penalty of perjury that this summary accurately reflects the attached materials to the best of my knowledge.\n\n"
+        f"Signature (typed): {sig_name}\n"
+    )
+    ts = _utc_now().strftime('%Y%m%d_%H%M%S')
+    filename = f"packet_{ts}.txt"
+    dest = os.path.join(_vault_user_dir(user['id']), filename)
+    try:
+        with open(dest, 'w', encoding='utf-8') as f:
+            f.write(content)
+        cert = {
+            'type': 'filing_packet_summary',
+            'file': filename,
+            'sha256': _sha256_hex(content),
+            'user_id': user['id'],
+            'executed_date': date,
+            'sig_name': sig_name,
+            'sig_consented': True,
+            'ts': _utc_now_iso(),
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent'),
+            'request_id': getattr(request, 'request_id', None)
+        }
+        cert_path = os.path.join(_vault_user_dir(user['id']), f"packet_{ts}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, indent=2)
+        _event_log('packet_saved', user_id=user['id'], filename=filename, size=os.path.getsize(dest), sha256=cert['sha256'])
+    except Exception as e:  # pragma: no cover
+        _append_log(f"packet_save_error {e}")
+        return "Failed to save file", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# Service Animal (Reasonable Accommodation) Request Letter
+# -----------------------------
+
+@app.route('/resources/service_animal', methods=['GET'])
+def sa_form():
+    _inc('requests_total')
+    return render_template('service_animal_form.html', csrf_token=_render_csrf())
+
+@app.route('/resources/service_animal_preview', methods=['POST'])
+def sa_preview():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    _inc('requests_total')
+    data = {
+        'tenant_name': (request.form.get('tenant_name') or '').strip(),
+        'landlord_name': (request.form.get('landlord_name') or '').strip(),
+        'property_address': (request.form.get('property_address') or '').strip(),
+        'date': (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip(),
+        'animal_description': (request.form.get('animal_description') or '').strip(),
+        'need_summary': (request.form.get('need_summary') or '').strip(),
+        'sig_name': (request.form.get('sig_name') or '').strip(),
+        'sig_consented': 'yes' if (request.form.get('sig_consented') in ('on','yes','true','1')) else 'no'
+    }
+    user_token = request.form.get('user_token') or ''
+    return render_template('service_animal_preview.html', data=data, user_token=user_token, csrf_token=_render_csrf())
+
+@app.route('/resources/service_animal_save', methods=['POST'])
+def sa_save():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    tenant_name = (request.form.get('tenant_name') or '').strip()
+    landlord_name = (request.form.get('landlord_name') or '').strip()
+    property_address = (request.form.get('property_address') or '').strip()
+    date = (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip()
+    animal_description = (request.form.get('animal_description') or '').strip()
+    need_summary = (request.form.get('need_summary') or '').strip()
+    sig_name = (request.form.get('sig_name') or '').strip()
+    sig_consented = request.form.get('sig_consented') in ('on','yes','true','1')
+    if not sig_name or not sig_consented:
+        return "Electronic signature consent and typed name are required to save", 400
+    content = (
+        "Reasonable Accommodation Request (Service/Support Animal)\n"
+        "=========================================================\n\n"
+        f"Date: {date}\n"
+        f"To: {landlord_name}\n"
+        f"Property: {property_address}\n\n"
+        f"I, {tenant_name}, request a reasonable accommodation to keep my service or support animal described as: {animal_description}.\n"
+        f"This accommodation is necessary because: {need_summary}.\n\n"
+        "This request is made pursuant to applicable fair housing laws.\n\n"
+        "Attestation:\n"
+        "I declare under penalty of perjury that the above is true and correct to the best of my knowledge.\n\n"
+        f"Signature (typed): {sig_name}\n"
+        f"Printed Name: {tenant_name}\n"
+    )
+    ts = _utc_now().strftime('%Y%m%d_%H%M%S')
+    filename = f"service_animal_{ts}.txt"
+    dest = os.path.join(_vault_user_dir(user['id']), filename)
+    try:
+        with open(dest, 'w', encoding='utf-8') as f:
+            f.write(content)
+        cert = {
+            'type': 'service_animal_request',
+            'file': filename,
+            'sha256': _sha256_hex(content),
+            'user_id': user['id'],
+            'executed_date': date,
+            'sig_name': sig_name,
+            'sig_consented': True,
+            'ts': _utc_now_iso(),
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent'),
+            'request_id': getattr(request, 'request_id', None)
+        }
+        cert_path = os.path.join(_vault_user_dir(user['id']), f"service_animal_{ts}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, indent=2)
+        _event_log('service_animal_saved', user_id=user['id'], filename=filename, sha256=cert['sha256'])
+    except Exception as e:  # pragma: no cover
+        _append_log(f"sa_save_error {e}")
+        return "Failed to save file", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# Move-in / Move-out Checklist
+# -----------------------------
+
+@app.route('/resources/move_checklist', methods=['GET'])
+def move_form():
+    _inc('requests_total')
+    return render_template('move_checklist_form.html', csrf_token=_render_csrf())
+
+@app.route('/resources/move_checklist_preview', methods=['POST'])
+def move_preview():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    _inc('requests_total')
+    items = request.form.getlist('items')
+    data = {
+        'address': (request.form.get('address') or '').strip(),
+        'date': (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip(),
+        'notes': (request.form.get('notes') or '').strip(),
+        'items': items,
+        'sig_name': (request.form.get('sig_name') or '').strip(),
+        'sig_consented': 'yes' if (request.form.get('sig_consented') in ('on','yes','true','1')) else 'no'
+    }
+    user_token = request.form.get('user_token') or ''
+    return render_template('move_checklist_preview.html', data=data, user_token=user_token, csrf_token=_render_csrf())
+
+@app.route('/resources/move_checklist_save', methods=['POST'])
+def move_save():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    address = (request.form.get('address') or '').strip()
+    date = (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip()
+    notes = (request.form.get('notes') or '').strip()
+    items = request.form.getlist('items')
+    sig_name = (request.form.get('sig_name') or '').strip()
+    sig_consented = request.form.get('sig_consented') in ('on','yes','true','1')
+    if not sig_name or not sig_consented:
+        return "Electronic signature consent and typed name are required to save", 400
+    lines = [
+        "Move-in/Move-out Checklist",
+        "===========================",
+        f"Address: {address}",
+        f"Date: {date}",
+        "",
+        "Checked Items:" 
+    ] + [f"- {it}" for it in items] + [
+        "",
+        "Notes:",
+        notes,
+        "",
+        "Attestation:",
+        "I declare under penalty of perjury that this checklist accurately reflects the observed condition.",
+        "",
+        f"Signature (typed): {sig_name}"
+    ]
+    content = "\n".join(lines) + "\n"
+    ts = _utc_now().strftime('%Y%m%d_%H%M%S')
+    filename = f"move_checklist_{ts}.txt"
+    dest = os.path.join(_vault_user_dir(user['id']), filename)
+    try:
+        with open(dest, 'w', encoding='utf-8') as f:
+            f.write(content)
+        cert = {
+            'type': 'move_checklist',
+            'file': filename,
+            'sha256': _sha256_hex(content),
+            'user_id': user['id'],
+            'executed_date': date,
+            'sig_name': sig_name,
+            'sig_consented': True,
+            'ts': _utc_now_iso(),
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent'),
+            'request_id': getattr(request, 'request_id', None)
+        }
+        cert_path = os.path.join(_vault_user_dir(user['id']), f"move_checklist_{ts}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, indent=2)
+        _event_log('move_checklist_saved', user_id=user['id'], filename=filename, sha256=cert['sha256'])
+    except Exception as e:  # pragma: no cover
+        _append_log(f"move_save_error {e}")
+        return "Failed to save file", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# Rent Ledger (minimal)
+# -----------------------------
+
+def _ledger_user_dir(user_id: str) -> str:
+    base = os.path.join('uploads', 'ledger', user_id)
+    os.makedirs(base, exist_ok=True)
+    return base
+
+def _ledger_path(user_id: str) -> str:
+    return os.path.join(_ledger_user_dir(user_id), 'ledger.json')
+
+def _ledger_load(user_id: str) -> list:
+    path = _ledger_path(user_id)
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:  # pragma: no cover
+        return []
+
+def _ledger_save(user_id: str, entries: list):
+    path = _ledger_path(user_id)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(entries, f, indent=2)
+
+@app.route('/resources/rent_ledger', methods=['GET'])
+def ledger_view():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    entries = _ledger_load(user['id'])
+    # calculate totals
+    total_rent = sum(e.get('amount', 0) for e in entries if e.get('type') == 'rent')
+    total_fees = sum(e.get('amount', 0) for e in entries if e.get('type') == 'fee')
+    total_payments = sum(e.get('amount', 0) for e in entries if e.get('type') == 'payment')
+    balance = (total_rent + total_fees) - total_payments
+    csrf_token = _get_or_create_csrf_token()
+    return render_template('ledger.html', entries=entries, total_rent=total_rent, total_fees=total_fees, total_payments=total_payments, balance=balance, csrf_token=csrf_token, user=user)
+
+@app.route('/resources/rent_ledger_add', methods=['POST'])
+def ledger_add():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    try:
+        date = (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip()
+        typ = (request.form.get('type') or 'rent').strip()
+        amount = float(request.form.get('amount'))
+        note = (request.form.get('note') or '').strip()
+    except Exception:
+        return "Invalid input", 400
+    entries = _ledger_load(user['id'])
+    entries.append({'date': date, 'type': typ, 'amount': amount, 'note': note})
+    # sort by date then by type
+    try:
+        entries.sort(key=lambda e: (e.get('date',''), e.get('type','')))
+    except Exception:
+        pass
+    _ledger_save(user['id'], entries)
+    _event_log('ledger_entry_added', user_id=user['id'], date=date, type=typ, amount=amount)
+    token = request.form.get('user_token') or ''
+    return redirect(f"/resources/rent_ledger?user_token={token}")
+
+# -----------------------------
+# Document Vault (per-user storage)
+# -----------------------------
+
+def _vault_user_dir(user_id: str) -> str:
+    base = os.path.join('uploads', 'vault', user_id)
+    os.makedirs(base, exist_ok=True)
+    return base
+
+@app.route('/vault', methods=['GET'])
+def vault_home():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    # List user's files
+    user_dir = _vault_user_dir(user['id'])
+    files = []
+    try:
+        for name in sorted(os.listdir(user_dir)):
+            full = os.path.join(user_dir, name)
+            if os.path.isfile(full):
+                files.append({
+                    'name': name,
+                    'size': os.path.getsize(full)
+                })
+    except Exception as e:  # pragma: no cover
+        _append_log(f"vault_list_error {e}")
+    csrf_token = _get_or_create_csrf_token()
+    return render_template('vault.html', user=user, files=files, csrf_token=csrf_token)
+
+@app.route('/vault/upload', methods=['POST'])
+def vault_upload():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    f = request.files.get('file')
+    if not f or f.filename is None or f.filename.strip() == '':
+        return "No file provided", 400
+    filename = secure_filename(f.filename)
+    if not filename:
+        return "Invalid filename", 400
+    user_dir = _vault_user_dir(user['id'])
+    dest = os.path.join(user_dir, filename)
+    try:
+        f.save(dest)
+        _event_log('vault_upload', user_id=user['id'], filename=filename, size=os.path.getsize(dest))
+    except Exception as e:  # pragma: no cover
+        _append_log(f"vault_upload_error {e}")
+        return "Failed to save file", 500
+    return redirect(f"/vault?user_token=" + (request.form.get('user_token') or ''))
+
+@app.route('/vault/download/<path:filename>', methods=['GET'])
+def vault_download(filename):
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    safe = secure_filename(filename)
+    if not safe or safe != filename:
+        return "Invalid filename", 400
+    path = os.path.join(_vault_user_dir(user['id']), safe)
+    if not os.path.exists(path):
+        return "Not found", 404
+    return send_file(path, as_attachment=True)
 
 # -----------------------------
 # Token rotation endpoint

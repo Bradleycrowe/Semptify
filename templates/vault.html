@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document Vault</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <h1>Document Vault</h1>
+    <p>Welcome, {{ user.name }} (ID: {{ user.id }})</p>
+
+    <section>
+      <h2>Your Files</h2>
+      <ul>{% if files %}{% for f in files %}<li><a href="/vault/download/{{ f.name }}?user_token={{ request.args.get('user_token','') }}">{{ f.name }}</a> <small>({{ f.size }} bytes)</small></li>{% endfor %}{% else %}<li><em>No files uploaded yet.</em></li>{% endif %}</ul>
+    </section>
+
+    <section>
+      <h2>Upload</h2>
+      <form action="/vault/upload" method="post" enctype="multipart/form-data" aria-label="Upload a file to your vault">
+        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="vault-file">Choose file</label>
+        <input id="vault-file" type="file" name="file" required title="Select a file to upload">
+        <button type="submit">Upload</button>
+      </form>
+    </section>
+  </body>
+</html>

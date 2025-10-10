@@ -30,6 +30,8 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy only necessary application code (exclude caches & tests for smaller runtime image)
 COPY . /app
 RUN rm -rf /app/tests /app/__pycache__ || true
+ # Do not ship any committed tokens file; enforced mode will bootstrap from ADMIN_TOKEN if needed
+RUN rm -f /app/security/admin_tokens.json || true
 
 EXPOSE 8080
 CMD ["python", "./run_prod.py"]

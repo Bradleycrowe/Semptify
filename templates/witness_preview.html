@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Witness Statement Preview</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <h1>Witness Statement Preview</h1>
+    <pre>{{ (
+      'Witness Statement\n' ~
+      '==================\n\n' ~
+      'Full name: ' ~ data.full_name ~ '\n' ~
+      'Contact: ' ~ data.contact ~ '\n\n' ~
+      'Statement (dated ' ~ data.date ~ '):\n' ~ data.statement ~ '\n\n' ~
+      'Unsworn Declaration (28 U.S.C. § 1746):\n' ~
+      'I declare under penalty of perjury that the foregoing is true and correct.\n' ~
+      'Executed on ' ~ data.date ~ '.\n\n' ~
+      'Signature (typed): ' ~ data.sig_name ~ '\n' ~
+      'Printed Name: ' ~ data.full_name ~ '\n'
+    ) }}</pre>
+
+    {% if user_token %}
+      <form action="/resources/witness_statement_save" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="user_token" value="{{ user_token }}">
+        <input type="hidden" name="full_name" value="{{ data.full_name }}">
+        <input type="hidden" name="contact" value="{{ data.contact }}">
+        <input type="hidden" name="statement" value="{{ data.statement }}">
+        <input type="hidden" name="date" value="{{ data.date }}">
+  <input type="hidden" name="sig_name" value="{{ data.sig_name }}">
+  <input type="hidden" name="sig_consented" value="{{ data.sig_consented }}">
+  <button type="submit">Save to My Vault</button>
+      </form>
+    {% else %}
+      <p><em>Add your user_token on the previous page to save this to your Document Vault.</em></p>
+    {% endif %}
+  </body>
+</html>

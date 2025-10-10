@@ -2,15 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SemptifyGUI</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
-    <h1>{{ message }}</h1>
-    <p>Available runtime folders:</p>
-    <ul>
-      {% for f in folders %}
-      <li>{{ f }}</li>
-      {% endfor %}
-    </ul>
+    <header>
+      <h1>{{ message }}</h1>
+      <p class="tagline">Semptify is a tenants’ advocate: practical tools for renters to understand rights, organize documents, and act confidently.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>What Semptify does</h2>
+        <ul>
+          <li>Explains tenant rights in plain language and links to trusted resources.</li>
+          <li>Provides a secure Document Vault so renters can upload and keep records handy.</li>
+          <li>Offers simple status and health endpoints so you know the system is running.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Quick links</h2>
+        <ul>
+          <li><a href="/vault">Document Vault</a> <small>(append your user_token in the URL to sign in: <code>/vault?user_token=...</code>)</small></li>
+          <li><a href="/admin">Admin</a> <small>(requires admin token)</small></li>
+          <li><a href="/resources">Resources</a> · <a href="/health">Health</a> · <a href="/readyz">Readiness</a> · <a href="/info">Info</a> · <a href="/metrics">Metrics</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Available runtime folders</h2>
+        <ul>{% for f in folders %}<li>{{ f }}</li>{% endfor %}</ul>
+      </section>
+    </main>
   </body>
-</html>
+  </html>
