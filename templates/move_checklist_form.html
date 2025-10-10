@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Move-in/Move-out Checklist</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <h1>Move-in / Move-out Checklist</h1>
+    <form action="/resources/move_checklist_preview" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Address <input name="address" required></label>
+      <label>Date <input name="date" placeholder="YYYY-MM-DD"></label>
+      <fieldset>
+        <legend>Items</legend>
+        <label><input type="checkbox" name="items" value="Photos taken"> Photos taken</label>
+        <label><input type="checkbox" name="items" value="Keys returned"> Keys returned</label>
+        <label><input type="checkbox" name="items" value="Walkthrough with landlord"> Walkthrough with landlord</label>
+        <label><input type="checkbox" name="items" value="Damages documented"> Damages documented</label>
+        <label><input type="checkbox" name="items" value="Utilities closed/transferred"> Utilities closed/transferred</label>
+      </fieldset>
+      <label>Notes<br>
+        <textarea name="notes" rows="6" cols="80" placeholder="Additional observations..."></textarea>
+      </label>
+      <fieldset>
+        <legend>E-sign</legend>
+        <label><input type="checkbox" name="sig_consented"> I agree to use an electronic signature for this checklist.</label>
+        <label>Type your name as signature <input name="sig_name" placeholder="Full name"></label>
+      </fieldset>
+      <label>Your user token (optional to save to your Vault) <input name="user_token" placeholder="paste your user_token"></label>
+      <button type="submit">Preview</button>
+    </form>
+  </body>
+</html>

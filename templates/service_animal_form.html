@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Service/Support Animal Request</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <h1>Service/Support Animal Accommodation Request</h1>
+    <form action="/resources/service_animal_preview" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Your name <input name="tenant_name" required></label>
+      <label>Landlord/Agent name <input name="landlord_name"></label>
+      <label>Property address <input name="property_address"></label>
+      <label>Date <input name="date" placeholder="YYYY-MM-DD"></label>
+      <label>Animal description <input name="animal_description" placeholder="e.g., small dog for anxiety"></label>
+      <label>Why this is needed<br>
+        <textarea name="need_summary" rows="6" cols="80" required placeholder="Brief explanation of necessity..."></textarea>
+      </label>
+      <fieldset>
+        <legend>E-sign</legend>
+        <label><input type="checkbox" name="sig_consented"> I agree to use an electronic signature for this request.</label>
+        <label>Type your name as signature <input name="sig_name" placeholder="Full name"></label>
+      </fieldset>
+      <label>Your user token (optional to save to your Vault) <input name="user_token" placeholder="paste your user_token"></label>
+      <button type="submit">Preview</button>
+    </form>
+  </body>
+</html>

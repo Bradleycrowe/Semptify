@@ -1,16 +1,38 @@
 services:
   - type: web
     name: semptifygui
-    env: docker
+    runtime: docker
     plan: free
     region: oregon
     # Dockerfile in repo root will be used for build/run
     envVars:
       - key: SEMPTIFY_PORT
         value: 8080
+      # Flask session/CSRF secret – set in Render Dashboard
+      - key: FLASK_SECRET
+        sync: false
+      # Legacy admin token still accepted in enforced mode (transitional). Set securely in Render.
       - key: ADMIN_TOKEN
         sync: false
+      # Enforce security for admin routes (requires ADMIN_TOKEN or tokens file)
       - key: SECURITY_MODE
-        value: open
+        value: enforced
+      # Force HTTPS redirects and set HSTS
+      - key: FORCE_HTTPS
+        value: "1"
+      - key: HSTS_MAX_AGE
+        value: "31536000" # 1 year
+      - key: HSTS_PRELOAD
+        value: "1"
+      # Structured JSON access logs to logs/events.log
+      - key: ACCESS_LOG_JSON
+        value: "1"
+      # Admin rate limiting (defaults are generous; tune as needed)
+      - key: ADMIN_RATE_WINDOW
+        value: "60"
+      - key: ADMIN_RATE_MAX
+        value: "60"
+      - key: ADMIN_RATE_STATUS
+        value: "429"
     autoDeploy: true
     healthCheckPath: /health
