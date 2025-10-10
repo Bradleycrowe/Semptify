@@ -12,11 +12,11 @@
       {% if error %}<p style="color:#b00020;">{{ error }}</p>{% endif %}
       <form method="post" action="/register">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-        <label for="name">Your name</label>
-        <input id="name" name="name" type="text" placeholder="Jane Tenant" required />
-        <button type="submit">Create my vault</button>
+        <label for="name">Your name (optional)</label>
+        <input id="name" name="name" type="text" placeholder="Optional" />
+        <button type="submit">Create my vault (anonymous key)</button>
       </form>
-      <p class="muted">We generate a one-time user token (like a password). We only store a secure hash, not the token itself.</p>
+      <p class="muted">We generate a one-time digits-only key for you. We only store a secure hash, not the key itself. Keep it safe.</p>
     </main>
   </body>
 </html>
