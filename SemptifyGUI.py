@@ -1495,6 +1495,178 @@ def vault_download(filename):
     return send_file(path, as_attachment=True)
 
 # -----------------------------
+# Evidence Collection (with timestamp, location, audio, and AI analysis)
+# -----------------------------
+
+def _evidence_user_dir(user_id: str) -> str:
+    """Get or create evidence directory for a user."""
+    base = os.path.join('uploads', 'evidence', user_id)
+    os.makedirs(base, exist_ok=True)
+    return base
+
+def _evidence_metadata_path(user_id: str) -> str:
+    """Get path to evidence metadata JSON file."""
+    return os.path.join(_evidence_user_dir(user_id), 'evidence_metadata.json')
+
+def _evidence_load(user_id: str) -> list:
+    """Load evidence metadata for a user."""
+    path = _evidence_metadata_path(user_id)
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:  # pragma: no cover
+        _append_log(f"evidence_load_error {e}")
+        return []
+
+def _evidence_save(user_id: str, items: list):
+    """Save evidence metadata for a user."""
+    path = _evidence_metadata_path(user_id)
+    try:
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(items, f, indent=2)
+    except Exception as e:  # pragma: no cover
+        _append_log(f"evidence_save_error {e}")
+
+@app.route('/evidence', methods=['GET'])
+def evidence_home():
+    """Evidence collection home page."""
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    items = _evidence_load(user['id'])
+    csrf_token = _get_or_create_csrf_token()
+    return render_template('evidence.html', user=user, items=items, csrf_token=csrf_token)
+
+@app.route('/api/evidence/submit', methods=['POST'])
+def evidence_submit():
+    """Submit new evidence with timestamp, location, and optional audio."""
+    if not _validate_csrf(request):
+        return jsonify({'error': 'csrf_failed'}), 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    
+    try:
+        # Get form data
+        title = (request.form.get('title') or '').strip()
+        description = (request.form.get('description') or '').strip()
+        location_lat = request.form.get('location_lat')
+        location_lng = request.form.get('location_lng')
+        location_address = (request.form.get('location_address') or '').strip()
+        
+        if not title:
+            return jsonify({'error': 'title_required'}), 400
+        
+        # Handle audio file upload if present
+        audio_file = request.files.get('audio')
+        audio_filename = None
+        audio_sha256 = None
+        
+        if audio_file and audio_file.filename:
+            # Generate unique filename with timestamp
+            ts = _utc_now().strftime('%Y%m%d_%H%M%S')
+            ext = os.path.splitext(secure_filename(audio_file.filename))[1] or '.webm'
+            audio_filename = f"audio_{ts}_{secrets.token_hex(8)}{ext}"
+            audio_path = os.path.join(_evidence_user_dir(user['id']), audio_filename)
+            audio_file.save(audio_path)
+            
+            # Calculate hash
+            with open(audio_path, 'rb') as f:
+                audio_sha256 = hashlib.sha256(f.read()).hexdigest()
+        
+        # Create evidence entry
+        evidence_item = {
+            'id': secrets.token_hex(16),
+            'title': title,
+            'description': description,
+            'timestamp': _utc_now_iso(),
+            'location': {
+                'lat': float(location_lat) if location_lat else None,
+                'lng': float(location_lng) if location_lng else None,
+                'address': location_address
+            } if location_lat and location_lng else None,
+            'audio_file': audio_filename,
+            'audio_sha256': audio_sha256,
+            'user_id': user['id'],
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent')
+        }
+        
+        # Load existing evidence and add new item
+        items = _evidence_load(user['id'])
+        items.insert(0, evidence_item)  # Add to beginning (newest first)
+        _evidence_save(user['id'], items)
+        
+        _event_log('evidence_submitted', user_id=user['id'], evidence_id=evidence_item['id'], 
+                   has_audio=bool(audio_filename), has_location=bool(evidence_item.get('location')))
+        
+        return jsonify({'success': True, 'evidence_id': evidence_item['id']})
+    
+    except Exception as e:  # pragma: no cover
+        _append_log(f"evidence_submit_error {e}")
+        return jsonify({'error': 'submit_failed', 'message': str(e)}), 500
+
+@app.route('/api/evidence/analyze', methods=['POST'])
+def evidence_analyze():
+    """Use AI to analyze evidence description and provide insights."""
+    if not _validate_csrf(request):
+        return jsonify({'error': 'csrf_failed'}), 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    
+    data = request.get_json(silent=True) or {}
+    description = (data.get('description') or '').strip()
+    
+    if not description:
+        return jsonify({'error': 'description_required'}), 400
+    
+    # Use existing AI copilot infrastructure
+    prompt = f"""Analyze this tenant-justice evidence description and provide insights:
+
+Evidence Description: {description}
+
+Please provide:
+1. What type of violation or issue this might represent
+2. What additional documentation might be helpful
+3. Any legal considerations to be aware of
+4. Suggested next steps
+
+Keep the response concise and actionable."""
+    
+    try:
+        analysis, code = _copilot_generate(prompt)
+        _event_log('evidence_analyzed', user_id=user['id'])
+        return jsonify({'analysis': analysis}), code
+    except Exception as e:  # pragma: no cover
+        _append_log(f"evidence_analyze_error {e}")
+        return jsonify({'error': 'analysis_failed', 'message': str(e)}), 500
+
+@app.route('/api/evidence/download/<evidence_id>', methods=['GET'])
+def evidence_download_audio(evidence_id):
+    """Download audio file for an evidence item."""
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    
+    items = _evidence_load(user['id'])
+    evidence = next((item for item in items if item.get('id') == evidence_id), None)
+    
+    if not evidence:
+        return "Evidence not found", 404
+    
+    if not evidence.get('audio_file'):
+        return "No audio file for this evidence", 404
+    
+    audio_path = os.path.join(_evidence_user_dir(user['id']), evidence['audio_file'])
+    if not os.path.exists(audio_path):
+        return "Audio file not found", 404
+    
+    return send_file(audio_path, as_attachment=True)
+
+# -----------------------------
 # Token rotation endpoint
 # -----------------------------
 def _write_tokens(tokens: list):
