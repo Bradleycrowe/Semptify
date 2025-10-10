@@ -205,6 +205,20 @@ def _load_users(force: bool = False):
     except Exception as e:  # pragma: no cover
         _append_log(f"users_load_error {e}")
 
+def _write_users(users: list) -> None:
+    path = USERS_CACHE['path']
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(users, f, indent=2)
+        USERS_CACHE['mtime'] = os.path.getmtime(path)
+        USERS_CACHE['users'] = [
+            { 'id': u.get('id'), 'name': u.get('name', u.get('id')), 'hash': u.get('hash'), 'enabled': u.get('enabled', True) }
+            for u in users if u.get('hash') and u.get('id') and u.get('enabled', True)
+        ]
+    except Exception as e:  # pragma: no cover
+        _append_log(f"users_write_error {e}")
+
 def _match_user_token(raw: Optional[str]):
     if not raw:
         return None
@@ -225,6 +239,15 @@ def _require_user_or_401():
         _event_log('user_unauthorized', path=request.path, ip=request.remote_addr)
         return None
     return user
+
+def _new_user_id() -> str:
+    # Timestamp-based id to keep simple and unique enough for MVP
+    return f"u{_utc_now().strftime('%Y%m%d%H%M%S')}{uuid.uuid4().hex[:6]}"
+
+def _random_token_urlsafe(nbytes: int = 32) -> str:
+    raw = os.urandom(nbytes)
+    b64 = base64.urlsafe_b64encode(raw).decode('ascii').rstrip('=')
+    return b64
 
 # -----------------------------
 # Simple .env loader (no external dependency) executed *before* using env vars in prod runner
@@ -848,6 +871,42 @@ def resources_download(name: str):
 
 def _render_csrf():
     return _get_or_create_csrf_token()
+@app.route('/register', methods=['GET'])
+def register_page():
+    _inc('requests_total')
+    return render_template('register.html', csrf_token=_get_or_create_csrf_token())
+
+@app.route('/register', methods=['POST'])
+def register_submit():
+    # Simple rate limit per IP
+    rl_key = f"register:{request.remote_addr}"
+    if not _rate_limit(rl_key):
+        _inc('rate_limited_total')
+        return jsonify({'error': 'rate_limited'}), RATE_LIMIT_STATUS, {'Retry-After': str(RATE_LIMIT_RETRY_AFTER)}
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    name = (request.form.get('name') or '').strip()
+    if not name:
+        return render_template('register.html', csrf_token=_get_or_create_csrf_token(), error='Name is required'), 400
+    _load_users()
+    # Create user
+    uid = _new_user_id()
+    token = _random_token_urlsafe()
+    hashed = _hash_token(token)
+    full = USERS_CACHE.get('users', [])
+    # Store full list including disabled or others if file exists
+    existing = []
+    try:
+        if os.path.exists(USERS_CACHE['path']):
+            with open(USERS_CACHE['path'],'r', encoding='utf-8') as f:
+                existing = json.load(f)
+    except Exception:
+        existing = []
+    existing.append({ 'id': uid, 'name': name, 'hash': hashed, 'enabled': True })
+    _write_users(existing)
+    _event_log('user_registered', user_id=uid, ip=request.remote_addr)
+    # Show token once
+    return render_template('register_success.html', user_id=uid, token=token)
 
 # -----------------------------
 # AI Copilot MVP
