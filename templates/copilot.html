@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Semptify Copilot</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <style>
+      .copilot { max-width: 780px; margin: 2rem auto; padding: 1rem; background: #fff; border-radius: 8px; }
+      textarea { width: 100%; min-height: 140px; }
+      pre { white-space: pre-wrap; background: #f6f8fa; padding: 12px; border-radius: 6px; }
+      .muted { color: #666; font-size: 0.9em; }
+    </style>
+  </head>
+  <body>
+    <div class="copilot">
+      <h1>Semptify Copilot</h1>
+      {% if provider in ['none',''] %}
+        <p class="muted">AI provider is not configured. Set AI_PROVIDER and related environment variables on the server to enable responses.</p>
+      {% else %}
+        <p class="muted">Provider: {{ provider }}</p>
+      {% endif %}
+
+      <form id="copilot-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <label for="prompt">Ask anything related to tenant-justice automation:</label>
+        <textarea id="prompt" name="prompt" placeholder="e.g. Help me draft a service animal request letter..."></textarea>
+        <button type="submit">Ask Copilot</button>
+      </form>
+
+      <h3>Answer</h3>
+      <pre id="answer" class="muted">No answer yet.</pre>
+    </div>
+    <script>
+      const form = document.getElementById('copilot-form');
+      const answer = document.getElementById('answer');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const prompt = document.getElementById('prompt').value.trim();
+        const csrf = form.querySelector('input[name="csrf_token"]').value;
+        if(!prompt){ answer.textContent = 'Please enter a prompt.'; return; }
+        answer.textContent = 'Thinking...';
+        try {
+          const r = await fetch('/api/copilot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+            body: JSON.stringify({ prompt })
+          });
+          const data = await r.json();
+          if(!r.ok){
+            answer.textContent = `Error (${r.status}): ${data && data.error ? data.error : 'Unknown error'}`;
+          } else {
+            answer.textContent = data.output || '(empty)';
+          }
+        } catch(err){
+          answer.textContent = 'Network error: ' + err;
+        }
+      });
+    </script>
+  </body>
+</html>
