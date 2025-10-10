@@ -1,0 +1,42 @@
+<!-- Evidence Collection Panel -->
+<div class="evidence-panel">
+    <h3>📱 Evidence Collection System</h3>
+    
+    <div class="evidence-info">
+        <div>
+            <strong>Timestamp:</strong>
+            <span class="timestamp-display">Loading...</span>
+        </div>
+        <div>
+            <strong>Location:</strong>
+            <span class="location-display">Requesting location...</span>
+        </div>
+    </div>
+
+    <div class="evidence-controls">
+        <button type="button" class="btn btn-record" onclick="toggleRecording()">
+            🎙️ Record Evidence
+        </button>
+        <button type="button" class="btn btn-voice" onclick="toggleVoiceCommands()">
+            🗣️ Voice Commands
+        </button>
+        <button type="button" class="btn btn-ai" onclick="askAI()">
+            🤖 Ask AI
+        </button>
+        <button type="button" class="btn secondary" onclick="updateLocation()">
+            📍 Update Location
+        </button>
+    </div>
+
+    <div class="evidence-status">
+        <div class="recording-status">Ready to record audio evidence</div>
+        <div class="voice-status">Voice commands available</div>
+    </div>
+
+    <div class="voice-commands-hint">
+        💡 Voice commands: "start recording", "stop recording", "ask AI", "save form", "timestamp"
+    </div>
+</div>
+
+<!-- Load evidence collection system -->
+<script src="/static/js/evidence-collector.js"></script>

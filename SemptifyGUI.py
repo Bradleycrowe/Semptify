@@ -1020,8 +1020,53 @@ def copilot_api():
     prompt = (data.get('prompt') or '').strip()
     if not prompt:
         return jsonify({'error': 'missing_prompt'}), 400
-    text, code = _copilot_generate(prompt)
+    
+    # Check if this is an evidence-enhanced request
+    location = (data.get('location') or '').strip()
+    timestamp = (data.get('timestamp') or '').strip()
+    form_type = (data.get('form_type') or '').strip()
+    form_data = data.get('form_data', {})
+    
+    # Enhance prompt with evidence context if provided
+    if location or timestamp or form_type:
+        enhanced_prompt = _build_evidence_prompt(prompt, location, timestamp, form_type, form_data)
+        _event_log('evidence_copilot_request', ip=ip, location=location[:50] if location else None, form_type=form_type)
+    else:
+        enhanced_prompt = prompt
+    
+    text, code = _copilot_generate(enhanced_prompt)
     return jsonify({'provider': _ai_provider(), 'output': text}), code
+
+def _build_evidence_prompt(base_prompt: str, location: str, timestamp: str, form_type: str, form_data: dict) -> str:
+    """Build enhanced prompt with evidence collection context"""
+    enhanced = "You are an AI assistant specializing in tenant rights and evidence collection. "
+    
+    if timestamp:
+        enhanced += f"Current time: {timestamp}. "
+    
+    if location and location != 'Location unavailable':
+        enhanced += f"User location: {location}. "
+    
+    if form_type and form_type != 'general_form':
+        enhanced += f"User is working on: {form_type.replace('_', ' ')}. "
+    
+    if form_data and isinstance(form_data, dict) and form_data:
+        # Add relevant form data context
+        relevant_fields = []
+        for key, value in form_data.items():
+            if value and len(str(value).strip()) > 0 and key not in ['csrf_token', 'user_token']:
+                relevant_fields.append(f"{key}: {str(value)[:100]}")
+        if relevant_fields:
+            enhanced += f"Form context: {'; '.join(relevant_fields[:3])}. "
+    
+    enhanced += "\n\nUser request: " + base_prompt
+    enhanced += "\n\nPlease provide specific, actionable guidance for tenant rights documentation and evidence collection. Focus on:"
+    enhanced += "\n1. What evidence to collect for this situation"
+    enhanced += "\n2. Legal considerations and tenant rights"
+    enhanced += "\n3. Best practices for documentation"
+    enhanced += "\n4. Recommended next steps"
+    
+    return enhanced
 
 @app.route('/resources/witness_statement', methods=['GET'])
 def witness_form():
@@ -1079,6 +1124,12 @@ def witness_save():
     try:
         with open(dest, 'w', encoding='utf-8') as f:
             f.write(content)
+        # Extract evidence collection data
+        evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+        evidence_location = (request.form.get('evidence_location') or '').strip()
+        location_accuracy = (request.form.get('location_accuracy') or '').strip()
+        evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
+        
         # Write certificate JSON with hash and context
         cert = {
             'type': 'witness_statement',
@@ -1091,7 +1142,15 @@ def witness_save():
             'ts': _utc_now_iso(),
             'ip': request.remote_addr,
             'user_agent': request.headers.get('User-Agent'),
-            'request_id': getattr(request, 'request_id', None)
+            'request_id': getattr(request, 'request_id', None),
+            'evidence_collection': {
+                'timestamp': evidence_timestamp or _utc_now_iso(),
+                'location': evidence_location or 'Not provided',
+                'location_accuracy': location_accuracy or 'Unknown',
+                'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+                'has_location_data': bool(evidence_location),
+                'collection_method': 'semptify_evidence_system'
+            }
         }
         cert_path = os.path.join(_vault_user_dir(user['id']), f"witness_{ts}.json")
         with open(cert_path, 'w', encoding='utf-8') as cf:

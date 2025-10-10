@@ -8,6 +8,9 @@
   </head>
   <body>
     <h1>Move-in / Move-out Checklist</h1>
+    
+    {% include 'evidence_panel.html' %}
+    
     <form action="/resources/move_checklist_preview" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <label>Address <input name="address" required></label>
