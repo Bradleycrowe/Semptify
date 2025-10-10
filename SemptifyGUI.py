@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import json
 import requests
 import time
+import base64
 import threading
 import hashlib
 import uuid
@@ -847,6 +848,110 @@ def resources_download(name: str):
 
 def _render_csrf():
     return _get_or_create_csrf_token()
+
+# -----------------------------
+# AI Copilot MVP
+# -----------------------------
+
+def _ai_provider() -> str:
+    return (os.environ.get('AI_PROVIDER') or 'none').strip().lower()
+
+def _copilot_call_openai(prompt: str) -> str:
+    api_key = os.environ.get('OPENAI_API_KEY')
+    model = os.environ.get('OPENAI_MODEL') or 'gpt-4o-mini'
+    if not api_key:
+        raise RuntimeError('OPENAI_API_KEY not configured')
+    url = os.environ.get('OPENAI_BASE_URL') or 'https://api.openai.com/v1/chat/completions'
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        'model': model,
+        'messages': [
+            {'role': 'system', 'content': 'You are Semptify Copilot, a helpful assistant for tenant-justice automation.'},
+            {'role': 'user', 'content': prompt}
+        ],
+        'temperature': 0.2
+    }
+    r = requests.post(url, headers=headers, json=payload, timeout=30)
+    if r.status_code != 200:
+        raise RuntimeError(f'OpenAI error {r.status_code}: {r.text[:200]}')
+    data = r.json()
+    return data['choices'][0]['message']['content']
+
+def _copilot_call_azure(prompt: str) -> str:
+    endpoint = os.environ.get('AZURE_OPENAI_ENDPOINT')
+    api_key = os.environ.get('AZURE_OPENAI_API_KEY')
+    deployment = os.environ.get('AZURE_OPENAI_DEPLOYMENT')
+    api_version = os.environ.get('AZURE_OPENAI_API_VERSION') or '2024-02-15-preview'
+    if not endpoint or not api_key or not deployment:
+        raise RuntimeError('Azure OpenAI env not configured')
+    url = f"{endpoint.rstrip('/')}/openai/deployments/{deployment}/chat/completions?api-version={api_version}"
+    headers = {'api-key': api_key, 'Content-Type': 'application/json'}
+    payload = {
+        'messages': [
+            {'role': 'system', 'content': 'You are Semptify Copilot, a helpful assistant for tenant-justice automation.'},
+            {'role': 'user', 'content': prompt}
+        ],
+        'temperature': 0.2
+    }
+    r = requests.post(url, headers=headers, json=payload, timeout=30)
+    if r.status_code != 200:
+        raise RuntimeError(f'Azure OpenAI error {r.status_code}: {r.text[:200]}')
+    data = r.json()
+    return data['choices'][0]['message']['content']
+
+def _copilot_call_ollama(prompt: str) -> str:
+    host = os.environ.get('OLLAMA_HOST') or 'http://localhost:11434'
+    model = os.environ.get('OLLAMA_MODEL') or 'llama3.1'
+    url = f"{host.rstrip('/')}/api/generate"
+    payload = {'model': model, 'prompt': prompt, 'stream': False, 'options': {'temperature': 0.2}}
+    r = requests.post(url, json=payload, timeout=60)
+    if r.status_code != 200:
+        raise RuntimeError(f'Ollama error {r.status_code}: {r.text[:200]}')
+    data = r.json()
+    return data.get('response') or ''
+
+def _copilot_generate(prompt: str) -> tuple[str, int]:
+    provider = _ai_provider()
+    if provider in ('', 'none'):
+        return ('AI Copilot is not configured. Set AI_PROVIDER and provider-specific environment variables.', 501)
+    try:
+        if provider == 'openai':
+            out = _copilot_call_openai(prompt)
+        elif provider in ('azure', 'azure-openai'):
+            out = _copilot_call_azure(prompt)
+        elif provider == 'ollama':
+            out = _copilot_call_ollama(prompt)
+        else:
+            return (f'Unknown AI_PROVIDER: {provider}', 400)
+        return (out, 200)
+    except Exception as e:
+        _append_log(f"copilot_error {e}")
+        return (f'Error from provider: {e}', 502)
+
+@app.route('/copilot', methods=['GET'])
+def copilot_page():
+    _inc('requests_total')
+    csrf = _render_csrf()
+    provider = _ai_provider()
+    return render_template('copilot.html', csrf_token=csrf, provider=provider)
+
+@app.route('/api/copilot', methods=['POST'])
+def copilot_api():
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr) or 'unknown'
+    if not _rate_limit(f"copilot:{ip}"):
+        _inc('rate_limited_total')
+        return jsonify({'error': 'rate_limited'}), RATE_LIMIT_STATUS, {'Retry-After': str(RATE_LIMIT_RETRY_AFTER)}
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    data = request.get_json(silent=True) or {}
+    prompt = (data.get('prompt') or '').strip()
+    if not prompt:
+        return jsonify({'error': 'missing_prompt'}), 400
+    text, code = _copilot_generate(prompt)
+    return jsonify({'provider': _ai_provider(), 'output': text}), code
 
 @app.route('/resources/witness_statement', methods=['GET'])
 def witness_form():
