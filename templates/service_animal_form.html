@@ -8,6 +8,9 @@
   </head>
   <body>
     <h1>Service/Support Animal Accommodation Request</h1>
+    
+    {% include 'evidence_panel.html' %}
+    
     <form action="/resources/service_animal_preview" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <label>Your name <input name="tenant_name" required></label>
