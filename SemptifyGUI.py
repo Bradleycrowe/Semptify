@@ -6,6 +6,7 @@ import json
 import requests
 import time
 import base64
+import secrets
 import threading
 import hashlib
 import uuid
@@ -249,6 +250,10 @@ def _random_token_urlsafe(nbytes: int = 32) -> str:
     b64 = base64.urlsafe_b64encode(raw).decode('ascii').rstrip('=')
     return b64
 
+def _random_digit_key(length: int = 24) -> str:
+    # High-entropy digits-only key (length>=24 ~80 bits)
+    return ''.join(secrets.choice('0123456789') for _ in range(max(1, length)))
+
 # -----------------------------
 # Simple .env loader (no external dependency) executed *before* using env vars in prod runner
 # -----------------------------
@@ -370,6 +375,9 @@ def _enforce_https_redirect():
     xf_proto = request.headers.get('X-Forwarded-Proto', '').lower()
     is_secure = request.is_secure or xf_proto == 'https'
     if is_secure:
+        return None
+    # If we cannot determine original scheme (missing X-Forwarded-Proto), avoid redirect loops
+    if not xf_proto:
         return None
     # Only redirect if Host header exists and scheme is http
     host = request.host
@@ -886,12 +894,11 @@ def register_submit():
     if not _validate_csrf(request):
         return "CSRF validation failed", 400
     name = (request.form.get('name') or '').strip()
-    if not name:
-        return render_template('register.html', csrf_token=_get_or_create_csrf_token(), error='Name is required'), 400
     _load_users()
     # Create user
     uid = _new_user_id()
-    token = _random_token_urlsafe()
+    # Anonymous, digit-key accounts by default
+    token = _random_digit_key(24)
     hashed = _hash_token(token)
     full = USERS_CACHE.get('users', [])
     # Store full list including disabled or others if file exists
@@ -902,7 +909,10 @@ def register_submit():
                 existing = json.load(f)
     except Exception:
         existing = []
-    existing.append({ 'id': uid, 'name': name, 'hash': hashed, 'enabled': True })
+    payload = { 'id': uid, 'hash': hashed, 'enabled': True }
+    if name:
+        payload['name'] = name
+    existing.append(payload)
     _write_users(existing)
     _event_log('user_registered', user_id=uid, ip=request.remote_addr)
     # Show token once
