@@ -1,11 +1,10 @@
 services:
   - type: web
     name: semptifygui
-    env: python
+    env: docker
     plan: free
     region: oregon
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: python run_prod.py
+    # Dockerfile in repo root will be used for build/run
     envVars:
       - key: SEMPTIFY_PORT
         value: 8080
@@ -13,7 +12,5 @@ services:
         sync: false
       - key: SECURITY_MODE
         value: open
-      - key: PYTHON_VERSION
-        value: 3.13.5
     autoDeploy: true
     healthCheckPath: /health
