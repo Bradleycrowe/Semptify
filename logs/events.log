@@ -77,3 +77,8 @@
 {"ts": "2025-10-10T09:55:40.721512Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T09:55:40.824851Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T09:55:40.830628Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T10:08:00.510347Z", "event": "user_registered", "user_id": "u20251010100800afa5fc", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T12:02:47.672539Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T12:02:47.809147Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T12:02:48.007019Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T12:02:48.013158Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}

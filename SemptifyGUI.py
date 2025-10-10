@@ -866,7 +866,8 @@ def resources_download(name: str):
     # Whitelist known templates
     allowed = {
         'witness_statement': os.path.join(BASE_DIR, 'docs', 'templates', 'witness_statement_template.txt'),
-        'filing_packet_checklist': os.path.join(BASE_DIR, 'docs', 'templates', 'filing_packet_checklist.txt')
+        'filing_packet_checklist': os.path.join(BASE_DIR, 'docs', 'templates', 'filing_packet_checklist.txt'),
+        'filing_packet_timeline': os.path.join(BASE_DIR, 'docs', 'templates', 'filing_packet_timeline.txt')
     }
     path = allowed.get(name)
     if not path or not os.path.exists(path):
