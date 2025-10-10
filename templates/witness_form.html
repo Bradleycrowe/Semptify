@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Witness Statement</title>
     <link rel="stylesheet" href="/static/css/app.css" />
+    <script src="/static/js/evidence-system.js"></script>
   </head>
   <body>
     <h1>Witness Statement</h1>
+    
+    {% include 'evidence_panel.html' %}
+    
     <form action="/resources/witness_statement_preview" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <label>Full name <input name="full_name" required></label>

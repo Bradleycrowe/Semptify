@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Filing Packet</title>
     <link rel="stylesheet" href="/static/css/app.css" />
+    <script src="/static/js/evidence-system.js"></script>
   </head>
   <body>
     <h1>Filing Packet Summary</h1>
+    
+    {% include 'evidence_panel.html' %}
+    
     <form action="/resources/filing_packet_preview" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <label>Title <input name="title" placeholder="e.g., Security Deposit Return Request" required></label>

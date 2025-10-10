@@ -82,3 +82,14 @@
 {"ts": "2025-10-10T12:02:47.809147Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T12:02:48.007019Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T12:02:48.013158Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:01:00.275923Z", "event": "user_unauthorized", "path": "/resources/witness_statement_save", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:01:50.994891Z", "event": "user_unauthorized", "path": "/resources/witness_statement_save", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:01:57.027475Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:01:57.062710Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:01:57.222255Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:01:57.228794Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:03:25.647806Z", "event": "user_unauthorized", "path": "/resources/witness_statement_save", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:04:11.967928Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:04:11.992679Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:04:12.093233Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T15:04:12.100204Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}

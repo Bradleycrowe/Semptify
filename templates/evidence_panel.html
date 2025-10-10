@@ -1,0 +1,66 @@
+<!-- Evidence Collection Panel - Include in all forms -->
+<div class="evidence-panel">
+    <h3>📱 Evidence Collection</h3>
+    
+    <div class="evidence-metadata">
+        <div><strong>Timestamp:</strong> <span class="timestamp-display">Loading...</span></div>
+        <div><strong>Location:</strong> <span class="location-display">Requesting location...</span></div>
+    </div>
+    
+    <div class="evidence-controls">
+        <button type="button" class="btn record-btn" onclick="toggleRecording()">
+            🎙️ Start Recording
+        </button>
+        <span class="record-status">Ready to record</span>
+    </div>
+    
+    <div class="voice-controls">
+        <button type="button" class="btn voice-toggle" onclick="toggleVoiceRecognition()">
+            🗣️ Voice Commands
+        </button>
+        <button type="button" class="btn secondary" onclick="askAI()">
+            🤖 Ask AI
+        </button>
+    </div>
+    
+    <div class="voice-command-display">Say: "start recording", "stop recording", "ask copilot", "save evidence"</div>
+</div>
+
+<script>
+// Evidence panel functions
+function toggleRecording() {
+    if (window.semptifyEvidence.isRecording) {
+        window.semptifyEvidence.stopAudioRecording();
+    } else {
+        window.semptifyEvidence.startAudioRecording();
+    }
+}
+
+function toggleVoiceRecognition() {
+    const btn = document.querySelector('.voice-toggle');
+    if (btn.classList.contains('active')) {
+        window.semptifyEvidence.stopVoiceRecognition();
+        btn.classList.remove('active');
+        btn.textContent = '🗣️ Voice Commands';
+    } else {
+        window.semptifyEvidence.startVoiceRecognition();
+        btn.classList.add('active');
+        btn.textContent = '🔴 Stop Voice';
+    }
+}
+
+function askAI() {
+    window.semptifyEvidence.triggerAIAssist();
+}
+
+// Update timestamp display every second
+function updateTimestamp() {
+    const timestampDisplay = document.querySelector('.timestamp-display');
+    if (timestampDisplay) {
+        timestampDisplay.textContent = new Date().toLocaleString();
+    }
+}
+
+setInterval(updateTimestamp, 1000);
+updateTimestamp();
+</script>

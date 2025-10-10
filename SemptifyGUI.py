@@ -1023,6 +1023,68 @@ def copilot_api():
     text, code = _copilot_generate(prompt)
     return jsonify({'provider': _ai_provider(), 'output': text}), code
 
+@app.route('/api/evidence-copilot', methods=['POST'])
+def evidence_copilot_api():
+    # Enhanced AI endpoint for evidence collection with location and context
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr) or 'unknown'
+    if not _rate_limit(f"evidence-copilot:{ip}"):
+        _inc('rate_limited_total')
+        return jsonify({'error': 'rate_limited'}), RATE_LIMIT_STATUS, {'Retry-After': str(RATE_LIMIT_RETRY_AFTER)}
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    
+    # Extract evidence context
+    data = request.get_json(silent=True) or {}
+    base_prompt = (data.get('prompt') or '').strip()
+    location = (data.get('location') or '').strip()
+    timestamp = (data.get('timestamp') or '').strip()
+    form_type = (data.get('form_type') or '').strip()
+    form_data = (data.get('form_data') or '').strip()
+    
+    if not base_prompt:
+        return jsonify({'error': 'missing_prompt'}), 400
+    
+    # Build enhanced prompt for tenant rights context
+    enhanced_prompt = f"""You are an AI assistant helping with tenant rights documentation and evidence collection.
+
+Context:
+- Current time: {timestamp or _utc_now_iso()}
+- Location: {location or 'Not provided'}
+- Form type: {form_type or 'General'}
+- User input: {base_prompt}
+
+"""
+    
+    if form_data:
+        enhanced_prompt += f"Current form data: {form_data}\n\n"
+    
+    enhanced_prompt += """Please provide specific, actionable guidance for:
+1. What evidence to collect for this situation
+2. Legal considerations and tenant rights
+3. Best practices for documentation
+4. Next steps to take
+
+Keep responses practical, legally sound, and focused on tenant protection."""
+    
+    text, code = _copilot_generate(enhanced_prompt)
+    if code == 200:
+        # Log evidence consultation
+        _event_log('evidence_copilot', 
+                  ip=ip, 
+                  location=location[:100] if location else None,
+                  form_type=form_type)
+        return jsonify({
+            'provider': _ai_provider(),
+            'output': text,
+            'timestamp': _utc_now_iso(),
+            'context': {
+                'location': location,
+                'form_type': form_type
+            }
+        }), 200
+    else:
+        return jsonify({'provider': _ai_provider(), 'output': text}), code
+
 @app.route('/resources/witness_statement', methods=['GET'])
 def witness_form():
     _inc('requests_total')
@@ -1079,6 +1141,11 @@ def witness_save():
     try:
         with open(dest, 'w', encoding='utf-8') as f:
             f.write(content)
+        # Include evidence collection data if provided
+        evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+        evidence_location = (request.form.get('evidence_location') or '').strip()
+        location_accuracy = (request.form.get('location_accuracy') or '').strip()
+        
         # Write certificate JSON with hash and context
         cert = {
             'type': 'witness_statement',
@@ -1091,7 +1158,12 @@ def witness_save():
             'ts': _utc_now_iso(),
             'ip': request.remote_addr,
             'user_agent': request.headers.get('User-Agent'),
-            'request_id': getattr(request, 'request_id', None)
+            'request_id': getattr(request, 'request_id', None),
+            'evidence': {
+                'timestamp': evidence_timestamp or _utc_now_iso(),
+                'location': evidence_location or 'Not provided',
+                'location_accuracy': location_accuracy or 'Unknown'
+            }
         }
         cert_path = os.path.join(_vault_user_dir(user['id']), f"witness_{ts}.json")
         with open(cert_path, 'w', encoding='utf-8') as cf:

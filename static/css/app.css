@@ -26,6 +26,26 @@ button:hover:not(:disabled) { filter:brightness(1.05); }
 .muted { color:var(--muted); }
 .inline-kv { display:flex; flex-wrap:wrap; gap:.75rem; font-size:.75rem; }
 .inline-kv span { background:var(--card); color:var(--text); padding:.25rem .55rem; border-radius:6px; border:1px solid var(--border); }
+
+/* Evidence Collection System Styles */
+.evidence-panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; margin:1rem 0; }
+.evidence-panel h3 { margin-top:0; color:var(--primary); }
+.evidence-controls { display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0; }
+.record-btn { background:var(--accent-alt); }
+.record-btn.recording { background:#dc3545; animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+.record-status { font-size:0.9rem; color:var(--muted); margin-left:0.5rem; }
+.record-status.active { color:var(--accent-alt); font-weight:600; }
+.location-display { font-size:0.85rem; color:var(--muted); margin:0.5rem 0; }
+.location-display.location-acquired { color:var(--accent); font-weight:500; }
+.voice-command-display { font-size:0.8rem; color:var(--muted); font-style:italic; margin:0.5rem 0; }
+.ai-response { position:fixed; top:20px; right:20px; max-width:300px; z-index:1000; background:var(--card); border:2px solid var(--accent); box-shadow:0 4px 20px rgba(0,0,0,0.15); }
+.ai-response h3 { margin-top:0; background:var(--accent); color:#fff; padding:0.5rem; margin:0 -1rem 1rem; }
+.evidence-metadata { background:var(--bg); padding:0.75rem; border-radius:6px; margin:0.5rem 0; font-size:0.85rem; }
+.voice-controls { display:flex; gap:0.5rem; align-items:center; }
+.voice-toggle { background:var(--primary); }
+.voice-toggle.active { background:var(--accent-alt); }
+
 .app-footer { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--border); padding:0.5rem 1rem; font-size:0.75rem; text-align:center; }
 [data-theme="dark"] .app-footer { background:#15232f; }
-@media (max-width:600px){ .content { grid-template-columns:1fr; } .app-header nav a { margin-right:0.6rem; } }
+@media (max-width:600px){ .content { grid-template-columns:1fr; } .app-header nav a { margin-right:0.6rem; } .ai-response { position:relative; top:auto; right:auto; max-width:100%; margin:1rem 0; } }

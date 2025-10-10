@@ -3,6 +3,7 @@ const CORE_ASSETS = [
   '/',
   '/offline',
   '/static/css/app.css',
+  '/static/js/evidence-system.js',
   '/static/manifest.webmanifest',
   '/version',
   '/health'
