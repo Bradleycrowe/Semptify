@@ -12,8 +12,8 @@ RUN pip install --upgrade pip && \
 # Copy source for testing
 COPY . /app
 
-# Install pytest and run tests during the build to fail fast (fail = stop image build early)
-RUN pip install --no-cache-dir pytest && pytest -q tests
+# (Optional) Omit running tests during image build to speed up deploys on Render
+# Tests are run in CI; keeping image build lean reduces failures due to transient CI vs builder differences.
 
 ### Final image (runtime)
 FROM python:3.13-slim AS runtime
