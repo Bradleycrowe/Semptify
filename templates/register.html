@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - Semptify</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <main style="max-width:720px;margin:2rem auto;background:#fff;padding:1rem;border-radius:8px;">
+      <h1>Create your Semptify Vault</h1>
+      {% if error %}<p style="color:#b00020;">{{ error }}</p>{% endif %}
+      <form method="post" action="/register">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <label for="name">Your name</label>
+        <input id="name" name="name" type="text" placeholder="Jane Tenant" required />
+        <button type="submit">Create my vault</button>
+      </form>
+      <p class="muted">We generate a one-time user token (like a password). We only store a secure hash, not the token itself.</p>
+    </main>
+  </body>
+</html>

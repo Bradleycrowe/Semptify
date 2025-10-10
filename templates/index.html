@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SemptifyGUI</title>
     <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="manifest" href="/static/manifest.webmanifest">
+    <meta name="theme-color" content="#0a7cd0">
   </head>
   <body>
     <header>
@@ -27,7 +29,7 @@
         <ul>
           <li><a href="/vault">Document Vault</a> <small>(append your user_token in the URL to sign in: <code>/vault?user_token=...</code>)</small></li>
           <li><a href="/admin">Admin</a> <small>(requires admin token)</small></li>
-          <li><a href="/resources">Resources</a> · <a href="/health">Health</a> · <a href="/readyz">Readiness</a> · <a href="/info">Info</a> · <a href="/metrics">Metrics</a></li>
+          <li><a href="/register">Register</a> · <a href="/copilot">AI Copilot</a> · <a href="/resources">Resources</a> · <a href="/health">Health</a> · <a href="/readyz">Readiness</a> · <a href="/info">Info</a> · <a href="/metrics">Metrics</a></li>
         </ul>
       </section>
 
@@ -36,5 +38,12 @@
         <ul>{% for f in folders %}<li>{{ f }}</li>{% endfor %}</ul>
       </section>
     </main>
+    <script>
+      if('serviceWorker' in navigator){
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/static/js/service-worker.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
   </html>
