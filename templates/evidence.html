@@ -266,8 +266,13 @@
         analysisDiv.textContent = 'Analyzing...';
         analysisDiv.style.display = 'block';
 
+        // Get user_token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userToken = urlParams.get('user_token');
+
         try {
-          const response = await fetch('/api/evidence/analyze', {
+          const url = userToken ? `/api/evidence/analyze?user_token=${userToken}` : '/api/evidence/analyze';
+          const response = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -293,6 +298,13 @@
         e.preventDefault();
 
         const formData = new FormData(e.target);
+
+        // Add user_token from URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const userToken = urlParams.get('user_token');
+        if (userToken) {
+          formData.append('user_token', userToken);
+        }
 
         // Add audio if recorded
         if (audioBlob) {

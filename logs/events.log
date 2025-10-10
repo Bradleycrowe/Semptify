@@ -93,3 +93,9 @@
 {"ts": "2025-10-10T17:06:38.667481Z", "event": "user_unauthorized", "path": "/api/evidence/submit", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T17:06:38.671902Z", "event": "user_unauthorized", "path": "/api/evidence/analyze", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T17:08:38.015112Z", "event": "user_unauthorized", "path": "/evidence", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T17:10:12.875219Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T17:10:12.876810Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T17:10:12.899012Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T17:10:12.899562Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T17:10:57.727979Z", "event": "user_registered", "user_id": "u202510101710573398aa", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T17:11:59.321135Z", "event": "user_unauthorized", "path": "/evidence", "ip": "127.0.0.1"}
