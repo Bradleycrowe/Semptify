@@ -896,7 +896,7 @@ def _enforce_https_redirect():
 @app.route("/")
 def index():
     # Use a Jinja2 template so UI can be extended without changing the route.
-    message = "SemptifyGUI is live. Buttons coming next."
+    message = "Welcome to Semptify — tools for renters to act confidently."
     _inc('requests_total')
     return render_template("index.html", message=message, folders=folders)
 

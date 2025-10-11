@@ -646,3 +646,20 @@
 [2025-10-11 21:23:33] UNAUTHORIZED admin attempt path=/admin/status ip=127.0.0.1
 [2025-10-11 21:23:38] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
 [2025-10-11 21:23:38] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 21:39:25] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 21:39:25] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 21:39:29] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 21:39:29] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 21:40:14] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 21:40:14] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 21:40:17] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 21:40:17] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 21:40:17] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-11 21:40:17] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 21:40:18] UNAUTHORIZED admin attempt path=/admin ip=127.0.0.1
+[2025-10-11 21:40:18] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-11 21:40:18] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-11 21:40:18] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 21:40:18] UNAUTHORIZED admin attempt path=/admin/status ip=127.0.0.1
+[2025-10-11 21:41:58] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 21:41:58] asset_check index_exists=True admin_exists=True manifest_exists=True
