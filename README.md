@@ -62,6 +62,35 @@ pip install pytest
 python -m pytest -q
 ```
 
+## Dev server (PowerShell)
+
+Use the provided script to bootstrap a virtual environment, install dependencies, and run the app in open mode:
+
+```powershell
+pwsh -File .\scripts\dev_server.ps1
+```
+
+Options:
+
+```powershell
+# HTTPS self-signed (uses run_dev_ssl.py)
+pwsh -File .\scripts\dev_server.ps1 -Https
+
+# Persist runtime dirs under a specific data root
+pwsh -File .\scripts\dev_server.ps1 -DataRoot 'D:\Semptify\data'
+
+# Enable JSON access logging
+pwsh -File .\scripts\dev_server.ps1 -AccessLog
+```
+
+## Run tests from Admin UI
+
+On `/admin`, a Developer Utilities section provides a “Run Tests” button.
+
+- In enforced mode, ensure you access `/admin` with a valid admin token to obtain a CSRF token.
+- Clicking the button POSTs to `/admin/run_tests`, executes `pytest -q` with a short timeout, and shows the results inline.
+- The HTTP status reflects the outcome (200 on pass, 500 on failure/timeout), making it CI/monitor friendly.
+
 ## Scaling and Storage
 
 For horizontal scaling or container restarts, use a shared data root and tune the production server:

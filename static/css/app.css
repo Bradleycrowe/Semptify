@@ -75,3 +75,16 @@ button:hover:not(:disabled) { filter:brightness(1.05); }
 .help-body{padding:8px;overflow:auto}
 .help-body textarea{width:100%;min-height:80px}
 .help-close{background:none;border:none;font-size:18px;cursor:pointer}
+
+/* Legal disclaimer banner */
+.legal-disclaimer-banner{background:#fff3cd;color:#5c3d00;border:1px solid #ffe08a;border-left:4px solid #e0a106;padding:.6rem .9rem;margin:1rem 0;border-radius:6px}
+.legal-disclaimer-banner strong{display:block;margin-bottom:.25rem}
+.app-footer a{color:var(--muted);text-decoration:none;margin:0 .5rem}
+.app-footer a:hover{color:var(--text);text-decoration:underline}
+
+/* Utilities */
+.mt-24 { margin-top: 24px; }
+.ml-8 { margin-left: 8px; }
+.list { list-style: none; padding-left: 0; }
+.list li { padding: .35rem 0; border-bottom: 1px solid var(--border); }
+.list li:last-child { border-bottom: none; }

@@ -9,6 +9,7 @@
   <body>
     <div class="card narrow">
       <h1>Electronic Service (Email)</h1>
+      <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you record an electronic service email draft. For legal advice, consult a licensed attorney.</div>
       <p class="muted">Draft an email service (simulation). We record the draft details and related document hash as a certificate.</p>
       <form action="/electronic_service" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -36,6 +37,7 @@
       </form>
       <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
     </div>
+    {% include '_footer.html' %}
   </body>
   <script src="/static/js/help-panel.js"></script>
 </html>

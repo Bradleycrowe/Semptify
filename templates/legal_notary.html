@@ -10,6 +10,10 @@
   </head>
   <body>
     <div class="card narrow">
+      <div class="legal-disclaimer-banner">
+        <strong>Not Legal Advice</strong>
+        Semptify helps organize documents and records. This page does not perform a legal notarization. Consult a licensed attorney for legal advice.
+      </div>
       <h1>Legal Notary</h1>
       <p class="muted">This page helps you record a legal notarization completed with a licensed notary (in person or remote). It does not perform a notarization.</p>
       <details>
@@ -87,6 +91,7 @@
       </form>
       <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
     </div>
+    {% include '_footer.html' %}
   </body>
   <script src="/static/js/help-panel.js"></script>
 </html>
