@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home Search</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <main class="card narrow">
+      <h1>Home Search</h1>
+      <form method="post" action="/resources/home_search">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="city">City/Area</label>
+        <input id="city" name="city" type="text" placeholder="e.g., Portland, OR" />
+        <label for="max_rent">Max rent (USD)</label>
+        <input id="max_rent" name="max_rent" type="number" min="0" step="50" />
+        <label for="beds">Bedrooms (min)</label>
+        <input id="beds" name="beds" type="number" min="0" max="6" />
+        <label for="pets">Pets</label>
+        <select id="pets" name="pets">
+          <option value="any">Any</option>
+          <option value="cats">Cats</option>
+          <option value="dogs">Dogs</option>
+          <option value="none">None</option>
+        </select>
+        <button type="submit">Search</button>
+      </form>
+    </main>
+    {% include '_footer.html' %}
+  </body>
+</html>

@@ -47,6 +47,47 @@
 
   <p><a href="/release_history?token={{ admin_token }}">View Release History</a></p>
   <p><a href="/sbom?token={{ admin_token }}">View SBOMs</a></p>
+
+  <hr>
+  <h2>Developer Utilities</h2>
+  <form action="/admin/run_tests" method="post" onsubmit="return confirm('Run the full test suite now?');">
+    <input type="hidden" name="token" value="{{ admin_token }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Run Tests</button>
+  </form>
+  <p class="muted">Tip: For local dev, run <code>scripts/dev_server.ps1</code> to start with sensible defaults.</p>
+
+  <hr>
+  <h2>Help Panel Settings</h2>
+  <form action="/admin/help_panel_save" method="post">
+    <input type="hidden" name="token" value="{{ admin_token }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p>
+      <label><input type="checkbox" name="enabled" checked> Enabled</label>
+    </p>
+    <p>
+  <label>Button Label <input name="label" value="R" maxlength="2"></label>
+    </p>
+    <p>
+      <label>Position
+        <select name="position">
+          <option value="br" selected>Bottom Right</option>
+          <option value="bl">Bottom Left</option>
+        </select>
+      </label>
+    </p>
+    <p>
+      <label>Default Read (fallback)<br>
+        <textarea name="read_default" rows="2" placeholder="Fallback Read content shown if no page meta provided."></textarea>
+      </label>
+    </p>
+    <p>
+      <label>Default Instructions (fallback)<br>
+        <textarea name="instructions_default" rows="2" placeholder="Fallback Instructions content."></textarea>
+      </label>
+    </p>
+    <button type="submit">Save Help Panel Settings</button>
+  </form>
   <script>
     function confirmRelease(form){
       return confirm('Confirm creating a release tag now?');

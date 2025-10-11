@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Virtual Notary (Attestation)</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Virtual Notary</h1>
+      <p class="muted">This creates a digital attestation that a file existed at a specific time and its hash. It is not a legal notarization.</p>
+      <h2>Upload a file to attest</h2>
+      <form action="/notary/upload" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+        <p>
+          <label>Choose file
+            <input type="file" name="file" required>
+          </label>
+        </p>
+        <details>
+          <summary>Optional: evidence context</summary>
+          <p>
+            <label>Timestamp <input type="text" name="evidence_timestamp" placeholder="auto if blank"></label>
+          </p>
+          <p>
+            <label>Location <input type="text" name="evidence_location" placeholder="city, area, etc"></label>
+          </p>
+          <p>
+            <label>User Agent <input type="text" name="evidence_user_agent" placeholder="auto if blank"></label>
+          </p>
+        </details>
+        <button type="submit">Attest Upload</button>
+      </form>
+
+      <h2>Attest an existing vault file</h2>
+      {% if files and files|length > 0 %}
+      <form action="/notary/attest_existing" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+        <p>
+          <label>File
+            <select name="filename" required>
+              {% for f in files %}
+              <option value="{{ f.name }}">{{ f.name }} ({{ f.size }} bytes)</option>
+              {% endfor %}
+            </select>
+          </label>
+        </p>
+        <details>
+          <summary>Optional: evidence context</summary>
+          <p>
+            <label>Timestamp <input type="text" name="evidence_timestamp" placeholder="auto if blank"></label>
+          </p>
+          <p>
+            <label>Location <input type="text" name="evidence_location" placeholder="city, area, etc"></label>
+          </p>
+          <p>
+            <label>User Agent <input type="text" name="evidence_user_agent" placeholder="auto if blank"></label>
+          </p>
+        </details>
+        <button type="submit">Attest Selected File</button>
+      </form>
+      {% else %}
+      <p><em>No files found in your vault yet.</em></p>
+      {% endif %}
+
+      <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+  <script src="/static/js/help-panel.js"></script>
+</html>
