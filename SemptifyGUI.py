@@ -10,6 +10,7 @@ import secrets
 import threading
 import hashlib
 import uuid
+import subprocess
 from collections import deque, defaultdict
 from typing import Optional, Callable
 
@@ -874,6 +875,59 @@ def trigger_workflow():
     else:
         _append_log(f'Failed to trigger workflow {workflow}: {r.status_code} {r.text}')
         return f'Failed to trigger workflow: {r.status_code}', 500
+
+
+@app.route('/admin/run_tests', methods=['POST'])
+def admin_run_tests():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+
+    if request.form.get('confirm_run_tests') != 'yes':
+        return abort(400, description="Missing confirmation field")
+
+    _inc('admin_actions_total')
+    _event_log('tests_executed', ip=request.remote_addr)
+
+    # Get test selection from form (default to all tests)
+    test_path = request.form.get('test_path', 'tests/')
+    verbose = request.form.get('verbose') == 'on'
+
+    # Build pytest command
+    import subprocess
+    pytest_args = ['-q']
+    if verbose:
+        pytest_args = ['-v']
+    
+    pytest_args.append(test_path)
+
+    try:
+        # Run pytest and capture output
+        result = subprocess.run(
+            ['python', '-m', 'pytest'] + pytest_args,
+            capture_output=True,
+            text=True,
+            timeout=120  # 2 minute timeout
+        )
+        
+        output = result.stdout + result.stderr
+        exit_code = result.returncode
+        
+        _append_log(f'Tests executed: path={test_path}, exit_code={exit_code}')
+        
+        # Render results page
+        return render_template('test_results.html',
+                             output=output,
+                             exit_code=exit_code,
+                             test_path=test_path,
+                             admin_token=_get_admin_token_legacy())
+    except subprocess.TimeoutExpired:
+        _append_log('Test execution timed out after 120 seconds')
+        return "Test execution timed out after 120 seconds", 500
+    except Exception as e:
+        _append_log(f'Test execution failed: {e}')
+        return f"Test execution failed: {e}", 500
 
 
 @app.route('/release_history')

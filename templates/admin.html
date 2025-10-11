@@ -45,6 +45,15 @@
       <button type="submit">Trigger CI</button>
     </form>
 
+    <form action="/admin/run_tests" method="post" onsubmit="return confirmRunTests(this);">
+      <input type="hidden" name="token" value="{{ admin_token }}">
+      <input type="hidden" name="confirm_run_tests" value="yes">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Test path: <input name="test_path" value="tests/" placeholder="tests/ or tests/test_app.py"></label>
+      <label><input type="checkbox" name="verbose"> Verbose output</label>
+      <button type="submit">Run Tests</button>
+    </form>
+
   <p><a href="/release_history?token={{ admin_token }}">View Release History</a></p>
   <p><a href="/sbom?token={{ admin_token }}">View SBOMs</a></p>
   <script>
@@ -53,6 +62,9 @@
     }
     function confirmTrigger(form){
       return confirm('Trigger the specified workflow now?');
+    }
+    function confirmRunTests(form){
+      return confirm('Run tests now? This may take up to 2 minutes.');
     }
   </script>
   </body>
