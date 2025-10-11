@@ -196,3 +196,7 @@
 {"ts": "2025-10-11T21:23:33.423430Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
 {"ts": "2025-10-11T21:23:33.527838Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
 {"ts": "2025-10-11T21:23:33.531963Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-11T21:40:18.037845Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-11T21:40:18.074936Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-11T21:40:18.203184Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-11T21:40:18.208065Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}

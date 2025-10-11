@@ -12,4 +12,7 @@ def client():
 def test_index(client):
     rv = client.get('/')
     assert rv.status_code == 200
-    assert b"SemptifyGUI is live" in rv.data
+    # Homepage content should include key navigation links
+    assert b"Register" in rv.data
+    assert b"Resources" in rv.data
+    assert b"Health" in rv.data
