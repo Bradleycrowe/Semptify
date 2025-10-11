@@ -1,8 +1,9 @@
-const CACHE_NAME = 'semptify-cache-v2';
+const CACHE_NAME = 'semptify-cache-v3';
 const CORE_ASSETS = [
   '/',
   '/offline',
   '/static/css/app.css',
+  '/static/js/evidence-collector.js',
   '/static/manifest.webmanifest',
   '/version',
   '/health'

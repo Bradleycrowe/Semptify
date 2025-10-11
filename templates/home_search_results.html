@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home Search Results</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <main class="card narrow">
+      <h1>Results</h1>
+      <p class="muted">Showing options for {{ city or 'your area' }}{% if max_rent %}, under ${{ max_rent }}{% endif %}{% if beds %}, min {{ beds }} BR{% endif %}{% if pets and pets != 'any' %}, pets: {{ pets }}{% endif %}.</p>
+      <ul>
+        {% if results %}
+          {% for r in results %}
+            <li>{{ r.title }} — {{ r.city }} · ${{ r.rent }} · {{ r.beds }} BR · pets: {{ r.pets }}</li>
+          {% endfor %}
+        {% else %}
+          <li><em>No matches; try adjusting filters.</em></li>
+        {% endif %}
+      </ul>
+      <p><a href="/resources/home_search">Modify search</a></p>
+    </main>
+    {% include '_footer.html' %}
+  </body>
+</html>

@@ -1,0 +1,45 @@
+Filing Packet Timeline (Calendar Style)
+======================================
+
+Use this week-by-week plan to build your packet on a realistic schedule. Adjust dates as needed.
+
+Week 1: Intake and Setup
+- Register in Semptify (get your 24-digit key). Save it securely.
+- Create a new folder in your Vault: /packet/YYYY-MM-DD/
+- Write a short summary of your issue and desired outcome.
+- Start an Evidence Index file.
+
+Week 2: Gather Core Documents
+- Lease and amendments; house rules; addenda.
+- Key communications (letters, emails, notices) with dates.
+- Receipts/invoices and payment confirmations.
+
+Week 3: Visual and Official Records
+- Photos/videos with filenames and dates.
+- Inspection reports, code enforcement notices, or police reports.
+- Any medical/repair estimates related to the issue.
+
+Week 4: Witness Work
+- Identify witnesses and send the Witness Statement template.
+- Collect signed and dated statements.
+- Save each as YYYY-MM-DD_witness_name.txt with a certificate JSON.
+
+Week 5: Timeline and Certify
+- Draft a chronological timeline (date → event → evidence references).
+- Cross-check that each timeline event has supporting evidence.
+- For each form you generate in Semptify, save the certificate JSON.
+
+Week 6: Assembly and Review
+- Create a cover page, summary sheet (1–2 pages), and evidence index.
+- Number exhibits consistently (Exhibit 1, Exhibit 2, ...).
+- Export a clean packet and store in your Vault.
+
+Week 7: Finalize and Share
+- Read the packet end-to-end; fix gaps.
+- If applicable, send to mediation/advocate for feedback.
+- Prepare for filing or negotiation.
+
+Tips
+- Use consistent filenames (YYYY-MM-DD_description.pdf or .txt)
+- Redact sensitive data not necessary for your case
+- Keep all originals; store the packet in your Vault

@@ -14,5 +14,7 @@ if __name__ == '__main__':
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-    print(f"Starting SemptifyGUI (production) on {host}:{port} (PORT env fallback supported)")
-    serve(app, host=host, port=port)
+    threads = int(os.environ.get('SEMPTIFY_THREADS', '8'))
+    backlog = int(os.environ.get('SEMPTIFY_BACKLOG', '1024'))
+    print(f"Starting SemptifyGUI (production) on {host}:{port} threads={threads} backlog={backlog} (PORT env fallback supported)")
+    serve(app, host=host, port=port, threads=threads, backlog=backlog)

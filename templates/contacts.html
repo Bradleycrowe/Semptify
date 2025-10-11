@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contacts</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+  <h1>Contacts</h1>
+      <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> Keep track of managers, maintenance, neighbors, and others. For legal advice, consult a licensed attorney.</div>
+      <form action="/resources/contacts_add" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+        <p><label>Name <input type="text" name="name" required></label></p>
+        <p>
+          <label>Role <input type="text" name="role" placeholder="Property manager, maintenance, neighbor, etc."></label>
+        </p>
+        <p>
+          <label>Organization <input type="text" name="organization" placeholder="Company or office"></label>
+        </p>
+        <p>
+          <label>Phone <input type="text" name="phone"></label>
+        </p>
+        <p>
+          <label>Email <input type="email" name="email"></label>
+        </p>
+        <p>
+          <label>Address <input type="text" name="address"></label>
+        </p>
+        <p>
+          <label>Notes <textarea name="notes" rows="3"></textarea></label>
+        </p>
+        <button type="submit">Add Contact</button>
+      </form>
+
+  <h2 class="mt-24">Your contacts</h2>
+      {% if contacts %}
+      <ul class="list">
+        {% for c in contacts %}
+        <li>
+          <strong>{{ c.name }}</strong>{% if c.organization %} — {{ c.organization }}{% endif %}
+          <div class="muted">{% if c.role %}Role: {{ c.role }} | {% endif %}{% if c.phone %}Phone: {{ c.phone }} | {% endif %}{% if c.email %}Email: {{ c.email }} | {% endif %}{% if c.address %}Address: {{ c.address }}{% endif %}</div>
+          {% if c.notes %}<div class="muted">Notes: {{ c.notes }}</div>{% endif %}
+          <details class="mt-24">
+            <summary>Edit</summary>
+            <form action="/resources/contacts_edit" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+              <input type="hidden" name="id" value="{{ c.id }}">
+              <p><label>Name <input type="text" name="name" value="{{ c.name }}" required></label></p>
+              <p><label>Role <input type="text" name="role" value="{{ c.role }}"></label></p>
+              <p><label>Organization <input type="text" name="organization" value="{{ c.organization }}"></label></p>
+              <p><label>Phone <input type="text" name="phone" value="{{ c.phone }}"></label></p>
+              <p><label>Email <input type="email" name="email" value="{{ c.email }}"></label></p>
+              <p><label>Address <input type="text" name="address" value="{{ c.address }}"></label></p>
+              <p><label>Notes <textarea name="notes" rows="3">{{ c.notes }}</textarea></label></p>
+              <button type="submit">Save Changes</button>
+            </form>
+          </details>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p class="muted">No contacts yet.</p>
+      {% endif %}
+      <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+  <script src="/static/js/help-panel.js"></script>
+</html>

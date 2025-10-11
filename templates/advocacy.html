@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Advocacy & Learning</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Advocacy & Learning</h1>
+      <p class="muted">Find support groups, legal aid, and short guides to help you prepare and advocate for yourself.</p>
+      <h2>Advocacy and Support</h2>
+      <div class="list">
+        {% for o in orgs %}
+        <div class="list-item">
+          <strong><a href="{{ o.url }}" target="_blank" rel="noopener noreferrer">{{ o.name }}</a></strong>
+          <div class="muted">{{ o.desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <h2>Learning Topics</h2>
+      <div class="list">
+        {% for l in learning %}
+        <div class="list-item">
+          <strong>{{ l.title }}</strong>
+          <div class="muted">{{ l.desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <p><a href="/resources">Back to Resources</a></p>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+</html>
