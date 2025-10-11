@@ -11,6 +11,7 @@ body { margin:0; background:var(--bg); color:var(--text); transition:background 
 .content { max-width:1200px; margin:1.5rem auto 4.5rem; padding:0 1.25rem; display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
 .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.04); }
 .card h2 { margin-top:0; font-size:1.1rem; }
+.card.narrow { max-width:720px; margin:2rem auto; }
 button, .btn { background:var(--accent); border:none; color:#fff; padding:0.6rem 1rem; border-radius:6px; cursor:pointer; font-weight:500; font-size:.9rem; display:inline-flex; align-items:center; gap:.4rem; }
 button.secondary, .btn.secondary { background:var(--accent-alt); }
 button:disabled { opacity:0.55; cursor:not-allowed; }
@@ -54,6 +55,10 @@ button:hover:not(:disabled) { filter:brightness(1.05); }
 .ai-response-content { padding:1rem; }
 .ai-response-text { margin-top:0.75rem; line-height:1.4; }
 .voice-commands-hint { margin:0.5rem 0; padding:0.5rem; background:var(--bg); border-radius:6px; font-size:0.75rem; color:var(--muted); }
+
+/* Generic status helpers */
+.error { color:#b00020; }
+.code-block { white-space:pre-wrap; background:#f6f8fa; padding:10px; border-radius:6px; border:1px solid var(--border); }
 
 .app-footer { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--border); padding:0.5rem 1rem; font-size:0.75rem; text-align:center; }
 [data-theme="dark"] .app-footer { background:#15232f; }

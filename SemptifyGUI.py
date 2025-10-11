@@ -220,6 +220,74 @@ def _write_users(users: list) -> None:
     except Exception as e:  # pragma: no cover
         _append_log(f"users_write_error {e}")
 
+# -----------------------------
+# Grants registry for read-only vault sharing
+# -----------------------------
+GRANTS_CACHE = {
+    'path': os.path.join('security', 'grants.json'),
+    'mtime': None,
+    'grants': []  # list of { id, user_id, hash, enabled, scope, label, expires_ts }
+}
+
+def _load_grants(force: bool = False):
+    path = GRANTS_CACHE['path']
+    try:
+        if not os.path.exists(path):
+            if force:
+                GRANTS_CACHE['grants'] = []
+            return
+        mtime = os.path.getmtime(path)
+        if force or GRANTS_CACHE['mtime'] != mtime:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            norm = []
+            now = int(time.time())
+            for g in data:
+                if not g.get('enabled', True):
+                    continue
+                if 'hash' not in g or 'user_id' not in g or 'id' not in g:
+                    continue
+                exp = g.get('expires_ts')
+                if isinstance(exp, int) and exp > 0 and exp < now:
+                    # Skip expired grants
+                    continue
+                norm.append({
+                    'id': g.get('id'),
+                    'user_id': g.get('user_id'),
+                    'hash': g.get('hash'),
+                    'scope': g.get('scope', 'vault_read'),
+                    'label': g.get('label', ''),
+                    'expires_ts': g.get('expires_ts', 0),
+                    'enabled': True
+                })
+            GRANTS_CACHE['grants'] = norm
+            GRANTS_CACHE['mtime'] = mtime
+    except Exception as e:  # pragma: no cover
+        _append_log(f"grants_load_error {e}")
+
+def _write_grants(grants: list) -> None:
+    path = GRANTS_CACHE['path']
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(grants, f, indent=2)
+        GRANTS_CACHE['mtime'] = os.path.getmtime(path)
+        # refresh cache
+        _load_grants(force=True)
+    except Exception as e:  # pragma: no cover
+        _append_log(f"grants_write_error {e}")
+
+def _match_grant_token(grant_id: str, raw: Optional[str]):
+    if not grant_id or not raw:
+        return None
+    _load_grants()
+    h = _hash_token(raw)
+    now = int(time.time())
+    for g in GRANTS_CACHE['grants']:
+        if g['id'] == grant_id and g['hash'] == h and (not g.get('expires_ts') or g['expires_ts'] > now):
+            return g
+    return None
+
 def _match_user_token(raw: Optional[str]):
     if not raw:
         return None
@@ -1020,36 +1088,36 @@ def copilot_api():
     prompt = (data.get('prompt') or '').strip()
     if not prompt:
         return jsonify({'error': 'missing_prompt'}), 400
-    
+
     # Check if this is an evidence-enhanced request
     location = (data.get('location') or '').strip()
     timestamp = (data.get('timestamp') or '').strip()
     form_type = (data.get('form_type') or '').strip()
     form_data = data.get('form_data', {})
-    
+
     # Enhance prompt with evidence context if provided
     if location or timestamp or form_type:
         enhanced_prompt = _build_evidence_prompt(prompt, location, timestamp, form_type, form_data)
         _event_log('evidence_copilot_request', ip=ip, location=location[:50] if location else None, form_type=form_type)
     else:
         enhanced_prompt = prompt
-    
+
     text, code = _copilot_generate(enhanced_prompt)
     return jsonify({'provider': _ai_provider(), 'output': text}), code
 
 def _build_evidence_prompt(base_prompt: str, location: str, timestamp: str, form_type: str, form_data: dict) -> str:
     """Build enhanced prompt with evidence collection context"""
     enhanced = "You are an AI assistant specializing in tenant rights and evidence collection. "
-    
+
     if timestamp:
         enhanced += f"Current time: {timestamp}. "
-    
+
     if location and location != 'Location unavailable':
         enhanced += f"User location: {location}. "
-    
+
     if form_type and form_type != 'general_form':
         enhanced += f"User is working on: {form_type.replace('_', ' ')}. "
-    
+
     if form_data and isinstance(form_data, dict) and form_data:
         # Add relevant form data context
         relevant_fields = []
@@ -1058,14 +1126,14 @@ def _build_evidence_prompt(base_prompt: str, location: str, timestamp: str, form
                 relevant_fields.append(f"{key}: {str(value)[:100]}")
         if relevant_fields:
             enhanced += f"Form context: {'; '.join(relevant_fields[:3])}. "
-    
+
     enhanced += "\n\nUser request: " + base_prompt
     enhanced += "\n\nPlease provide specific, actionable guidance for tenant rights documentation and evidence collection. Focus on:"
     enhanced += "\n1. What evidence to collect for this situation"
     enhanced += "\n2. Legal considerations and tenant rights"
     enhanced += "\n3. Best practices for documentation"
     enhanced += "\n4. Recommended next steps"
-    
+
     return enhanced
 
 @app.route('/resources/witness_statement', methods=['GET'])
@@ -1129,7 +1197,7 @@ def witness_save():
         evidence_location = (request.form.get('evidence_location') or '').strip()
         location_accuracy = (request.form.get('location_accuracy') or '').strip()
         evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
-        
+
         # Write certificate JSON with hash and context
         cert = {
             'type': 'witness_statement',
@@ -1222,6 +1290,11 @@ def packet_save():
     try:
         with open(dest, 'w', encoding='utf-8') as f:
             f.write(content)
+        # Extract evidence collection data
+        evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+        evidence_location = (request.form.get('evidence_location') or '').strip()
+        location_accuracy = (request.form.get('location_accuracy') or '').strip()
+        evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
         cert = {
             'type': 'filing_packet_summary',
             'file': filename,
@@ -1233,7 +1306,15 @@ def packet_save():
             'ts': _utc_now_iso(),
             'ip': request.remote_addr,
             'user_agent': request.headers.get('User-Agent'),
-            'request_id': getattr(request, 'request_id', None)
+            'request_id': getattr(request, 'request_id', None),
+            'evidence_collection': {
+                'timestamp': evidence_timestamp or _utc_now_iso(),
+                'location': evidence_location or 'Not provided',
+                'location_accuracy': location_accuracy or 'Unknown',
+                'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+                'has_location_data': bool(evidence_location),
+                'collection_method': 'semptify_evidence_system'
+            }
         }
         cert_path = os.path.join(_vault_user_dir(user['id']), f"packet_{ts}.json")
         with open(cert_path, 'w', encoding='utf-8') as cf:
@@ -1309,6 +1390,11 @@ def sa_save():
     try:
         with open(dest, 'w', encoding='utf-8') as f:
             f.write(content)
+        # Extract evidence collection data
+        evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+        evidence_location = (request.form.get('evidence_location') or '').strip()
+        location_accuracy = (request.form.get('location_accuracy') or '').strip()
+        evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
         cert = {
             'type': 'service_animal_request',
             'file': filename,
@@ -1320,7 +1406,15 @@ def sa_save():
             'ts': _utc_now_iso(),
             'ip': request.remote_addr,
             'user_agent': request.headers.get('User-Agent'),
-            'request_id': getattr(request, 'request_id', None)
+            'request_id': getattr(request, 'request_id', None),
+            'evidence_collection': {
+                'timestamp': evidence_timestamp or _utc_now_iso(),
+                'location': evidence_location or 'Not provided',
+                'location_accuracy': location_accuracy or 'Unknown',
+                'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+                'has_location_data': bool(evidence_location),
+                'collection_method': 'semptify_evidence_system'
+            }
         }
         cert_path = os.path.join(_vault_user_dir(user['id']), f"service_animal_{ts}.json")
         with open(cert_path, 'w', encoding='utf-8') as cf:
@@ -1379,7 +1473,7 @@ def move_save():
         f"Address: {address}",
         f"Date: {date}",
         "",
-        "Checked Items:" 
+        "Checked Items:"
     ] + [f"- {it}" for it in items] + [
         "",
         "Notes:",
@@ -1397,6 +1491,11 @@ def move_save():
     try:
         with open(dest, 'w', encoding='utf-8') as f:
             f.write(content)
+        # Extract evidence collection data
+        evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+        evidence_location = (request.form.get('evidence_location') or '').strip()
+        location_accuracy = (request.form.get('location_accuracy') or '').strip()
+        evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
         cert = {
             'type': 'move_checklist',
             'file': filename,
@@ -1408,7 +1507,15 @@ def move_save():
             'ts': _utc_now_iso(),
             'ip': request.remote_addr,
             'user_agent': request.headers.get('User-Agent'),
-            'request_id': getattr(request, 'request_id', None)
+            'request_id': getattr(request, 'request_id', None),
+            'evidence_collection': {
+                'timestamp': evidence_timestamp or _utc_now_iso(),
+                'location': evidence_location or 'Not provided',
+                'location_accuracy': location_accuracy or 'Unknown',
+                'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+                'has_location_data': bool(evidence_location),
+                'collection_method': 'semptify_evidence_system'
+            }
         }
         cert_path = os.path.join(_vault_user_dir(user['id']), f"move_checklist_{ts}.json")
         with open(cert_path, 'w', encoding='utf-8') as cf:
@@ -1552,6 +1659,123 @@ def vault_download(filename):
     if not os.path.exists(path):
         return "Not found", 404
     return send_file(path, as_attachment=True)
+
+@app.route('/vault/create_share', methods=['POST'])
+def vault_create_share():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    # inputs
+    label = (request.form.get('label') or '').strip() or 'Trusted person'
+    try:
+        days = int(request.form.get('expires_days') or '30')
+        days = max(1, min(days, 90))
+    except Exception:
+        days = 30
+    scope = (request.form.get('scope') or 'vault_read').strip()
+    # create grant
+    grant_id = f"g{_utc_now().strftime('%Y%m%d%H%M%S')}{uuid.uuid4().hex[:6]}"
+    grant_token = _random_digit_key(16)
+    hashed = _hash_token(grant_token)
+    # load existing file to append
+    existing = []
+    try:
+        if os.path.exists(GRANTS_CACHE['path']):
+            with open(GRANTS_CACHE['path'], 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+    except Exception:
+        existing = []
+    expires_ts = int(time.time()) + days * 86400
+    payload = {
+        'id': grant_id,
+        'user_id': user['id'],
+        'hash': hashed,
+        'scope': scope,
+        'label': label,
+        'created_ts': _utc_now_iso(),
+        'expires_ts': expires_ts,
+        'enabled': True
+    }
+    existing.append(payload)
+    _write_grants(existing)
+    _event_log('vault_share_created', user_id=user['id'], grant_id=grant_id, scope=scope, expires_ts=expires_ts)
+    # Render a one-time display with the share URL and token embedded
+    share_path = f"/vault/share/{grant_id}?grant_token={grant_token}"
+    return render_template('share_success.html', share_path=share_path, label=label, expires_days=days)
+
+@app.route('/vault/share/<grant_id>', methods=['GET'])
+def vault_share_view(grant_id):
+    raw = request.args.get('grant_token') or request.headers.get('X-Grant-Token') or request.form.get('grant_token')
+    grant = _match_grant_token(grant_id, raw)
+    if not grant:
+        return jsonify({'error': 'unauthorized'}), 401
+    # List files for the owner of this grant
+    user_dir = _vault_user_dir(grant['user_id'])
+    files = []
+    try:
+        for name in sorted(os.listdir(user_dir)):
+            full = os.path.join(user_dir, name)
+            if os.path.isfile(full):
+                files.append({'name': name, 'size': os.path.getsize(full)})
+    except Exception as e:  # pragma: no cover
+        _append_log(f"vault_share_list_error {e}")
+    return render_template('vault_share.html', grant=grant, files=files)
+
+@app.route('/vault/share/<grant_id>/download/<path:filename>', methods=['GET'])
+def vault_share_download(grant_id, filename):
+    raw = request.args.get('grant_token') or request.headers.get('X-Grant-Token') or request.form.get('grant_token')
+    grant = _match_grant_token(grant_id, raw)
+    if not grant:
+        return jsonify({'error': 'unauthorized'}), 401
+    safe = secure_filename(filename)
+    if not safe or safe != filename:
+        return "Invalid filename", 400
+    path = os.path.join(_vault_user_dir(grant['user_id']), safe)
+    if not os.path.exists(path):
+        return "Not found", 404
+    return send_file(path, as_attachment=True)
+
+# -----------------------------
+# Home Search (stubbed)
+# -----------------------------
+@app.route('/resources/home_search', methods=['GET'])
+def home_search_form():
+    _inc('requests_total')
+    return render_template('home_search_form.html', csrf_token=_get_or_create_csrf_token())
+
+@app.route('/resources/home_search', methods=['POST'])
+def home_search_submit():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    _inc('requests_total')
+    city = (request.form.get('city') or '').strip()
+    max_rent = (request.form.get('max_rent') or '').strip()
+    beds = (request.form.get('beds') or '').strip()
+    pets = (request.form.get('pets') or 'any').strip()
+    # Stubbed results for now; integrate external API later via env config
+    samples = [
+        { 'title': 'Cozy 1BR near transit', 'city': city or 'Your area', 'rent': 1200, 'beds': 1, 'pets': 'cats' },
+        { 'title': 'Spacious 2BR with parking', 'city': city or 'Your area', 'rent': 1800, 'beds': 2, 'pets': 'dogs' },
+        { 'title': 'Studio, utilities included', 'city': city or 'Your area', 'rent': 950, 'beds': 0, 'pets': 'none' }
+    ]
+    # Simple client-side filtering
+    try:
+        if max_rent:
+            mr = float(max_rent)
+            samples = [s for s in samples if s['rent'] <= mr]
+    except Exception:
+        pass
+    try:
+        if beds:
+            b = int(beds)
+            samples = [s for s in samples if s['beds'] >= b]
+    except Exception:
+        pass
+    if pets and pets.lower() in ('cats','dogs','none'):
+        samples = [s for s in samples if s['pets'] == pets.lower()]
+    return render_template('home_search_results.html', results=samples, city=city, max_rent=max_rent, beds=beds, pets=pets)
 
 # -----------------------------
 # Token rotation endpoint
