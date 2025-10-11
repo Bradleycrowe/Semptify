@@ -329,3 +329,45 @@
 [2025-10-11 00:38:03] asset_check index_exists=True admin_exists=True manifest_exists=True
 [2025-10-11 17:59:18] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
 [2025-10-11 17:59:18] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:27] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:01:27] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:27] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-11 18:01:27] OPEN_MODE admin access path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:01:27] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:01:27] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:27] Tests executed: path=tests/test_app.py::test_index, exit_code=0
+[2025-10-11 18:01:27] OPEN_MODE admin access path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:01:27] CSRF_FAIL path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:01:34] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:01:34] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:43] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:01:43] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:43] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-11 18:01:43] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-11 18:01:43] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:43] Bootstrapped admin_tokens.json from ADMIN_TOKEN env (legacy-bootstrap)
+[2025-10-11 18:01:43] UNAUTHORIZED admin attempt path=/admin ip=127.0.0.1
+[2025-10-11 18:01:43] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-11 18:01:43] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:43] UNAUTHORIZED admin attempt path=/admin/status ip=127.0.0.1
+[2025-10-11 18:01:43] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-11 18:01:43] OPEN_MODE admin access path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:01:43] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:01:43] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:43] Tests executed: path=tests/test_app.py::test_index, exit_code=0
+[2025-10-11 18:01:43] OPEN_MODE admin access path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:01:43] CSRF_FAIL path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:01:51] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:01:51] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:01:51] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:01:51] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:02:20] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-11 18:02:40] OPEN_MODE admin access path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:02:40] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:02:40] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:02:40] Tests executed: path=tests/, exit_code=2
+[2025-10-11 18:03:00] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-11 18:03:31] OPEN_MODE admin access path=/admin/run_tests ip=127.0.0.1
+[2025-10-11 18:03:31] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-11 18:03:31] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-11 18:03:31] Tests executed: path=tests/test_app.py, exit_code=0
