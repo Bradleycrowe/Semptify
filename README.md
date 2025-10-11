@@ -62,6 +62,94 @@ pip install pytest
 python -m pytest -q
 ```
 
+## Scaling and Storage
+
+For horizontal scaling or container restarts, use a shared data root and tune the production server:
+
+- `SEMPTIFY_DATA_ROOT`: Absolute path where runtime folders live
+   (`uploads/`, `logs/`, `final_notices/`, `security/`). On startup the app
+   changes directory to this path (`chdir`) if set.
+- `SEMPTIFY_THREADS`: Number of waitress threads (default from waitress). Increase for more concurrent requests.
+- `SEMPTIFY_BACKLOG`: Socket backlog size for pending connections.
+
+Examples (PowerShell):
+
+```powershell
+$env:SEMPTIFY_DATA_ROOT = 'D:\Semptify\data'
+$env:SEMPTIFY_THREADS = '8'
+$env:SEMPTIFY_BACKLOG = '128'
+python .\run_prod.py
+```
+
+When using Docker/Compose, mount a host directory at `/app` (or specific subfolders) to persist these paths.
+
+## AI Copilot Providers
+
+The Copilot UI `/copilot` can route to multiple providers controlled by environment variables:
+
+- `AI_PROVIDER`: `openai`, `azure`, or `ollama`
+- OpenAI: `OPENAI_API_KEY`
+- Azure OpenAI: `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, optional `AZURE_OPENAI_DEPLOYMENT`
+- Ollama (local): `OLLAMA_HOST` (default `http://localhost:11434`), optional `OLLAMA_MODEL` (e.g., `llama3.1:8b`)
+
+Quickstart examples (PowerShell):
+
+OpenAI
+
+```powershell
+$env:AI_PROVIDER = 'openai'
+$env:OPENAI_API_KEY = '<your-key>'
+python .\SemptifyGUI.py
+```
+
+Azure OpenAI
+
+```powershell
+$env:AI_PROVIDER = 'azure'
+$env:AZURE_OPENAI_ENDPOINT = 'https://<your-resource>.openai.azure.com/'
+$env:AZURE_OPENAI_API_KEY = '<your-key>'
+$env:AZURE_OPENAI_DEPLOYMENT = 'gpt-4o-mini'
+python .\SemptifyGUI.py
+```
+
+Ollama (local, recommended for offline/free trials)
+
+```powershell
+$env:AI_PROVIDER = 'ollama'
+$env:OLLAMA_HOST = 'http://localhost:11434'
+$env:OLLAMA_MODEL = 'llama3.1:8b'
+python .\SemptifyGUI.py
+```
+
+Tip: On first model pull, Ollama will download the model. Keep the terminal open until it finishes.
+
+## Remote Online Notarization (RON) – BlueNotary adapter
+
+Semptify includes a provider-agnostic RON flow wired to a BlueNotary adapter. In tests and when `BLUENOTARY_API_KEY` is absent, it runs in a safe mock/simulated mode with no external calls.
+
+Environment:
+
+- `RON_PROVIDER=bluenotary`
+- `BLUENOTARY_API_KEY` (optional for live; omitted in tests to use mock)
+- `BLUENOTARY_BASE_URL` (optional override)
+- `RON_WEBHOOK_SECRET` shared secret used by `/webhooks/ron` for simple verification
+
+User flow:
+
+1. User goes to `/legal_notary` and picks a source file from their Vault.
+2. POST `/legal_notary/start` creates a session via the adapter and writes `uploads/vault/<user_id>/ron_<session_id>.json` with status `started`.
+3. The user is redirected to the app’s return route (mock) or provider page; on return, `/legal_notary/return` finalizes with status `completed`.
+4. Provider webhook (or simulated call) POSTs to `/webhooks/ron` with `{ user_id, session_id, status, evidence_links }` and `X-RON-Signature: <RON_WEBHOOK_SECRET>`, updating the certificate JSON.
+
+Certificates and the source file are included in the Vault export bundle.
+
+Go‑live checklist (RON):
+
+- Set `FORCE_HTTPS=1` in prod and serve behind TLS.
+- Set `RON_PROVIDER=bluenotary` and a strong `RON_WEBHOOK_SECRET`.
+- Configure the provider to call `https://<your-host>/webhooks/ron` with that secret.
+- Validate a full session: start → return → webhook; verify `ron_*.json` contains provider, status, and any evidence links.
+
 CI and Releases
 
 - GitHub Actions runs tests and builds images on push/PR.
@@ -255,6 +343,12 @@ The app ships a service worker + manifest, maskable icon, and dark/light theme t
 - [ ] Semantic version tagging automation
 - [ ] Expanded test coverage for security edge cases
 
+## Help Panel and Ledger
+
+- A floating helper (R button) appears on most pages with Read/Instructions/Notes/To‑Do tabs. Admin can change defaults via `/admin` → Help Panel Settings.
+- Notes/To‑Do are stored per page in `localStorage` and won’t be sent to the server.
+- A simple rent ledger is available at `/resources/rent_ledger` for authenticated users (token via query/header/form). Entries are saved to `uploads/ledger/<user_id>/ledger.json` and totals are displayed.
+
 Contributions or feature requests: open an issue or describe the desired end-user workflow and the automation you want.
 
 ## Open Doors Checklist
@@ -387,9 +481,10 @@ $env:FORCE_HTTPS = '1'
 python .\run_dev_ssl.py
 ```
 
-3) Visit https://localhost:8443 and accept the self-signed cert. The `/info` endpoint will show `security_mode` and responses will include HSTS headers.
+3) Visit <https://localhost:8443> and accept the self-signed cert. The `/info` endpoint will show `security_mode` and responses will include HSTS headers.
 
 Notes:
+
 - `FORCE_HTTPS=1` enforces HTTPS redirects and adds HSTS headers (also active when a request is already secure via a reverse proxy).
 - For production, terminate TLS at your reverse proxy/load balancer and keep using `run_prod.py` behind it.
 
