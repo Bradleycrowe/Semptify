@@ -33,6 +33,20 @@ Concise, actionable guide for AI coding agents on this Flask app. Focus only on 
 ## Integration points
 - GitHub API: `/release_now` creates a tag on the repo; in TESTING without `GITHUB_TOKEN`, it simulates a tag and appends to `logs/release-log.json`.
 - Copilot providers via env: `AI_PROVIDER=openai|azure|ollama` (+ provider‑specific keys). POST `/api/copilot` accepts JSON and returns provider output.
+- Evidence collection: POST `/api/evidence-copilot` provides AI assistance for evidence collection with enhanced context (location, timestamp, form type).
+
+## Document verification & binding
+- All saved documents (witness statements, filing packets, service animal requests, move checklists) include a JSON certificate with cryptographic binding:
+  - `sha256`: Hash of document content for integrity verification
+  - `ts`: UTC ISO timestamp of creation
+  - `ip`: Client IP address
+  - `user_agent`: Browser/client user agent
+  - `request_id`: Unique request identifier for traceability
+  - `evidence_collection`: Location data, timestamp, accuracy, collection method
+  - `sig_name`, `sig_consented`: Electronic signature details
+- Certificates are saved alongside documents as `{type}_{timestamp}.json` in user vaults
+- Evidence system (`static/js/evidence-system.js` → `evidence-collector.js`) captures GPS location, timestamps, audio recordings with metadata
+- Templates using evidence collection include `evidence_panel.html` which provides UI for location tracking, audio recording, voice commands, and AI assistance
 
 ## User sign‑up flow (Document Vault)
 - Registration: `GET /register` renders a form with a CSRF token; `POST /register` creates a user with an anonymous digits‑only token (hash stored in `security/users.json`).
