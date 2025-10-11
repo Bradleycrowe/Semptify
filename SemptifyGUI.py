@@ -12,6 +12,7 @@ import hashlib
 import uuid
 from collections import deque, defaultdict
 from typing import Optional, Callable
+from ron_providers import get_provider
 
 # -----------------------------
 # Rate limiting (simple sliding window) & config
@@ -92,6 +93,16 @@ app = Flask(
 # Secret key for session/CSRF (set FLASK_SECRET in production)
 app.secret_key = os.environ.get('FLASK_SECRET', os.urandom(32))
 
+# Optional data root for shared storage (e.g., NFS/volume mount) to enable horizontal scaling
+_DATA_ROOT = os.environ.get('SEMPTIFY_DATA_ROOT')
+if _DATA_ROOT:
+    try:
+        os.makedirs(_DATA_ROOT, exist_ok=True)
+        os.chdir(_DATA_ROOT)
+    except Exception:
+        # Best-effort; fall back to current working directory
+        pass
+
 # Required folders
 folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
 
@@ -144,6 +155,88 @@ def _rotate_if_needed(path: str):
         # Silent failure; rotation is best-effort
         pass
 
+# -----------------------------
+# Help panel settings storage
+# -----------------------------
+HELP_PANEL_CACHE = {
+    'path': os.path.join('security', 'help_panel.json'),
+    'mtime': None,
+    'data': None
+}
+
+def _help_panel_load(force: bool=False) -> dict:
+    path = HELP_PANEL_CACHE['path']
+    if not os.path.exists(path):
+        return {}
+    try:
+        mtime = os.path.getmtime(path)
+        if force or HELP_PANEL_CACHE['mtime'] != mtime or HELP_PANEL_CACHE['data'] is None:
+            with open(path, 'r', encoding='utf-8') as f:
+                HELP_PANEL_CACHE['data'] = json.load(f)
+            HELP_PANEL_CACHE['mtime'] = mtime
+        return HELP_PANEL_CACHE['data'] or {}
+    except Exception as e:  # pragma: no cover
+        _append_log(f"help_panel_load_error {e}")
+        return {}
+
+def _help_panel_save(data: dict) -> bool:
+    path = HELP_PANEL_CACHE['path']
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+        HELP_PANEL_CACHE['data'] = data
+        HELP_PANEL_CACHE['mtime'] = os.path.getmtime(path)
+        return True
+    except Exception as e:  # pragma: no cover
+        _append_log(f"help_panel_save_error {e}")
+        return False
+
+@app.route('/api/help_panel_settings', methods=['GET'])
+def api_help_panel_settings():
+    _inc('requests_total')
+    cfg = _help_panel_load()
+    # Return minimal defaults if no config exists
+    defaults = {
+        'enabled': True,
+        'label': 'R',
+        'position': 'br',  # br=bottom-right, bl=bottom-left
+        'read_default': 'Quick overview: This page helps you manage tenant documentation and records.',
+        'instructions_default': 'Use the forms on this page to create or record documents. Save to your Vault.'
+    }
+    defaults.update(cfg or {})
+    return jsonify(defaults)
+
+@app.route('/admin/help_panel_save', methods=['POST'])
+def admin_help_panel_save():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    try:
+        enabled = request.form.get('enabled') in ('on','yes','true','1')
+        label = (request.form.get('label') or 'R').strip()[:2] or 'R'
+        position = (request.form.get('position') or 'br').strip()
+        if position not in ('br','bl'):
+            position = 'br'
+        read_default = (request.form.get('read_default') or '').strip()
+        instructions_default = (request.form.get('instructions_default') or '').strip()
+        data = {
+            'enabled': enabled,
+            'label': label,
+            'position': position,
+            'read_default': read_default,
+            'instructions_default': instructions_default
+        }
+        ok = _help_panel_save(data)
+        if not ok:
+            return "Failed to save settings", 500
+        _event_log('help_panel_settings_saved', position=position, enabled=enabled)
+        return redirect('/admin')
+    except Exception as e:  # pragma: no cover
+        _append_log(f"help_panel_save_exception {e}")
+        return "Failed to save settings", 500
+
 def _append_log(line: str):
     log_path_local = os.path.join("logs", "init.log")
     _rotate_if_needed(log_path_local)
@@ -168,6 +261,13 @@ def _event_log(event: str, **fields):
 
 def _sha256_hex(text: str) -> str:
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+def _sha256_file(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            h.update(chunk)
+    return h.hexdigest()
 
 # -----------------------------
 # Users registry for Document Vault
@@ -928,6 +1028,40 @@ def resources():
     _inc('requests_total')
     return render_template('resources.html')
 
+@app.route('/resources/advocacy')
+def resources_advocacy():
+    _inc('requests_total')
+    # Simple static list for now; can evolve to region-aware later
+    orgs = [
+        { 'name': 'Legal Aid (US directory)', 'url': 'https://www.lsc.gov/about-lsc/what-legal-aid/find-legal-aid', 'desc': 'Find a local legal aid provider by ZIP/State.' },
+        { 'name': 'Housing Justice / Tenant Unions (local)', 'url': 'https://tenantresourcehub.org/', 'desc': 'Tenant support and local advocacy org discovery.' },
+        { 'name': '211.org', 'url': 'https://www.211.org/', 'desc': 'Community services directory (housing, utilities, legal help).' },
+        { 'name': 'National Low Income Housing Coalition', 'url': 'https://nlihc.org/', 'desc': 'Policy, research, and renter resources.' }
+    ]
+    learning = [
+        { 'title': 'Documenting Housing Issues', 'desc': 'How to build a clean evidence trail (photos, dates, notices).'},
+        { 'title': 'Understanding Notices & Timelines', 'desc': 'What common notices mean and typical response windows.'},
+        { 'title': 'Preparing for Court', 'desc': 'Organizing documents, service proofs, and what to expect.'}
+    ]
+    return render_template('advocacy.html', orgs=orgs, learning=learning)
+
+@app.route('/resources/roadmap')
+def resources_roadmap():
+    _inc('requests_total')
+    items = [
+        { 'title': 'Remote Online Notarization (live integration)', 'desc': 'Connect to BlueNotary for MN-compliant RON sessions with webhooks and audit trail storage.' },
+        { 'title': 'Hybrid Mail (Certified/Registered)', 'desc': 'Automate certified mail via a provider (Lob/Click2Mail) and store tracking in certificates.' },
+        { 'title': 'Court e-Filing Helpers', 'desc': 'State-specific e-filing checklists and document packaging.' },
+        { 'title': 'Evidence OCR and Auto-Index', 'desc': 'Extract text and dates from uploads to improve search and timelines.' },
+        { 'title': 'Share Scopes & Expirations', 'desc': 'Grant sharing that exposes only selected files/certificates with auto-expire.' }
+    ]
+    guidance = [
+        'Use the Help panel (R) for quick page-specific tips and to jot Notes/To-Do.',
+        'Leverage the Vault and Certificates export bundle to assemble records quickly.',
+        'Advocacy & Learning has links for legal help and documentation best practices.'
+    ]
+    return render_template('roadmap.html', items=items, guidance=guidance)
+
 @app.route('/resources/download/<name>.txt')
 def resources_download(name: str):
     _inc('requests_total')
@@ -1086,6 +1220,7 @@ def copilot_api():
         return "CSRF validation failed", 400
     data = request.get_json(silent=True) or {}
     prompt = (data.get('prompt') or '').strip()
+    citations = bool(data.get('citations'))
     if not prompt:
         return jsonify({'error': 'missing_prompt'}), 400
 
@@ -1101,6 +1236,8 @@ def copilot_api():
         _event_log('evidence_copilot_request', ip=ip, location=location[:50] if location else None, form_type=form_type)
     else:
         enhanced_prompt = prompt
+    if citations:
+        enhanced_prompt += "\n\nAlso include citations to relevant statutes, regulations, or trusted sources, with links when possible."
 
     text, code = _copilot_generate(enhanced_prompt)
     return jsonify({'provider': _ai_provider(), 'output': text}), code
@@ -1622,7 +1759,13 @@ def vault_home():
     except Exception as e:  # pragma: no cover
         _append_log(f"vault_list_error {e}")
     csrf_token = _get_or_create_csrf_token()
-    return render_template('vault.html', user=user, files=files, csrf_token=csrf_token)
+    # Load active grants for this user
+    try:
+        _load_grants()
+        active_grants = [g for g in GRANTS_CACHE.get('grants', []) if g.get('user_id') == user['id']]
+    except Exception:
+        active_grants = []
+    return render_template('vault.html', user=user, files=files, grants=active_grants, csrf_token=csrf_token)
 
 @app.route('/vault/upload', methods=['POST'])
 def vault_upload():
@@ -1659,6 +1802,38 @@ def vault_download(filename):
     if not os.path.exists(path):
         return "Not found", 404
     return send_file(path, as_attachment=True)
+
+@app.route('/vault/revoke_share', methods=['POST'])
+def vault_revoke_share():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    grant_id = (request.form.get('grant_id') or '').strip()
+    if not grant_id:
+        return "Missing grant_id", 400
+    # Read grants and disable the matching one owned by this user
+    path = GRANTS_CACHE['path']
+    try:
+        data = []
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        updated = False
+        for entry in data:
+            if entry.get('id') == grant_id and entry.get('user_id') == user['id'] and entry.get('enabled', True):
+                entry['enabled'] = False
+                updated = True
+                break
+        if updated:
+            _write_grants(data)
+            _event_log('vault_share_revoked', user_id=user['id'], grant_id=grant_id)
+    except Exception as e:  # pragma: no cover
+        _append_log(f"vault_revoke_error {e}")
+        return "Failed to revoke share", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
 
 @app.route('/vault/create_share', methods=['POST'])
 def vault_create_share():
@@ -1776,6 +1951,696 @@ def home_search_submit():
     if pets and pets.lower() in ('cats','dogs','none'):
         samples = [s for s in samples if s['pets'] == pets.lower()]
     return render_template('home_search_results.html', results=samples, city=city, max_rent=max_rent, beds=beds, pets=pets)
+
+# -----------------------------
+# Virtual Notary (evidence-of-existence; not a legal notarization)
+# -----------------------------
+@app.route('/notary', methods=['GET'])
+def notary_home():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    user_dir = _vault_user_dir(user['id'])
+    files = []
+    try:
+        if os.path.isdir(user_dir):
+            for name in sorted(os.listdir(user_dir)):
+                fp = os.path.join(user_dir, name)
+                if os.path.isfile(fp) and not name.lower().endswith('.json'):
+                    files.append({'name': name, 'size': os.path.getsize(fp)})
+    except Exception as e:  # pragma: no cover
+        _append_log(f"notary_list_error {e}")
+    return render_template('notary.html', user=user, files=files, csrf_token=_render_csrf())
+
+@app.route('/notary/upload', methods=['POST'])
+def notary_upload():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    f = request.files.get('file')
+    if not f or f.filename == '':
+        return "No file provided", 400
+    safe = secure_filename(f.filename)
+    user_dir = _vault_user_dir(user['id'])
+    os.makedirs(user_dir, exist_ok=True)
+    dest = os.path.join(user_dir, safe)
+    try:
+        f.save(dest)
+        sha = _sha256_file(dest)
+        ts = _utc_now_iso()
+        cert = {
+            'type': 'notary_attestation',
+            'method': 'upload',
+            'filename': safe,
+            'user_id': user['id'],
+            'ts': ts,
+            'sha256': sha,
+            'request_id': getattr(request, 'request_id', None),
+            'disclaimer': 'This is a digital attestation of file existence and integrity. It is not a legal notarization.'
+        }
+        evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+        evidence_location = (request.form.get('evidence_location') or '').strip()
+        evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
+        cert['evidence_collection'] = {
+            'timestamp': evidence_timestamp or ts,
+            'location': evidence_location or 'Not provided',
+            'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+            'has_location_data': bool(evidence_location),
+            'collection_method': 'semptify_notary'
+        }
+        cert_path = os.path.join(user_dir, f"notary_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, ensure_ascii=False, indent=2)
+        _event_log('notary_upload_attested', user_id=user['id'], filename=safe, sha256=sha)
+    except Exception as e:
+        _append_log(f"notary_upload_error {e}")
+        return "Failed to save notary attestation", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+@app.route('/notary/attest_existing', methods=['POST'])
+def notary_attest_existing():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    safe = secure_filename((request.form.get('filename') or '').strip())
+    if not safe:
+        return "Filename required", 400
+    user_dir = _vault_user_dir(user['id'])
+    path = os.path.join(user_dir, safe)
+    if not os.path.isfile(path):
+        return "File not found", 404
+    try:
+        sha = _sha256_file(path)
+        ts = _utc_now_iso()
+        cert = {
+            'type': 'notary_attestation',
+            'method': 'existing',
+            'filename': safe,
+            'user_id': user['id'],
+            'ts': ts,
+            'sha256': sha,
+            'request_id': getattr(request, 'request_id', None),
+            'disclaimer': 'This is a digital attestation of file existence and integrity. It is not a legal notarization.'
+        }
+        evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+        evidence_location = (request.form.get('evidence_location') or '').strip()
+        evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
+        cert['evidence_collection'] = {
+            'timestamp': evidence_timestamp or ts,
+            'location': evidence_location or 'Not provided',
+            'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+            'has_location_data': bool(evidence_location),
+            'collection_method': 'semptify_notary'
+        }
+        cert_path = os.path.join(user_dir, f"notary_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, ensure_ascii=False, indent=2)
+        _event_log('notary_existing_attested', user_id=user['id'], filename=safe, sha256=sha)
+    except Exception as e:
+        _append_log(f"notary_existing_error {e}")
+        return "Failed to save notary attestation", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# Certified Post / Electronic Service tracker
+# -----------------------------
+@app.route('/certified_post', methods=['GET'])
+def certified_post_form():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    # list existing files to pick from
+    user_dir = _vault_user_dir(user['id'])
+    files = []
+    try:
+        if os.path.isdir(user_dir):
+            for name in sorted(os.listdir(user_dir)):
+                fp = os.path.join(user_dir, name)
+                if os.path.isfile(fp) and not name.lower().endswith('.json'):
+                    files.append({'name': name, 'size': os.path.getsize(fp)})
+    except Exception as e:  # pragma: no cover
+        _append_log(f"certpost_list_error {e}")
+    return render_template('certified_post.html', user=user, files=files, csrf_token=_render_csrf())
+
+@app.route('/certified_post', methods=['POST'])
+def certified_post_submit():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    service_type = (request.form.get('service_type') or '').strip()
+    tracking_number = (request.form.get('tracking_number') or '').strip()
+    destination = (request.form.get('destination') or '').strip()
+    related_file = secure_filename((request.form.get('filename') or '').strip())
+    if not service_type or not destination:
+        return "Service type and destination are required", 400
+    # Optional: attach a receipt image/pdf
+    receipt = request.files.get('receipt_file')
+    receipt_name = None
+    user_dir = _vault_user_dir(user['id'])
+    try:
+        if receipt and receipt.filename:
+            receipt_name = secure_filename(receipt.filename)
+            if receipt_name:
+                receipt_dest = os.path.join(user_dir, f"receipt_{int(time.time())}_{receipt_name}")
+                receipt.save(receipt_dest)
+    except Exception as e:
+        _append_log(f"certpost_receipt_save_error {e}")
+    # Compute sha256 for related file if provided
+    file_sha = None
+    if related_file:
+        fpath = os.path.join(user_dir, related_file)
+        if os.path.isfile(fpath):
+            try:
+                file_sha = _sha256_file(fpath)
+            except Exception as e:
+                _append_log(f"certpost_hash_error {e}")
+    ts = _utc_now_iso()
+    cert = {
+        'type': 'certified_post',
+        'user_id': user['id'],
+        'ts': ts,
+        'service_type': service_type,
+        'destination': destination,
+        'tracking_number': tracking_number or None,
+        'related_file': related_file or None,
+        'related_file_sha256': file_sha,
+        'receipt_file': receipt_name,
+        'request_id': getattr(request, 'request_id', None)
+    }
+    # Evidence context optional
+    evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+    evidence_location = (request.form.get('evidence_location') or '').strip()
+    evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
+    cert['evidence_collection'] = {
+        'timestamp': evidence_timestamp or ts,
+        'location': evidence_location or 'Not provided',
+        'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+        'has_location_data': bool(evidence_location),
+        'collection_method': 'semptify_certified_post'
+    }
+    try:
+        cert_path = os.path.join(user_dir, f"certpost_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, ensure_ascii=False, indent=2)
+        _event_log('certified_post_created', user_id=user['id'], service_type=service_type, tracking_number=tracking_number)
+    except Exception as e:
+        _append_log(f"certpost_write_error {e}")
+        return "Failed to save certified post record", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# Court Clerk filing tracker
+# -----------------------------
+@app.route('/court_clerk', methods=['GET'])
+def court_clerk_form():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    user_dir = _vault_user_dir(user['id'])
+    files = []
+    try:
+        if os.path.isdir(user_dir):
+            for name in sorted(os.listdir(user_dir)):
+                fp = os.path.join(user_dir, name)
+                if os.path.isfile(fp) and not name.lower().endswith('.json'):
+                    files.append({'name': name, 'size': os.path.getsize(fp)})
+    except Exception as e:  # pragma: no cover
+        _append_log(f"courtclerk_list_error {e}")
+    return render_template('court_clerk.html', user=user, files=files, csrf_token=_render_csrf())
+
+@app.route('/court_clerk', methods=['POST'])
+def court_clerk_submit():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    court_name = (request.form.get('court_name') or '').strip()
+    case_number = (request.form.get('case_number') or '').strip()
+    filing_type = (request.form.get('filing_type') or '').strip()
+    submission_method = (request.form.get('submission_method') or '').strip()
+    status = (request.form.get('status') or 'submitted').strip()
+    related_file = secure_filename((request.form.get('filename') or '').strip())
+    if not court_name or not related_file:
+        return "Court name and related file are required", 400
+    user_dir = _vault_user_dir(user['id'])
+    fpath = os.path.join(user_dir, related_file)
+    if not os.path.isfile(fpath):
+        return "Related file not found", 404
+    # Optional: clerk stamp/receipt upload
+    stamp = request.files.get('stamp_file')
+    stamp_name = None
+    try:
+        if stamp and stamp.filename:
+            stamp_name = secure_filename(stamp.filename)
+            if stamp_name:
+                stamp_dest = os.path.join(user_dir, f"clerkstamp_{int(time.time())}_{stamp_name}")
+                stamp.save(stamp_dest)
+    except Exception as e:
+        _append_log(f"courtclerk_stamp_save_error {e}")
+    file_sha = None
+    try:
+        file_sha = _sha256_file(fpath)
+    except Exception as e:
+        _append_log(f"courtclerk_hash_error {e}")
+    ts = _utc_now_iso()
+    cert = {
+        'type': 'court_clerk_filing',
+        'user_id': user['id'],
+        'ts': ts,
+        'court_name': court_name,
+        'case_number': case_number or None,
+        'filing_type': filing_type or None,
+        'submission_method': submission_method or None,
+        'status': status,
+        'related_file': related_file,
+        'related_file_sha256': file_sha,
+        'stamp_file': stamp_name,
+        'request_id': getattr(request, 'request_id', None)
+    }
+    evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+    evidence_location = (request.form.get('evidence_location') or '').strip()
+    evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
+    cert['evidence_collection'] = {
+        'timestamp': evidence_timestamp or ts,
+        'location': evidence_location or 'Not provided',
+        'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+        'has_location_data': bool(evidence_location),
+        'collection_method': 'semptify_court_clerk'
+    }
+    try:
+        cert_path = os.path.join(user_dir, f"courtclerk_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, ensure_ascii=False, indent=2)
+        _event_log('court_clerk_filing_recorded', user_id=user['id'], court=court_name, case=case_number)
+    except Exception as e:
+        _append_log(f"courtclerk_write_error {e}")
+        return "Failed to save court clerk record", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# Certificates: list, view, and export bundle
+# -----------------------------
+@app.route('/vault/certificates', methods=['GET'])
+def vault_certificates_list():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    user_dir = _vault_user_dir(user['id'])
+    certs = []
+    try:
+        for name in sorted(os.listdir(user_dir)):
+            if name.lower().endswith('.json') and (name.startswith('notary_') or name.startswith('certpost_') or name.startswith('courtclerk_') or name.startswith('electronic_service_') or name.startswith('legalnotary_') or name.startswith('ron_')):
+                full = os.path.join(user_dir, name)
+                certs.append({'name': name, 'size': os.path.getsize(full)})
+    except Exception as e:  # pragma: no cover
+        _append_log(f"cert_list_error {e}")
+    return render_template('certificates.html', user=user, certs=certs, csrf_token=_render_csrf())
+
+@app.route('/vault/certificates/<path:filename>', methods=['GET'])
+def vault_certificate_view(filename):
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    safe = secure_filename(filename)
+    if not safe or safe != filename or not safe.lower().endswith('.json'):
+        return "Invalid filename", 400
+    path = os.path.join(_vault_user_dir(user['id']), safe)
+    if not os.path.isfile(path):
+        return "Not found", 404
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        data = None
+    return render_template('certificate_view.html', filename=safe, data=data)
+
+@app.route('/vault/export_bundle', methods=['POST'])
+def vault_export_bundle():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    user_dir = _vault_user_dir(user['id'])
+    # Build a zip in-memory containing all certificates and referenced files where present
+    import io, zipfile
+    mem = io.BytesIO()
+    with zipfile.ZipFile(mem, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
+        # Add certificates
+        refs = []
+        for name in sorted(os.listdir(user_dir)):
+            if name.lower().endswith('.json') and (name.startswith('notary_') or name.startswith('certpost_') or name.startswith('courtclerk_') or name.startswith('electronic_service_') or name.startswith('legalnotary_') or name.startswith('ron_')):
+                full = os.path.join(user_dir, name)
+                try:
+                    zf.write(full, arcname=f"certificates/{name}")
+                    # collect referenced files
+                    with open(full, 'r', encoding='utf-8') as cf:
+                        c = json.load(cf)
+                        # common keys that may reference filenames
+                        for key in ('filename','related_file','receipt_file','stamp_file','attachments'):
+                            v = c.get(key)
+                            if isinstance(v, str) and v:
+                                refs.append(v)
+                            elif isinstance(v, list):
+                                for item in v:
+                                    if isinstance(item, str):
+                                        refs.append(item)
+                except Exception as e:  # pragma: no cover
+                    _append_log(f"export_zip_add_cert_error {e}")
+        # Deduplicate and add referenced files
+        for rf in sorted(set(filter(None, refs))):
+            safe = secure_filename(rf)
+            fpath = os.path.join(user_dir, safe)
+            if os.path.isfile(fpath):
+                try:
+                    zf.write(fpath, arcname=f"files/{safe}")
+                except Exception as e:  # pragma: no cover
+                    _append_log(f"export_zip_add_file_error {e}")
+    mem.seek(0)
+    fname = f"semptify_export_{user['id']}_{int(time.time())}.zip"
+    return send_file(mem, as_attachment=True, download_name=fname, mimetype='application/zip')
+
+# -----------------------------
+# Electronic Service (email) - simulate send and record certificate
+# -----------------------------
+@app.route('/electronic_service', methods=['GET'])
+def electronic_service_form():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    user_dir = _vault_user_dir(user['id'])
+    files = []
+    try:
+        if os.path.isdir(user_dir):
+            for name in sorted(os.listdir(user_dir)):
+                fp = os.path.join(user_dir, name)
+                if os.path.isfile(fp) and not name.lower().endswith('.json'):
+                    files.append({'name': name, 'size': os.path.getsize(fp)})
+    except Exception as e:  # pragma: no cover
+        _append_log(f"esvc_list_error {e}")
+    return render_template('electronic_service.html', user=user, files=files, csrf_token=_render_csrf())
+
+@app.route('/electronic_service', methods=['POST'])
+def electronic_service_submit():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    to_addr = (request.form.get('to') or '').strip()
+    subject = (request.form.get('subject') or '').strip()
+    body = (request.form.get('body') or '').strip()
+    related_file = secure_filename((request.form.get('filename') or '').strip())
+    if not to_addr:
+        return "Recipient is required", 400
+    user_dir = _vault_user_dir(user['id'])
+    file_sha = None
+    if related_file:
+        fpath = os.path.join(user_dir, related_file)
+        if os.path.isfile(fpath):
+            try:
+                file_sha = _sha256_file(fpath)
+            except Exception as e:
+                _append_log(f"esvc_hash_error {e}")
+    ts = _utc_now_iso()
+    # Simulate sending; in future integrate email provider
+    cert = {
+        'type': 'electronic_service',
+        'user_id': user['id'],
+        'ts': ts,
+        'to': to_addr,
+        'subject': subject or None,
+        'body': body or None,
+        'related_file': related_file or None,
+        'related_file_sha256': file_sha,
+        'outcome': 'simulated_sent',
+        'request_id': getattr(request, 'request_id', None)
+    }
+    evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+    evidence_location = (request.form.get('evidence_location') or '').strip()
+    evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
+    cert['evidence_collection'] = {
+        'timestamp': evidence_timestamp or ts,
+        'location': evidence_location or 'Not provided',
+        'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+        'has_location_data': bool(evidence_location),
+        'collection_method': 'semptify_electronic_service'
+    }
+    try:
+        cert_path = os.path.join(user_dir, f"electronic_service_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, ensure_ascii=False, indent=2)
+        _event_log('electronic_service_recorded', user_id=user['id'], to=to_addr)
+    except Exception as e:
+        _append_log(f"esvc_write_error {e}")
+        return "Failed to save electronic service record", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# Legal Notary: guidance + record of completed notarization (user-provided scan)
+# -----------------------------
+@app.route('/legal_notary', methods=['GET'])
+def legal_notary_form():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    user_dir = _vault_user_dir(user['id'])
+    # List existing files so user can indicate which document was notarized
+    files = []
+    try:
+        if os.path.isdir(user_dir):
+            for name in sorted(os.listdir(user_dir)):
+                fp = os.path.join(user_dir, name)
+                if os.path.isfile(fp) and not name.lower().endswith('.json'):
+                    files.append({'name': name, 'size': os.path.getsize(fp)})
+    except Exception as e:  # pragma: no cover
+        _append_log(f"legalnotary_list_error {e}")
+    # Provider from env
+    ron_provider = (os.environ.get('RON_PROVIDER') or '').strip().lower()
+    return render_template('legal_notary.html', user=user, files=files, csrf_token=_render_csrf(), ron_provider=ron_provider)
+
+@app.route('/legal_notary', methods=['POST'])
+def legal_notary_submit():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    user_dir = _vault_user_dir(user['id'])
+    # Metadata about the notarial act
+    notary_name = (request.form.get('notary_name') or '').strip()
+    commission_number = (request.form.get('commission_number') or '').strip()
+    state = (request.form.get('state') or '').strip()
+    notarization_date = (request.form.get('notarization_date') or '').strip() or _utc_now().strftime('%Y-%m-%d')
+    method = (request.form.get('method') or '').strip()  # in_person | ron | enotarization
+    provider = (request.form.get('provider') or '').strip()
+    jurisdiction = (request.form.get('jurisdiction') or '').strip()
+    source_file = secure_filename((request.form.get('source_file') or '').strip())
+    notes = (request.form.get('notes') or '').strip()
+    if not notary_name or not state:
+        return "Notary name and state are required", 400
+    # Upload scanned notarized document (optional but recommended)
+    up = request.files.get('notarized_file')
+    attach_name = None
+    try:
+        if up and up.filename:
+            base = secure_filename(up.filename)
+            if base:
+                attach_name = f"notarized_{int(time.time())}_{base}"
+                up.save(os.path.join(user_dir, attach_name))
+    except Exception as e:
+        _append_log(f"legalnotary_upload_error {e}")
+    # Compute sha for source/attachment if present
+    source_sha = None
+    if source_file:
+        spath = os.path.join(user_dir, source_file)
+        if os.path.isfile(spath):
+            try:
+                source_sha = _sha256_file(spath)
+            except Exception as e:
+                _append_log(f"legalnotary_source_hash_error {e}")
+    attach_sha = None
+    if attach_name:
+        apath = os.path.join(user_dir, attach_name)
+        if os.path.isfile(apath):
+            try:
+                attach_sha = _sha256_file(apath)
+            except Exception as e:
+                _append_log(f"legalnotary_attach_hash_error {e}")
+    # Certificate JSON (record of notarization)
+    ts = _utc_now_iso()
+    cert = {
+        'type': 'legal_notary_record',
+        'user_id': user['id'],
+        'ts': ts,
+        'notary_name': notary_name,
+        'commission_number': commission_number or None,
+        'state': state,
+        'jurisdiction': jurisdiction or None,
+        'method': method or None,
+        'provider': provider or None,
+        'notarization_date': notarization_date,
+        'source_file': source_file or None,
+        'source_file_sha256': source_sha,
+        'attachments': [attach_name] if attach_name else [],
+        'attachments_sha256': [attach_sha] if attach_sha else [],
+        'notes': notes or None,
+        'request_id': getattr(request, 'request_id', None),
+        'disclaimer': 'This records a legal notarization performed outside Semptify. It does not perform or replace a notarization.'
+    }
+    # Evidence collection context (optional)
+    evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
+    evidence_location = (request.form.get('evidence_location') or '').strip()
+    evidence_user_agent = (request.form.get('evidence_user_agent') or '').strip()
+    cert['evidence_collection'] = {
+        'timestamp': evidence_timestamp or ts,
+        'location': evidence_location or 'Not provided',
+        'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
+        'has_location_data': bool(evidence_location),
+        'collection_method': 'semptify_legal_notary_record'
+    }
+    try:
+        cert_path = os.path.join(user_dir, f"legalnotary_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, ensure_ascii=False, indent=2)
+        _event_log('legal_notary_recorded', user_id=user['id'], state=state, method=method)
+    except Exception as e:
+        _append_log(f"legalnotary_write_error {e}")
+        return "Failed to save legal notary record", 500
+    token = request.form.get('user_token') or ''
+    return redirect(f"/vault?user_token={token}")
+
+# -----------------------------
+# RON adapter (BlueNotary-ready) minimal flow: start, return, webhook
+# -----------------------------
+def _ron_provider() -> str:
+    return (os.environ.get('RON_PROVIDER') or '').strip().lower()
+
+@app.route('/legal_notary/start', methods=['POST'])
+def legal_notary_start():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    provider_name = _ron_provider()
+    if provider_name not in ('bluenotary', 'onenotary', 'notarize', 'docusign', ''):
+        return "RON provider not configured", 400
+    # Minimal: collect metadata and simulate creation. Real impl would call provider API.
+    source_file = secure_filename((request.form.get('source_file') or '').strip())
+    user_dir = _vault_user_dir(user['id'])
+    file_sha = None
+    if source_file:
+        spath = os.path.join(user_dir, source_file)
+        if os.path.isfile(spath):
+            try:
+                file_sha = _sha256_file(spath)
+            except Exception:
+                pass
+    # Create provider session (mocked in tests/no API key)
+    ret_url = f"/legal_notary/return?user_token={request.form.get('user_token','')}"
+    prov = get_provider(provider_name or 'bluenotary')
+    created = prov.create_session(user['id'], source_file or None, ret_url)
+    session_id = created.get('session_id') or f"sim-{uuid.uuid4().hex[:12]}"
+    redirect_url = created.get('redirect_url') or f"/legal_notary/return?session_id={session_id}&user_token={request.form.get('user_token','')}"
+    # Pre-write a pending certificate stub so webhook/return can update
+    ts = _utc_now_iso()
+    stub = {
+        'type': 'ron_session',
+        'status': 'started',
+        'provider': (provider_name or 'bluenotary'),
+        'user_id': user['id'],
+        'ts': ts,
+        'session_id': session_id,
+        'source_file': source_file or None,
+        'source_file_sha256': file_sha,
+        'request_id': getattr(request, 'request_id', None)
+    }
+    try:
+        with open(os.path.join(user_dir, f"ron_{session_id}.json"), 'w', encoding='utf-8') as cf:
+            json.dump(stub, cf, indent=2)
+    except Exception:
+        pass
+    return redirect(redirect_url)
+
+@app.route('/legal_notary/return', methods=['GET'])
+def legal_notary_return():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    session_id = (request.args.get('session_id') or '').strip()
+    if not session_id:
+        return "Missing session_id", 400
+    user_dir = _vault_user_dir(user['id'])
+    path = os.path.join(user_dir, f"ron_{session_id}.json")
+    # Simulate provider success and finalize certificate
+    data = {
+        'type': 'ron_session',
+        'status': 'completed',
+        'provider': _ron_provider(),
+        'user_id': user['id'],
+        'session_id': session_id,
+        'completed_ts': _utc_now_iso(),
+        'evidence_links': []
+    }
+    try:
+        # Merge with existing
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                prev = json.load(f)
+            prev.update(data)
+            data = prev
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+        _event_log('ron_completed', user_id=user['id'], session_id=session_id)
+    except Exception:
+        return "Failed to finalize RON record", 500
+    return redirect(f"/vault?user_token={request.args.get('user_token','')}")
+
+@app.route('/webhooks/ron', methods=['POST'])
+def ron_webhook():
+    # No CSRF; provider verification
+    prov = get_provider(_ron_provider())
+    if not prov.verify_webhook(request):
+        return "unauthorized", 401
+    payload = request.get_json(silent=True) or {}
+    user_id = (payload.get('user_id') or '').strip()
+    session_id = (payload.get('session_id') or '').strip()
+    status = (payload.get('status') or 'completed').strip()
+    evidence_links = payload.get('evidence_links') or []
+    if not user_id or not session_id:
+        return "bad payload", 400
+    user_dir = _vault_user_dir(user_id)
+    path = os.path.join(user_dir, f"ron_{session_id}.json")
+    try:
+        base = {}
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                base = json.load(f)
+        base.update({
+            'status': status,
+            'provider': _ron_provider() or base.get('provider'),
+            'updated_ts': _utc_now_iso(),
+            'evidence_links': evidence_links
+        })
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(base, f, indent=2)
+        _event_log('ron_webhook', user_id=user_id, session_id=session_id, status=status)
+    except Exception:
+        return "fail", 500
+    return "ok", 200
 
 # -----------------------------
 # Token rotation endpoint

@@ -1,0 +1,9 @@
+<div class="card narrow">
+  <h2>{{ title or 'Coming Soon' }}</h2>
+  <p class="muted">{{ message or 'This feature is in development. Here\'s what you can do now:' }}</p>
+  <div class="list-block">
+    {% for tip in tips or ['Check back later','Visit Advocacy & Learning','Use existing forms and certificates'] %}
+    <div class="list-item">{{ tip }}</div>
+    {% endfor %}
+  </div>
+</div>

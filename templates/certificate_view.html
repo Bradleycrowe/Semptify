@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Certificate</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Certificate</h1>
+      <p class="muted">Filename: {{ filename }}</p>
+      {% if data %}
+      <pre class="code-block">{{ data | tojson(indent=2) }}</pre>
+      {% else %}
+      <p class="error">Unable to parse JSON.</p>
+      {% endif %}
+      <p><a href="/vault/certificates?user_token={{ request.args.get('user_token','') }}">Back to Certificates</a></p>
+    </div>
+  </body>
+  <script src="/static/js/help-panel.js"></script>
+</html>
