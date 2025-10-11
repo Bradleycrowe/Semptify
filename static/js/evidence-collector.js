@@ -321,7 +321,7 @@ class SemptifyEvidenceCollector {
         };
 
         const csrfToken = this.getCSRFToken();
-        const response = await fetch('/api/copilot', {
+        const response = await fetch('/api/evidence-copilot', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

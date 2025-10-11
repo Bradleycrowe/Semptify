@@ -1105,6 +1105,32 @@ def copilot_api():
     text, code = _copilot_generate(enhanced_prompt)
     return jsonify({'provider': _ai_provider(), 'output': text}), code
 
+@app.route('/api/evidence-copilot', methods=['POST'])
+def evidence_copilot_api():
+    """Specialized endpoint for evidence collection AI assistance"""
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr) or 'unknown'
+    if not _rate_limit(f"copilot:{ip}"):
+        _inc('rate_limited_total')
+        return jsonify({'error': 'rate_limited'}), RATE_LIMIT_STATUS, {'Retry-After': str(RATE_LIMIT_RETRY_AFTER)}
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    data = request.get_json(silent=True) or {}
+    prompt = (data.get('prompt') or '').strip()
+    if not prompt:
+        return jsonify({'error': 'missing_prompt'}), 400
+
+    # Evidence copilot always uses enhanced prompting
+    location = (data.get('location') or '').strip()
+    timestamp = (data.get('timestamp') or '').strip()
+    form_type = (data.get('form_type') or '').strip()
+    form_data = data.get('form_data', {})
+
+    enhanced_prompt = _build_evidence_prompt(prompt, location, timestamp, form_type, form_data)
+    _event_log('evidence_copilot_request', ip=ip, location=location[:50] if location else None, form_type=form_type)
+
+    text, code = _copilot_generate(enhanced_prompt)
+    return jsonify({'provider': _ai_provider(), 'output': text}), code
+
 def _build_evidence_prompt(base_prompt: str, location: str, timestamp: str, form_type: str, form_data: dict) -> str:
     """Build enhanced prompt with evidence collection context"""
     enhanced = "You are an AI assistant specializing in tenant rights and evidence collection. "

@@ -17,7 +17,7 @@ def test_evidence_panel_in_witness_form(client):
     assert 'evidence-system.js' in body
     assert 'evidence-panel' in body
     assert 'Evidence Collection' in body
-    assert 'Start Recording' in body
+    assert 'Record Evidence' in body
     assert 'Voice Commands' in body
     assert 'Ask AI' in body
 
@@ -104,5 +104,5 @@ def test_evidence_panel_template_exists():
     
     assert 'evidence-panel' in content
     assert 'toggleRecording' in content
-    assert 'toggleVoiceRecognition' in content
+    assert 'toggleVoiceCommands' in content
     assert 'askAI' in content
