@@ -459,6 +459,39 @@ def _current_security_mode():
 def _truthy(s: str) -> bool:
     return str(s).lower() in ("1", "true", "yes", "on")
 
+# -----------------------------
+# Public marketing/static pages
+# -----------------------------
+@app.route('/about', methods=['GET'])
+def about_page():
+    _inc('requests_total')
+    return render_template('about.html')
+
+@app.route('/features', methods=['GET'])
+def features_page():
+    _inc('requests_total')
+    return render_template('features.html')
+
+@app.route('/how_it_works', methods=['GET'])
+def how_it_works_page():
+    _inc('requests_total')
+    return render_template('how_it_works.html')
+
+@app.route('/faq', methods=['GET'])
+def faq_page():
+    _inc('requests_total')
+    return render_template('faq.html')
+
+@app.route('/get_started', methods=['GET'])
+def get_started_page():
+    _inc('requests_total')
+    return render_template('get_started.html')
+
+@app.route('/site_map', methods=['GET'])
+def site_map_page():
+    _inc('requests_total')
+    return render_template('site_map.html')
+
 FORCE_HTTPS = _truthy(os.environ.get('FORCE_HTTPS', '0'))
 HSTS_MAX_AGE = int(os.environ.get('HSTS_MAX_AGE', '31536000'))  # 1 year
 HSTS_PRELOAD = _truthy(os.environ.get('HSTS_PRELOAD', '0'))
