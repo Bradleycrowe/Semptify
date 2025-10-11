@@ -98,3 +98,11 @@
 {"ts": "2025-10-10T17:22:33.045556Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T17:22:33.158443Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
 {"ts": "2025-10-10T17:22:33.165421Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:38:20.609557Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:38:20.665094Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:38:20.851834Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:38:20.857268Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:47:09.762725Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:47:09.804963Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:47:09.921214Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-10T20:47:09.927808Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}

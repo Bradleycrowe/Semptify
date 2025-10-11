@@ -1,68 +1,50 @@
 # Copilot Instructions for SemptifyGUI
 
-Concise, actionable guide for AI coding agents working on SemptifyGUI — a small Flask-based GUI/web app for tenant-justice automation. Include only patterns and commands that are discoverable from the repository.
+Concise, actionable guide for AI coding agents on this Flask app. Focus only on patterns discoverable from this repo.
 
-## Quick architecture snapshot
-- Entry point: `SemptifyGUI.py` — a single-process Flask app (calls `app.run(debug=True)`).
-- Runtime-created folders (the app ensures these exist at startup): `uploads`, `logs`, `copilot_sync`, `final_notices`, `security`.
-- High-level flow: HTTP route → filesystem write/read (uploads, final notices) → append logs (`logs/init.log`) → return response.
+## Architecture snapshot
+- Single Flask app: `SemptifyGUI.py` (templates in `templates/`, assets in `static/`).
+- Startup ensures runtime dirs exist: `uploads`, `logs`, `copilot_sync`, `final_notices`, `security`; logs initialization to `logs/init.log` and JSON events to `logs/events.log` (with rotation).
+- Key endpoints: `/`, `/health`, `/healthz`, `/readyz`, `/metrics`, `/info`, admin (`/admin`, `/admin/status`, POST `/release_now`, POST `/trigger_workflow`, `/release_history`, `/sbom*`), user resources (witness/packet/service-animal/move checklist), Document Vault (`/vault`, upload/download), rent ledger, registration (`/register`), Copilot UI/API (`/copilot`, POST `/api/copilot`).
 
-## Concrete signals & examples (from `SemptifyGUI.py`)
-- Folder creation is idempotent:
+## Security & auth (project-specific)
+- Modes: `SECURITY_MODE=open|enforced` (env). In open mode, admin routes allow access but still log; in enforced, admin requires token.
+- Admin tokens: hashed entries in `security/admin_tokens.json` (multi-token). Legacy fallback env `ADMIN_TOKEN` supported. Break‑glass: create `security/breakglass.flag` and use a token with `"breakglass": true` once.
+- CSRF: enforced for state‑changing POSTs only when in enforced mode. Use `_get_or_create_csrf_token()` and include `<input type="hidden" name="csrf_token" value="{{ csrf_token }}">` in forms.
+- Rate limiting (admin and select APIs): sliding window via `ADMIN_RATE_WINDOW`, `ADMIN_RATE_MAX`, returns 429 with `Retry-After` and logs `rate_limited`.
 
-  ```py
-  folders = ["uploads","logs","copilot_sync","final_notices","security"]
-  for folder in folders:
-      if not os.path.exists(folder):
-          os.makedirs(folder)
+## Observability & readiness
+- `/metrics` exposes counters (Prometheus): `requests_total`, `admin_requests_total`, `admin_actions_total`, `errors_total`, `releases_total`, `rate_limited_total`, `breakglass_used_total`, `token_rotations_total`, plus `uptime_seconds` gauge.
+- `/readyz` verifies runtime dirs are writable and tokens/users can load; returns `{ status: ready|degraded }` with details.
+- Optional JSON access logs: set `ACCESS_LOG_JSON=1` (includes `request_id`, latency, IP). `X-Request-Id` is propagated.
+
+## Runs, builds, tests (Windows PowerShell)
+- Dev run:
+  ```powershell
+  Set-Location -LiteralPath 'd:\Semptify\SemptifyGUI'
+  python -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  pip install -r requirements.txt
+  python .\SemptifyGUI.py
   ```
+- Prod run (waitress): `python .\run_prod.py` (uses `SEMPTIFY_PORT` or `PORT`). HTTPS dev: `python .\run_dev_ssl.py` with `security/dev-local.crt|key` and `FORCE_HTTPS=1`.
+- Tests: `python -m pytest -q` (see `tests/` for enforced/open mode, CSRF, rate limit, copilot, vault).
 
-- Initialization log append (follow this format for audit entries):
+## Integration points
+- GitHub API: `/release_now` creates a tag on the repo; in TESTING without `GITHUB_TOKEN`, it simulates a tag and appends to `logs/release-log.json`.
+- Copilot providers via env: `AI_PROVIDER=openai|azure|ollama` (+ provider‑specific keys). POST `/api/copilot` accepts JSON and returns provider output.
 
-  ```py
-  with open(os.path.join("logs","init.log"), "a") as f:
-      f.write(f"[{timestamp}] SemptifyGUI initialized with folders: {', '.join(folders)}\n")
-  ```
+## User sign‑up flow (Document Vault)
+- Registration: `GET /register` renders a form with a CSRF token; `POST /register` creates a user with an anonymous digits‑only token (hash stored in `security/users.json`).
+- CSRF: In `open` mode, CSRF is bypassed (tests rely on this). In `enforced` mode, include the hidden `csrf_token` input.
+- Rate limiting: Registration is IP‑limited using the same window/max envs (`ADMIN_RATE_WINDOW`, `ADMIN_RATE_MAX`, responds with configured status and `Retry-After`).
+- Success: `register_success.html` shows a one‑time token and a link to `/vault?user_token=<token>`. Tests assert the phrase "one-time token" (`tests/test_registration.py`).
+- Vault auth: user token can be supplied via `?user_token=...`, `X-User-Token` header, or form field `user_token`.
 
-- The app imports `render_template` and `send_file` but currently returns inline HTML on `/` — add `templates/` and `static/` when you introduce pages or assets.
+## Contribution conventions for agents
+- Preserve startup side effects (runtime dirs + init log). When writing files for users, save under per-user vault `uploads/vault/<user_id>`; include a JSON certificate with `sha256`, `ts`, `request_id`, and evidence context (see `witness_save`, `packet_save`, etc.).
+- For admin UIs, include CSRF hidden field and require explicit confirm fields (e.g., `confirm_release=yes`).
+- Use `secure_filename` and serve files via `send_file`; authenticate with `_require_user_or_401()` or `_require_admin_or_401()` and reuse `_rate_or_unauth_response()`.
+- Do not commit anything under `security/` (tokens, flags) or large binaries under `uploads/`.
 
-## How to run (Windows PowerShell, minimal)
-Recommended: use a venv and install Flask. Run these from the repository root (`d:\Semptify\SemptifyGUI`).
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install Flask
-python .\SemptifyGUI.py
-```
-
-Then verify index in another terminal:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-Invoke-WebRequest http://127.0.0.1:5000 -UseBasicParsing | Select-Object -ExpandProperty Content
-```
-
-Expected quick check: the response contains "SemptifyGUI is live. Buttons coming next." and `logs/init.log` has a timestamped entry.
-
-## Project-specific conventions & notes
-- Keep the runtime folder-creation and logging behavior when refactoring — other scripts and agents rely on these directories being present.
-- `security/` is for keys and sensitive material; treat it as secrets: do not commit. Add it to `.gitignore` if not already ignored.
-- When adding UI, put Jinja templates under `templates/` and static assets under `static/` (Flask conventions; `render_template` is already imported).
-- File-serving or downloads should use `send_file` (already imported in `SemptifyGUI.py`). Serve only sanitized, access-controlled files (specially in `uploads/` and `final_notices/`).
-
-## Integration points & dependencies
-- External runtime dependency: Flask (no `requirements.txt` present). If you add dependencies, create a top-level `requirements.txt`.
-- The app writes to disk — CI or runners must give the workspace write permissions.
-
-## Contribution guidance for AI agents
-- Preserve the core startup behavior: folder creation + `logs/init.log` append.
-- When adding routes, mirror existing naming and folder layout. Example: new route that writes a notice should place generated files in `final_notices/` and append a log entry to `logs/init.log`.
-- Avoid committing anything under `security/` or large binary files in `uploads/` and `copilot_sync/`.
-
-## Safe quick tasks an AI agent can do now
-- Add `requirements.txt` with `Flask`.
-- Add `templates/index.html` and switch `index()` to `render_template("index.html")`.
-- Add a tiny test using Flask's test client (under `tests/test_app.py`) that asserts `/` returns 200 and expected HTML.
-
-If anything above is unclear or you want me to implement one of the safe quick tasks, tell me which and I'll proceed.
+If any section is unclear or missing important patterns you rely on, tell me what to expand (e.g., token rotation, Render deploy vars, or PWA assets) and I’ll update this file.

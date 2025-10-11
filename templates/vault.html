@@ -25,5 +25,20 @@
         <button type="submit">Upload</button>
       </form>
     </section>
+
+    <section>
+      <h2>Share (read-only)</h2>
+      <p>Generate a private, time-limited link you can share with a trusted person (lawyer, case worker, caregiver). They can only view and download your files.</p>
+      <form action="/vault/create_share" method="post">
+        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="share-label">Label (who is this for?)</label>
+        <input id="share-label" name="label" type="text" placeholder="e.g., Attorney Smith" />
+        <label for="share-days">Expires in (days)</label>
+        <input id="share-days" name="expires_days" type="number" min="1" max="90" value="30" />
+        <input type="hidden" name="scope" value="vault_read" />
+        <button type="submit">Create share link</button>
+      </form>
+    </section>
   </body>
 </html>
