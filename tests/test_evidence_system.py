@@ -15,7 +15,7 @@ def test_evidence_panel_in_witness_form(client):
     assert rv.status_code == 200
     body = rv.data.decode('utf-8')
     assert 'Evidence Collection System' in body
-    assert 'evidence-collector.js' in body
+    assert 'evidence-system.js' in body
 
 def test_evidence_panel_in_packet_form(client):
     """Test that filing packet form includes evidence collection panel"""
@@ -23,7 +23,7 @@ def test_evidence_panel_in_packet_form(client):
     assert rv.status_code == 200
     body = rv.data.decode('utf-8')
     assert 'Evidence Collection System' in body
-    assert 'evidence-collector.js' in body
+    assert 'evidence-system.js' in body
 
 def test_evidence_panel_in_service_animal_form(client):
     """Test that service animal form includes evidence collection panel"""
@@ -31,7 +31,7 @@ def test_evidence_panel_in_service_animal_form(client):
     assert rv.status_code == 200
     body = rv.data.decode('utf-8')
     assert 'Evidence Collection System' in body
-    assert 'evidence-collector.js' in body
+    assert 'evidence-system.js' in body
 
 def test_evidence_panel_in_move_checklist_form(client):
     """Test that move checklist form includes evidence collection panel"""
@@ -39,18 +39,18 @@ def test_evidence_panel_in_move_checklist_form(client):
     assert rv.status_code == 200
     body = rv.data.decode('utf-8')
     assert 'Evidence Collection System' in body
-    assert 'evidence-collector.js' in body
+    assert 'evidence-system.js' in body
 
 def test_enhanced_copilot_with_evidence_context(client):
     """Test that copilot API handles evidence context"""
     with client.session_transaction() as sess:
         sess['csrf_token'] = 'test-token'
     
-    # Test basic copilot request (may fail CSRF or AI provider check)
+    # Test basic copilot request (may fail CSRF or AI provider check or rate limit)
     rv = client.post('/api/copilot',
                      json={'prompt': 'help with tenant rights'},
                      headers={'X-CSRFToken': 'test-token'})
-    assert rv.status_code in [200, 400, 501]  # 400 CSRF, 501 no AI provider
+    assert rv.status_code in [200, 400, 429, 501]  # 400 CSRF, 429 rate limit, 501 no AI provider
     
     # Test enhanced copilot with evidence context
     rv = client.post('/api/copilot',
@@ -62,7 +62,7 @@ def test_enhanced_copilot_with_evidence_context(client):
                          'form_data': {'full_name': 'Test User', 'statement': 'Test statement'}
                      },
                      headers={'X-CSRFToken': 'test-token'})
-    assert rv.status_code in [200, 400, 501]  # 400 CSRF, 501 no AI provider
+    assert rv.status_code in [200, 400, 429, 501]  # 400 CSRF, 429 rate limit, 501 no AI provider
 
 def test_evidence_data_extraction_from_form(client):
     """Test that evidence data is properly extracted from form submission"""

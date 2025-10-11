@@ -1,5 +1,5 @@
 import os
-8uimport json
+import json
 import pytest
 from SemptifyGUI import app
 
@@ -17,7 +17,7 @@ def test_evidence_panel_in_witness_form(client):
     assert 'evidence-system.js' in body
     assert 'evidence-panel' in body
     assert 'Evidence Collection' in body
-    assert 'Start Recording' in body
+    assert 'Record Evidence' in body
     assert 'Voice Commands' in body
     assert 'Ask AI' in body
 
@@ -77,7 +77,7 @@ def test_enhanced_evidence_data_in_certificate(client):
     
     # This will fail auth, but we can check the route exists
     rv = client.post('/resources/witness_statement_save', data=form_data)
-89    8assert rv.status_code in [400, 401]  # Expected without proper auth (CSRF or auth failure)
+    assert rv.status_code in [400, 401]  # Expected without proper auth (CSRF or auth failure)
 
 def test_static_evidence_system_js_exists():
     """Test that evidence system JavaScript file exists"""
@@ -104,5 +104,5 @@ def test_evidence_panel_template_exists():
     
     assert 'evidence-panel' in content
     assert 'toggleRecording' in content
-    assert 'toggleVoiceRecognition' in content
+    assert 'toggleVoiceCommands' in content
     assert 'askAI' in content
