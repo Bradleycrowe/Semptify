@@ -17,6 +17,7 @@
       {% endif %}
       <p><a href="/vault/certificates?user_token={{ request.args.get('user_token','') }}">Back to Certificates</a></p>
     </div>
+    {% include '_footer.html' %}
   </body>
   <script src="/static/js/help-panel.js"></script>
 </html>

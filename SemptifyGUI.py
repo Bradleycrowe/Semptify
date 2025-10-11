@@ -13,6 +13,8 @@ import uuid
 from collections import deque, defaultdict
 from typing import Optional, Callable
 from ron_providers import get_provider
+import subprocess
+import shlex
 
 # -----------------------------
 # Rate limiting (simple sliding window) & config
@@ -51,6 +53,7 @@ METRICS = {
     'breakglass_used_total': 0,
     'token_rotations_total': 0,
 }
+
 _metrics_lock = threading.Lock()
 _START_TIME = time.time()
 
@@ -523,6 +526,341 @@ def _set_security_headers(resp):  # pragma: no cover (headers logic simple)
             _append_log(f'access_log_error {e}')
     return resp
 
+# -----------------------------
+# Events & Logbook (per-user)
+# -----------------------------
+
+def _logbook_user_dir(user_id: str) -> str:
+    base = os.path.join('uploads', 'logbook', user_id)
+    os.makedirs(base, exist_ok=True)
+    return base
+
+def _logbook_path(user_id: str) -> str:
+    return os.path.join(_logbook_user_dir(user_id), 'events.json')
+
+def _logbook_load(user_id: str) -> list:
+    path = _logbook_path(user_id)
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:  # pragma: no cover
+        return []
+
+def _logbook_save(user_id: str, events: list):
+    path = _logbook_path(user_id)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(events, f, indent=2)
+
+def _parse_date_time(date_str: str | None, time_str: str | None):
+    try:
+        d = datetime.strptime((date_str or _utc_now().strftime('%Y-%m-%d')), '%Y-%m-%d').date()
+    except Exception:
+        d = _utc_now().date()
+    t = None
+    if time_str:
+        try:
+            t = datetime.strptime(time_str, '%H:%M').time()
+        except Exception:
+            t = None
+    return d, t
+
+@app.route('/resources/logbook', methods=['GET'])
+def logbook_view():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    events = _logbook_load(user['id'])
+    # sort by date then time
+    def _key(e):
+        return (e.get('date',''), e.get('time',''))
+    try:
+        events.sort(key=_key)
+    except Exception:
+        pass
+    csrf_token = _get_or_create_csrf_token()
+    today = _utc_now().date().strftime('%Y-%m-%d')
+    return render_template('logbook.html', events=events, csrf_token=csrf_token, user=user, today=today)
+
+@app.route('/resources/logbook_add', methods=['POST'])
+def logbook_add():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    date = (request.form.get('date') or _utc_now().strftime('%Y-%m-%d')).strip()
+    time_str = (request.form.get('time') or '').strip()
+    title = (request.form.get('title') or '').strip() or 'Untitled'
+    typ = (request.form.get('type') or 'meeting').strip()
+    location = (request.form.get('location') or '').strip()
+    people = (request.form.get('people') or '').strip()
+    notes = (request.form.get('notes') or '').strip()
+    # minimally validate date/time
+    d, t = _parse_date_time(date, time_str)
+    date = d.strftime('%Y-%m-%d')
+    time_str = t.strftime('%H:%M') if t else ''
+    events = _logbook_load(user['id'])
+    ev = {
+        'id': f"e{uuid.uuid4().hex[:10]}",
+        'date': date,
+        'time': time_str,
+        'title': title,
+        'type': typ,
+        'location': location,
+        'people': people,
+        'notes': notes,
+        'created_ts': _utc_now_iso(),
+    }
+    events.append(ev)
+    try:
+        events.sort(key=lambda e: (e.get('date',''), e.get('time','')))
+    except Exception:
+        pass
+    _logbook_save(user['id'], events)
+    _event_log('logbook_event_added', user_id=user['id'], date=date, time=time_str, type=typ)
+    token = request.form.get('user_token') or ''
+    return redirect(f"/resources/logbook?user_token={token}")
+
+@app.route('/resources/logbook_edit', methods=['POST'])
+def logbook_edit():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    ev_id = (request.form.get('id') or '').strip()
+    if not ev_id:
+        return "Missing id", 400
+    events = _logbook_load(user['id'])
+    found = None
+    for e in events:
+        if e.get('id') == ev_id:
+            found = e
+            break
+    if not found:
+        return "Event not found", 404
+    # Track changes
+    before = found.copy()
+    for field in ['date','time','title','type','location','people','notes']:
+        if field in request.form:
+            found[field] = (request.form.get(field) or '').strip()
+    found['updated_ts'] = _utc_now_iso()
+    # Save
+    _logbook_save(user['id'], events)
+    # Audit
+    changes = {}
+    for k in ['date','time','title','type','location','people','notes']:
+        if before.get(k) != found.get(k):
+            changes[k] = {'from': before.get(k), 'to': found.get(k)}
+    _audit_log(user['id'], 'edit', 'logbook', ev_id, changes)
+    token = request.form.get('user_token') or ''
+    return redirect(f"/resources/logbook?user_token={token}")
+
+@app.route('/resources/logbook.ics', methods=['GET'])
+def logbook_ics():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    events = _logbook_load(user['id'])
+    now = _utc_now()
+    lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Semptify//Logbook//EN',
+    ]
+    for e in events:
+        # build DTSTART; default to date only
+        dtstart = e.get('date','').replace('-','')
+        if e.get('time'):
+            dtstart = f"{dtstart}T{e['time'].replace(':','')}00"
+        uid = f"{e.get('id','evt')}-{user['id']}@semptify"
+        summary = e.get('title','Event').replace('\n',' ').replace('\r',' ')
+        description = e.get('notes','').replace('\n',' ').replace('\r',' ')
+        location = e.get('location','').replace('\n',' ').replace('\r',' ')
+        lines.extend([
+            'BEGIN:VEVENT',
+            f"UID:{uid}",
+            f"DTSTAMP:{now.strftime('%Y%m%dT%H%M%SZ')}",
+            f"DTSTART:{dtstart}",
+            f"SUMMARY:{summary}",
+            f"DESCRIPTION:{description}",
+            f"LOCATION:{location}",
+            'END:VEVENT',
+        ])
+    lines.append('END:VCALENDAR')
+    ics = "\r\n".join(lines)
+    from flask import Response
+    resp = Response(ics, mimetype='text/calendar')
+    resp.headers['Content-Disposition'] = 'attachment; filename="logbook.ics"'
+    return resp
+
+def _logbook_add_event(user_id: str, title: str, *, typ: str = 'other', date: str | None = None, time_str: str = '', location: str = '', people: str = '', notes: str = '') -> str:
+    """Programmatically add a logbook event for a user and return event id."""
+    events = _logbook_load(user_id)
+    if not date:
+        date = _utc_now().strftime('%Y-%m-%d')
+    ev_id = f"e{uuid.uuid4().hex[:10]}"
+    ev = {
+        'id': ev_id,
+        'date': date,
+        'time': time_str,
+        'title': title,
+        'type': typ,
+        'location': location,
+        'people': people,
+        'notes': notes,
+        'created_ts': _utc_now_iso(),
+        'auto_linked': True,
+    }
+    events.append(ev)
+    try:
+        events.sort(key=lambda e: (e.get('date',''), e.get('time','')))
+    except Exception:
+        pass
+    _logbook_save(user_id, events)
+    return ev_id
+
+# -----------------------------
+# Audit trail utilities (per-user JSONL)
+# -----------------------------
+
+def _audit_user_dir(user_id: str) -> str:
+    base = os.path.join('uploads', 'audit', user_id)
+    os.makedirs(base, exist_ok=True)
+    return base
+
+def _audit_path(user_id: str) -> str:
+    return os.path.join(_audit_user_dir(user_id), 'audit.log')
+
+def _audit_log(user_id: str, action: str, entity: str, entity_id: str, details: dict | None = None):
+    try:
+        rec = {
+            'ts': _utc_now_iso(),
+            'user_id': user_id,
+            'action': action,
+            'entity': entity,
+            'entity_id': entity_id,
+            'details': details or {},
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent'),
+            'request_id': getattr(request, 'request_id', None),
+        }
+        with open(_audit_path(user_id), 'a', encoding='utf-8') as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:  # pragma: no cover
+        _append_log(f"audit_log_error {e}")
+
+# -----------------------------
+# Contacts manager (per-user)
+# -----------------------------
+
+def _contacts_user_dir(user_id: str) -> str:
+    base = os.path.join('uploads', 'contacts', user_id)
+    os.makedirs(base, exist_ok=True)
+    return base
+
+def _contacts_path(user_id: str) -> str:
+    return os.path.join(_contacts_user_dir(user_id), 'contacts.json')
+
+def _contacts_load(user_id: str) -> list:
+    p = _contacts_path(user_id)
+    if not os.path.exists(p):
+        return []
+    try:
+        with open(p, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:  # pragma: no cover
+        return []
+
+def _contacts_save(user_id: str, contacts: list):
+    with open(_contacts_path(user_id), 'w', encoding='utf-8') as f:
+        json.dump(contacts, f, indent=2)
+
+@app.route('/resources/contacts', methods=['GET'])
+def contacts_view():
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    contacts = _contacts_load(user['id'])
+    csrf_token = _get_or_create_csrf_token()
+    return render_template('contacts.html', contacts=contacts, csrf_token=csrf_token, user=user)
+
+@app.route('/resources/contacts_add', methods=['POST'])
+def contacts_add():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    name = (request.form.get('name') or '').strip()
+    if not name:
+        return "Name is required", 400
+    role = (request.form.get('role') or '').strip()
+    org = (request.form.get('organization') or '').strip()
+    phone = (request.form.get('phone') or '').strip()
+    email = (request.form.get('email') or '').strip()
+    address = (request.form.get('address') or '').strip()
+    notes = (request.form.get('notes') or '').strip()
+    contacts = _contacts_load(user['id'])
+    cid = f"c{uuid.uuid4().hex[:10]}"
+    contact = {
+        'id': cid,
+        'name': name,
+        'role': role,
+        'organization': org,
+        'phone': phone,
+        'email': email,
+        'address': address,
+        'notes': notes,
+        'created_ts': _utc_now_iso(),
+    }
+    contacts.append(contact)
+    # sort by name
+    try:
+        contacts.sort(key=lambda c: (c.get('name','').lower(), c.get('organization','').lower()))
+    except Exception:
+        pass
+    _contacts_save(user['id'], contacts)
+    _audit_log(user['id'], 'create', 'contact', cid, {'name': name})
+    token = request.form.get('user_token') or ''
+    return redirect(f"/resources/contacts?user_token={token}")
+
+@app.route('/resources/contacts_edit', methods=['POST'])
+def contacts_edit():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    cid = (request.form.get('id') or '').strip()
+    if not cid:
+        return "Missing id", 400
+    contacts = _contacts_load(user['id'])
+    found = None
+    for c in contacts:
+        if c.get('id') == cid:
+            found = c
+            break
+    if not found:
+        return "Contact not found", 404
+    before = found.copy()
+    # Update fields
+    for field in ['name','role','organization','phone','email','address','notes']:
+        if field in request.form:
+            found[field] = (request.form.get(field) or '').strip()
+    found['updated_ts'] = _utc_now_iso()
+    _contacts_save(user['id'], contacts)
+    # Audit with changed fields
+    changes = {}
+    for k in ['name','role','organization','phone','email','address','notes']:
+        if before.get(k) != found.get(k):
+            changes[k] = {'from': before.get(k), 'to': found.get(k)}
+    _audit_log(user['id'], 'edit', 'contact', cid, changes)
+    token = request.form.get('user_token') or ''
+    return redirect(f"/resources/contacts?user_token={token}")
+
 @app.before_request
 def _access_start():  # pragma: no cover (timing capture)
     # Store start timestamp for latency computation if access logging is enabled
@@ -667,6 +1005,29 @@ def info():
         'security_mode': _current_security_mode(),
         'readiness': snapshot
     })
+
+
+@app.context_processor
+def inject_now():  # pragma: no cover (simple template helper)
+    try:
+        return {'now': str(_utc_now().year)}
+    except Exception:
+        return {'now': ''}
+
+@app.route('/legal/terms')
+def legal_terms():
+    _inc('requests_total')
+    return render_template('terms.html', updated=_utc_now().strftime('%Y-%m-%d'))
+
+@app.route('/legal/privacy')
+def legal_privacy():
+    _inc('requests_total')
+    return render_template('privacy.html', updated=_utc_now().strftime('%Y-%m-%d'))
+
+@app.route('/legal/dmca')
+def legal_dmca():
+    _inc('requests_total')
+    return render_template('dmca.html')
 
 
 TOKENS_CACHE = { 'loaded_at': 0, 'tokens': [], 'path': os.path.join('security','admin_tokens.json'), 'mtime': None }
@@ -976,6 +1337,46 @@ def trigger_workflow():
         return f'Failed to trigger workflow: {r.status_code}', 500
 
 
+@app.route('/admin/run_tests', methods=['POST'])
+def admin_run_tests():
+    """Run pytest from the admin UI and show a brief summary. Secured by admin auth and CSRF in enforced mode.
+    Limits runtime to prevent runaway executions in production.
+    """
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    _inc('admin_actions_total')
+    try:
+        # Run pytest quietly with max duration. Use a short timeout to avoid long runs on small dynos.
+        # We prefer json summary if available; fall back to -q text.
+        cmd = ['python', '-m', 'pytest', '-q']
+        # Run within repo root; capture output
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=180, text=True)
+        output = proc.stdout[-5000:]  # cap output to last 5k chars
+        code = proc.returncode
+        status = 'PASS' if code == 0 else 'FAIL'
+        # Inline minimal HTML with pre block; avoid creating a new template for now
+        html = (
+            '<!doctype html><html><head><meta charset="utf-8"><title>Test Results</title>'
+            '<link rel="stylesheet" href="/static/css/admin.css" />'
+            '</head><body>'
+            f'<h1>Test Results: {status}</h1>'
+            '<p><a href="/admin">Back to Admin</a></p>'
+            '<pre style="white-space:pre-wrap">' + (output.replace('<','&lt;').replace('>','&gt;')) + '</pre>'
+            '</body></html>'
+        )
+        return html, 200 if code == 0 else 500
+    except subprocess.TimeoutExpired:
+        return ("<!doctype html><html><body><h1>Test Results: TIMEOUT</h1>"
+                "<p>Tests exceeded the 180s limit. Try running locally or reduce scope.</p>"
+                "<p><a href='/admin'>Back to Admin</a></p></body></html>", 500)
+    except Exception as e:
+        _append_log(f"admin_run_tests_error {e}")
+        return ("<!doctype html><html><body><h1>Test Results: ERROR</h1>"
+                f"<p>{str(e)}</p><p><a href='/admin'>Back to Admin</a></p></body></html>", 500)
+
+
 @app.route('/release_history')
 def release_history():
     if not _require_admin_or_401():
@@ -1027,6 +1428,36 @@ def offline():
 def resources():
     _inc('requests_total')
     return render_template('resources.html')
+
+# --- Placeholders for integrations still in progress ---
+@app.route('/setup/ron')
+def setup_ron():
+    _inc('requests_total')
+    tips = [
+        'Set RON_PROVIDER=bluenotary and define a strong RON_WEBHOOK_SECRET in your environment.',
+        'In the provider console, configure the webhook to https://<your-host>/webhooks/ron with the shared secret.',
+        'Optional: Set BLUENOTARY_API_KEY when moving from mock to live; verify session creation and webhook HMAC if provided.']
+    return render_template('setup_page.html', title='RON Provider Setup', banner='Remote Notarization requires a provider account and webhook configuration.', tips=tips)
+
+@app.route('/setup/certified_mail')
+def setup_certified_mail():
+    _inc('requests_total')
+    tips = [
+        'Select a provider (e.g., Lob or Click2Mail) and create API credentials.',
+        'Set provider env vars in Render and implement the submission call in a future update.',
+        'Use the existing Certified Post form to track manual mailings until live integration.'
+    ]
+    return render_template('setup_page.html', title='Certified Mail Integration', banner='Automated mail is optional—manual tracking already works.', tips=tips)
+
+@app.route('/setup/email')
+def setup_email():
+    _inc('requests_total')
+    tips = [
+        'Choose a transactional email provider (e.g., Postmark, SendGrid) and create an API key.',
+        'Add env vars to Render: EMAIL_PROVIDER, EMAIL_API_KEY, and a verified sender domain.',
+        'For now, Electronic Service is simulated and records certificates without sending.'
+    ]
+    return render_template('setup_page.html', title='Email Provider Setup', banner='Live email sending requires a provider; simulation remains available.', tips=tips)
 
 @app.route('/resources/advocacy')
 def resources_advocacy():
@@ -2151,6 +2582,11 @@ def certified_post_submit():
         with open(cert_path, 'w', encoding='utf-8') as cf:
             json.dump(cert, cf, ensure_ascii=False, indent=2)
         _event_log('certified_post_created', user_id=user['id'], service_type=service_type, tracking_number=tracking_number)
+        # Auto-link a logbook event
+        title = f"Sent via {service_type.replace('_',' ').title()}"
+        notes = f"Destination: {destination}. Tracking: {tracking_number or 'n/a'}. Related: {related_file or 'n/a'}."
+        _logbook_save(user['id'], _logbook_load(user['id']))  # ensure dir exists
+        _logbook_add_event(user['id'], title, typ='communication' if service_type=='electronic' else 'deadline', notes=notes)
     except Exception as e:
         _append_log(f"certpost_write_error {e}")
         return "Failed to save certified post record", 500
@@ -2242,6 +2678,11 @@ def court_clerk_submit():
         with open(cert_path, 'w', encoding='utf-8') as cf:
             json.dump(cert, cf, ensure_ascii=False, indent=2)
         _event_log('court_clerk_filing_recorded', user_id=user['id'], court=court_name, case=case_number)
+        # Auto-link a logbook event
+        title = f"Court filing: {filing_type or 'Document'} at {court_name}"
+        notes = f"Case: {case_number or 'n/a'}. Status: {status}. Related: {related_file}. Method: {submission_method or 'n/a'}."
+        _logbook_save(user['id'], _logbook_load(user['id']))
+        _logbook_add_event(user['id'], title, typ='deadline', notes=notes)
     except Exception as e:
         _append_log(f"courtclerk_write_error {e}")
         return "Failed to save court clerk record", 500

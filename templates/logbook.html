@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Events & Logbook</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Events & Logbook</h1>
+      <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you track meetings, maintenance, and deadlines. For legal advice, consult a licensed attorney.</div>
+  <p class="muted">Track appointments, maintenance requests, office visits, lease signings, communications, and more. Export to your calendar via ICS.</p>
+      <p><a href="/resources/logbook.ics?user_token={{ request.args.get('user_token','') }}">Download .ics calendar</a></p>
+  <h2>Add event</h2>
+      <form action="/resources/logbook_add" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+        <p>
+          <label>Date <input type="date" name="date" value="{{ today }}" required></label>
+          <label class="ml-8">Time <input type="time" name="time"></label>
+        </p>
+        <p>
+          <label>Title <input type="text" name="title" placeholder="e.g., Lease signing" required></label>
+        </p>
+        <p>
+          <label>Type
+            <select name="type">
+              <option value="meeting">Meeting</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="deadline">Deadline</option>
+              <option value="payment">Payment</option>
+              <option value="communication">Communication</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </p>
+        <p>
+          <label>Location <input type="text" name="location" placeholder="Rental office, Apt 4B, email, phone, etc."></label>
+        </p>
+        <p>
+          <label>People involved <input type="text" name="people" placeholder="Manager, maintenance, roommate, etc."></label>
+        </p>
+        <p>
+          <label>Notes <textarea name="notes" rows="4" placeholder="Details, what was discussed, actions, requests…"></textarea></label>
+        </p>
+        <button type="submit">Add to Logbook</button>
+      </form>
+
+  <h2 class="mt-24">Your events</h2>
+      {% if events %}
+      <ul class="list">
+        {% for e in events %}
+          <li>
+            <strong>{{ e.date }}{% if e.time %} {{ e.time }}{% endif %}</strong> — {{ e.title }}
+            <div class="muted">Type: {{ e.type }}{% if e.location %} | Location: {{ e.location }}{% endif %}{% if e.people %} | People: {{ e.people }}{% endif %}</div>
+            {% if e.notes %}<div class="muted">Notes: {{ e.notes }}</div>{% endif %}
+            <details class="mt-24">
+              <summary>Edit</summary>
+              <form action="/resources/logbook_edit" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+                <input type="hidden" name="id" value="{{ e.id }}">
+                <p>
+                  <label>Date <input type="date" name="date" value="{{ e.date }}" required></label>
+                  <label class="ml-8">Time <input type="time" name="time" value="{{ e.time }}"></label>
+                </p>
+                <p>
+                  <label>Title <input type="text" name="title" value="{{ e.title }}" required></label>
+                </p>
+                <p>
+                  <label>Type
+                    <select name="type">
+                      <option value="meeting" {% if e.type=='meeting' %}selected{% endif %}>Meeting</option>
+                      <option value="maintenance" {% if e.type=='maintenance' %}selected{% endif %}>Maintenance</option>
+                      <option value="deadline" {% if e.type=='deadline' %}selected{% endif %}>Deadline</option>
+                      <option value="payment" {% if e.type=='payment' %}selected{% endif %}>Payment</option>
+                      <option value="communication" {% if e.type=='communication' %}selected{% endif %}>Communication</option>
+                      <option value="other" {% if e.type=='other' %}selected{% endif %}>Other</option>
+                    </select>
+                  </label>
+                </p>
+                <p>
+                  <label>Location <input type="text" name="location" value="{{ e.location }}"></label>
+                </p>
+                <p>
+                  <label>People involved <input type="text" name="people" value="{{ e.people }}"></label>
+                </p>
+                <p>
+                  <label>Notes <textarea name="notes" rows="3">{{ e.notes }}</textarea></label>
+                </p>
+                <button type="submit">Save Changes</button>
+              </form>
+            </details>
+          </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p class="muted">No events yet. Add your first one above.</p>
+      {% endif %}
+      <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+  <script src="/static/js/help-panel.js"></script>
+</html>

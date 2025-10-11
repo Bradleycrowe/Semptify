@@ -49,6 +49,15 @@
   <p><a href="/sbom?token={{ admin_token }}">View SBOMs</a></p>
 
   <hr>
+  <h2>Developer Utilities</h2>
+  <form action="/admin/run_tests" method="post" onsubmit="return confirm('Run the full test suite now?');">
+    <input type="hidden" name="token" value="{{ admin_token }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Run Tests</button>
+  </form>
+  <p class="muted">Tip: For local dev, run <code>scripts/dev_server.ps1</code> to start with sensible defaults.</p>
+
+  <hr>
   <h2>Help Panel Settings</h2>
   <form action="/admin/help_panel_save" method="post">
     <input type="hidden" name="token" value="{{ admin_token }}">

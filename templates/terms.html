@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Terms of Service</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Terms of Service</h1>
+      <p class="muted">Last updated: {{ updated or '2025-10-11' }}</p>
+      <div class="legal-disclaimer-banner">
+        <strong>Not Legal Advice</strong>
+        Semptify provides tools to help users organize documents and evidence. It is not a law firm and does not provide legal advice.
+      </div>
+      <h2>Acceptable Use</h2>
+      <p>You agree not to upload unlawful content or violate the rights of others.</p>
+      <h2>Disclaimers</h2>
+      <p>The service is provided “as is” without warranties. We do not guarantee outcomes in legal matters.</p>
+      <h2>Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, our liability is limited to the amounts you paid for the service in the 12 months preceding the claim.</p>
+      <h2>Electronic Records and Signatures</h2>
+      <p>By using Semptify you consent to receive electronic records and to use electronic signatures when presented.</p>
+      <h2>Contact</h2>
+      <p>Questions? Contact support at the email listed on our site.</p>
+      <p class="muted">These terms may be updated; continued use constitutes acceptance.</p>
+      <p><a href="/">Back to Home</a></p>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+</html>
