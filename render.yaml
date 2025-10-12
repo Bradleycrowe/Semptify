@@ -8,6 +8,29 @@ services:
     envVars:
       - key: SEMPTIFY_PORT
         value: 8080
+      # === Copilot (Free-tier via OpenAI-compatible API) ===
+      # Option A: Groq (recommended free-tier) — set AI_PROVIDER=openai and provide your GROQ API key
+      - key: AI_PROVIDER
+        value: openai
+      # Groq uses an OpenAI-compatible Chat Completions endpoint
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1/chat/completions
+      # Choose a Groq-supported model (see Groq docs). Example:
+      - key: OPENAI_MODEL
+        value: llama-3.1-8b-instant
+      # Set this secret in Render Dashboard (do NOT commit)
+      - key: OPENAI_API_KEY
+        sync: false
+      # Option B (alternative): OpenAI or Azure OpenAI — remove OPENAI_BASE_URL and set respective envs
+      # For Azure, set AI_PROVIDER=azure and configure AZURE_OPENAI_* vars below.
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_DEPLOYMENT
+        sync: false
+      - key: AZURE_OPENAI_API_VERSION
+        value: "2024-02-15-preview"
       # Flask session/CSRF secret – set in Render Dashboard
       - key: FLASK_SECRET
         sync: false
