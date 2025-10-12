@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Active Grants</title>
+    <link rel="stylesheet" href="/static/css/admin.css" />
+  </head>
+  <body>
+    <h1>Active Grants</h1>
+    <p><a href="/admin">Back to Admin</a></p>
+    {% if grants and grants|length > 0 %}
+      <table>
+        <thead><tr><th>ID</th><th>User</th><th>Label</th><th>Scope</th><th>Perm</th><th>Expires</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for g in grants %}
+            <tr>
+              <td><code>{{ g.id }}</code></td>
+              <td>{{ g.user_id }}</td>
+              <td>{{ g.label or '' }}</td>
+              <td>{{ g.scope }}</td>
+              <td>{{ g.perm or 'read' }}</td>
+              <td>{{ g.expires_ts or '' }}</td>
+              <td>
+                <form action="/admin/grants/disable" method="post">
+                  <input type="hidden" name="grant_id" value="{{ g.id }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <input type="hidden" name="token" value="{{ admin_token }}">
+                  <button type="submit">Disable</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No active grants.</p>
+    {% endif %}
+  </body>
+</html>

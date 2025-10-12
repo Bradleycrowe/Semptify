@@ -7,27 +7,53 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
-    <h1>Resources</h1>
-    <p>Download simple, plain-text templates you can edit:</p>
-    <ul>
-      <li><a href="/resources/download/witness_statement.txt">Witness Statement Template (.txt)</a></li>
-      <li><a href="/resources/download/filing_packet_checklist.txt">Filing Packet Checklist (.txt)</a></li>
-      <li><a href="/resources/download/filing_packet_timeline.txt">Filing Packet Timeline (Calendar) (.txt)</a></li>
-      <li><a href="/resources/home_search">Home Search (beta)</a></li>
-      <li><a href="/notary">Virtual Notary (attestation)</a></li>
-      <li><a href="/certified_post">Certified Post / Electronic Service</a></li>
-      <li><a href="/court_clerk">Court Clerk Filing</a></li>
-    <li><a href="/resources/logbook">Events & Logbook</a></li>
-  <li><a href="/resources/contacts">Contacts</a></li>
-      <li><a href="/legal_notary">Legal Notary (record)</a></li>
-  <li><a href="/electronic_service">Electronic Service (Email)</a></li>
-  <li><a href="/vault/certificates">View Certificates</a></li>
-      <li><a href="/resources/roadmap">Roadmap & Future Services</a></li>
-      <li><a href="/resources/advocacy">Advocacy & Learning</a></li>
-      <li><a href="/setup/ron">RON Provider Setup</a></li>
-      <li><a href="/setup/certified_mail">Certified Mail Setup</a></li>
-      <li><a href="/setup/email">Email Provider Setup</a></li>
-    </ul>
+    {% include '_nav.html' %}
+    <main class="content">
+      <section class="hero">
+        <div>
+          <h1>Resources</h1>
+          <p>Download templates, use tools, and learn how to use Semptify’s evidence and filing system.</p>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Templates</h2>
+        <ul>
+          <li><a href="/resources/download/witness_statement.txt">Witness Statement Template (.txt)</a></li>
+          <li><a href="/resources/download/filing_packet_checklist.txt">Filing Packet Checklist (.txt)</a></li>
+          <li><a href="/resources/download/filing_packet_timeline.txt">Filing Packet Timeline (Calendar) (.txt)</a></li>
+        </ul>
+      </section>
+      <section class="card">
+        <h2>Tools</h2>
+        <ul>
+          <li><a href="/resources/home_search">Home Search (beta)</a></li>
+          <li><a href="/resources/programs">Housing Programs</a></li>
+          <li><a href="/vault/certificates">View Certificates</a></li>
+        </ul>
+      </section>
+      <section class="card">
+        <h2>Filing and Service</h2>
+        <ul>
+          <li><a href="/notary">Virtual Notary (attestation)</a></li>
+          <li><a href="/legal_notary">Legal Notary (record)</a></li>
+          <li><a href="/certified_post">Certified Post / Electronic Service</a></li>
+          <li><a href="/electronic_service">Electronic Service (Email)</a></li>
+          <li><a href="/court_clerk">Court Clerk Filing</a></li>
+        </ul>
+      </section>
+      <section class="card">
+        <h2>Guides</h2>
+        <ul>
+          <li><a href="/resources/logbook">Events & Logbook</a></li>
+          <li><a href="/resources/contacts">Contacts</a></li>
+          <li><a href="/resources/roadmap">Roadmap & Future Services</a></li>
+          <li><a href="/resources/advocacy">Advocacy & Learning</a></li>
+          <li><a href="/setup/ron">RON Provider Setup</a></li>
+          <li><a href="/setup/certified_mail">Certified Mail Setup</a></li>
+          <li><a href="/setup/email">Email Provider Setup</a></li>
+        </ul>
+      </section>
+    </main>
     {% include '_footer.html' %}
   </body>
   <script src="/static/js/help-panel.js"></script>

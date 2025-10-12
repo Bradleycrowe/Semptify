@@ -13,17 +13,20 @@
     </style>
   </head>
   <body>
+    {% include '_nav.html' %}
     <div class="copilot">
-      <h1>Semptify Copilot</h1>
+      <h1>Front House AI — Research & Drafting</h1>
       {% if provider in ['none',''] %}
         <p class="muted">AI provider is not configured. Set AI_PROVIDER and related environment variables on the server to enable responses.</p>
       {% else %}
         <p class="muted">Provider: {{ provider }}</p>
       {% endif %}
 
+      <p class="muted">This AI helps with: housing programs search, housing law guidance, landlord/property lookups, and drafting documents. If configured to a cloud provider (e.g., Groq via OpenAI-compatible API), prompts and responses are processed off-device.</p>
+
       <form id="copilot-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-        <label for="prompt">Ask anything related to tenant-justice automation:</label>
+        <label for="prompt">Ask anything related to housing research, law, or drafting:</label>
         <textarea id="prompt" name="prompt" placeholder="e.g. Help me draft a service animal request letter..."></textarea>
         <label><input type="checkbox" id="citations" name="citations"> Request citations and links to sources</label>
         <button type="submit">Ask Copilot</button>
@@ -31,6 +34,7 @@
 
       <h3>Answer</h3>
       <pre id="answer" class="muted">No answer yet.</pre>
+      <p class="muted">Privacy note: When using a cloud provider, your prompt and the model’s response are sent to that provider. For fully local processing, set AI_PROVIDER=ollama.</p>
     </div>
     <script>
       const form = document.getElementById('copilot-form');

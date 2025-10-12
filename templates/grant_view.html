@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shared Vault View</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Shared Materials {{ label and ('– ' ~ label) }}</h1>
+      {% if files and files|length > 0 %}
+        <ul>
+          {% for f in files %}
+            <li><a href="/vault/shared/{{ grant_id }}/file/{{ f }}?token={{ token }}">{{ f }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <ul><li>No files available in this share.</li></ul>
+      {% endif %}
+    </main>
+  </body>
+</html>

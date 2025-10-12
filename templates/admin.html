@@ -2,10 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-  <title>Semptify Admin</title>
-  <link rel="stylesheet" href="/static/css/admin.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Semptify Admin</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" href="/static/css/admin.css" />
   </head>
   <body>
+    {% include '_nav.html' %}
     <h1>Semptify Admin</h1>
     {% if security_mode == 'open' %}
       <div class="banner banner-open">SECURITY MODE: OPEN (no admin token enforcement). Do not use in production.</div>
@@ -48,6 +51,8 @@
   <p><a href="/release_history?token={{ admin_token }}">View Release History</a></p>
   <p><a href="/sbom?token={{ admin_token }}">View SBOMs</a></p>
 
+  <p><a href="/admin/attorney_outreach?token={{ admin_token }}">Attorney Outreach</a> · <a href="/admin/grants?token={{ admin_token }}">Manage Grants</a></p>
+
   <hr>
   <h2>Developer Utilities</h2>
   <form action="/admin/run_tests" method="post" onsubmit="return confirm('Run the full test suite now?');">
@@ -56,6 +61,84 @@
     <button type="submit">Run Tests</button>
   </form>
   <p class="muted">Tip: For local dev, run <code>scripts/dev_server.ps1</code> to start with sensible defaults.</p>
+
+  <hr>
+  <h2>User Support</h2>
+  <form action="/admin/rotate_user_token" method="post" class="rotate-user-form">
+    <fieldset>
+      <legend>Rotate User Vault Token</legend>
+      <p class="muted">Use this to help a user who lost their token. Verify identity before rotating.</p>
+      <label>User ID: <input name="target_user_id" placeholder="uYYYYMMDDhhmmssxxxxxx" required></label>
+      <label>New Token (24+ digits recommended): <input name="new_value" required></label>
+      <input type="hidden" name="token" value="{{ admin_token }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" onclick="return confirm('Rotate this user\'s token now?');">Rotate User Token</button>
+    </fieldset>
+  </form>
+
+  <hr>
+  <h2>Vault AI — Local-only Admin</h2>
+  <form id="admin-copilot-form" class="copilot-form">
+    <p class="muted">Local-only AI (Ollama by default). Uses no external calls. Roles: in-house admin, notary records, court clerk logs, and vault operations.</p>
+    <p>
+      <label for="admin-copilot-prompt">Prompt</label><br>
+      <textarea id="admin-copilot-prompt" name="prompt" rows="6" class="admin-copilot-textarea" placeholder="Ask the local AI…" required></textarea>
+    </p>
+    <input type="hidden" id="admin-token" value="{{ admin_token }}">
+    <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+    <button type="submit">Ask Local AI</button>
+  </form>
+  <div id="admin-copilot-result" class="copilot-result">
+    <pre id="admin-copilot-output" class="copilot-output"></pre>
+  </div>
+
+  <hr>
+  <h2>Generate Document into User Vault (Local AI)</h2>
+  <form id="admin-ai-generate-form" class="copilot-form">
+    <p class="muted">This uses the local-only AI and saves the result directly into the specified user's vault with a certificate. Vault AI can finalize drafts, fill in user info, and prepare documents for delivery.</p>
+    <p>
+      <label>User ID <input id="gen-user-id" placeholder="uYYYYMMDDhhmmssxxxxxx" required></label>
+    </p>
+    <p>
+      <label>Doc Type <input id="gen-doc-type" value="legal_draft"></label>
+    </p>
+    <p>
+      <label>Case Number (optional) <input id="gen-case" placeholder="e.g., 23-CV-01234"></label>
+    </p>
+    <p>
+      <label>Filename (optional) <input id="gen-filename" placeholder="brief_draft.txt"></label>
+    </p>
+    <p>
+      <label for="gen-prompt">Prompt</label><br>
+      <textarea id="gen-prompt" rows="8" class="admin-copilot-textarea" placeholder="Provide structured instructions for the draft…" required></textarea>
+    </p>
+    <input type="hidden" id="gen-admin-token" value="{{ admin_token }}">
+    <input type="hidden" id="gen-csrf-token" value="{{ csrf_token }}">
+    <button type="submit">Generate and Save</button>
+  </form>
+  <div id="admin-ai-generate-result" class="copilot-result">
+    <pre id="admin-ai-generate-output" class="copilot-output"></pre>
+  </div>
+
+  <hr>
+  <h2>Create Attorney/Share Grant</h2>
+  <form action="/admin/grants/create" method="post">
+    <input type="hidden" name="token" value="{{ admin_token }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p><label>User ID <input name="user_id" placeholder="uYYYY..." required></label></p>
+    <p><label>Label <input name="label" placeholder="Attorney Access – Case ..."></label></p>
+    <p>
+      <label>Scope
+        <select name="scope_type">
+          <option value="all">All files (read-only)</option>
+          <option value="subpath">Specific subfolder</option>
+        </select>
+      </label>
+    </p>
+    <p><label>Subfolder (if selected) <input name="scope_path" placeholder="cases/23-CV-01234"></label></p>
+    <p><label>Expires (days) <input type="number" name="expires_days" value="30" min="1" max="365"></label></p>
+    <button type="submit">Create Share Grant</button>
+  </form>
 
   <hr>
   <h2>Help Panel Settings</h2>
@@ -95,6 +178,75 @@
     function confirmTrigger(form){
       return confirm('Trigger the specified workflow now?');
     }
+    (function(){
+      const form = document.getElementById('admin-copilot-form');
+      if(!form) return;
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const prompt = document.getElementById('admin-copilot-prompt').value.trim();
+        const adminToken = document.getElementById('admin-token').value;
+        const csrf = document.getElementById('csrf-token').value;
+        const outEl = document.getElementById('admin-copilot-output');
+  outEl.style.display = 'block';
+        outEl.textContent = 'Working…';
+        try{
+          const res = await fetch('/api/admin/copilot', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Admin-Token': adminToken,
+              'X-CSRF-Token': csrf
+            },
+            body: JSON.stringify({ prompt })
+          });
+          const data = await res.json().catch(()=>({output: res.status+' '+res.statusText}));
+          if(!res.ok){
+            outEl.textContent = 'Error: ' + (data && (data.error || data.output) || (res.status+' '+res.statusText));
+          } else {
+            outEl.textContent = (data && data.output) ? data.output : '(no output)';
+          }
+        }catch(err){
+          outEl.textContent = 'Request failed: ' + err;
+        }
+      });
+    })();
+
+    (function(){
+      const form = document.getElementById('admin-ai-generate-form');
+      if(!form) return;
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const userId = document.getElementById('gen-user-id').value.trim();
+        const docType = document.getElementById('gen-doc-type').value.trim() || 'ai_document';
+        const filename = document.getElementById('gen-filename').value.trim();
+        const prompt = document.getElementById('gen-prompt').value.trim();
+  const caseNumber = document.getElementById('gen-case').value.trim();
+  const adminToken = document.getElementById('gen-admin-token').value;
+        const csrf = document.getElementById('gen-csrf-token').value;
+        const outEl = document.getElementById('admin-ai-generate-output');
+        outEl.style.display = 'block';
+        outEl.textContent = 'Generating…';
+        try{
+          const res = await fetch('/api/admin/ai_generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Admin-Token': adminToken,
+              'X-CSRF-Token': csrf
+            },
+            body: JSON.stringify({ user_id: userId, doc_type: docType, filename, case_number: caseNumber, prompt })
+          });
+          const data = await res.json().catch(()=>({error: res.status+' '+res.statusText}));
+          if(!res.ok){
+            outEl.textContent = 'Error: ' + (data && (data.error || data.detail) || (res.status+' '+res.statusText));
+          } else {
+            outEl.textContent = 'Saved: ' + data.filename + ' for user ' + data.user_id + ' (sha256 ' + data.sha256 + ')';
+          }
+        }catch(err){
+          outEl.textContent = 'Request failed: ' + err;
+        }
+      });
+    })();
   </script>
   </body>
 </html>

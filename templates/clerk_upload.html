@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Upload to Semptify</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Secure Upload</h1>
+      <p class="muted">This page allows a court clerk to securely upload a stamped copy or receipt directly to the user's vault. All uploads are logged and a certificate is created.</p>
+      {% if success %}
+        <div class="success">File "{{ filename }}" uploaded successfully.</div>
+      {% endif %}
+      <form action="/vault/clerk/{{ grant_id }}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="token" value="{{ token }}">
+        <p><label>Your Name (clerk)
+          <input type="text" name="clerk_name" placeholder="optional">
+        </label></p>
+        <p><label>Your Office / Court
+          <input type="text" name="clerk_org" placeholder="optional">
+        </label></p>
+        <p><label>Notes
+          <input type="text" name="note" placeholder="optional note for the user">
+        </label></p>
+        <p><label>Select File
+          <input type="file" name="file" required>
+        </label></p>
+        <button type="submit">Upload</button>
+      </form>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+  <script src="/static/js/help-panel.js"></script>
+</html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attorney Attestation</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Attorney Attestation</h1>
+      <p class="muted">Before accessing this shared material, please attest to your identity and agree to the terms below.</p>
+      <form action="/vault/shared/{{ grant_id }}/attest" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="token" value="{{ token }}">
+        <p><label>Name <input name="name" required></label></p>
+        <p><label>Email <input name="email" type="email" required></label></p>
+        <p><label>Phone <input name="phone" placeholder="optional"></label></p>
+        <p><label>Bar Number <input name="bar_number" required></label></p>
+        <p><label>Jurisdiction <input name="jurisdiction" required></label></p>
+        <p>
+          <label>
+            <input type="checkbox" name="agree" required>
+            I agree to keep these materials confidential, use them only for evaluating potential representation, and comply with all applicable ethics rules.
+          </label>
+        </p>
+        <button type="submit">Continue</button>
+      </form>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+  <script src="/static/js/help-panel.js"></script>
+  <script>
+    (function(){
+      const bar = document.querySelector('input[name="bar_number"]');
+      const jur = document.querySelector('input[name="jurisdiction"]');
+      function hint(){
+        const j = (jur && jur.value || '').trim().toUpperCase();
+        let msg = '';
+        if(j==='CA'){ msg='CA State Bar numbers are numeric (often 5-7 digits).'; }
+        else if(j==='NY'){ msg='NY Attorney Registration (ARDC) format varies; enter your registration number.'; }
+        else if(j==='TX'){ msg='Texas Bar numbers are 10 digits.'; }
+        if(msg){ bar.setAttribute('title', msg); }
+      }
+      if(jur){ jur.addEventListener('input', hint); hint(); }
+    })();
+  </script>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attorney Attestation</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Attorney Attestation</h1>
+      <p>To access the shared vault materials, please confirm your identity and agree to the terms.</p>
+      <form method="post" action="/vault/shared/{{ grant_id }}/attest">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" name="token" value="{{ token }}">
+        <p><label>Name <input name="name" required></label></p>
+        <p><label>Email <input type="email" name="email" required></label></p>
+        <p><label>Phone <input name="phone"></label></p>
+        <p><label>Bar Number <input name="bar_number" required></label></p>
+        <p><label>Jurisdiction <input name="jurisdiction" required></label></p>
+        <p><label><input type="checkbox" name="agree" required> I agree to use these materials only for the represented client and to maintain confidentiality. I understand access is logged and may be revoked.</label></p>
+        <button type="submit">Continue to Shared Materials</button>
+      </form>
+    </main>
+  </body>
+</html>

@@ -9,13 +9,22 @@
     <meta name="theme-color" content="#0a7cd0">
   </head>
   <body>
-    <header>
-      <h1>{{ message }}</h1>
-      <p class="tagline">Semptify is a tenants’ advocate: practical tools for renters to understand rights, organize documents, and act confidently.</p>
-    </header>
+    {% include '_nav.html' %}
+    <main class="content">
+      <section class="hero">
+        <div>
+          <span class="badge">Tenant Tools</span>
+          <h1>{{ message }}</h1>
+          <p>Semptify helps renters understand rights, organize documents, and act confidently with AI and simple workflows.</p>
+          <div class="inline-kv"><span><strong>Secure</strong></span><span><strong>Local-first AI</strong></span><span><strong>Document Vault</strong></span></div>
+        </div>
+        <div>
+          <a class="btn" href="/register">Get Started</a>
+          <a class="btn secondary ml-8" href="/copilot">Try Copilot</a>
+        </div>
+      </section>
 
-    <main>
-      <section>
+      <section class="card">
         <h2>What Semptify does</h2>
         <ul>
           <li>Explains tenant rights in plain language and links to trusted resources.</li>
@@ -24,7 +33,7 @@
         </ul>
       </section>
 
-      <section>
+      <section class="card">
         <h2>Quick links</h2>
         <ul>
           <li><a href="/vault">Open Document Vault</a> <small>(use your private link from registration to sign in)</small></li>
@@ -33,9 +42,13 @@
         </ul>
       </section>
 
-      <section>
+      <section class="card">
         <h2>Available runtime folders</h2>
-        <ul>{% for f in folders %}<li>{{ f }}</li>{% endfor %}</ul>
+        <ul>
+          {% for f in folders %}
+            <li>{{ f }}</li>
+          {% endfor %}
+        </ul>
       </section>
     </main>
     <script>

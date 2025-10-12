@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attorney Outreach</title>
+    <link rel="stylesheet" href="/static/css/admin.css" />
+  </head>
+  <body>
+    <h1>Attorney Outreach</h1>
+    <p class="muted">Create a scoped, read-only share for an attorney. Only selected files are included inside a case_summary folder.</p>
+
+    <form method="get" action="/admin/attorney_outreach">
+      <label>User ID <input name="user_id" value="{{ user_id or '' }}" placeholder="uYYYY..." required></label>
+      <button type="submit">Load Files</button>
+    </form>
+
+    {% if user_id and not user_exists %}
+      <p class="error">User not found.</p>
+    {% endif %}
+
+    {% if user_exists %}
+    <hr>
+    <form method="post" action="/admin/attorney_outreach">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="token" value="{{ admin_token }}">
+      <input type="hidden" name="user_id" value="{{ user_id }}">
+      <p><label>Label <input name="label" placeholder="Attorney Outreach – Case" required></label></p>
+      <p><label>Case Number (optional) <input name="case_number" placeholder="23-CV-01234"></label></p>
+      <p><label>Expires <select name="expires_days">
+        <option value="7">7 days</option>
+        <option value="14">14 days</option>
+        <option value="30" selected>30 days</option>
+        <option value="60">60 days</option>
+      </select></label></p>
+      <fieldset>
+        <legend>Select files to include</legend>
+        {% if files and files|length > 0 %}
+          <div class="list">
+            {% for f in files %}
+              <div class="list-item"><label><input type="checkbox" name="files" value="{{ f.name }}"> {{ f.name }}</label> <small>({{ f.size }} bytes)</small></div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="muted">No files in the user's vault.</p>
+        {% endif %}
+      </fieldset>
+      <p><label>Short case summary (optional)<br>
+        <textarea name="summary" rows="6" placeholder="Brief summary for the attorney"></textarea>
+      </label></p>
+      <button type="submit">Create Outreach Invite</button>
+    </form>
+    {% endif %}
+  </body>
+</html>

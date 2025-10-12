@@ -1,0 +1,148 @@
+{
+  "federal_programs": [
+    {
+      "id": "hcv_section8",
+      "name": "Housing Choice Voucher Program (Section 8)",
+      "type": "federal",
+      "agency": "HUD",
+      "description": "Rental assistance for low-income families, elderly, and disabled individuals to afford decent, safe housing in the private market.",
+      "eligibility": "Income at or below 50% of area median income (AMI). Extremely low-income families (below 30% AMI) are prioritized.",
+      "keywords": ["section 8", "voucher", "hcv", "rental assistance", "housing choice"],
+      "url": "https://www.hud.gov/topics/housing_choice_voucher_program_section_8",
+      "contact": "Local Public Housing Authority (PHA)",
+      "notes": "Waitlists managed by local PHAs. Portable between jurisdictions."
+    },
+    {
+      "id": "public_housing",
+      "name": "Public Housing",
+      "type": "federal",
+      "agency": "HUD",
+      "description": "Government-owned rental housing for low-income families, elderly, and disabled individuals.",
+      "eligibility": "Income at or below 80% AMI, with priority for extremely low-income families.",
+      "keywords": ["public housing", "government housing", "pha housing"],
+      "url": "https://www.hud.gov/topics/rental_assistance/phprog",
+      "contact": "Local Public Housing Authority (PHA)",
+      "notes": "Limited units available. Long waitlists common."
+    },
+    {
+      "id": "usda_rural",
+      "name": "USDA Rural Rental Assistance",
+      "type": "federal",
+      "agency": "USDA",
+      "description": "Rental assistance for low-income families in rural areas through USDA Rural Development properties.",
+      "eligibility": "Income limits vary by area. Must live in eligible rural area.",
+      "keywords": ["rural housing", "usda", "rural rental", "country housing"],
+      "url": "https://www.rd.usda.gov/programs-services/multi-family-housing-programs/multi-family-housing-rental-assistance",
+      "contact": "USDA Rural Development State Office",
+      "notes": "Available only in qualifying rural areas and small towns."
+    },
+    {
+      "id": "lihtc",
+      "name": "Low-Income Housing Tax Credit (LIHTC) Properties",
+      "type": "federal",
+      "agency": "IRS/State Agencies",
+      "description": "Affordable rental housing developed with tax credits. Rent-restricted units for low and moderate-income households.",
+      "eligibility": "Varies by property. Typically 50% or 60% AMI limits.",
+      "keywords": ["tax credit", "lihtc", "affordable housing", "rent restricted"],
+      "url": "https://www.novogradac.com/resource-centers/affordable-housing/lihtc-basics",
+      "contact": "Property management companies",
+      "notes": "Search properties at state housing finance agency websites."
+    }
+  ],
+  "local_examples": [
+    {
+      "id": "nycha",
+      "name": "New York City Housing Authority (NYCHA)",
+      "type": "local_pha",
+      "location": "New York, NY",
+      "state": "NY",
+      "description": "Largest public housing authority in the US. Administers Section 8 and public housing.",
+      "keywords": ["nycha", "new york housing", "manhattan housing", "brooklyn housing"],
+      "url": "https://www1.nyc.gov/site/nycha/index.page",
+      "programs": ["Section 8 HCV", "Public Housing", "NYCHA-FEPS"],
+      "notes": "Separate waitlists. Check website for lottery openings."
+    },
+    {
+      "id": "sfha",
+      "name": "San Francisco Housing Authority",
+      "type": "local_pha",
+      "location": "San Francisco, CA",
+      "state": "CA",
+      "description": "PHA serving San Francisco. Administers federal housing programs plus local initiatives.",
+      "keywords": ["sf housing", "san francisco housing", "sfha"],
+      "url": "https://www.sfha.org/",
+      "programs": ["Section 8 HCV", "Public Housing", "Local Operating Subsidies"],
+      "notes": "Extremely high demand. Monitor for waitlist openings."
+    },
+    {
+      "id": "ccha",
+      "name": "Cook County Housing Authority",
+      "type": "local_pha",
+      "location": "Chicago, IL",
+      "state": "IL",
+      "description": "Serves Cook County suburbs. Partners with Chicago Housing Authority for regional coverage.",
+      "keywords": ["cook county housing", "chicago suburbs housing"],
+      "url": "https://www.thecocc.org/",
+      "programs": ["Section 8 HCV", "Project-Based Vouchers"],
+      "notes": "Covers suburban Cook County. Chicago proper served by CHA."
+    }
+  ],
+  "state_resources": [
+    {
+      "id": "ca_hcd",
+      "name": "California Department of Housing and Community Development",
+      "state": "CA",
+      "description": "State housing agency with rental assistance and affordable housing programs.",
+      "keywords": ["california housing", "ca housing", "hcd"],
+      "url": "https://www.hcd.ca.gov/",
+      "programs": ["CalHFA", "Housing for the Harvest", "Homekey"]
+    },
+    {
+      "id": "nyshcr",
+      "name": "New York State Homes and Community Renewal",
+      "state": "NY",
+      "description": "State housing agency administering rental assistance and affordable housing development.",
+      "keywords": ["new york state housing", "ny housing", "hcr"],
+      "url": "https://hcr.ny.gov/",
+      "programs": ["ERAP", "SRAP", "Mitchell-Lama", "Article 4 Housing"]
+    },
+    {
+      "id": "txdhca",
+      "name": "Texas Department of Housing and Community Affairs",
+      "state": "TX",
+      "description": "State housing agency for Texas with various rental assistance programs.",
+      "keywords": ["texas housing", "tx housing", "tdhca"],
+      "url": "https://www.tdhca.state.tx.us/",
+      "programs": ["Texas Bootstrap", "HOME Tenant-Based Rental Assistance", "Housing Tax Credits"]
+    }
+  ],
+  "emergency_assistance": [
+    {
+      "id": "erap",
+      "name": "Emergency Rental Assistance Programs",
+      "type": "emergency",
+      "description": "Federal emergency rental assistance for COVID-19 impacted households. Programs vary by state/locality.",
+      "keywords": ["emergency rent", "rental assistance", "erap", "covid rent help"],
+      "url": "https://home.treasury.gov/policy-issues/coronavirus/assistance-for-state-local-and-tribal-governments/emergency-rental-assistance-program",
+      "notes": "Check local program availability. Many programs closed or have waitlists."
+    },
+    {
+      "id": "salvation_army",
+      "name": "Salvation Army Rental Assistance",
+      "type": "nonprofit",
+      "description": "Emergency financial assistance including rent help from Salvation Army locations.",
+      "keywords": ["salvation army", "emergency rent", "charity rent help"],
+      "url": "https://www.salvationarmyusa.org/usn/plugins/gdocsearch?q=rental%20assistance",
+      "contact": "Local Salvation Army",
+      "notes": "Available funds and eligibility vary by location."
+    }
+  ],
+  "search_tips": [
+    "Contact your local Public Housing Authority (PHA) for Section 8 and public housing waitlists",
+    "Many waitlists are closed - check periodically for openings",
+    "Income limits based on Area Median Income (AMI) for your location",
+    "Extremely low-income households (under 30% AMI) receive priority",
+    "Some programs have residency, citizenship, or background check requirements",
+    "Emergency assistance may be available while waiting for long-term programs"
+  ]
+}

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attorney Invite Created</title>
+    <link rel="stylesheet" href="/static/css/admin.css" />
+  </head>
+  <body>
+    <h1>Outreach Invite Ready</h1>
+    <p><strong>Invite link:</strong></p>
+    <pre class="copilot-output">{{ invite_link }}</pre>
+    <p class="muted">This link requires attorney attestation before any files are shown. Access is logged.</p>
+
+    <h2>Email Template</h2>
+    {% set subject = 'Semptify case materials review' %}
+    {% set body %}Hello,
+
+I am inviting you to review a short case summary and selected materials securely via Semptify.
+
+Link: {{ request.host_url.rstrip('/') }}{{ invite_link.lstrip('/') }}
+
+This link is read-only and requires you to attest you are an attorney and will keep materials confidential.
+
+Thank you{% endset %}
+    <p><a target="_blank" href="mailto:?subject={{ subject | urlencode }}&body={{ body | urlencode }}">Open in email client</a></p>
+
+    <p><a href="/admin">Back to Admin</a></p>
+  </body>
+</html>

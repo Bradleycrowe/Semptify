@@ -11,6 +11,16 @@
       <h1>Court Clerk Filing</h1>
       <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you record a court clerk filing. For legal advice, consult a licensed attorney.</div>
       <p class="muted">Record that you filed a document with the court clerk. This stores a certificate with the file hash and your details.</p>
+      <details class="info">
+        <summary>Need a clerk to upload a stamped copy?</summary>
+        <form action="/vault/create_clerk_invite" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+          <p><label>Invite Label <input type="text" name="label" placeholder="Court Clerk Upload"></label></p>
+          <p><label>Expires (days) <input type="number" name="expires_days" value="14" min="1" max="90"></label></p>
+          <button type="submit">Create Clerk Upload Link</button>
+        </form>
+      </details>
       <form action="/court_clerk" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
@@ -62,6 +72,55 @@
             <input type="file" name="stamp_file" title="Upload image or PDF (optional)">
           </label>
         </p>
+        <fieldset>
+          <legend>Fees and Fee Waiver (IFP)</legend>
+          <p>
+            <label>Fee Status
+              <select name="fee_status">
+                <option value="">(unspecified)</option>
+                <option value="paid">Paid</option>
+                <option value="waived">Waived</option>
+                <option value="partial">Partial</option>
+                <option value="pending">Pending</option>
+              </select>
+            </label>
+          </p>
+          <p>
+            <label>Fee Amount (USD)
+              <input type="number" name="fee_amount" step="0.01" min="0" placeholder="e.g., 435.00">
+            </label>
+          </p>
+          <p>
+            <label>Fee Paid At (date/time)
+              <input type="text" name="fee_paid_at" placeholder="optional, e.g., 2025-10-12 14:30">
+            </label>
+          </p>
+          <p>
+            <label>Payment Receipt
+              <input type="file" name="fee_receipt_file" title="Upload receipt (optional)">
+            </label>
+          </p>
+          <p>
+            <label>IFP Status
+              <select name="ifp_status">
+                <option value="">(not applied)</option>
+                <option value="approved">Approved</option>
+                <option value="denied">Denied</option>
+                <option value="pending">Pending</option>
+              </select>
+            </label>
+          </p>
+          <p>
+            <label>IFP Basis/Notes
+              <input type="text" name="ifp_basis" placeholder="brief note (optional)">
+            </label>
+          </p>
+          <p>
+            <label>IFP Order/Proof
+              <input type="file" name="ifp_order_file" title="Upload order or proof (optional)">
+            </label>
+          </p>
+        </fieldset>
         <details>
           <summary>Optional: evidence context</summary>
           <p><label>Timestamp <input type="text" name="evidence_timestamp" placeholder="auto if blank"></label></p>

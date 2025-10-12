@@ -7,11 +7,41 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
+    {% include '_nav.html' %}
     <h1>Document Vault</h1>
+    <div class="legal-disclaimer-banner">
+      <strong>{{ _('Note') }}:</strong> {{ _('You must be a registered user with your one-time token to access the Vault.') }}
+    </div>
     <p>Welcome, {{ user.name }} (ID: {{ user.id }})</p>
 
     <section>
       <h2>Your Files</h2>
+      <details>
+        <summary>Ask Vault AI (local-only) using selected files</summary>
+        <form id="vault-ai-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+          <p class="muted">Vault AI runs locally (Ollama). You can include file content (text-only, truncated) or just file metadata.</p>
+          <p>
+            <label>Question<br>
+              <textarea id="vault-ai-prompt" rows="4" placeholder="What should I extract or summarize from these files?"></textarea>
+            </label>
+          </p>
+          <p>
+            <label><input type="checkbox" id="vault-ai-include"> Include file content (text snippets)</label>
+          </p>
+          <div>
+            <strong>Select files:</strong>
+            <div class="list">
+              {% for f in files %}
+                <div class="list-item"><label><input type="checkbox" class="vault-ai-file" value="{{ f.name }}"> {{ f.name }}</label> <small>({{ f.size }} bytes)</small></div>
+              {% endfor %}
+            </div>
+          </div>
+          <button type="submit">Ask Vault AI</button>
+        </form>
+        <pre id="vault-ai-answer" class="code-block muted hidden"></pre>
+      </details>
     <section>
       <h2>Help</h2>
       <p class="muted">Quick steps to get the most out of your vault:</p>
@@ -46,6 +76,11 @@
         <input id="share-label" name="label" type="text" placeholder="e.g., Attorney Smith" />
         <label for="share-days">Expires in (days)</label>
         <input id="share-days" name="expires_days" type="number" min="1" max="90" value="30" />
+        <div class="muted small">Quick presets: 
+          <button type="button" class="link" onclick="document.getElementById('share-days').value=7">7d</button> · 
+          <button type="button" class="link" onclick="document.getElementById('share-days').value=14">14d</button> · 
+          <button type="button" class="link" onclick="document.getElementById('share-days').value=30">30d</button>
+        </div>
         <input type="hidden" name="scope" value="vault_read" />
         <button type="submit">Create share link</button>
       </form>
@@ -62,4 +97,32 @@
     {% include '_footer.html' %}
   </body>
   <script src="/static/js/help-panel.js"></script>
+  <script>
+    (function(){
+      const form = document.getElementById('vault-ai-form');
+  if(!form) return;
+  const out = document.getElementById('vault-ai-answer');
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const prompt = document.getElementById('vault-ai-prompt').value.trim();
+        const include = document.getElementById('vault-ai-include').checked;
+        const csrf = form.querySelector('input[name="csrf_token"]').value;
+        const userToken = form.querySelector('input[name="user_token"]').value;
+        const files = Array.from(document.querySelectorAll('.vault-ai-file:checked')).map(el=>el.value);
+  if(!prompt){ out.classList.remove('hidden'); out.textContent='Please enter a question.'; return; }
+  out.classList.remove('hidden');
+        out.textContent = 'Thinking…';
+        try{
+          const res = await fetch('/api/vault_copilot?user_token='+encodeURIComponent(userToken), {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRF-Token': csrf},
+            body: JSON.stringify({ prompt, files, include_content: include })
+          });
+          const data = await res.json().catch(()=>({error: res.status+' '+res.statusText}));
+          if(!res.ok){ out.textContent = 'Error: ' + (data.error || (res.status+' '+res.statusText)); }
+          else{ out.textContent = data.output || '(empty)'; }
+        }catch(err){ out.textContent = 'Request failed: ' + err; }
+      });
+    })();
+  </script>
 </html>

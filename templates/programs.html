@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Housing Programs • Semptify</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body>
+  {% include '_nav.html' %}
+  <main class="container">
+    <h1>Housing Assistance Programs</h1>
+
+    <form method="get" class="search-form">
+      <div class="form-group">
+        <label>Search programs:</label>
+        <input type="text" name="query" value="{{ query }}" placeholder="section 8, voucher, rental assistance...">
+      </div>
+      <div class="form-group">
+        <label>State (optional):</label>
+        <input type="text" name="state" value="{{ state }}" placeholder="CA, NY, TX..." maxlength="2">
+      </div>
+      <div class="form-group">
+        <label>ZIP code (optional):</label>
+        <input type="text" name="zip" value="{{ zip_code }}" placeholder="12345">
+      </div>
+      <button type="submit">Search Programs</button>
+    </form>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if results %}
+      <h2>{{ results|length }} Program(s) Found</h2>
+      {% for program in results %}
+        <div class="program-card">
+          <div class="program-header">
+            <h3>{{ program.name }}</h3>
+            <span class="program-category">{{ program.category }}</span>
+          </div>
+          <p class="program-description">{{ program.description }}</p>
+
+          {% if program.eligibility %}
+            <p><strong>Eligibility:</strong> {{ program.eligibility }}</p>
+          {% endif %}
+
+          {% if program.agency %}
+            <p><strong>Agency:</strong> {{ program.agency }}</p>
+          {% endif %}
+
+          {% if program.location %}
+            <p><strong>Location:</strong> {{ program.location }}</p>
+          {% endif %}
+
+          {% if program.programs %}
+            <p><strong>Programs:</strong> {{ program.programs|join(', ') }}</p>
+          {% endif %}
+
+          {% if program.url %}
+            <p><strong>More info:</strong> <a href="{{ program.url }}" target="_blank">{{ program.url }}</a></p>
+          {% endif %}
+
+          {% if program.contact %}
+            <p><strong>Contact:</strong> {{ program.contact }}</p>
+          {% endif %}
+
+          {% if program.notes %}
+            <p><em>{{ program.notes }}</em></p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% elif query or state or zip_code %}
+      <p>No programs found matching your criteria. Try different search terms or check back later.</p>
+    {% endif %}
+
+    {% if search_tips %}
+      <div class="search-tips">
+        <h3>Search Tips</h3>
+        <ul>{% for tip in search_tips %}<li>{{ tip }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+
+    <div class="disclaimer">
+      <p><strong>Disclaimer:</strong> Program availability, eligibility, and waitlist status change frequently. Contact programs directly for current information. This is not legal advice.</p>
+    </div>
+  </main>
+  {% include '_footer.html' %}
+</body>
+</html>

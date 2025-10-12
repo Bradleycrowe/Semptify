@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, send_file, jsonify, abort, session
+from flask import Flask, render_template, request, redirect, send_file, jsonify, abort, session, g, make_response
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime, timezone
@@ -15,6 +15,7 @@ from typing import Optional, Callable
 from ron_providers import get_provider
 import subprocess
 import shlex
+import shutil
 
 # -----------------------------
 # Rate limiting (simple sliding window) & config
@@ -329,7 +330,9 @@ def _write_users(users: list) -> None:
 GRANTS_CACHE = {
     'path': os.path.join('security', 'grants.json'),
     'mtime': None,
-    'grants': []  # list of { id, user_id, hash, enabled, scope, label, expires_ts }
+    # list entries: { id, user_id, hash, enabled, scope, label, expires_ts, perm }
+    # perm: 'read' (default) or 'upload' for clerk-style upload portals
+    'grants': []
 }
 
 def _load_grants(force: bool = False):
@@ -361,7 +364,8 @@ def _load_grants(force: bool = False):
                     'scope': g.get('scope', 'vault_read'),
                     'label': g.get('label', ''),
                     'expires_ts': g.get('expires_ts', 0),
-                    'enabled': True
+                    'enabled': True,
+                    'perm': g.get('perm', 'read')
                 })
             GRANTS_CACHE['grants'] = norm
             GRANTS_CACHE['mtime'] = mtime
@@ -400,6 +404,31 @@ def _match_user_token(raw: Optional[str]):
         if u['hash'] == h:
             return u
     return None
+
+def _new_grant_id() -> str:
+    return 'g' + uuid.uuid4().hex[:10]
+
+def _parse_grant_scope(scope: str) -> dict:
+    scope = (scope or 'vault_read').strip()
+    if scope.startswith('path:'):
+        sub = scope[5:].strip().lstrip('/').rstrip('/')
+        return {'type': 'path', 'subpath': sub}
+    return {'type': 'vault_read'}
+
+def _grant_root_dir(user_id: str, scope: str) -> str:
+    base = _vault_user_dir(user_id)
+    spec = _parse_grant_scope(scope)
+    if spec['type'] == 'path':
+        root = os.path.normpath(os.path.join(base, spec['subpath']))
+        # ensure within base
+        base_norm = os.path.normpath(base)
+        try:
+            if os.path.commonpath([base_norm, root]) != base_norm:
+                return base_norm
+        except Exception:
+            return base_norm
+        return root
+    return base
 
 def _require_user_or_401():
     """Authenticate a regular user for the Document Vault.
@@ -449,6 +478,144 @@ def load_dotenv(path: str = '.env') -> None:
 # Attempt to load .env from project root (idempotent)
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 
+# -----------------------------
+# Minimal i18n (en/es) — avoid external dependency for portability
+# -----------------------------
+LANG_DEFAULT = 'en'
+LANG_SUPPORTED = ['en', 'es', 'ar', 'so', 'vi', 'el']
+
+_I18N = {
+    'es': {
+        'Home': 'Inicio',
+        'About': 'Acerca de',
+        'Features': 'Funciones',
+        'How it works': 'Cómo funciona',
+        'Resources': 'Recursos',
+        'Vault': 'Bóveda',
+        'FAQ': 'Preguntas',
+        'Get started': 'Comenzar',
+        'Copilot': 'Copiloto',
+        'Register': 'Registrarse',
+        'Admin': 'Administrador',
+        'Token': 'Token',
+        'Requires registration token': 'Requiere token de registro',
+        'Note': 'Nota',
+        'You must be a registered user with your one-time token to access the Vault.': 'Debe estar registrado y usar su token de una sola vez para acceder a la Bóveda.',
+    },
+    'ar': {
+        'Home': 'الصفحة الرئيسية',
+        'About': 'حول',
+        'Features': 'الميزات',
+        'How it works': 'كيف يعمل',
+        'Resources': 'الموارد',
+        'Vault': 'الخزنة',
+        'FAQ': 'الأسئلة الشائعة',
+        'Get started': 'ابدأ',
+        'Copilot': 'المساعد الذكي',
+        'Register': 'تسجيل',
+        'Admin': 'إدارة',
+        'Token': 'رمز',
+        'Requires registration token': 'يتطلب رمز التسجيل',
+        'Note': 'ملاحظة',
+        'You must be a registered user with your one-time token to access the Vault.': 'يجب أن تكون مستخدمًا مسجلاً ولديك رمز لمرة واحدة للوصول إلى الخزنة.',
+    },
+    'so': {
+        'Home': 'Bogga Hore',
+        'About': 'Ku saabsan',
+        'Features': 'Astaamo',
+        'How it works': 'Sida ay u shaqeyso',
+        'Resources': 'Kheyraad',
+        'Vault': 'Kaydka',
+        'FAQ': "Su'aalaha Inta Badan La Isweydiiyo",
+        'Get started': 'Bilow',
+        'Copilot': 'Copilot',
+        'Register': 'Diiwaangeli',
+        'Admin': 'Maamul',
+        'Token': 'Token',
+        'Requires registration token': 'Waxay u baahan tahay token diiwaangelin',
+        'Note': 'Ogeysiis',
+        'You must be a registered user with your one-time token to access the Vault.': 'Waa inaad ahaataa isticmaale diiwaangashan oo leh token hal-mar ah si aad u gasho Kaydka.',
+    },
+    'vi': {
+        'Home': 'Trang chủ',
+        'About': 'Giới thiệu',
+        'Features': 'Tính năng',
+        'How it works': 'Cách hoạt động',
+        'Resources': 'Tài nguyên',
+        'Vault': 'Kho tài liệu',
+        'FAQ': 'Câu hỏi thường gặp',
+        'Get started': 'Bắt đầu',
+        'Copilot': 'Trợ lý AI',
+        'Register': 'Đăng ký',
+        'Admin': 'Quản trị',
+        'Token': 'Mã',
+        'Requires registration token': 'Yêu cầu mã đăng ký',
+        'Note': 'Lưu ý',
+        'You must be a registered user with your one-time token to access the Vault.': 'Bạn phải là người dùng đã đăng ký với mã dùng một lần để truy cập Kho tài liệu.',
+    },
+    'el': {
+        'Home': 'Αρχική',
+        'About': 'Σχετικά',
+        'Features': 'Δυνατότητες',
+        'How it works': 'Πώς λειτουργεί',
+        'Resources': 'Πόροι',
+        'Vault': 'Θησαυροφυλάκιο',
+        'FAQ': 'Συχνές ερωτήσεις',
+        'Get started': 'Ξεκινήστε',
+        'Copilot': 'Συνοδηγός',
+        'Register': 'Εγγραφή',
+        'Admin': 'Διαχείριση',
+        'Token': 'Κωδικός',
+        'Requires registration token': 'Απαιτείται κωδικός εγγραφής',
+        'Note': 'Σημείωση',
+        'You must be a registered user with your one-time token to access the Vault.': 'Πρέπει να είστε εγγεγραμμένος χρήστης με κωδικό μίας χρήσης για πρόσβαση στο Θησαυροφυλάκιο.',
+    }
+}
+
+def _get_lang_from_request() -> str:
+    # 1) explicit query param, 2) cookie, 3) Accept-Language header, 4) default
+    q = (request.args.get('lang') or '').strip().lower()
+    if q in LANG_SUPPORTED:
+        return q
+    c = (request.cookies.get('lang') or '').strip().lower()
+    if c in LANG_SUPPORTED:
+        return c
+    al = request.headers.get('Accept-Language', '')
+    if al:
+        # naive parse: split by comma, take first; trim region
+        primary = al.split(',')[0].strip().lower()
+        if '-' in primary:
+            primary = primary.split('-', 1)[0]
+        if primary in LANG_SUPPORTED:
+            return primary
+    return LANG_DEFAULT
+
+def _(text: str) -> str:  # simple gettext
+    lang = getattr(g, 'lang', LANG_DEFAULT)
+    return _I18N.get(lang, {}).get(text, text)
+
+@app.before_request
+def _set_lang():  # pragma: no cover (simple state)
+    try:
+        g.lang = _get_lang_from_request()
+    except Exception:
+        g.lang = LANG_DEFAULT
+
+@app.context_processor
+def inject_i18n():  # pragma: no cover
+    return {'_': _, 'current_lang': getattr(g, 'lang', LANG_DEFAULT), 'LANG_SUPPORTED': LANG_SUPPORTED}
+
+@app.route('/i18n/set')
+def i18n_set():
+    lang = (request.args.get('lang') or '').strip().lower()
+    if lang not in LANG_SUPPORTED:
+        lang = LANG_DEFAULT
+    # redirect back to Referer or root; preserve query sans lang
+    ref = request.headers.get('Referer') or '/'
+    resp = make_response(redirect(ref))
+    resp.set_cookie('lang', lang, max_age=60*60*24*365, httponly=False, samesite='Lax')
+    return resp
+
 def _current_security_mode():
     mode = os.environ.get("SECURITY_MODE", "open").lower()
     if mode not in ("open", "enforced"):
@@ -491,6 +658,95 @@ def get_started_page():
 def site_map_page():
     _inc('requests_total')
     return render_template('site_map.html')
+
+@app.route('/resources/programs', methods=['GET'])
+def programs_search():
+    _inc('requests_total')
+    query = request.args.get('query', '').strip().lower()
+    state = request.args.get('state', '').strip().upper()
+    zip_code = request.args.get('zip', '').strip()
+
+    # Load programs data
+    programs_path = os.path.join(os.path.dirname(__file__), 'static', 'data', 'programs.json')
+    try:
+        with open(programs_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        _append_log(f"programs_load_error {e}")
+        return render_template('programs.html', results=[], query=query, state=state, zip_code=zip_code, error="Programs data unavailable")
+
+    results = []
+
+    # Search federal programs
+    for program in data.get('federal_programs', []):
+        if _match_program(program, query, state, zip_code):
+            results.append({**program, 'category': 'Federal'})
+
+    # Search local examples
+    for program in data.get('local_examples', []):
+        if _match_program(program, query, state, zip_code):
+            results.append({**program, 'category': 'Local PHA'})
+
+    # Search state resources
+    for program in data.get('state_resources', []):
+        if _match_program(program, query, state, zip_code):
+            results.append({**program, 'category': 'State'})
+
+    # Search emergency assistance
+    for program in data.get('emergency_assistance', []):
+        if _match_program(program, query, state, zip_code):
+            results.append({**program, 'category': 'Emergency'})
+
+    # Sort by relevance (exact keyword matches first)
+    def sort_key(p):
+        keywords = p.get('keywords', [])
+        exact_match = any(query in kw.lower() for kw in keywords) if query else False
+        return (not exact_match, p.get('name', ''))
+
+    results.sort(key=sort_key)
+
+    return render_template('programs.html',
+                         results=results,
+                         query=query,
+                         state=state,
+                         zip_code=zip_code,
+                         search_tips=data.get('search_tips', []))
+
+def _match_program(program, query, state, zip_code):
+    """Check if program matches search criteria"""
+    # Always include if no filters
+    if not query and not state and not zip_code:
+        return True
+
+    matches = True
+
+    # Query matching
+    if query:
+        query_match = False
+        # Check name
+        if query in program.get('name', '').lower():
+            query_match = True
+        # Check keywords
+        for keyword in program.get('keywords', []):
+            if query in keyword.lower():
+                query_match = True
+                break
+        # Check description
+        if query in program.get('description', '').lower():
+            query_match = True
+
+        matches = matches and query_match
+
+    # State matching
+    if state:
+        program_state = program.get('state', '')
+        if program_state and program_state != state:
+            matches = False
+
+    # ZIP code matching (basic - would need geocoding for real implementation)
+    # For now, just show all results if ZIP is provided
+
+    return matches
 
 FORCE_HTTPS = _truthy(os.environ.get('FORCE_HTTPS', '0'))
 HSTS_MAX_AGE = int(os.environ.get('HSTS_MAX_AGE', '31536000'))  # 1 year
@@ -1649,8 +1905,8 @@ def _copilot_call_ollama(prompt: str) -> str:
     data = r.json()
     return data.get('response') or ''
 
-def _copilot_generate(prompt: str) -> tuple[str, int]:
-    provider = _ai_provider()
+def _copilot_generate(prompt: str, provider_override: Optional[str] = None) -> tuple[str, int]:
+    provider = (provider_override or _ai_provider())
     if provider in ('', 'none'):
         return ('AI Copilot is not configured. Set AI_PROVIDER and provider-specific environment variables.', 501)
     try:
@@ -1666,6 +1922,69 @@ def _copilot_generate(prompt: str) -> tuple[str, int]:
     except Exception as e:
         _append_log(f"copilot_error {e}")
         return (f'Error from provider: {e}', 502)
+
+def _read_text_file_safe(path: str, max_bytes: int = 10000) -> str:
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = f.read(max_bytes + 1)
+        if len(data) > max_bytes:
+            data = data[:max_bytes]
+        return data.strip()
+    except Exception:
+        return ""
+
+def _get_org_knowledge_context(max_chars: int = 3000) -> str:
+    """Load short org-level notes from copilot_sync (and optional docs/knowledge) to guide AI.
+    No user data is read. Only .md and .txt files are considered.
+    """
+    roots = [
+        os.path.join(BASE_DIR, 'copilot_sync'),
+        os.path.join(BASE_DIR, 'docs', 'knowledge')
+    ]
+    files = []
+    for root in roots:
+        try:
+            if os.path.isdir(root):
+                for name in os.listdir(root):
+                    if not isinstance(name, str):
+                        continue
+                    low = name.lower()
+                    if low.endswith('.md') or low.endswith('.txt'):
+                        full = os.path.join(root, name)
+                        try:
+                            mtime = os.path.getmtime(full)
+                        except Exception:
+                            mtime = 0
+                        files.append((mtime, full))
+        except Exception:
+            continue
+    if not files:
+        return ""
+    # newest first
+    files.sort(key=lambda x: x[0], reverse=True)
+    budget = max_chars
+    parts = []
+    for _, fp in files:
+        if budget <= 0:
+            break
+        text = _read_text_file_safe(fp, max_bytes=min(8000, budget))
+        if not text:
+            continue
+        title = os.path.basename(fp)
+        snippet = text.strip()
+        # limit per file to avoid one file consuming all budget
+        per_file = min(len(snippet), max(800, min(1500, budget)))
+        snippet = snippet[:per_file]
+        parts.append(f"# {title}\n{snippet}")
+        budget -= len(snippet)
+    if not parts:
+        return ""
+    header = (
+        "ORGANIZATION KNOWLEDGE (non-user data). Use only when relevant; prefer these rules and procedures when they apply.\n\n"
+    )
+    body = "\n\n".join(parts)
+    out = header + body
+    return out[:max_chars]
 
 @app.route('/copilot', methods=['GET'])
 def copilot_page():
@@ -1701,11 +2020,503 @@ def copilot_api():
         _event_log('evidence_copilot_request', ip=ip, location=location[:50] if location else None, form_type=form_type)
     else:
         enhanced_prompt = prompt
+    # Append organization knowledge (non-user data) if available
+    org_ctx = _get_org_knowledge_context()
+    if org_ctx:
+        enhanced_prompt = org_ctx + "\n\n" + enhanced_prompt
     if citations:
         enhanced_prompt += "\n\nAlso include citations to relevant statutes, regulations, or trusted sources, with links when possible."
 
     text, code = _copilot_generate(enhanced_prompt)
     return jsonify({'provider': _ai_provider(), 'output': text}), code
+
+# Admin-only local-only Copilot API
+@app.route('/api/admin/copilot', methods=['POST'])
+def copilot_api_admin_local():
+    # Admin auth and CSRF
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr) or 'unknown'
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    if not app.config.get('TESTING') and not _rate_limit(f"copilot-admin:{ip}"):
+        _inc('rate_limited_total')
+        return jsonify({'error': 'rate_limited'}), RATE_LIMIT_STATUS, {'Retry-After': str(RATE_LIMIT_RETRY_AFTER)}
+
+    data = request.get_json(silent=True) or {}
+    prompt = (data.get('prompt') or '').strip()
+    if not prompt:
+        return jsonify({'error': 'missing_prompt'}), 400
+    # Append organization knowledge (non-user data) if available
+    org_ctx = _get_org_knowledge_context()
+    if org_ctx:
+        prompt = org_ctx + "\n\n" + prompt
+    # Force a local provider override (prefer explicit env; fallback to ollama)
+    local_provider = (os.environ.get('AI_PROVIDER_LOCAL') or 'ollama').strip().lower()
+    text, code = _copilot_generate(prompt, provider_override=local_provider)
+    return jsonify({'provider': local_provider, 'output': text}), code
+
+# User-accessible, local-only Vault AI: answer questions using selected vault files.
+@app.route('/api/vault_copilot', methods=['POST'])
+def vault_copilot_local():
+    # Rate limit per user/ip to avoid abuse
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr) or 'unknown'
+    if not app.config.get('TESTING') and not _rate_limit(f"vaultai:{ip}"):
+        _inc('rate_limited_total')
+        return jsonify({'error': 'rate_limited'}), RATE_LIMIT_STATUS, {'Retry-After': str(RATE_LIMIT_RETRY_AFTER)}
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    data = request.get_json(silent=True) or {}
+    prompt = (data.get('prompt') or '').strip()
+    files = data.get('files') or []
+    include_content = bool(data.get('include_content'))
+    if not prompt:
+        return jsonify({'error': 'missing_prompt'}), 400
+    # Resolve files
+    user_dir = _vault_user_dir(user['id'])
+    contexts = []
+    total_chars = 0
+    MAX_FILE_CHARS = int(os.environ.get('VAULT_AI_MAX_FILE_CHARS', '65536'))
+    MAX_TOTAL_CHARS = int(os.environ.get('VAULT_AI_MAX_TOTAL_CHARS', '131072'))
+    for name in files:
+        safe = secure_filename(str(name))
+        if not safe:
+            continue
+        path = os.path.join(user_dir, safe)
+        if not os.path.isfile(path):
+            continue
+        info = {
+            'filename': safe,
+            'size': os.path.getsize(path),
+            'sha256': None,
+            'snippet': None
+        }
+        try:
+            info['sha256'] = _sha256_file(path)
+        except Exception:
+            info['sha256'] = None
+        if include_content:
+            # Only attempt to read text-like files; otherwise skip content
+            try:
+                # Heuristic: limit read to first N chars; decode errors ignored
+                with open(path, 'rb') as f:
+                    chunk = f.read(MAX_FILE_CHARS)
+                text = chunk.decode('utf-8', errors='ignore')
+                # Cap total across files
+                allowed = max(0, MAX_TOTAL_CHARS - total_chars)
+                if allowed <= 0:
+                    pass
+                else:
+                    snippet = text[:min(len(text), allowed)]
+                    info['snippet'] = snippet
+                    total_chars += len(info['snippet'])
+            except Exception:
+                info['snippet'] = None
+        contexts.append(info)
+    # Build a local-only prompt
+    context_lines = [
+        "You are Vault AI, a local-only assistant. Use the provided vault context to answer accurately.",
+        "Context files:" + (" none" if not contexts else "")
+    ]
+    for c in contexts:
+        line = f"- {c['filename']} (size {c['size']} bytes, sha256 {c['sha256'] or 'n/a'})"
+        context_lines.append(line)
+        if include_content and c.get('snippet'):
+            context_lines.append("  --- BEGIN SNIPPET ---")
+            context_lines.append(c['snippet'])
+            context_lines.append("  --- END SNIPPET ---")
+    context_lines.append("")
+    context_lines.append("User question:")
+    context_lines.append(prompt)
+    final_prompt = "\n".join(context_lines)
+    # Force local provider
+    local_provider = (os.environ.get('AI_PROVIDER_LOCAL') or 'ollama').strip().lower()
+    out, code = _copilot_generate(final_prompt, provider_override=local_provider)
+    return jsonify({'provider': local_provider, 'output': out, 'files_used': [c['filename'] for c in contexts]}), code
+
+# Admin-only: generate a document with local AI and save to a user's vault
+@app.route('/api/admin/ai_generate', methods=['POST'])
+def admin_ai_generate():
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr) or 'unknown'
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    if not app.config.get('TESTING') and not _rate_limit(f"ai-generate-admin:{ip}"):
+        _inc('rate_limited_total')
+        return jsonify({'error': 'rate_limited'}), RATE_LIMIT_STATUS, {'Retry-After': str(RATE_LIMIT_RETRY_AFTER)}
+
+    data = request.get_json(silent=True) or {}
+    target_user_id = (data.get('user_id') or '').strip()
+    prompt = (data.get('prompt') or '').strip()
+    doc_type = (data.get('doc_type') or 'ai_document').strip()
+    case_number = (data.get('case_number') or '').strip()
+    filename_req = (data.get('filename') or '').strip()
+    if not target_user_id or not prompt:
+        return jsonify({'error': 'missing_user_or_prompt'}), 400
+
+    # Ensure user exists
+    _load_users()
+    user_exists = any(u.get('id') == target_user_id for u in USERS_CACHE['users'])
+    if not user_exists:
+        return jsonify({'error': 'user_not_found'}), 404
+
+    # Generate with local provider only
+    local_provider = (os.environ.get('AI_PROVIDER_LOCAL') or 'ollama').strip().lower()
+    content, code = _copilot_generate(prompt, provider_override=local_provider)
+    if code != 200:
+        return jsonify({'error': 'generation_failed', 'detail': content}), code
+
+    ts = _utc_now().strftime('%Y%m%d_%H%M%S')
+    if filename_req:
+        base = secure_filename(filename_req)
+        if not base:
+            base = f"{doc_type}_{ts}.txt"
+        if '.' not in base:
+            base = base + '.txt'
+        filename = base
+    else:
+        filename = f"{doc_type}_{ts}.txt"
+
+    dest_dir = _vault_user_dir(target_user_id)
+    dest_path = os.path.join(dest_dir, filename)
+    try:
+        with open(dest_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        # Build certificate with minimal prompt leakage (hash only)
+        cert = {
+            'type': 'ai_generated',
+            'doc_type': doc_type,
+            'file': filename,
+            'sha256': _sha256_hex(content),
+            'user_id': target_user_id,
+            'ts': _utc_now_iso(),
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent'),
+            'request_id': getattr(request, 'request_id', None),
+            'generated_by': 'admin_ai',
+            'provider': local_provider,
+            'prompt_sha256': _sha256_hex(prompt),
+            'prompt_len': len(prompt)
+        }
+        if case_number:
+            cert['case_number'] = case_number
+        cert_name = f"{os.path.splitext(filename)[0]}.json"
+        with open(os.path.join(dest_dir, cert_name), 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, indent=2)
+        _event_log('admin_ai_generated', user_id=target_user_id, filename=filename, sha256=cert['sha256'])
+    except Exception as e:  # pragma: no cover
+        _append_log(f"admin_ai_generate_error {e}")
+        return jsonify({'error': 'save_failed'}), 500
+
+    return jsonify({'ok': True, 'user_id': target_user_id, 'filename': filename, 'provider': local_provider, 'sha256': cert['sha256']}), 200
+
+# -----------------------------
+# Admin: create attorney/share grants
+# -----------------------------
+@app.route('/admin/grants/create', methods=['POST'])
+def admin_grants_create():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+
+    user_id = (request.form.get('user_id') or '').strip()
+    label = (request.form.get('label') or '').strip()
+    scope_type = (request.form.get('scope_type') or 'all').strip()
+    scope_path = (request.form.get('scope_path') or '').strip()
+    expires_days = int(request.form.get('expires_days') or '30')
+
+    if not user_id:
+        return "Missing user_id", 400
+    _load_users()
+    if not any(u.get('id') == user_id for u in USERS_CACHE['users']):
+        return "User not found", 404
+
+    if scope_type == 'subpath':
+        if not scope_path:
+            return "Missing scope_path", 400
+        scope = f"path:{scope_path}"
+    else:
+        scope = 'vault_read'
+
+    grant_id = _new_grant_id()
+    plain_token = _random_digit_key(24)
+    entry = {
+        'id': grant_id,
+        'user_id': user_id,
+        'hash': _hash_token(plain_token),
+        'enabled': True,
+        'scope': scope,
+        'label': label,
+        'expires_ts': int(time.time()) + (expires_days * 24 * 3600)
+    }
+
+    # write grants
+    path = GRANTS_CACHE['path']
+    existing = []
+    try:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+    except Exception:
+        existing = []
+    existing.append(entry)
+    _write_grants(existing)
+    _event_log('grant_created', user_id=user_id, grant_id=grant_id, scope=scope)
+
+    invite_link = f"/vault/shared/{grant_id}?token={plain_token}"
+    return render_template('grant_created.html', grant_id=grant_id, invite_link=invite_link, label=label or '', scope=scope, expires_days=expires_days)
+
+# -----------------------------
+# Admin: Attorney Outreach (scoped grant to case_summary/<grant_id>)
+# -----------------------------
+@app.route('/admin/attorney_outreach', methods=['GET', 'POST'])
+def admin_attorney_outreach():
+    # Admin auth
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    if request.method == 'GET':
+        # Optional user_id to show file list
+        user_id = (request.args.get('user_id') or '').strip()
+        files = []
+        user_exists = False
+        if user_id:
+            _load_users()
+            user_exists = any(u.get('id') == user_id for u in USERS_CACHE['users'])
+            if user_exists:
+                udir = _vault_user_dir(user_id)
+                try:
+                    for name in sorted(os.listdir(udir)):
+                        fp = os.path.join(udir, name)
+                        if os.path.isfile(fp) and not name.lower().endswith('.json'):
+                            files.append({'name': name, 'size': os.path.getsize(fp)})
+                except Exception:
+                    files = []
+        csrf = _get_or_create_csrf_token()
+        return render_template('admin_attorney_outreach.html', csrf_token=csrf, user_id=user_id, files=files, user_exists=user_exists,
+                               admin_token=_get_admin_token_legacy())
+    # POST create outreach grant
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user_id = (request.form.get('user_id') or '').strip()
+    label = (request.form.get('label') or 'Attorney Outreach').strip()
+    case_number = (request.form.get('case_number') or '').strip()
+    summary = (request.form.get('summary') or '').strip()
+    try:
+        expires_days = int(request.form.get('expires_days') or '30')
+        expires_days = max(1, min(expires_days, 180))
+    except Exception:
+        expires_days = 30
+    selected_files = request.form.getlist('files') or []
+    # Validate user
+    _load_users()
+    if not any(u.get('id') == user_id for u in USERS_CACHE['users']):
+        return "User not found", 404
+    # Prepare summary folder
+    grant_id = _new_grant_id()
+    user_root = _vault_user_dir(user_id)
+    rel_case_dir = os.path.join('case_summary', grant_id)
+    abs_case_dir = os.path.join(user_root, rel_case_dir)
+    os.makedirs(abs_case_dir, exist_ok=True)
+    # Copy selected files into case folder
+    copied = []
+    for name in selected_files:
+        safe = secure_filename(name)
+        if not safe:
+            continue
+        src = os.path.join(user_root, safe)
+        dst = os.path.join(abs_case_dir, safe)
+        try:
+            if os.path.isfile(src):
+                shutil.copy2(src, dst)
+                copied.append(safe)
+        except Exception:
+            continue
+    # Write summary.txt
+    if summary:
+        try:
+            with open(os.path.join(abs_case_dir, 'summary.txt'), 'w', encoding='utf-8') as f:
+                title = f"Case Summary for {label}"
+                if case_number:
+                    title += f" (Case {case_number})"
+                f.write(title + "\n\n")
+                f.write(summary.strip() + "\n")
+        except Exception:
+            pass
+    # Create grant scoped to this folder
+    plain_token = _random_digit_key(24)
+    entry = {
+        'id': grant_id,
+        'user_id': user_id,
+        'hash': _hash_token(plain_token),
+        'enabled': True,
+        'scope': f"path:{rel_case_dir.replace('\\','/')}",
+        'label': label,
+        'expires_ts': int(time.time()) + (expires_days * 24 * 3600)
+    }
+    # Persist grant
+    path = GRANTS_CACHE['path']
+    existing = []
+    try:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+    except Exception:
+        existing = []
+    existing.append(entry)
+    _write_grants(existing)
+    _event_log('attorney_outreach_created', user_id=user_id, grant_id=grant_id, case_number=case_number or None)
+    # Logbook event
+    try:
+        notes = f"Outreach label: {label}. Case: {case_number or 'n/a'}. Files: {', '.join(copied) or 'none'}."
+        _logbook_add_event(user_id, 'Attorney Outreach Invite Sent', typ='communication', notes=notes)
+    except Exception:
+        pass
+    # Write certificate
+    try:
+        cert = {
+            'type': 'attorney_outreach_invite',
+            'user_id': user_id,
+            'ts': _utc_now_iso(),
+            'grant_id': grant_id,
+            'label': label,
+            'case_number': case_number or None,
+            'scope': entry['scope'],
+            'files_included': copied,
+            'request_id': getattr(request, 'request_id', None)
+        }
+        with open(os.path.join(user_root, f"attorney_invite_{int(time.time())}_{uuid.uuid4().hex[:8]}.json"), 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, indent=2)
+    except Exception:
+        pass
+    invite_link = f"/vault/shared/{grant_id}?token={plain_token}"
+    # Render invite created page with prefilled email body
+    return render_template('attorney_invite_created.html', invite_link=invite_link, label=label, case_number=case_number, expires_days=expires_days,
+                           user_id=user_id)
+
+# -----------------------------
+# Admin: list and disable grants
+# -----------------------------
+@app.route('/admin/grants', methods=['GET'])
+def admin_grants_list():
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    _load_grants()
+    csrf = _get_or_create_csrf_token()
+    grants = GRANTS_CACHE.get('grants', [])
+    return render_template('admin_grants.html', grants=grants, csrf_token=csrf, admin_token=_get_admin_token_legacy())
+
+@app.route('/admin/grants/disable', methods=['POST'])
+def admin_grants_disable():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    gid = (request.form.get('grant_id') or '').strip()
+    if not gid:
+        return "Missing grant_id", 400
+    path = GRANTS_CACHE['path']
+    try:
+        data = []
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        updated = False
+        for entry in data:
+            if entry.get('id') == gid and entry.get('enabled', True):
+                entry['enabled'] = False
+                updated = True
+                break
+        if updated:
+            _write_grants(data)
+            _event_log('grant_disabled', grant_id=gid, ip=request.remote_addr)
+    except Exception as e:  # pragma: no cover
+        _append_log(f"admin_grant_disable_error {e}")
+        return "Failed to disable grant", 500
+    return redirect('/admin/grants')
+
+# -----------------------------
+# Shared read-only view for grants (e.g., attorney access)
+# -----------------------------
+@app.route('/vault/shared/<grant_id>', methods=['GET'])
+def vault_shared_view(grant_id: str):
+    token = request.args.get('token') or request.headers.get('X-Grant-Token') or ''
+    g = _match_grant_token(grant_id, token)
+    if not g:
+        return jsonify({'error': 'unauthorized'}), 401
+    # Attorney attestation requirement
+    # Store attestation per grant under user's vault/grants/
+    grants_dir = os.path.join(_vault_user_dir(g['user_id']), 'grants')
+    os.makedirs(grants_dir, exist_ok=True)
+    attest_path = os.path.join(grants_dir, f"attest_{grant_id}.json")
+    if not os.path.exists(attest_path):
+        # Render attestation form first
+        return render_template('grant_attestation.html', grant_id=grant_id, token=token, csrf_token=_render_csrf())
+
+    # List files within scoped root
+    root = _grant_root_dir(g['user_id'], g['scope'])
+    files = []
+    try:
+        for name in sorted(os.listdir(root)):
+            p = os.path.join(root, name)
+            if os.path.isfile(p):
+                files.append(name)
+    except Exception:
+        files = []
+    return render_template('grant_view.html', grant_id=grant_id, token=token, label=g.get('label',''), files=files)
+
+@app.route('/vault/shared/<grant_id>/file/<path:filename>', methods=['GET'])
+def vault_shared_download(grant_id: str, filename: str):
+    token = request.args.get('token') or request.headers.get('X-Grant-Token') or ''
+    g = _match_grant_token(grant_id, token)
+    if not g:
+        return jsonify({'error': 'unauthorized'}), 401
+    root = _grant_root_dir(g['user_id'], g['scope'])
+    safe = secure_filename(filename)
+    path = os.path.normpath(os.path.join(root, safe))
+    base = os.path.normpath(root)
+    if not os.path.exists(path) or not os.path.commonpath([base, path]) == base:
+        return jsonify({'error': 'not_found'}), 404
+    return send_file(path, as_attachment=True)
+
+@app.route('/vault/shared/<grant_id>/attest', methods=['POST'])
+def vault_shared_attest(grant_id: str):
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    token = request.form.get('token') or ''
+    g = _match_grant_token(grant_id, token)
+    if not g:
+        return jsonify({'error': 'unauthorized'}), 401
+    # Collect attorney info
+    att = {
+        'name': (request.form.get('name') or '').strip(),
+        'email': (request.form.get('email') or '').strip(),
+        'phone': (request.form.get('phone') or '').strip(),
+        'bar_number': (request.form.get('bar_number') or '').strip(),
+        'jurisdiction': (request.form.get('jurisdiction') or '').strip(),
+        'agreed_terms': request.form.get('agree') in ('on','yes','true','1'),
+        'ts': _utc_now_iso(),
+        'ip': request.remote_addr,
+        'user_agent': request.headers.get('User-Agent'),
+        'grant_id': grant_id
+    }
+    if not att['name'] or not att['email'] or not att['bar_number'] or not att['jurisdiction'] or not att['agreed_terms']:
+        return "Missing required fields or terms not accepted", 400
+    grants_dir = os.path.join(_vault_user_dir(g['user_id']), 'grants')
+    os.makedirs(grants_dir, exist_ok=True)
+    attest_path = os.path.join(grants_dir, f"attest_{grant_id}.json")
+    try:
+        with open(attest_path, 'w', encoding='utf-8') as f:
+            json.dump(att, f, indent=2)
+        _event_log('grant_attested', grant_id=grant_id, user_id=g['user_id'])
+    except Exception as e:  # pragma: no cover
+        _append_log(f"grant_attest_write_fail {e}")
+        return "Failed to record attestation", 500
+    return redirect(f"/vault/shared/{grant_id}?token={token}")
 
 # Compatibility alias for legacy tests that call /api/evidence-copilot
 @app.route('/api/evidence-copilot', methods=['POST'])
@@ -1732,6 +2543,10 @@ def evidence_copilot_api():
         _event_log('evidence_copilot_request', ip=ip, location=location[:50] if location else None, form_type=form_type)
     else:
         enhanced_prompt = prompt
+    # Append organization knowledge (non-user data)
+    org_ctx = _get_org_knowledge_context()
+    if org_ctx:
+        enhanced_prompt = org_ctx + "\n\n" + enhanced_prompt
     text, code = _copilot_generate(enhanced_prompt)
     return jsonify({'provider': _ai_provider(), 'output': text}), code
 
@@ -1757,6 +2572,11 @@ def _build_evidence_prompt(base_prompt: str, location: str, timestamp: str, form
         if relevant_fields:
             enhanced += f"Form context: {'; '.join(relevant_fields[:3])}. "
 
+    # Add housing programs context if relevant keywords detected
+    housing_context = _get_housing_programs_context(base_prompt, location)
+    if housing_context:
+        enhanced += housing_context
+
     enhanced += "\n\nUser request: " + base_prompt
     enhanced += "\n\nPlease provide specific, actionable guidance for tenant rights documentation and evidence collection. Focus on:"
     enhanced += "\n1. What evidence to collect for this situation"
@@ -1765,6 +2585,91 @@ def _build_evidence_prompt(base_prompt: str, location: str, timestamp: str, form
     enhanced += "\n4. Recommended next steps"
 
     return enhanced
+
+def _get_housing_programs_context(prompt: str, location: str) -> str:
+    """Add housing programs context if query appears to be about housing assistance"""
+    # Check for housing-related keywords
+    housing_keywords = [
+        'section 8', 'voucher', 'housing choice', 'rental assistance',
+        'public housing', 'waitlist', 'pha', 'housing authority',
+        'affordable housing', 'rent help', 'emergency rent', 'eviction help',
+        'housing programs', 'hud', 'usda rural', 'lihtc', 'tax credit'
+    ]
+
+    prompt_lower = prompt.lower()
+    if not any(keyword in prompt_lower for keyword in housing_keywords):
+        return ""
+
+    # Load programs data
+    programs_path = os.path.join(os.path.dirname(__file__), 'static', 'data', 'programs.json')
+    try:
+        with open(programs_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        _append_log(f"programs_context_load_error {e}")
+        return ""
+
+    # Extract state from location if possible
+    state = ""
+    if location:
+        # Simple state extraction (e.g., "San Francisco, CA" -> "CA")
+        parts = location.split(',')
+        if len(parts) >= 2:
+            state_part = parts[-1].strip().upper()
+            if len(state_part) == 2:
+                state = state_part
+
+    # Build context with most relevant programs
+    context_programs = []
+
+    # Always include federal programs for housing queries
+    for program in data.get('federal_programs', [])[:3]:  # Top 3 federal
+        context_programs.append({
+            'name': program['name'],
+            'description': program['description'],
+            'url': program['url'],
+            'type': 'Federal'
+        })
+
+    # Add state/local programs if location available
+    if state:
+        for program in data.get('state_resources', []):
+            if program.get('state') == state:
+                context_programs.append({
+                    'name': program['name'],
+                    'description': program['description'],
+                    'url': program['url'],
+                    'type': 'State'
+                })
+
+        for program in data.get('local_examples', []):
+            if program.get('state') == state:
+                context_programs.append({
+                    'name': program['name'],
+                    'description': program['description'],
+                    'url': program['url'],
+                    'type': 'Local'
+                })
+
+    # Add emergency assistance
+    for program in data.get('emergency_assistance', [])[:2]:  # Top 2 emergency
+        context_programs.append({
+            'name': program['name'],
+            'description': program['description'],
+            'url': program['url'],
+            'type': 'Emergency'
+        })
+
+    if not context_programs:
+        return ""
+
+    context = "\n\nRELEVANT HOUSING PROGRAMS (cite these when appropriate):\n"
+    for i, program in enumerate(context_programs[:6], 1):  # Limit to 6 programs
+        context += f"{i}. {program['name']} ({program['type']})\n"
+        context += f"   Description: {program['description']}\n"
+        context += f"   More info: {program['url']}\n\n"
+
+    return context
 
 @app.route('/resources/witness_statement', methods=['GET'])
 def witness_form():
@@ -2710,6 +3615,39 @@ def court_clerk_submit():
         file_sha = _sha256_file(fpath)
     except Exception as e:
         _append_log(f"courtclerk_hash_error {e}")
+    # Fees & IFP handling (uploads + fields)
+    fee_status = (request.form.get('fee_status') or '').strip()
+    fee_amount_raw = (request.form.get('fee_amount') or '').strip()
+    fee_amount = None
+    try:
+        if fee_amount_raw:
+            fee_amount = float(fee_amount_raw)
+    except Exception:
+        fee_amount = None
+    fee_paid_at = (request.form.get('fee_paid_at') or '').strip()
+    fee_receipt = request.files.get('fee_receipt_file')
+    fee_receipt_name = None
+    try:
+        if fee_receipt and fee_receipt.filename:
+            fee_receipt_name = secure_filename(fee_receipt.filename)
+            if fee_receipt_name:
+                fee_receipt_dest = os.path.join(user_dir, f"feereceipt_{int(time.time())}_{fee_receipt_name}")
+                fee_receipt.save(fee_receipt_dest)
+    except Exception as e:
+        _append_log(f"courtclerk_fee_receipt_save_error {e}")
+    ifp_status = (request.form.get('ifp_status') or '').strip()
+    ifp_basis = (request.form.get('ifp_basis') or '').strip()
+    ifp_order = request.files.get('ifp_order_file')
+    ifp_order_name = None
+    try:
+        if ifp_order and ifp_order.filename:
+            ifp_order_name = secure_filename(ifp_order.filename)
+            if ifp_order_name:
+                ifp_order_dest = os.path.join(user_dir, f"ifp_{int(time.time())}_{ifp_order_name}")
+                ifp_order.save(ifp_order_dest)
+    except Exception as e:
+        _append_log(f"courtclerk_ifp_save_error {e}")
+
     ts = _utc_now_iso()
     cert = {
         'type': 'court_clerk_filing',
@@ -2723,6 +3661,17 @@ def court_clerk_submit():
         'related_file': related_file,
         'related_file_sha256': file_sha,
         'stamp_file': stamp_name,
+        'fees': {
+            'status': fee_status or None,
+            'amount': fee_amount,
+            'paid_at': fee_paid_at or None,
+            'receipt_file': fee_receipt_name
+        },
+        'ifp': {
+            'status': ifp_status or None,
+            'basis': ifp_basis or None,
+            'order_file': ifp_order_name
+        },
         'request_id': getattr(request, 'request_id', None)
     }
     evidence_timestamp = (request.form.get('evidence_timestamp') or '').strip()
@@ -2763,7 +3712,7 @@ def vault_certificates_list():
     certs = []
     try:
         for name in sorted(os.listdir(user_dir)):
-            if name.lower().endswith('.json') and (name.startswith('notary_') or name.startswith('certpost_') or name.startswith('courtclerk_') or name.startswith('electronic_service_') or name.startswith('legalnotary_') or name.startswith('ron_')):
+            if name.lower().endswith('.json') and (name.startswith('notary_') or name.startswith('certpost_') or name.startswith('courtclerk_') or name.startswith('electronic_service_') or name.startswith('legalnotary_') or name.startswith('ron_') or name.startswith('clerk_')):
                 full = os.path.join(user_dir, name)
                 certs.append({'name': name, 'size': os.path.getsize(full)})
     except Exception as e:  # pragma: no cover
@@ -2787,6 +3736,110 @@ def vault_certificate_view(filename):
     except Exception:
         data = None
     return render_template('certificate_view.html', filename=safe, data=data)
+
+# -----------------------------
+# Clerk upload portal (invite-based, upload-only)
+# -----------------------------
+@app.route('/vault/create_clerk_invite', methods=['POST'])
+def create_clerk_invite():
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    user = _require_user_or_401()
+    if not user:
+        return jsonify({'error': 'unauthorized'}), 401
+    label = (request.form.get('label') or 'Court Clerk Upload').strip()
+    try:
+        expires_days = int(request.form.get('expires_days') or '14')
+        expires_days = max(1, min(expires_days, 90))
+    except Exception:
+        expires_days = 14
+    # Ensure clerk subfolder exists
+    clerk_root = os.path.join(_vault_user_dir(user['id']), 'clerk')
+    os.makedirs(clerk_root, exist_ok=True)
+    grant_id = _new_grant_id()
+    token_plain = _random_digit_key(24)
+    entry = {
+        'id': grant_id,
+        'user_id': user['id'],
+        'hash': _hash_token(token_plain),
+        'enabled': True,
+        'scope': 'path:clerk',
+        'label': label,
+        'perm': 'upload',
+        'expires_ts': int(time.time()) + (expires_days * 24 * 3600)
+    }
+    # Append to grants file
+    path = GRANTS_CACHE['path']
+    existing = []
+    try:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+    except Exception:
+        existing = []
+    existing.append(entry)
+    _write_grants(existing)
+    _event_log('clerk_invite_created', user_id=user['id'], grant_id=grant_id)
+    invite_link = f"/vault/clerk/{grant_id}?token={token_plain}"
+    return render_template('clerk_invite_success.html', invite_link=invite_link, label=label, expires_days=expires_days)
+
+@app.route('/vault/clerk/<grant_id>', methods=['GET', 'POST'])
+def clerk_upload_portal(grant_id: str):
+    token = request.args.get('token') or request.form.get('token') or request.headers.get('X-Grant-Token') or ''
+    g = _match_grant_token(grant_id, token)
+    if not g or g.get('perm', 'read') != 'upload':
+        return jsonify({'error': 'unauthorized'}), 401
+    # resolve root dir within scope
+    root = _grant_root_dir(g['user_id'], g['scope'])
+    os.makedirs(root, exist_ok=True)
+    if request.method == 'GET':
+        return render_template('clerk_upload.html', grant_id=grant_id, token=token, label=g.get('label',''), csrf_token=_render_csrf())
+    # POST upload
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    f = request.files.get('file')
+    if not f or not f.filename:
+        return "No file provided", 400
+    safe = secure_filename(f.filename)
+    if not safe:
+        return "Invalid filename", 400
+    dest = os.path.join(root, safe)
+    try:
+        f.save(dest)
+        sha = _sha256_file(dest)
+        ts = _utc_now_iso()
+        clerk_name = (request.form.get('clerk_name') or '').strip()
+        clerk_org = (request.form.get('clerk_org') or '').strip()
+        note = (request.form.get('note') or '').strip()
+        cert = {
+            'type': 'clerk_upload',
+            'user_id': g['user_id'],
+            'ts': ts,
+            'filename': os.path.join('clerk', safe) if g['scope'].startswith('path:clerk') else safe,
+            'sha256': sha,
+            'uploaded_via': 'clerk_portal',
+            'grant_id': grant_id,
+            'label': g.get('label',''),
+            'request_id': getattr(request, 'request_id', None),
+            'ip': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent'),
+            'clerk': {
+                'name': clerk_name or None,
+                'organization': clerk_org or None
+            },
+            'note': note or None
+        }
+        # write certificate at user base dir for visibility
+        base_dir = _vault_user_dir(g['user_id'])
+        cert_path = os.path.join(base_dir, f"clerk_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf, ensure_ascii=False, indent=2)
+        _event_log('clerk_file_uploaded', user_id=g['user_id'], grant_id=grant_id, filename=safe)
+    except Exception as e:  # pragma: no cover
+        _append_log(f"clerk_upload_error {e}")
+        return "Failed to save file", 500
+    # show success on same page
+    return render_template('clerk_upload.html', grant_id=grant_id, token=token, label=g.get('label',''), csrf_token=_render_csrf(), success=True, filename=safe)
 
 @app.route('/vault/export_bundle', methods=['POST'])
 def vault_export_bundle():
@@ -3188,6 +4241,50 @@ def rotate_token():
         return "Target token id not found", 404
     _write_tokens(data)
     _event_log('token_rotated', token_id=target_id, ip=request.remote_addr)
+    _inc('token_rotations_total')
+    return redirect('/admin')
+
+# New: Admin endpoint to rotate a regular user's vault token
+@app.route('/admin/rotate_user_token', methods=['POST'])
+def admin_rotate_user_token():
+    # CSRF required in enforced mode
+    if not _validate_csrf(request):
+        return "CSRF validation failed", 400
+    # Admin auth and rate limit
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+
+    target_user_id = request.form.get('target_user_id')
+    new_token_value = request.form.get('new_value')
+    if not target_user_id or not new_token_value:
+        return "Missing target_user_id or new_value", 400
+
+    users_path = USERS_CACHE['path']
+    if not os.path.exists(users_path):
+        return "Users file missing", 400
+
+    try:
+        with open(users_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        return f"Failed to read users: {e}", 500
+
+    found = False
+    for entry in data:
+        if entry.get('id') == target_user_id:
+            entry['hash'] = _hash_token(new_token_value)
+            # ensure enabled flag remains true unless explicitly disabled
+            if 'enabled' not in entry:
+                entry['enabled'] = True
+            found = True
+            break
+
+    if not found:
+        return "Target user id not found", 404
+
+    # Persist changes using existing writer to keep cache in sync
+    _write_users(data)
+    _event_log('user_token_rotated', user_id=target_user_id, ip=request.remote_addr)
     _inc('token_rotations_total')
     return redirect('/admin')
 

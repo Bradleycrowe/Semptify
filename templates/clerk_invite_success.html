@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clerk Upload Link Created</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="card narrow">
+      <h1>Clerk Upload Link Created</h1>
+      <p>Share this link with the court clerk to upload a stamped copy or receipt directly to your vault:</p>
+      <p>
+        <label>Invite link
+          <input type="text" readonly value="{{ invite_link }}" title="Clerk upload link" placeholder="Clerk upload link" class="fullwidth" onclick="this.select()">
+        </label>
+      </p>
+      <p class="muted">Label: {{ label }} · Expires in {{ expires_days }} days</p>
+      <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
+    </div>
+    {% include '_footer.html' %}
+  </body>
+  <script src="/static/js/help-panel.js"></script>
+</html>

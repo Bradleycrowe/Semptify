@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Grant Created</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Share Grant Created</h1>
+      <p><strong>Grant ID:</strong> {{ grant_id }}</p>
+      <p><strong>Scope:</strong> {{ scope }}</p>
+      <p><strong>Expires:</strong> in {{ expires_days }} day(s)</p>
+      <p>Share this invite link securely with the attorney:</p>
+  <pre class="copilot-output">{{ invite_link }}</pre>
+      <p class="muted">Note: The invite requires an attorney attestation (name, email, bar number, jurisdiction, and agreement to terms) before any files are visible. All access is logged.</p>
+      <p><a href="/admin?token={{ admin_token }}">Back to Admin</a></p>
+    </main>
+  </body>
+</html>
