@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find a Home • Semptify</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body>
+  {% include '_nav.html' %}
+  <main class="container">
+    <section class="card narrow" style="margin-bottom:1.5rem;">
+      <h2>About Search Results</h2>
+      <p>Semptify searches for residences from different sources and providers. Results may include listings from public housing, private rentals, local agencies, and trusted partners. Always verify details before making decisions.</p>
+    </section>
+    <section class="card narrow" style="background:#eaf6ff;margin-bottom:1.5rem;">
+      <h2>Front House AI Guide</h2>
+      <p><strong>Welcome!</strong> I’m your Semptify guide. Enter your housing requirements below and I’ll help you search for available homes. You can filter by type, city, or price. If you need help, just ask!</p>
+    </section>
+    <h1>Find a Home</h1>
+    <form method="get" class="search-form">
+      <div class="form-group">
+        <label>Search for homes:</label>
+        <input type="text" name="query" value="{{ query }}" placeholder="apartment, house, studio...">
+      </div>
+      <div class="form-group">
+        <label>City or ZIP:</label>
+        <input type="text" name="location" value="{{ location }}" placeholder="City or ZIP">
+      </div>
+      <button type="submit">Search</button>
+    </form>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    {% if results %}
+      <h2>{{ results|length }} Home(s) Found</h2>
+      {% for home in results %}
+        <div class="card">
+          <h3>{{ home.title }}</h3>
+          <div>{{ home.address }}</div>
+          <div>{{ home.price }}</div>
+          <div>{{ home.desc }}</div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </main>
+  {% include '_footer.html' %}
+</body>
+</html>

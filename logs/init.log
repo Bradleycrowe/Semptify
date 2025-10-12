@@ -674,3 +674,32 @@
 [2025-10-11 23:54:29] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
 [2025-10-11 23:54:29] asset_check index_exists=True admin_exists=True manifest_exists=True
 [2025-10-11 23:54:29] UNAUTHORIZED admin attempt path=/admin/status ip=127.0.0.1
+[2025-10-12 12:15:38] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-12 12:15:38] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:15:39] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-12 12:15:39] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:15:39] UNAUTHORIZED admin attempt path=/admin ip=127.0.0.1
+[2025-10-12 12:15:39] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-12 12:15:39] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-12 12:15:39] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:15:39] UNAUTHORIZED admin attempt path=/admin/status ip=127.0.0.1
+[2025-10-12 12:16:37] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-12 12:16:37] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:16:37] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-12 12:16:37] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:16:37] UNAUTHORIZED admin attempt path=/admin ip=127.0.0.1
+[2025-10-12 12:16:37] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-12 12:16:37] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-12 12:16:37] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:16:37] UNAUTHORIZED admin attempt path=/admin/status ip=127.0.0.1
+[2025-10-12 12:22:39] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-12 12:22:39] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:22:40] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-12 12:22:40] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:22:40] UNAUTHORIZED admin attempt path=/admin ip=127.0.0.1
+[2025-10-12 12:22:40] OPEN_MODE admin access path=/admin ip=127.0.0.1
+[2025-10-12 12:22:40] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=enforced
+[2025-10-12 12:22:40] asset_check index_exists=True admin_exists=True manifest_exists=True
+[2025-10-12 12:22:40] UNAUTHORIZED admin attempt path=/admin/status ip=127.0.0.1
+[2025-10-12 13:38:50] SemptifyGUI initialized with folders: uploads, logs, copilot_sync, final_notices, security | security_mode=open
+[2025-10-12 13:38:50] asset_check index_exists=True admin_exists=True manifest_exists=True
