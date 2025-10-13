@@ -1,0 +1,14 @@
+<!-- SVG logo: Shield with keyhole for Semptify -->
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shieldGradient" x1="60" y1="0" x2="60" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111"/>
+      <stop offset="1" stop-color="#555"/>
+    </linearGradient>
+  </defs>
+  <path d="M60 10 Q100 25 100 60 Q100 100 60 110 Q20 100 20 60 Q20 25 60 10 Z" fill="url(#shieldGradient)" stroke="#111" stroke-width="3"/>
+  <ellipse cx="60" cy="60" rx="13" ry="18" fill="#fff" stroke="#111" stroke-width="2"/>
+  <rect x="55" y="70" width="10" height="18" rx="5" fill="#111"/>
+  <circle cx="60" cy="65" r="4" fill="#111"/>
+</svg>
+<!-- Usage: Place this SVG in your HTML for a sharp, professional shield+keyhole logo -->

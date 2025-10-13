@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
+  {% include '_nav.html' %}
     <main style="max-width:720px;margin:2rem auto;background:#fff;padding:1rem;border-radius:8px;">
   <h1>Start Your Journey with Semptify</h1>
   <p>Register to create your Vault and unlock housing help, rights info, and more. Your info is private and used only to guide you.</p>
@@ -17,17 +18,40 @@
     <input id="first_name" name="first_name" type="text" required placeholder="First Name" />
     <label for="last_name">Last Name</label>
     <input id="last_name" name="last_name" type="text" required placeholder="Last Name" />
-    <label for="address">Address</label>
-    <input id="address" name="address" type="text" required placeholder="Street, City, State" />
+    <label for="email">Email Address</label>
+    <input id="email" name="email" type="email" placeholder="Email Address" />
+    <label for="phone">Phone #</label>
+    <input id="phone" name="phone" type="tel" placeholder="Phone Number" />
     <label for="housing_status">Housing Status</label>
-    <select id="housing_status" name="housing_status" required>
+    <select id="housing_status" name="housing_status">
       <option value="">Select...</option>
       <option value="renting">Renting</option>
       <option value="homeowner">Homeowner</option>
       <option value="unhoused">Unhoused</option>
       <option value="other">Other</option>
     </select>
-    <button type="submit">Register & Get Started</button>
+    <label for="address">Street Address</label>
+    <input id="address" name="address" type="text" placeholder="Street Address" />
+    <label for="apt">Apt #</label>
+    <input id="apt" name="apt" type="text" placeholder="Apt #" />
+    <label for="city">City</label>
+    <input id="city" name="city" type="text" placeholder="City" />
+    <label for="state">State</label>
+    <input id="state" name="state" type="text" placeholder="State" />
+    <label for="zip">Zip Code</label>
+    <input id="zip" name="zip" type="text" placeholder="Zip Code" />
+    <button type="submit">Register & Get User ID</button>
+  </form>
+  <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+      var email = document.getElementById('email').value.trim();
+      var phone = document.getElementById('phone').value.trim();
+      if (!email && !phone) {
+        alert('Please provide either an email address or a phone number.');
+        e.preventDefault();
+      }
+    });
+  </script>
   </form>
   <p class="muted">After registering, you’ll get a private link to your Vault. We never share your info.</p>
     </main>

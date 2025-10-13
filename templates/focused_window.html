@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Semptify Focused Window</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <style>
+      .focused-frame {
+        max-width: 540px;
+        margin: 3rem auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .focused-frame h1 {
+        font-size: 2em;
+        margin-bottom: 1rem;
+      }
+      .focused-frame .content {
+        width: 100%;
+        margin-bottom: 1.5rem;
+      }
+      .focused-frame .actions {
+        display: flex;
+        gap: 1rem;
+      }
+      @media (max-width: 600px) {
+        .focused-frame {
+          max-width: 98vw;
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="focused-frame">
+      <h1>Focused Window Title</h1>
+      <div class="content">
+        <!-- Main content goes here -->
+        <p>This is your focused window. Add forms, info, or actions here.</p>
+      </div>
+      <div class="actions">
+        <button>Action 1</button>
+        <button>Action 2</button>
+      </div>
+    </div>
+  </body>
+</html>
