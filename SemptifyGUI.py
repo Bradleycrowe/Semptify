@@ -933,6 +933,20 @@ def index():
     _inc('requests_total')
     return render_template("index.html", message=message, folders=folders)
 
+@app.route("/broker_trail", methods=["GET"])
+def broker_trail():
+    _inc('requests_total')
+    return render_template("broker_trail.html")
+
+@app.route("/owner_trail", methods=["GET"])
+def owner_trail():
+    _inc('requests_total')
+    return render_template("owner_trail.html")
+
+@app.route("/complaint_generator", methods=["GET"])
+def complaint_generator():
+    _inc('requests_total')
+    return render_template("complaint_generator.html")
 
 @app.route("/health")
 def health():
