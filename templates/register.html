@@ -8,16 +8,28 @@
   </head>
   <body>
     <main style="max-width:720px;margin:2rem auto;background:#fff;padding:1rem;border-radius:8px;">
-  <h1>Create your Semptify Vault</h1>
-  <p>Your vault keeps your documents safe and private. It just works—no accounts or passwords to manage.</p>
+  <h1>Start Your Journey with Semptify</h1>
+  <p>Register to create your Vault and unlock housing help, rights info, and more. Your info is private and used only to guide you.</p>
   {% if error %}<p class="error">{{ error }}</p>{% endif %}
-      <form method="post" action="/register">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-        <label for="name">Your name (optional)</label>
-        <input id="name" name="name" type="text" placeholder="Optional" />
-        <button type="submit">Create my vault (anonymous key)</button>
-      </form>
-  <p class="muted">We’ll give you a private link after you register. Keep it safe; we store only a secure hash so even we can’t recover it.</p>
+  <form method="post" action="/register">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <label for="first_name">First Name</label>
+    <input id="first_name" name="first_name" type="text" required placeholder="First Name" />
+    <label for="last_name">Last Name</label>
+    <input id="last_name" name="last_name" type="text" required placeholder="Last Name" />
+    <label for="address">Address</label>
+    <input id="address" name="address" type="text" required placeholder="Street, City, State" />
+    <label for="housing_status">Housing Status</label>
+    <select id="housing_status" name="housing_status" required>
+      <option value="">Select...</option>
+      <option value="renting">Renting</option>
+      <option value="homeowner">Homeowner</option>
+      <option value="unhoused">Unhoused</option>
+      <option value="other">Other</option>
+    </select>
+    <button type="submit">Register & Get Started</button>
+  </form>
+  <p class="muted">After registering, you’ll get a private link to your Vault. We never share your info.</p>
     </main>
   </body>
 </html>

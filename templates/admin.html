@@ -6,58 +6,74 @@
   <link rel="stylesheet" href="/static/css/admin.css" />
   </head>
   <body>
-    <h1>Semptify Admin</h1>
-    {% if security_mode == 'open' %}
-      <div class="banner banner-open">SECURITY MODE: OPEN (no admin token enforcement). Do not use in production.</div>
-    {% else %}
-      <div class="banner banner-enforced">SECURITY MODE: ENFORCED</div>
-      {% if token_ids %}
-        <p><strong>Active Token IDs:</strong> {{ token_ids|join(', ') }}</p>
-        <p><small>Break-glass requires file <code>security/breakglass.flag</code> + a breakglass token.</small></p>
-        <form action="/rotate_token" method="post" class="rotate-form">
-          <fieldset>
-            <legend>Rotate Token</legend>
-            <label>Token ID: <input name="target_id" placeholder="primary" required></label>
-            <label>New Value: <input name="new_value" required></label>
+    <div class="admin-dashboard">
+      <div class="admin-header">
+        <h1><span style="font-size:1.5em;vertical-align:middle;">🛡️</span> Semptify Admin Dashboard</h1>
+        {% if security_mode == 'open' %}
+          <div class="banner banner-open">SECURITY MODE: OPEN</div>
+        {% else %}
+          <div class="banner banner-enforced">SECURITY MODE: ENFORCED</div>
+        {% endif %}
+        <div class="shell-check-panel">
+          <h2>Shell & Python Diagnostics</h2>
+          <div><strong>Detected Shell:</strong> {{ detected_shell or 'Unknown' }}</div>
+          <div><strong>Python Environment:</strong> {{ python_env or 'Unknown' }}</div>
+          <form action="/admin/shell_check" method="post" style="margin-top:8px;">
             <input type="hidden" name="token" value="{{ admin_token }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <button type="submit" onclick="return confirm('Rotate this token now?');">Rotate</button>
-          </fieldset>
-        </form>
-      {% endif %}
-    {% endif %}
-    <p><a href="{{ ci_url }}" target="_blank">View CI dashboard</a></p>
-    <p><a href="{{ pages_url }}" target="_blank">View Pages site</a></p>
-
-    <form action="/release_now" method="post" onsubmit="return confirmRelease(this);">
-      <input type="hidden" name="token" value="{{ admin_token }}">
-      <input type="hidden" name="confirm_release" value="yes">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <button type="submit">Release Now</button>
-    </form>
-
-    <form action="/trigger_workflow" method="post" onsubmit="return confirmTrigger(this);">
-      <input type="hidden" name="token" value="{{ admin_token }}">
-      <input type="hidden" name="confirm_trigger" value="yes">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <label>Workflow file: <input name="workflow" value="ci.yml"></label>
-      <label>ref: <input name="ref" value="main"></label>
-      <button type="submit">Trigger CI</button>
-    </form>
-
-  <p><a href="/release_history?token={{ admin_token }}">View Release History</a></p>
-  <p><a href="/sbom?token={{ admin_token }}">View SBOMs</a></p>
-
-  <hr>
-  <h2>Developer Utilities</h2>
-  <form action="/admin/run_tests" method="post" onsubmit="return confirm('Run the full test suite now?');">
-    <input type="hidden" name="token" value="{{ admin_token }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    <button type="submit">Run Tests</button>
-  </form>
-  <p class="muted">Tip: For local dev, run <code>scripts/dev_server.ps1</code> to start with sensible defaults.</p>
-
-  <hr>
+            <button type="submit">Run Shell Check</button>
+          </form>
+          <a href="/admin/shell_check?token={{ admin_token }}" class="btn" style="margin-left:10px;">Shell Check (HTML link)</a>
+          {% if shell_check_result %}
+            <div class="shell-check-result"><pre>{{ shell_check_result }}</pre></div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="admin-cards">
+        <div class="card">
+          <h2>Tokens</h2>
+          {% if token_ids %}
+            <div><strong>Active Token IDs:</strong> {{ token_ids|join(', ') }}</div>
+            <form action="/rotate_token" method="post" class="rotate-form">
+              <label>Token ID <input name="target_id" placeholder="primary" required></label>
+              <label>New Value <input name="new_value" required></label>
+              <input type="hidden" name="token" value="{{ admin_token }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit">Rotate</button>
+            </form>
+          {% endif %}
+        </div>
+        <div class="card">
+          <h2>CI & Releases</h2>
+          <a class="btn" href="{{ ci_url }}" target="_blank">View CI Dashboard</a>
+          <a class="btn" href="{{ pages_url }}" target="_blank">View Pages Site</a>
+          <form action="/release_now" method="post">
+            <input type="hidden" name="token" value="{{ admin_token }}">
+            <input type="hidden" name="confirm_release" value="yes">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit">Release Now</button>
+          </form>
+          <form action="/trigger_workflow" method="post">
+            <input type="hidden" name="token" value="{{ admin_token }}">
+            <input type="hidden" name="confirm_trigger" value="yes">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label>Workflow file <input name="workflow" value="ci.yml"></label>
+            <label>ref <input name="ref" value="main"></label>
+            <button type="submit">Trigger CI</button>
+          </form>
+          <a class="btn" href="/release_history?token={{ admin_token }}">Release History</a>
+          <a class="btn" href="/sbom?token={{ admin_token }}">View SBOMs</a>
+        </div>
+        <div class="card">
+          <h2>Developer Utilities</h2>
+          <form action="/admin/run_tests" method="post">
+            <input type="hidden" name="token" value="{{ admin_token }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit">Run Tests</button>
+          </form>
+        </div>
+      </div>
+    </div>
   <h2>Help Panel Settings</h2>
   <form action="/admin/help_panel_save" method="post">
     <input type="hidden" name="token" value="{{ admin_token }}">
