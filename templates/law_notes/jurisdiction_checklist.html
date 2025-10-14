@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head><meta charset=""utf-8""><title>{{ checklist.title }}</title></head>
+<body>
+  <h1>{{ checklist.title }}</h1>
+  <h2>State Statutes</h2>
+  <ul>
+    {% for s in checklist.state_statutes %}
+      <li>{{ s }}</li>
+    {% endfor %}
+  </ul>
+  <h2>Local Actions</h2>
+  <ul>
+    {% for a in checklist.local_actions %}
+      <li>{{ a }}</li>
+    {% endfor %}
+  </ul>
+  <h2>Filing Steps</h2>
+  <ol>
+    {% for f in checklist.filing_steps %}
+      <li>{{ f }}</li>
+    {% endfor %}
+  </ol>
+  {% if address %}
+    <p><strong>Address looked up:</strong> {{ address }}</p>
+  {% endif %}
+</body>
+</html>
