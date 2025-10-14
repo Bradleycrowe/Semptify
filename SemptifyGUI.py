@@ -928,10 +928,34 @@ def _enforce_https_redirect():
 
 @app.route("/")
 def index():
+
     # Use a Jinja2 template so UI can be extended without changing the route.
     message = "Welcome to Semptify — tools for renters to act confidently."
     _inc('requests_total')
     return render_template("index.html", message=message, folders=folders)
+
+# Contact & Interaction Log Quick Add API
+@app.route('/api/contact_log', methods=['POST'])
+def contact_log_quick_add():
+    name = request.form.get('name', '').strip()
+    interaction_type = request.form.get('type', '').strip()
+    notes = request.form.get('notes', '').strip()
+    user_id = request.form.get('user_id', 'anonymous')
+    if not name or not interaction_type:
+        return jsonify({"status": "error", "msg": "Name and type required."}), 400
+    # Save to log file (append mode)
+    import datetime, json, os
+    log_entry = {
+        "ts": datetime.datetime.utcnow().isoformat(),
+        "user_id": user_id,
+        "name": name,
+        "type": interaction_type,
+        "notes": notes
+    }
+    log_path = os.path.join('logs', 'contact_interaction_log.jsonl')
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(log_entry) + '\n')
+    return jsonify({"status": "ok", "msg": "Logged", "entry": log_entry})
 
 @app.route("/broker_trail", methods=["GET"])
 def broker_trail():
@@ -947,6 +971,58 @@ def owner_trail():
 def complaint_generator():
     _inc('requests_total')
     return render_template("complaint_generator.html")
+
+@app.route("/top_secret_room", methods=["GET"])
+def top_secret_room():
+    _inc('requests_total')
+    return render_template("top_secret_room.html")
+
+# Modular backend logic for law notes actions
+@app.route("/action/check_broker_supervision", methods=["POST"])
+def action_check_broker_supervision():
+    # TODO: Implement actual logic
+    return "Broker supervision checked. (Demo response)", 200
+
+@app.route("/action/file_broker_complaint", methods=["POST"])
+def action_file_broker_complaint():
+    # TODO: Implement actual logic
+    return "Broker complaint filed. (Demo response)", 200
+
+@app.route("/action/generate_broker_demand", methods=["POST"])
+def action_generate_broker_demand():
+    # TODO: Implement actual logic
+    return "Broker demand letter generated. (Demo response)", 200
+
+@app.route("/action/identify_property_owner", methods=["POST"])
+def action_identify_property_owner():
+    # TODO: Implement actual logic
+    return "Property owner identified. (Demo response)", 200
+
+@app.route("/action/file_owner_complaint", methods=["POST"])
+def action_file_owner_complaint():
+    # TODO: Implement actual logic
+    return "Owner complaint filed. (Demo response)", 200
+
+@app.route("/action/generate_owner_demand", methods=["POST"])
+def action_generate_owner_demand():
+    # TODO: Implement actual logic
+    return "Owner demand letter generated. (Demo response)", 200
+
+@app.route("/action/generate_demand_letter", methods=["POST"])
+def action_generate_demand_letter():
+    # TODO: Implement actual logic
+    return "Demand letter generated. (Demo response)", 200
+
+@app.route("/action/attach_evidence_packet", methods=["POST"])
+def action_attach_evidence_packet():
+    # TODO: Implement actual logic
+    return "Evidence packet attached. (Demo response)", 200
+
+@app.route("/action/export_multilingual", methods=["POST"])
+def action_export_multilingual():
+    lang = request.form.get('lang', 'en')
+    # TODO: Implement actual logic
+    return f"Exported in language: {lang}. (Demo response)", 200
 
 @app.route("/health")
 def health():

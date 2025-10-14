@@ -1,0 +1,12 @@
+{
+  "user": "Bradleycrowe",
+  "accessibility": {
+    "input_preference": "point_and_click",
+    "keyboard_difficulty": true,
+    "notes": "User prefers point-and-click due to difficulty typing/hunting and pecking. UI should minimize typing and maximize clickable actions."
+  },
+  "ai_providers": {
+    "copilot": "openai",
+    "vault": "ollama"
+  }
+}

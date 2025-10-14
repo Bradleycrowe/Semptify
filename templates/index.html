@@ -9,22 +9,153 @@
     <meta name="theme-color" content="#0a7cd0">
   </head>
   <body>
-    <header>
-      <h1>{{ message }}</h1>
-      <p class="tagline">Semptify is a tenants’ advocate: practical tools for renters to understand rights, organize documents, and act confidently.</p>
-    </header>
-
-    <main>
-      <section class="card narrow" style="background:#eaf6ff;margin-bottom:1.5rem;">
-        <h2>Welcome, New User!</h2>
-        <p>If you’re new to Semptify, start here:</p>
-        <a class="btn" href="/get_started">I am a brand new user</a>
-        <ul>
-          <li>Register to get your user number and unlock all features.</li>
-          <li>After registering, you’ll be guided to your Vault, housing help, and legal resources.</li>
-          <li>Use the navigation bar or Tools & Templates dropdown to explore more.</li>
-        </ul>
-      </section>
+        <script>
+        document.getElementById('quick-contact-log-form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          let form = e.target;
+          let formData = new FormData(form);
+          fetch('/api/contact_log', {
+            method: 'POST',
+            body: formData
+          })
+          .then(resp => resp.json())
+          .then(data => {
+            if (data.status === 'ok') {
+              document.getElementById('contact-log-status').innerText = 'Logged: ' + data.entry.name + ' (' + data.entry.type + ')';
+              form.reset();
+              setTimeout(()=>{document.getElementById('contact-log-status').innerText='';}, 3000);
+            } else {
+              document.getElementById('contact-log-status').innerText = data.msg || 'Error logging entry.';
+            }
+          })
+          .catch(() => {
+            document.getElementById('contact-log-status').innerText = 'Error logging entry.';
+          });
+        });
+        </script>
+              </div>
+              <a class="card dashboard-card" href="/vault">
+                <h3>Document Vault</h3>
+                <p>Access and manage your secure documents. All evidence is instantly transferred here with timestamps and GPS.</p>
+              </a>
+              <a class="card dashboard-card" href="#camera-widget">
+                <h3>Camera Recorder</h3>
+                <p>Capture photos or video evidence. Instantly sent to Vault.</p>
+              </a>
+              <a class="card dashboard-card" href="#audio-widget">
+                <h3>Sound Recorder</h3>
+                <p>Record audio evidence. Instantly sent to Vault.</p>
+              </a>
+              <a class="card dashboard-card" href="#scanner-widget">
+                <h3>Document Scanner</h3>
+                <p>Scan and upload documents. Instantly sent to Vault.</p>
+              </a>
+              <a class="card dashboard-card" href="/copilot">
+                <h3>AI Copilot</h3>
+                <p>Get instant help and guidance.</p>
+              </a>
+              <a class="card dashboard-card" href="/complaint_generator">
+                <h3>Complaint Generator</h3>
+                <p>Central hub for legal actions and evidence.</p>
+              </a>
+            </div>
+            <div class="dashboard-widgets">
+              <div id="camera-widget" class="widget-mockup">
+                <h4>Camera Recorder</h4>
+                <button class="btn">Start Camera</button>
+                <p class="muted">Photo/video will be timestamped, geotagged, and sent to Vault.</p>
+              </div>
+              <div id="audio-widget" class="widget-mockup">
+                <h4>Sound Recorder</h4>
+                <button class="btn">Start Recording</button>
+                <p class="muted">Audio will be timestamped, geotagged, and sent to Vault.</p>
+              </div>
+              <div id="scanner-widget" class="widget-mockup">
+                <h4>Document Scanner</h4>
+                <button class="btn">Scan Document</button>
+                <p class="muted">Scanned files will be timestamped, geotagged, and sent to Vault.</p>
+              </div>
+              <div id="qr-scanner-widget" class="widget-mockup">
+                <h4>QR Scanner</h4>
+                <video id="qr-video" width="200" height="200" style="border:1px solid #ccc;"></video>
+                <button class="btn" onclick="startQRScan()">Start Scan</button>
+                <p id="qr-scan-result" class="muted">Scan QR codes for quick access or verification.</p>
+              </div>
+              <div id="qr-creator-widget" class="widget-mockup">
+                <h4>QR Creator</h4>
+                <input type="text" id="qr-input" placeholder="Enter data for QR code">
+                <button class="btn" onclick="generateQR()">Create QR Code</button>
+                <div id="qr-result"></div>
+                <p class="muted">Generate QR codes for sharing or lookup. Adjust access rules later as needed.</p>
+              </div>
+            </div>
+            <!-- QR code JS libraries -->
+            <script>
+            function quickAddContactLog(e) {
+              e.preventDefault();
+              let name = document.getElementById('contact-name').value.trim();
+              let type = document.getElementById('interaction-type').value.trim();
+              let notes = document.getElementById('interaction-notes').value.trim();
+              if (!name || !type) {
+                document.getElementById('contact-log-status').innerText = 'Name and type are required.';
+                return;
+              }
+              // Simulate quick log (replace with AJAX to backend if needed)
+              document.getElementById('contact-log-status').innerText = `Logged: ${name} (${type}) - ${notes ? notes : 'No notes.'}`;
+              document.getElementById('quick-contact-log-form').reset();
+              setTimeout(()=>{document.getElementById('contact-log-status').innerText='';}, 3000);
+            }
+            </script>
+            <script>
+            function adjustTransparency(val) {
+              let widgets = document.querySelectorAll('.widget-mockup');
+              widgets.forEach(function(w) {
+                w.style.opacity = val;
+              });
+            }
+            </script>
+            <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+            <script>
+            // QR Scanner logic
+            function startQRScan() {
+              const qrCodeScanner = new Html5Qrcode("qr-video");
+              qrCodeScanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 200 },
+                qrCodeMessage => {
+                  document.getElementById("qr-scan-result").innerText = "Scanned: " + qrCodeMessage;
+                  qrCodeScanner.stop();
+                },
+                errorMessage => {
+                  document.getElementById("qr-scan-result").innerText = "Error: " + errorMessage;
+                }
+              );
+            }
+            // Single QR Creator logic
+            function generateQR() {
+              let data = document.getElementById("qr-input").value;
+              let qrDiv = document.getElementById("qr-result");
+              qrDiv.innerHTML = "";
+              if (data) {
+                new QRCode(qrDiv, { text: data, width: 128, height: 128 });
+              }
+            }
+            </script>
+            <div class="dashboard-actions">
+              <a class="btn" href="/get_started">Get Started</a>
+              <a class="btn" href="/register">Register</a>
+            </div>
+           <button id="open-dashboard-btn" style="position:fixed;bottom:24px;right:24px;z-index:1000;padding:18px 24px;border-radius:50%;background:#222;color:#fff;font-size:2em;box-shadow:0 2px 8px #0007;cursor:pointer;">🎮</button>
+           <div id="dashboard-popout" style="display:none;position:fixed;bottom:80px;right:40px;z-index:1001;width:420px;max-width:96vw;background:#222d;border-radius:32px;padding:32px 24px 24px 24px;box-shadow:0 4px 32px #000a;">
+             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+               <h2 style="color:#fff;font-family:monospace;font-size:1.6em;margin:0;">Dashboard</h2>
+               <button id="close-dashboard-btn" style="background:#444;color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:1.2em;cursor:pointer;">✖</button>
+             </div>
+             <div class="dashboard-cards">
+          </section>
+             </div>
+           </div>
       <section>
         <h2>What Semptify does</h2>
         <ul>
@@ -42,6 +173,20 @@
         </ul>
         <p><a class="btn" href="/register">Register for your user number</a></p>
       </section>
+            <script>
+            // Pop-out dashboard logic
+            const openBtn = document.getElementById('open-dashboard-btn');
+            const popout = document.getElementById('dashboard-popout');
+            const closeBtn = document.getElementById('close-dashboard-btn');
+            openBtn.onclick = () => { popout.style.display = 'block'; };
+            closeBtn.onclick = () => { popout.style.display = 'none'; };
+            // Optional: close on outside click
+            document.addEventListener('mousedown', function(e) {
+              if (popout.style.display === 'block' && !popout.contains(e.target) && e.target !== openBtn) {
+                popout.style.display = 'none';
+              }
+            });
+            </script>
 
       <section>
         <h2>Quick links</h2>

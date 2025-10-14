@@ -1,14 +1,23 @@
+{% include '_nav.html' %}
 <!-- Complaint Generator Module -->
 <div class="law-module">
   <h2>Complaint Generator</h2>
   <p>Central hub for filing complaints against manager, broker, or owner.</p>
-  <button id="generate-demand-letter">Generate Demand Letter</button>
-  <button id="file-broker-complaint">File Broker Complaint</button>
-  <button id="file-owner-complaint">File Owner Complaint</button>
-  <button id="attach-evidence-packet">Attach Evidence Packet</button>
-  <div>
+  <form action="/action/generate_demand_letter" method="post">
+    <button type="submit">Generate Demand Letter</button>
+  </form>
+  <form action="/action/file_broker_complaint" method="post">
+    <button type="submit">File Broker Complaint</button>
+  </form>
+  <form action="/action/file_owner_complaint" method="post">
+    <button type="submit">File Owner Complaint</button>
+  </form>
+  <form action="/action/attach_evidence_packet" method="post">
+    <button type="submit">Attach Evidence Packet</button>
+  </form>
+  <form action="/action/export_multilingual" method="post">
     <label for="lang-export">Multilingual Export:</label>
-    <select id="lang-export">
+    <select name="lang" id="lang-export">
       <option value="en">English</option>
       <option value="es">Español</option>
       <option value="so">Soomaali</option>
@@ -16,6 +25,6 @@
       <option value="om">Oromo</option>
       <option value="vi">Vietnamese</option>
     </select>
-    <button id="export-multilingual">Export</button>
-  </div>
+    <button type="submit">Export</button>
+  </form>
 </div>

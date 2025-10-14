@@ -1,8 +1,15 @@
+{% include '_nav.html' %}
 <!-- Broker Trail Module -->
 <div class="law-module">
   <h2>Broker Trail</h2>
   <p>Explains broker supervision duties under MN Statutes §§ 82.73, 82.67, 82.70.</p>
-  <button id="check-broker-supervision">Check Broker Supervision</button>
-  <button id="file-broker-complaint">File Broker Complaint</button>
-  <button id="generate-broker-demand">Generate Demand Letter</button>
+  <form action="/action/check_broker_supervision" method="post">
+    <button type="submit">Check Broker Supervision</button>
+  </form>
+  <form action="/action/file_broker_complaint" method="post">
+    <button type="submit">File Broker Complaint</button>
+  </form>
+  <form action="/action/generate_broker_demand" method="post">
+    <button type="submit">Generate Demand Letter</button>
+  </form>
 </div>

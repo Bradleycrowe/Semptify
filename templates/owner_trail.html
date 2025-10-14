@@ -1,8 +1,15 @@
+{% include '_nav.html' %}
 <!-- Owner Trail Module -->
 <div class="law-module">
   <h2>Owner Trail</h2>
   <p>Explains owner liability under MN Statutes §§ 504B.001, 504B.181.</p>
-  <button id="identify-property-owner">Identify Property Owner</button>
-  <button id="file-owner-complaint">File Owner Complaint</button>
-  <button id="generate-owner-demand">Generate Demand Letter</button>
+  <form action="/action/identify_property_owner" method="post">
+    <button type="submit">Identify Property Owner</button>
+  </form>
+  <form action="/action/file_owner_complaint" method="post">
+    <button type="submit">File Owner Complaint</button>
+  </form>
+  <form action="/action/generate_owner_demand" method="post">
+    <button type="submit">Generate Demand Letter</button>
+  </form>
 </div>
