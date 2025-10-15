@@ -29,3 +29,6 @@ output.xml
 report.html
 log.html
 *.ps1
+# Ignore generated files and logs
+__pycache__/
+logs/init.log
