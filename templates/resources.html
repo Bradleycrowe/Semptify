@@ -1,12 +1,79 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Resources</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
+    <section class="card narrow">
+      <h2>Quick Property Lookup (Use My Location)</h2>
+      <button id="use-location-btn" type="button">Use My Location</button>
+      <div id="location-status" class="muted"></div>
+      <script>
+        document.getElementById('use-location-btn').onclick = function() {
+          const status = document.getElementById('location-status');
+          status.textContent = 'Getting your location...';
+          if (!navigator.geolocation) {
+            status.textContent = 'Geolocation is not supported.';
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(async function(pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            status.textContent = `Location: ${lat.toFixed(5)}, ${lon.toFixed(5)}. Looking up address...`;
+            // Use a free reverse geocoding API (OpenStreetMap Nominatim)
+            try {
+              const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+              const data = await resp.json();
+              if (data && data.display_name) {
+                document.querySelector('#property-lookup-form input[name="address"]').value = data.display_name;
+                status.textContent = 'Address autofilled. You can now run the lookup.';
+              } else {
+                status.textContent = 'Could not determine address.';
+              }
+            } catch (err) {
+              status.textContent = 'Error looking up address.';
+            }
+          }, function(err) {
+            status.textContent = 'Location error: ' + err.message;
+          });
+        };
+      </script>
+    </section>
+    <section class="card narrow">
+      <h2>Property Info Lookup</h2>
+  <form id="property-lookup-form" class="property-lookup-form">
+        <label>Address <input name="address" type="text" required placeholder="Enter property address"></label>
+        <label><input type="checkbox" name="show_owner"> Owner</label>
+        <label><input type="checkbox" name="show_manager"> Manager</label>
+        <label><input type="checkbox" name="show_reputation"> Reputation</label>
+        <button type="submit">Lookup</button>
+      </form>
+      <div id="property-lookup-result" class="muted"></div>
+      <script>
+        document.getElementById('property-lookup-form').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const form = e.target;
+          const params = new URLSearchParams();
+          params.append('address', form.address.value);
+          if (form.show_owner.checked) params.append('show_owner', 'on');
+          if (form.show_manager.checked) params.append('show_manager', 'on');
+          if (form.show_reputation.checked) params.append('show_reputation', 'on');
+          const resultDiv = document.getElementById('property-lookup-result');
+          resultDiv.textContent = 'Looking up...';
+          try {
+            const resp = await fetch('/property_info_lookup?' + params.toString());
+            const data = await resp.json();
+            let html = `<strong>Results for:</strong> ${data.address || '(none)'}<br>`;
+            if (data.owner) html += `<strong>Owner:</strong> ${data.owner} <span class='muted'>${data.owner_phone||''}</span><br>`;
+            if (data.manager) html += `<strong>Manager:</strong> ${data.manager} <span class='muted'>${data.manager_phone||''}</span><br>`;
+            if (data.reputation) html += `<strong>Reputation:</strong> ${data.reputation}<br>`;
+            if (!data.owner && !data.manager && !data.reputation) html += '<span class="muted">No info found.</span>';
+            resultDiv.innerHTML = html;
+          } catch (err) {
+            resultDiv.textContent = 'Error looking up property info.';
+          }
+        });
+      </script>
+    </section>
+{% extends 'base.html' %}
+
+{% block title %}Resources{% endblock %}
+
+{% block content %}
     <section class="card narrow">
       <h2>Requesting Maintenance</h2>
       <p class="muted">Always request repairs in writing. Use our sample letter and form to document your request and keep a copy for your records.</p>
@@ -34,11 +101,10 @@
       <h2>Emotional Support Animals (ESA)</h2>
       <p class="muted">Learn your rights regarding emotional support animals in housing. Find forms, sample letters, and legal help.</p>
       <ul>
-        <li><a href="https://www.hud.gov/program_offices/fair_housing_equal_opp/assistance_animals" target="_blank" rel="noopener">HUD: Assistance Animals in Housing</a></li>
-        <li><a href="https://www.ada.gov/resources/service-animals-2010-requirements/" target="_blank" rel="noopener">ADA: Service Animal Requirements</a></li>
-        <li><a href="/resources/download/service_animal_letter.txt">Sample ESA Letter (.txt)</a></li>
-        <li><a href="/service_animal_form">Request ESA Accommodation (form)</a></li>
-  <li>Assistance Animals in Housing</li>
+    <li><a href="https://www.hud.gov/program_offices/fair_housing_equal_opp/assistance_animals" target="_blank" rel="noopener">HUD: Assistance Animals in Housing</a></li>
+    <li><a href="https://www.ada.gov/resources/service-animals-2010-requirements/" target="_blank" rel="noopener">ADA: Service Animal Requirements</a></li>
+    <li><a href="/resources/download/service_animal_letter.txt">Sample ESA Letter (.txt)</a></li>
+    <li><a href="/service_animal_form">Request ESA Accommodation (form)</a></li>
       </ul>
     </section>
     <h1>Resources</h1>
@@ -55,12 +121,12 @@
     <section class="card narrow">
       <h2>Legal Help & Tenant Resources</h2>
       <ul>
-        <li><a href="https://www.lsc.gov/what-legal-aid/find-legal-aid" target="_blank" rel="noopener">Legal Aid Directory (LSC)</a></li>
-        <li><a href="https://www.justice.gov/elderjustice/tenant-rights" target="_blank" rel="noopener">Tenant Rights (DOJ)</a></li>
-  <li>State Landlord-Tenant Laws</li>
-        <li><a href="https://www.unitedway.org/local/united-states" target="_blank" rel="noopener">United Way Local Legal Help</a></li>
-        <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
-  <li>Renters’ Rights Book</li>
+    <li><a href="https://www.lsc.gov/what-legal-aid/find-legal-aid" target="_blank" rel="noopener">Legal Aid Directory (LSC)</a></li>
+    <li><a href="https://www.justice.gov/elderjustice/tenant-rights" target="_blank" rel="noopener">Tenant Rights (DOJ)</a></li>
+    <li>State Landlord-Tenant Laws</li>
+    <li><a href="https://www.unitedway.org/local/united-states" target="_blank" rel="noopener">United Way Local Legal Help</a></li>
+    <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
+    <li>Renters’ Rights Book</li>
       </ul>
     </section>
     <section class="card narrow">
@@ -85,7 +151,9 @@
         <li><a href="/setup/email">Email Provider Setup</a></li>
       </ul>
     </section>
-    {% include '_footer.html' %}
+{% endblock %}
+    <span>This is not legal advice. For legal help, consult a qualified attorney.</span>
+  </footer>
   </body>
   <script src="/static/js/help-panel.js"></script>
 </html>

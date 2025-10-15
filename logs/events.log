@@ -204,3 +204,4 @@
 {"ts": "2025-10-11T23:54:29.239851Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
 {"ts": "2025-10-11T23:54:29.354574Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
 {"ts": "2025-10-11T23:54:29.359477Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-15T00:04:08.565108Z", "event": "user_registered", "user_id": "u2025101500040803132a", "ip": "127.0.0.1"}

@@ -1,13 +1,9 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register - Semptify</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
-    <main style="max-width:720px;margin:2rem auto;background:#fff;padding:1rem;border-radius:8px;">
+{% extends 'base.html' %}
+
+{% block title %}Register - Semptify{% endblock %}
+
+{% block content %}
+<main class="register-main">
   <h1>Start Your Journey with Semptify</h1>
   <p>Register to create your Vault and unlock housing help, rights info, and more. Your info is private and used only to guide you.</p>
   {% if error %}<p class="error">{{ error }}</p>{% endif %}
@@ -19,13 +15,13 @@
     <input id="last_name" name="last_name" type="text" required placeholder="Last Name" />
   <label for="address">Address</label>
   <input id="address" name="address" type="text" required placeholder="Street, City, State" />
-  <label for="zip_code">Zip Code <span style="color:red">*</span></label>
+  <label for="zip_code">Zip Code <span class="required-star">*</span></label>
   <input id="zip_code" name="zip_code" type="text" required pattern="\d{5}" maxlength="10" placeholder="Zip Code" />
   <label for="phone">Phone Number</label>
   <input id="phone" name="phone" type="tel" pattern="[0-9\-\+\(\) ]{7,}" placeholder="Phone Number" />
   <label for="email">Email</label>
   <input id="email" name="email" type="email" placeholder="Email" />
-  <div id="contact-error" style="color:red;display:none;margin-bottom:8px;">Please provide at least a phone number or email.</div>
+  <div id="contact-error" class="contact-error">Please provide at least a phone number or email.</div>
     <label for="housing_status">Housing Status</label>
     <select id="housing_status" name="housing_status" required>
       <option value="">Select...</option>
@@ -52,6 +48,5 @@
     });
   </script>
   <p class="muted">After registering, you’ll get a private link to your Vault. We never share your info.</p>
-    </main>
-  </body>
-</html>
+</main>
+{% endblock %}

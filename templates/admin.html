@@ -3,12 +3,53 @@
   <head>
     <meta charset="utf-8">
   <title>Semptify Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/static/css/admin.css" />
   </head>
   <body>
     <div class="admin-dashboard">
+      <!-- Floating Todo Button (Admin) -->
+  <button id="todo-float-btn" class="todo-float-btn" onclick="document.getElementById('todo-modal').style.display='block'">+</button>
+      <!-- Todo Modal (Admin, full-featured) -->
+      <div id="todo-modal" class="todo-modal">
+        <div class="todo-modal-content">
+          <button onclick="document.getElementById('todo-modal').style.display='none'" class="todo-modal-close">&times;</button>
+          <h2>Add Todo Item</h2>
+          <form id="todo-form" method="post" action="/admin/add_todo">
+            <input type="hidden" name="token" value="{{ admin_token }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label>Title<br><input name="title" required maxlength="80" class="todo-input"></label>
+            <label>Description<br><textarea name="description" rows="3" maxlength="300" class="todo-input"></textarea></label>
+            <label>Instructions<br><textarea name="instructions" rows="2" maxlength="300" class="todo-input"></textarea></label>
+            <label>Focus Point<br>
+              <select name="focus_point" class="todo-input">
+                <option value="dashboard">Dashboard</option>
+                <option value="tokens">Tokens</option>
+                <option value="property_lookup">Property Lookup</option>
+                <option value="ci_releases">CI & Releases</option>
+                <option value="developer_utilities">Developer Utilities</option>
+                <option value="help_panel">Help Panel</option>
+              </select>
+            </label>
+            <button type="submit" class="todo-add-btn">Add</button>
+          </form>
+        </div>
+      </div>
+      <!-- Floating Todo Button (User, lightweight) -->
+  <button id="user-todo-float-btn" class="user-todo-float-btn" onclick="document.getElementById('user-todo-modal').style.display='block'">+</button>
+      <!-- Todo Modal (User, lightweight) -->
+      <div id="user-todo-modal" class="user-todo-modal">
+        <div class="user-todo-modal-content">
+          <button onclick="document.getElementById('user-todo-modal').style.display='none'" class="user-todo-modal-close">&times;</button>
+          <h3>Add Quick Todo</h3>
+          <form id="user-todo-form" method="post" action="/user/add_todo">
+            <label>Title<br><input name="title" required maxlength="60" class="user-todo-input"></label>
+            <button type="submit" class="user-todo-add-btn">Add</button>
+          </form>
+        </div>
+      </div
       <div class="admin-header">
-        <h1><span style="font-size:1.5em;vertical-align:middle;">🛡️</span> Semptify Admin Dashboard</h1>
+  <h1><span class="admin-title-icon">🛡️</span> Semptify Admin Dashboard</h1>
         {% if security_mode == 'open' %}
           <div class="banner banner-open">SECURITY MODE: OPEN</div>
         {% else %}
@@ -18,12 +59,12 @@
           <h2>Shell & Python Diagnostics</h2>
           <div><strong>Detected Shell:</strong> {{ detected_shell or 'Unknown' }}</div>
           <div><strong>Python Environment:</strong> {{ python_env or 'Unknown' }}</div>
-          <form action="/admin/shell_check" method="post" style="margin-top:8px;">
+          <form action="/admin/shell_check" method="post" class="admin-form-margin">
             <input type="hidden" name="token" value="{{ admin_token }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button type="submit">Run Shell Check</button>
           </form>
-          <a href="/admin/shell_check?token={{ admin_token }}" class="btn" style="margin-left:10px;">Shell Check (HTML link)</a>
+          <a href="/admin/shell_check?token={{ admin_token }}" class="btn admin-btn-margin">Shell Check (HTML link)</a>
           {% if shell_check_result %}
             <div class="shell-check-result"><pre>{{ shell_check_result }}</pre></div>
           {% endif %}
@@ -35,7 +76,12 @@
           {% if token_ids %}
             <div><strong>Active Token IDs:</strong> {{ token_ids|join(', ') }}</div>
             <form action="/rotate_token" method="post" class="rotate-form">
-              <label>Token ID <input name="target_id" placeholder="primary" required></label>
+              <label>Token ID
+                <select name="target_id" class="admin-select-margin">
+                  <option value="primary">primary</option>
+                  {% for tid in token_ids %}<option value="{{ tid }}">{{ tid }}</option>{% endfor %}
+                </select>
+              </label>
               <label>New Value <input name="new_value" required></label>
               <input type="hidden" name="token" value="{{ admin_token }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -44,25 +90,56 @@
           {% endif %}
         </div>
         <div class="card">
+          <h2>Property Info Lookup</h2>
+          <div><strong>Backend Path:</strong> <code>/property_info_lookup</code></div>
+          <form action="/property_info_lookup" method="get" target="_blank">
+            <label>Test Address Lookup
+              <input name="address" placeholder="123 Main St" required>
+            </label>
+            <label class="admin-label-margin">
+              <input type="checkbox" name="show_owner"> Show Owner
+            </label>
+            <label class="admin-label-margin">
+              <input type="checkbox" name="show_manager"> Show Manager
+            </label>
+            <label class="admin-label-margin">
+              <input type="checkbox" name="show_reputation"> Show Reputation
+            </label>
+            <button type="submit">Test Lookup</button>
+          </form>
+        </div>
+        <div class="card">
           <h2>CI & Releases</h2>
-          <a class="btn" href="{{ ci_url }}" target="_blank">View CI Dashboard</a>
-          <a class="btn" href="{{ pages_url }}" target="_blank">View Pages Site</a>
-          <form action="/release_now" method="post">
+          <div class="admin-btn-group">
+            <a class="btn" href="{{ ci_url }}" target="_blank">View CI Dashboard</a>
+            <a class="btn" href="{{ pages_url }}" target="_blank">View Pages Site</a>
+            <a class="btn" href="/release_history?token={{ admin_token }}">Release History</a>
+            <a class="btn" href="/sbom?token={{ admin_token }}">View SBOMs</a>
+          </div>
+          <form action="/release_now" method="post" class="admin-form-margin">
             <input type="hidden" name="token" value="{{ admin_token }}">
             <input type="hidden" name="confirm_release" value="yes">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button type="submit">Release Now</button>
           </form>
-          <form action="/trigger_workflow" method="post">
+          <form action="/trigger_workflow" method="post" class="admin-form-margin">
             <input type="hidden" name="token" value="{{ admin_token }}">
             <input type="hidden" name="confirm_trigger" value="yes">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <label>Workflow file <input name="workflow" value="ci.yml"></label>
-            <label>ref <input name="ref" value="main"></label>
+            <label>Workflow file
+              <select name="workflow">
+                <option value="ci.yml">ci.yml</option>
+                <option value="deploy.yml">deploy.yml</option>
+              </select>
+            </label>
+            <label>ref
+              <select name="ref">
+                <option value="main">main</option>
+                <option value="dev">dev</option>
+              </select>
+            </label>
             <button type="submit">Trigger CI</button>
           </form>
-          <a class="btn" href="/release_history?token={{ admin_token }}">Release History</a>
-          <a class="btn" href="/sbom?token={{ admin_token }}">View SBOMs</a>
         </div>
         <div class="card">
           <h2>Developer Utilities</h2>
@@ -70,6 +147,9 @@
             <input type="hidden" name="token" value="{{ admin_token }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button type="submit">Run Tests</button>
+            <label class="admin-label-margin">
+              <input type="checkbox" name="coverage"> Collect Coverage
+            </label>
           </form>
         </div>
       </div>
@@ -112,5 +192,8 @@
       return confirm('Trigger the specified workflow now?');
     }
   </script>
-  </body>
+    <footer class="site-footer">
+      <span>This is not legal advice. For legal help, consult a qualified attorney.</span>
+    </footer>
+    </body>
 </html>

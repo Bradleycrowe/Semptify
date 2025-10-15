@@ -1,0 +1,25 @@
+{# Base layout for SemptifyGUI. Includes header, sidebar, and footer. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Semptify{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% include '_nav.html' %}
+    <aside class="site-sidebar">
+        <!-- Sidebar content: navigation, quick links, modules -->
+        {% block sidebar %}{% endblock %}
+    </aside>
+    <main class="site-main">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <span>This is not legal advice. For legal help, consult a qualified attorney.</span>
+    </footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

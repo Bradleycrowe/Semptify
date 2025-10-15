@@ -1,3 +1,79 @@
+# Property Info Lookup API
+@app.route('/property_info_lookup', methods=['GET'])
+def property_info_lookup():
+    """Lookup property info by address. Returns owner, manager, phone, reputation (stubbed)."""
+    address = (request.args.get('address') or '').strip()
+    show_owner = request.args.get('show_owner') == 'on'
+    show_manager = request.args.get('show_manager') == 'on'
+    show_reputation = request.args.get('show_reputation') == 'on'
+    # TODO: Integrate with real data sources/APIs
+    # For now, stubbed response
+    result = {'address': address}
+    if show_owner:
+        result['owner'] = 'Sample Owner LLC'
+        result['owner_phone'] = '(555) 123-4567'
+    if show_manager:
+        result['manager'] = 'Sample Property Manager'
+        result['manager_phone'] = '(555) 987-6543'
+    if show_reputation:
+        result['reputation'] = '4.2/5 (user-contributed, 12 reviews)'
+    return jsonify(result)
+import uuid
+# Simple in-memory todo list for demo; replace with persistent storage as needed
+TODO_PATH = 'logs/todo_list.json'
+def _load_todos():
+    try:
+        if os.path.exists(TODO_PATH):
+            with open(TODO_PATH, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return []
+
+def _save_todos(todos):
+    try:
+        with open(TODO_PATH, 'w', encoding='utf-8') as f:
+            json.dump(todos, f, indent=2)
+    except OSError:
+        pass
+
+@app.route('/admin/add_todo', methods=['POST'])
+def admin_add_todo():
+    if not _require_admin_or_401():
+        return _rate_or_unauth_response()
+    title = request.form.get('title', '').strip()
+    description = request.form.get('description', '').strip()
+    instructions = request.form.get('instructions', '').strip()
+    focus_point = request.form.get('focus_point', '').strip()
+    if not title:
+        return "Missing title", 400
+    todos = _load_todos()
+    todos.append({
+        'id': str(uuid.uuid4()),
+        'title': title,
+        'description': description,
+        'instructions': instructions,
+        'focus_point': focus_point,
+        'who': 'admin',
+        'ts': datetime.utcnow().isoformat()
+    })
+    _save_todos(todos)
+    return redirect('/admin')
+
+@app.route('/user/add_todo', methods=['POST'])
+def user_add_todo():
+    title = request.form.get('title', '').strip()
+    if not title:
+        return "Missing title", 400
+    todos = _load_todos()
+    todos.append({
+        'id': str(uuid.uuid4()),
+        'title': title,
+        'who': 'user',
+        'ts': datetime.utcnow().isoformat()
+    })
+    _save_todos(todos)
+    return redirect('/')
 from flask import Flask, render_template, request, redirect, send_file, jsonify, abort, session
 from werkzeug.utils import secure_filename
 import os
@@ -929,6 +1005,18 @@ def _enforce_https_redirect():
 @app.route("/")
 def index():
     # Use a Jinja2 template so UI can be extended without changing the route.
+    # Track visits by IP and user agent
+    ip = request.remote_addr
+    ua = request.headers.get('User-Agent', '')
+    try:
+        with open('logs/visit_log.jsonl', 'a', encoding='utf-8') as f:
+            f.write(json.dumps({
+                'ts': datetime.utcnow().isoformat(),
+                'ip': ip,
+                'user_agent': ua
+            }) + '\n')
+    except Exception:
+        pass
     message = "Welcome to Semptify — tools for renters to act confidently."
     _inc('requests_total')
     return render_template("index.html", message=message, folders=folders)
@@ -1575,14 +1663,19 @@ def register_submit():
     if not _validate_csrf(request):
         return "CSRF validation failed", 400
     name = (request.form.get('name') or '').strip()
+    email = (request.form.get('email') or '').strip().lower()
+    phone = (request.form.get('phone') or '').strip()
     _load_users()
+    # Prevent duplicate registration
+    for u in USERS_CACHE.get('users', []):
+        if (email and u.get('email', '').lower() == email) or (phone and u.get('phone', '') == phone):
+            error = "You are already registered. Please use your Vault link."
+            return render_template('register.html', error=error, csrf_token=_get_or_create_csrf_token())
     # Create user
     uid = _new_user_id()
-    # Anonymous, digit-key accounts by default
     token = _random_digit_key(24)
     hashed = _hash_token(token)
     full = USERS_CACHE.get('users', [])
-    # Store full list including disabled or others if file exists
     existing = []
     try:
         if os.path.exists(USERS_CACHE['path']):
@@ -1593,10 +1686,13 @@ def register_submit():
     payload = { 'id': uid, 'hash': hashed, 'enabled': True }
     if name:
         payload['name'] = name
+    if email:
+        payload['email'] = email
+    if phone:
+        payload['phone'] = phone
     existing.append(payload)
     _write_users(existing)
     _event_log('user_registered', user_id=uid, ip=request.remote_addr)
-    # Show token once
     return render_template('register_success.html', user_id=uid, token=token)
 
 # -----------------------------
