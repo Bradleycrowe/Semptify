@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Know Your Rights • Semptify{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Left Sidebar -->
+  <aside class="col-12 col-md-3 py-4 bg-light border-end left-sidebar">
+    <h5>Know Your Rights</h5>
+    <ul class="list-unstyled">
+      <li><a href="#tenant-rights">Tenant Rights</a></li>
+      <li><a href="#fair-housing">Fair Housing</a></li>
+      <li><a href="#eviction">Eviction Protections</a></li>
+      <li><a href="#resources">Legal Resources</a></li>
+    </ul>
+  </aside>
+  <!-- Main Content -->
+  <section class="col-12 col-md-9 py-4">
+    <header>
+      <h1>Know Your Rights</h1>
+      <p class="tagline">Empowering renters with clear, actionable information about housing rights and protections.</p>
+    </header>
+    <main>
+      <section id="tenant-rights">
+        <h2>Tenant Rights</h2>
+        <ul>
+          <li>Right to a safe and habitable home</li>
+          <li>Right to privacy and notice before entry</li>
+          <li>Right to fair treatment and non-discrimination</li>
+        </ul>
+      </section>
+      <section id="fair-housing">
+        <h2>Fair Housing</h2>
+        <ul>
+          <li>Protection from discrimination based on race, color, religion, sex, national origin, disability, or family status</li>
+          <li>Resources: <a href="https://www.hud.gov/topics/fair_housing" target="_blank">HUD Fair Housing</a></li>
+        </ul>
+      </section>
+      <section id="eviction">
+        <h2>Eviction Protections</h2>
+        <ul>
+          <li>Landlords must follow legal process for eviction</li>
+          <li>Tenants have the right to contest unlawful evictions</li>
+        </ul>
+      </section>
+      <section id="resources">
+        <h2>Legal Resources</h2>
+        <ul>
+          <li><a href="https://www.justice.gov/crt/fair-housing" target="_blank">DOJ Fair Housing</a></li>
+          <li><a href="https://www.lsc.gov/what-legal-aid/find-legal-aid" target="_blank">Find Legal Aid</a></li>
+        </ul>
+      </section>
+    </main>
+  </section>
+</div>
+{% endblock %}

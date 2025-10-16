@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Library • Semptify{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Left Sidebar -->
+  <aside class="col-12 col-md-3 py-4 bg-light border-end left-sidebar">
+    <h5>Library Sections</h5>
+    <ul class="list-unstyled">
+      <li><a href="#forms">Forms & Templates</a></li>
+      <li><a href="#guides">Guides</a></li>
+      <li><a href="#laws">State & Local Laws</a></li>
+      <li><a href="#external">External Resources</a></li>
+    </ul>
+  </aside>
+  <!-- Main Content -->
+  <section class="col-12 col-md-9 py-4">
+    <header>
+      <h1>Library</h1>
+      <p class="tagline">Browse forms, guides, laws, and resources to help renters and advocates.</p>
+    </header>
+    <main>
+      <section id="forms">
+        <h2>Forms & Templates</h2>
+        <ul>
+          <li><a href="/templates/move_checklist_form.html">Move-in/Move-out Checklist</a></li>
+          <li><a href="/templates/witness_form.html">Witness Statement</a></li>
+          <li><a href="/templates/packet_form.html">Evidence Packet Builder</a></li>
+        </ul>
+      </section>
+      <section id="guides">
+        <h2>Guides</h2>
+        <ul>
+          <li><a href="/how_it_works">How Semptify Works</a></li>
+          <li><a href="/faq">Frequently Asked Questions</a></li>
+        </ul>
+      </section>
+      <section id="laws">
+        <h2>State & Local Laws</h2>
+        <ul>
+          <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
+          <li><a href="https://www.justice.gov/crt/fair-housing" target="_blank" rel="noopener">DOJ Fair Housing</a></li>
+        </ul>
+      </section>
+      <section id="external">
+        <h2>External Resources</h2>
+        <ul>
+          <li><a href="https://www.lsc.gov/what-legal-aid/find-legal-aid" target="_blank" rel="noopener">Find Legal Aid</a></li>
+          <li><a href="https://www.nolo.com/legal-encyclopedia/landlord-tenant" target="_blank" rel="noopener">Nolo Landlord-Tenant Guide</a></li>
+        </ul>
+      </section>
+    </main>
+  </section>
+</div>
+{% endblock %}
