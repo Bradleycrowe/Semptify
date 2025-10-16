@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Tools • Semptify{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Left Sidebar -->
+  <aside class="col-12 col-md-3 py-4 bg-light border-end left-sidebar">
+    <h5>Tools & Checklists</h5>
+    <ul class="list-unstyled">
+      <li><a href="#move-checklist">Move-in/Move-out Checklist</a></li>
+      <li><a href="#witness">Witness Statement</a></li>
+      <li><a href="#packet">Evidence Packet Builder</a></li>
+      <li><a href="#service-animal">Service Animal Docs</a></li>
+      <li><a href="#copilot">AI Copilot</a></li>
+    </ul>
+  </aside>
+  <!-- Main Content -->
+  <section class="col-12 col-md-9 py-4">
+    <header>
+      <h1>Tools</h1>
+      <p class="tagline">Access practical tools and checklists to help renters organize, document, and act confidently.</p>
+    </header>
+    <main>
+      <section id="move-checklist">
+        <h2>Move-in/Move-out Inspection Checklist</h2>
+        <p>Document the condition of your rental with photos and notes. <a href="/move_checklist_form">Start checklist</a></p>
+      </section>
+      <section id="witness">
+        <h2>Witness Statement</h2>
+        <p>Record statements from witnesses for your records or disputes. <a href="/witness_form">Fill out statement</a></p>
+      </section>
+      <section id="packet">
+        <h2>Evidence Packet Builder</h2>
+        <p>Compile documents, photos, and notes into a single evidence packet. <a href="/packet_form">Build packet</a></p>
+      </section>
+      <section id="service-animal">
+        <h2>Service Animal Documentation</h2>
+        <p>Generate and store documentation for service animals. <a href="/service_animal_form">Create documentation</a></p>
+      </section>
+      <section id="copilot">
+        <h2>AI Copilot</h2>
+        <p>Get help drafting letters, understanding rights, and more. <a href="/copilot">Open Copilot</a></p>
+      </section>
+    </main>
+  </section>
+</div>
+{% endblock %}
