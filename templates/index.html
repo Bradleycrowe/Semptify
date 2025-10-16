@@ -1,22 +1,28 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SemptifyGUI</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-    <link rel="manifest" href="/static/manifest.webmanifest">
-    <meta name="theme-color" content="#0a7cd0">
-  </head>
-  <body>
-    {% include '_nav.html' %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+  <!-- Left Sidebar -->
+  <aside class="col-12 col-md-3 py-4 bg-light border-end left-sidebar">
+    <h5>Modules & Controls</h5>
+    <ul class="list-unstyled">
+      <li><a href="/mn_jurisdiction_checklist">Jurisdiction Checklist</a></li>
+      <li><a href="/law_notes_actions">Law Notes Actions</a></li>
+      <li><a href="/evidence_packet_builder">Evidence Packet Builder</a></li>
+      <li><a href="/evidence_metadata">Evidence Metadata</a></li>
+      <li><a href="/attorney_trail">Attorney Trail</a></li>
+      <li><a href="/complaint_templates">Complaint Templates</a></li>
+      <!-- Add more module links or controls as needed -->
+    </ul>
+  </aside>
+  <!-- Main Content -->
+  <section class="col-12 col-md-9 py-4">
     <header>
       <h1>{{ message }}</h1>
       <p class="tagline">Semptify is a tenants’ advocate: practical tools for renters to understand rights, organize documents, and act confidently.</p>
     </header>
-
     <main>
-      <section class="card narrow" style="background:#eaf6ff;margin-bottom:1.5rem;">
+      <section class="card narrow welcome-card">
         <h2>Welcome, New User!</h2>
         <p>If you’re new to Semptify, start here:</p>
         <a class="btn" href="/get_started">I am a brand new user</a>
@@ -43,7 +49,6 @@
         </ul>
         <p><a class="btn" href="/register">Register for your user number</a></p>
       </section>
-
       <section>
         <h2>Quick links</h2>
         <ul>
@@ -52,29 +57,16 @@
           <li><a href="/register">Register</a> · <a href="/copilot">AI Copilot</a> · <a href="/resources">Resources</a> · <a href="/health">Health</a> · <a href="/readyz">Readiness</a> · <a href="/info">Info</a> · <a href="/metrics">Metrics</a></li>
         </ul>
       </section>
-
       <section>
         <h2>Tools</h2>
         <ul>
           <li><a href="/move_checklist_form">Move-in/Move-out Inspection Checklist</a> <small>with photo options</small></li>
-          <li><a href="/notary">Virtual Notary (Attestation)</a></li>
-          <li><a href="/legal_notary">Legal Notary Record</a></li>
+          <li><a href="/witness_form">Witness Statement</a></li>
+          <li><a href="/packet_form">Evidence Packet Builder</a></li>
+          <li><a href="/service_animal_form">Service Animal Documentation</a></li>
         </ul>
       </section>
-
-      <section>
-        <h2>Available runtime folders</h2>
-        <ul>{% for f in folders %}<li>{{ f }}</li>{% endfor %}</ul>
-      </section>
     </main>
-    <script>
-      if('serviceWorker' in navigator){
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/static/js/service-worker.js').catch(() => {});
-        });
-      }
-    </script>
-    {% include '_footer.html' %}
-  </body>
-  <script src="/static/js/help-panel.js"></script>
-  </html>
+  </section>
+</div>
+{% endblock %}

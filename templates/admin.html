@@ -8,7 +8,7 @@
   <body>
     <div class="admin-dashboard">
       <div class="admin-header">
-        <h1><span style="font-size:1.5em;vertical-align:middle;">🛡️</span> Semptify Admin Dashboard</h1>
+  <h1><span class="admin-icon">🛡️</span> Semptify Admin Dashboard</h1>
         {% if security_mode == 'open' %}
           <div class="banner banner-open">SECURITY MODE: OPEN</div>
         {% else %}
@@ -18,12 +18,12 @@
           <h2>Shell & Python Diagnostics</h2>
           <div><strong>Detected Shell:</strong> {{ detected_shell or 'Unknown' }}</div>
           <div><strong>Python Environment:</strong> {{ python_env or 'Unknown' }}</div>
-          <form action="/admin/shell_check" method="post" style="margin-top:8px;">
+          <form action="/admin/shell_check" method="post" class="shell-check-form">
             <input type="hidden" name="token" value="{{ admin_token }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button type="submit">Run Shell Check</button>
           </form>
-          <a href="/admin/shell_check?token={{ admin_token }}" class="btn" style="margin-left:10px;">Shell Check (HTML link)</a>
+          <a href="/admin/shell_check?token={{ admin_token }}" class="btn shell-check-link">Shell Check (HTML link)</a>
           {% if shell_check_result %}
             <div class="shell-check-result"><pre>{{ shell_check_result }}</pre></div>
           {% endif %}

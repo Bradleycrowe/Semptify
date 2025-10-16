@@ -1,3 +1,176 @@
+/* Law Notes UI Styles */
+.law-notes-card {
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+	padding: 2rem 1.5rem;
+	margin: 2rem auto;
+	max-width: 600px;
+}
+.law-notes-title {
+	font-size: 2rem;
+	font-weight: 600;
+	margin-bottom: 1.2rem;
+	color: #2a3a4a;
+}
+.law-notes-section {
+	margin-bottom: 1.5rem;
+}
+.law-notes-list {
+	margin: 0.5rem 0 0.5rem 1.2rem;
+	padding: 0;
+	list-style-position: inside;
+}
+.law-notes-list li {
+	margin-bottom: 0.5rem;
+	font-size: 1.05rem;
+}
+.law-notes-btn-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-top: 1.2rem;
+}
+.law-notes-btn-form {
+	margin: 0;
+}
+.law-notes-btn {
+	background: #2a7ae2;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 0.5rem 1.2rem;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.law-notes-btn:hover {
+	background: #1a5bb8;
+}
+.law-notes-address {
+	background: #f6f8fa;
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
+	margin-top: 1rem;
+	font-size: 1rem;
+	color: #2a3a4a;
+}
+.logo-container {
+	min-width: 180px;
+}
+
+header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 1000;
+}
+
+.main-content {
+	margin-top: 100px; /* Adjust based on header height */
+}
+.button-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 15px;
+	margin-top: 30px;
+}
+.button-grid button {
+	padding: 12px;
+	font-size: 16px;
+	background-color: #0078D4;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+}
+.button-grid button:hover {
+	background-color: #005a9e;
+}
+.register-success-main {
+	max-width: 720px;
+	margin: 2rem auto;
+	background: #fff;
+	padding: 1rem;
+	border-radius: 8px;
+}
+.register-success-token {
+	white-space: pre-wrap;
+	background: #f6f8fa;
+	padding: 10px;
+	border-radius: 6px;
+}
+.advocacy-list {
+	/* Add any custom styles for advocacy lists here */
+}
+.admin-icon {
+	font-size: 1.5em;
+	vertical-align: middle;
+}
+.shell-check-form {
+	margin-top: 8px;
+}
+.shell-check-link {
+	margin-left: 10px;
+}
+.register-main {
+	max-width: 720px;
+	margin: 2rem auto;
+	background: #fff;
+	padding: 1rem;
+	border-radius: 8px;
+}
+.required {
+	color: red;
+}
+.contact-error {
+	color: red;
+	display: none;
+	margin-bottom: 8px;
+}
+.logo-container {
+	min-width: 180px;
+}
+.logo-img {
+	height: 48px;
+	width: auto;
+	margin-right: 1rem;
+}
+.nav-container {
+	gap: 2rem;
+}
+.main-nav {
+	margin-right: 0;
+	padding-top: 1.2rem;
+}
+.signin-container {
+	min-width: 120px;
+}
+.right-sidebar {
+	position: fixed;
+	top: 100px; /* aligns with header height */
+	right: 0;
+	width: 25vw;
+	min-height: calc(100vh - 100px);
+	z-index: 999;
+	background: #f8f9fa;
+	border-left: 1px solid #dee2e6;
+	overflow-y: auto;
+	box-shadow: -2px 0 8px rgba(0,0,0,0.04);
+}
+@media (max-width: 767.98px) {
+	.right-sidebar {
+		position: static;
+		border-left: none;
+		border-top: 1px solid #dee2e6;
+		margin-top: 2rem;
+	}
+}
+.welcome-card {
+	background: #eaf6ff;
+	margin-bottom: 1.5rem;
+}
 /* Basic responsive layout */
 :root { --bg:#f6f9fc; --card:#ffffff; --border:#d9e2ec; --primary:#1d3557; --accent:#457b9d; --accent-alt:#e76f51; --radius:10px; --text:#222; --muted:#5a6b7b; font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }
 /* Dark theme variables */

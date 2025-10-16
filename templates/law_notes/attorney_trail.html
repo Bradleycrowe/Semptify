@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card narrow law-notes-card">
+  <h1 class="law-notes-title">{{ content.title }}</h1>
+  <ol class="law-notes-list">
+    {% for step in content.steps %}
+      <li>{{ step }}</li>
+    {% endfor %}
+  </ol>
+</section>
+{% endblock %}

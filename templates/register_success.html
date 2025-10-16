@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
-    <main style="max-width:720px;margin:2rem auto;background:#fff;padding:1rem;border-radius:8px;">
+  <main class="register-success-main">
       <h1>You're all set</h1>
       <p>Your user ID: <strong>{{ user_id }}</strong></p>
       <p>Your one-time token (save this now, we won't show it again):</p>
-      <pre style="white-space:pre-wrap;background:#f6f8fa;padding:10px;border-radius:6px;">{{ token }}</pre>
+  <pre class="register-success-token">{{ token }}</pre>
       <p>Use your token to access your vault:</p>
       <ul>
         <li><a href="/vault?user_token={{ token }}">Open my Vault</a></li>

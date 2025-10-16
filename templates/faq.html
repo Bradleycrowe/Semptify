@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,10 +11,12 @@
 <body>
   {% include '_nav.html' %}
   <main class="container">
-    <h1>FAQ</h1>
-    <details><summary>Is Semptify a law firm?</summary><p>No. Semptify provides tools; see Terms for disclaimers.</p></details>
-    <details><summary>Do I need an account?</summary><p>No. You receive a private token for your Vault.</p></details>
-  </main>
-  {% include '_footer.html' %}
-</body>
-</html>
+    <h1>Frequently Asked Questions</h1>
+    <ul>
+      <li>What is Semptify?</li>
+      <li>How do I register?</li>
+      <li>How do I access my Vault?</li>
+      <li>Who can use Semptify?</li>
+      <li>Is my data secure?</li>
+    </ul>
+  {% endblock %}

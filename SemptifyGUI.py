@@ -1,4 +1,10 @@
 from flask import Flask, render_template, request, redirect, send_file, jsonify, abort, session
+from modules.law_notes.mn_jurisdiction_checklist import mn_check
+from modules.law_notes.law_notes_actions import law_notes_actions
+from modules.law_notes.evidence_packet_builder import evidence_packet_builder
+from modules.law_notes.evidence_metadata import evidence_meta
+from modules.law_notes.attorney_trail import attorney_trail
+from modules.law_notes.complaint_templates import complaint_templates
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime, timezone
@@ -93,6 +99,14 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, 'templates'),
     static_folder=os.path.join(BASE_DIR, 'static')
 )
+
+# Register law_notes Blueprints
+app.register_blueprint(mn_check)
+app.register_blueprint(law_notes_actions)
+app.register_blueprint(evidence_packet_builder)
+app.register_blueprint(evidence_meta)
+app.register_blueprint(attorney_trail)
+app.register_blueprint(complaint_templates)
 # Secret key for session/CSRF (set FLASK_SECRET in production)
 app.secret_key = os.environ.get('FLASK_SECRET', os.urandom(32))
 

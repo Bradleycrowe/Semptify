@@ -1,12 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>How it works • Semptify</title>
-  <link rel="stylesheet" href="/static/css/app.css" />
-</head>
-<body>
-  {% include '_nav.html' %}
+{% extends "base.html" %}
+
+{% block content %}
   <main class="container">
     <h1>How it works</h1>
     <ol>
@@ -16,6 +10,4 @@
       <li>Download certificates and artifacts anytime from your Vault.</li>
     </ol>
   </main>
-  {% include '_footer.html' %}
-</body>
-</html>
+{% endblock %}

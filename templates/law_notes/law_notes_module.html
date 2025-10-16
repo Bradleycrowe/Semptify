@@ -1,20 +1,22 @@
-<!doctype html>
-<html lang=""en"">
-<head><meta charset=""utf-8""><title>{{ module.title }}</title></head>
-<body>
-  <h1>{{ module.title }}</h1>
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card narrow law-notes-card">
+  <h1 class="law-notes-title">{{ module.title }}</h1>
   {% if module.sections %}
     {% for section in module.sections %}
-      <h2>{{ section.heading }}</h2>
-      <p>{{ section.text }}</p>
+      <div class="law-notes-section">
+        <h2>{{ section.heading }}</h2>
+        <p>{{ section.text }}</p>
+      </div>
     {% endfor %}
   {% endif %}
   {% if module.buttons %}
-    {% for button in module.buttons %}
-      <form action=""{{ button.action }}"" method=""get"" style=""display:inline-block;margin:6px;"">
-        <button type=""submit"">{{ button.label }}</button>
-      </form>
-    {% endfor %}
+    <div class="law-notes-btn-group">
+      {% for button in module.buttons %}
+        <form action="{{ button.action }}" method="get" class="law-notes-btn-form"><button type="submit" class="btn law-notes-btn">{{ button.label }}</button></form>
+      {% endfor %}
+    </div>
   {% endif %}
-</body>
-</html>
+</section>
+{% endblock %}

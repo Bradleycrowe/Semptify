@@ -1,0 +1,10 @@
+# Legal Resource Scanner Help
+
+This module helps you find tenant legal aid, housing court help, eviction defense, and other renter advocacy resources near your location. It uses keywords and your city to search for organizations within 250 miles.
+
+How to use:
+- Click the "Find Legal Help Near Me" button in the Library section.
+- Review the list of results, which includes name, link, distance, and a short summary.
+- Click any link to visit the resource’s website for more information.
+
+If you need more help, contact Semptify support or check the FAQ section.

@@ -1,12 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1%">
-  <title>Features • Semptify</title>
-  <link rel="stylesheet" href="/static/css/app.css" />
-</head>
-<body>
-  {% include '_nav.html' %}
+{% extends "base.html" %}
+
+{% block content %}
   <main class="container">
     <h1>Features</h1>
     <ul>
@@ -20,6 +14,4 @@
       <li>AI Copilot (optional provider)</li>
     </ul>
   </main>
-  {% include '_footer.html' %}
-</body>
-</html>
+{% endblock %}
