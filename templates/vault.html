@@ -62,4 +62,23 @@
     {% include '_footer.html' %}
   </body>
   <script src="/static/js/help-panel.js"></script>
+  <script>
+    // Auto-fill user_token from localStorage if not present in URL
+    (function() {
+      function getQueryParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+      }
+      var token = getQueryParam('user_token');
+      if (!token) {
+        var stored = localStorage.getItem('semptify_user_token');
+        if (stored) {
+          // Add token to URL and reload
+          var url = new URL(window.location.href);
+          url.searchParams.set('user_token', stored);
+          window.location.replace(url.toString());
+        }
+      }
+    })();
+  </script>
 </html>

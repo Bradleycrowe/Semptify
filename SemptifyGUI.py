@@ -1284,7 +1284,7 @@ def admin_status():
     })
 
 
-@app.route('/release_now', methods=['POST'])
+@app.route('/release_now', methods=['POST])
 def release_now():
     if not _validate_csrf(request):
         return "CSRF validation failed", 400
@@ -1596,8 +1596,27 @@ def register_submit():
     existing.append(payload)
     _write_users(existing)
     _event_log('user_registered', user_id=uid, ip=request.remote_addr)
-    # Show token once
-    return render_template('register_success.html', user_id=uid, token=token)
+    # Go to verification step before showing token
+    return render_template('register_verify.html', user_id=uid)
+
+@app.route('/register/verify', methods=['POST'])
+def register_verify():
+    # In the future, add verification logic here
+    # For now, just show the token after 'verification'
+    # Find the most recent user (last in file)
+    try:
+        with open(USERS_CACHE['path'],'r', encoding='utf-8') as f:
+            users = json.load(f)
+        user = users[-1] if users else None
+    except Exception:
+        user = None
+    if not user:
+        return "User not found", 400
+    # This is a placeholder; in a real app, you'd look up by session or verification code
+    # For now, just regenerate the token for the last user
+    # (In production, store the token in a session or temp store)
+    # For now, just show a dummy token message
+    return render_template('register_success.html', user_id=user.get('id'), token='(token hidden until verification logic is implemented)')
 
 # -----------------------------
 # AI Copilot MVP
@@ -2516,25 +2535,6 @@ def notary_upload():
             'collection_user_agent': evidence_user_agent or request.headers.get('User-Agent'),
             'has_location_data': bool(evidence_location),
             'collection_method': 'semptify_notary'
-        }
-        cert_path = os.path.join(user_dir, f"notary_{int(time.time())}_{uuid.uuid4().hex[:8]}.json")
-        with open(cert_path, 'w', encoding='utf-8') as cf:
-            json.dump(cert, cf, ensure_ascii=False, indent=2)
-        _event_log('notary_upload_attested', user_id=user['id'], filename=safe, sha256=sha)
-    except Exception as e:
-        _append_log(f"notary_upload_error {e}")
-        return "Failed to save notary attestation", 500
-    token = request.form.get('user_token') or ''
-    return redirect(f"/vault?user_token={token}")
-
-@app.route('/notary/attest_existing', methods=['POST'])
-def notary_attest_existing():
-    if not _validate_csrf(request):
-        return "CSRF validation failed", 400
-    user = _require_user_or_401()
-    if not user:
-        return jsonify({'error': 'unauthorized'}), 401
-    safe = secure_filename((request.form.get('filename') or '').strip())
     if not safe:
         return "Filename required", 400
     user_dir = _vault_user_dir(user['id'])

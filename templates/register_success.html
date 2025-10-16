@@ -11,7 +11,16 @@
       <h1>You're all set</h1>
       <p>Your user ID: <strong>{{ user_id }}</strong></p>
       <p>Your one-time token (save this now, we won't show it again):</p>
-      <pre style="white-space:pre-wrap;background:#f6f8fa;padding:10px;border-radius:6px;">{{ token }}</pre>
+      <pre id="user-token" style="white-space:pre-wrap;background:#f6f8fa;padding:10px;border-radius:6px;">{{ token }}</pre>
+      <script>
+        // Auto-store the token in localStorage
+        (function() {
+          var token = document.getElementById('user-token').textContent.trim();
+          if (token) {
+            localStorage.setItem('semptify_user_token', token);
+          }
+        })();
+      </script>
       <p>Use your token to access your vault:</p>
       <ul>
         <li><a href="/vault?user_token={{ token }}">Open my Vault</a></li>

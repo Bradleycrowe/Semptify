@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Semptify{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <!-- Optionally add Bootstrap CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+    <!-- Header -->
+    <header class="bg-light py-3 mb-4 border-bottom">
+      <div class="container d-flex align-items-center justify-content-between">
+  <div class="d-flex align-items-center flex-shrink-0 logo-container">
+          <img src="/static/icons/semptify.svg" alt="Semptify Logo" class="img-fluid logo-img">
+          <h1 class="h4 mb-0">Semptify</h1>
+        </div>
+  <div class="d-flex flex-grow-1 justify-content-end align-items-start nav-container">
+          <nav class="d-flex align-items-end main-nav">
+            <a href="/" class="mx-3">Home</a>
+            <a href="/rights" class="mx-3">Know Your Rights</a>
+            <a href="/library" class="mx-3">Library</a>
+            <a href="/tools" class="mx-3">Tools</a>
+            <a href="/vault" class="mx-3">Vault Access</a>
+            <a href="/help" class="mx-3">Help</a>
+          </nav>
+          <div class="d-flex flex-column justify-content-start align-items-center signin-container">
+            <a href="/register" class="mb-1 text-center">Sign Up</a>
+            <a href="/login" class="mb-1 text-center">Sign In</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+  <div class="container-fluid flex-grow-1 main-content">
+      <div class="row">
+        <main class="col-12 col-md-9 py-4">
+          {% block content %}{% endblock %}
+        </main>
+        <!-- Right Sidebar: Helpful Links -->
+  <aside class="right-sidebar py-4">
+          <h5>Helpful Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
+            <li><a href="https://www.justice.gov/crt/fair-housing" target="_blank" rel="noopener">DOJ Fair Housing</a></li>
+            <!-- Add more links as needed -->
+          </ul>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 mt-auto">
+      <div class="container text-center">
+  &copy; {{ year or '2025' }} Semptify. All rights reserved.
+      </div>
+    </footer>
+    <!-- Optionally add Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
