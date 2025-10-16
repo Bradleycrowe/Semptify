@@ -7,59 +7,104 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
-    <h1>Document Vault</h1>
-    <p>Welcome, {{ user.name }} (ID: {{ user.id }})</p>
+    {% extends "base.html" %}
 
-    <section>
-      <h2>Your Files</h2>
-    <section>
-      <h2>Help</h2>
-      <p class="muted">Quick steps to get the most out of your vault:</p>
-      <ul><li>Upload important rental documents, notes, and evidence.</li><li>Use <a href="/copilot">AI Copilot</a> to draft letters or understand your rights. Only share what you’re comfortable with.</li><li>Create a read‑only share link for a trusted person under “Share (read‑only).”</li><li>Revoke any share at any time in “Manage shares.”</li><li>Explore <a href="/resources">Resources</a> for templates and Home Search (beta).</li></ul>
-    </section>
+    {% block title %}Document Vault • Semptify{% endblock %}
 
-  {% if files and files|length > 0 %}
-  <div class="list">{% for f in files %}<div class="list-item"><a href="/vault/download/{{ f.name }}?user_token={{ request.args.get('user_token','') }}">{{ f.name }}</a> <small>({{ f.size }} bytes)</small></div>{% endfor %}</div>
-      {% else %}
-      <p><em>No files uploaded yet.</em></p>
-      {% endif %}
-    </section>
+    {% block content %}
+    <div class="row">
+      <!-- Left Sidebar -->
+      <aside class="col-12 col-md-3 py-4 bg-light border-end left-sidebar">
+        <h5>Vault Navigation</h5>
+        <ul class="list-unstyled">
+          <li><a href="#files">Your Files</a></li>
+          <li><a href="#upload">Upload</a></li>
+          <li><a href="#share">Share (read-only)</a></li>
+          <li><a href="#manage-shares">Manage Shares</a></li>
+          <li><a href="#help">Help</a></li>
+        </ul>
+      </aside>
+      <!-- Main Content -->
+      <section class="col-12 col-md-9 py-4">
+        <h1>Document Vault</h1>
+        <p>Welcome, {{ user.name }} (ID: {{ user.id }})</p>
 
-    <section>
-      <h2>Upload</h2>
-      <form action="/vault/upload" method="post" enctype="multipart/form-data" aria-label="Upload a file to your vault">
-        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <label for="vault-file">Choose file</label>
-        <input id="vault-file" type="file" name="file" required title="Select a file to upload">
-        <button type="submit">Upload</button>
-      </form>
-    </section>
+        <section id="files">
+          <h2>Your Files</h2>
+          {% if files and files|length > 0 %}
+          <div class="list">{% for f in files %}<div class="list-item"><a href="/vault/download/{{ f.name }}?user_token={{ request.args.get('user_token','') }}">{{ f.name }}</a> <small>({{ f.size }} bytes)</small></div>{% endfor %}</div>
+          {% else %}
+          <p><em>No files uploaded yet.</em></p>
+          {% endif %}
+        </section>
 
-    <section>
-      <h2>Share (read-only)</h2>
-      <p>Generate a private, time-limited link you can share with a trusted person (lawyer, case worker, caregiver). They can only view and download your files.</p>
-      <form action="/vault/create_share" method="post">
-        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <label for="share-label">Label (who is this for?)</label>
-        <input id="share-label" name="label" type="text" placeholder="e.g., Attorney Smith" />
-        <label for="share-days">Expires in (days)</label>
-        <input id="share-days" name="expires_days" type="number" min="1" max="90" value="30" />
-        <input type="hidden" name="scope" value="vault_read" />
-        <button type="submit">Create share link</button>
-      </form>
-    </section>
+        <section id="upload">
+          <h2>Upload</h2>
+          <form action="/vault/upload" method="post" enctype="multipart/form-data" aria-label="Upload a file to your vault">
+            <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="vault-file">Choose file</label>
+            <input id="vault-file" type="file" name="file" required title="Select a file to upload">
+            <button type="submit">Upload</button>
+          </form>
+        </section>
 
-    <section>
-      <h2>Manage shares</h2>
-  {% if grants and grants|length > 0 %}
-  <div class="list">{% for g in grants %}<div class="list-item"><strong>{{ g.label or 'Trusted person' }}</strong> <small>({{ g.id }})</small> {% if g.expires_ts %}<span class="muted">expires {{ g.expires_ts }}</span>{% endif %} <form action="/vault/revoke_share" method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}"><input type="hidden" name="grant_id" value="{{ g.id }}"><button type="submit">Revoke</button></form></div>{% endfor %}</div>
-      {% else %}
-      <p><em>No active shares.</em></p>
-      {% endif %}
-    </section>
-    {% include '_footer.html' %}
+        <section id="share">
+          <h2>Share (read-only)</h2>
+          <p>Generate a private, time-limited link you can share with a trusted person (lawyer, case worker, caregiver). They can only view and download your files.</p>
+          <form action="/vault/create_share" method="post">
+            <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label for="share-label">Label (who is this for?)</label>
+            <input id="share-label" name="label" type="text" placeholder="e.g., Attorney Smith" />
+            <label for="share-days">Expires in (days)</label>
+            <input id="share-days" name="expires_days" type="number" min="1" max="90" value="30" />
+            <input type="hidden" name="scope" value="vault_read" />
+            <button type="submit">Create share link</button>
+          </form>
+        </section>
+
+        <section id="manage-shares">
+          <h2>Manage shares</h2>
+          {% if grants and grants|length > 0 %}
+          <div class="list">{% for g in grants %}<div class="list-item"><strong>{{ g.label or 'Trusted person' }}</strong> <small>({{ g.id }})</small> {% if g.expires_ts %}<span class="muted">expires {{ g.expires_ts }}</span>{% endif %} <form action="/vault/revoke_share" method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}"><input type="hidden" name="grant_id" value="{{ g.id }}"><button type="submit">Revoke</button></form></div>{% endfor %}</div>
+          {% else %}
+          <p><em>No active shares.</em></p>
+          {% endif %}
+        </section>
+
+        <section id="help">
+          <h2>Help</h2>
+          <p class="muted">Quick steps to get the most out of your vault:</p>
+          <ul>
+            <li>Upload important rental documents, notes, and evidence.</li>
+            <li>Use <a href="/copilot">AI Copilot</a> to draft letters or understand your rights. Only share what you’re comfortable with.</li>
+            <li>Create a read‑only share link for a trusted person under “Share (read‑only).”</li>
+            <li>Revoke any share at any time in “Manage shares.”</li>
+            <li>Explore <a href="/resources">Resources</a> for templates and Home Search (beta).</li>
+          </ul>
+        </section>
+      </section>
+    </div>
+    {% endblock %}
+    <script>
+      // Auto-fill user_token from localStorage if not present in URL
+      (function() {
+        function getQueryParam(name) {
+          const url = new URL(window.location.href);
+          return url.searchParams.get(name);
+        }
+        var token = getQueryParam('user_token');
+        if (!token) {
+          var stored = localStorage.getItem('semptify_user_token');
+          if (stored) {
+            // Add token to URL and reload
+            var url = new URL(window.location.href);
+            url.searchParams.set('user_token', stored);
+            window.location.replace(url.toString());
+          }
+        }
+      })();
+    </script>
   </body>
-  <script src="/static/js/help-panel.js"></script>
 </html>
