@@ -1,80 +1,71 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SemptifyGUI</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-    <link rel="manifest" href="/static/manifest.webmanifest">
-    <meta name="theme-color" content="#0a7cd0">
-  </head>
-  <body>
-    {% include '_nav.html' %}
-    <header>
-      <h1>{{ message }}</h1>
-      <p class="tagline">Semptify is a tenants’ advocate: practical tools for renters to understand rights, organize documents, and act confidently.</p>
-    </header>
+{% extends "base.html" %}
 
-    <main>
-      <section class="card narrow" style="background:#eaf6ff;margin-bottom:1.5rem;">
-        <h2>Welcome, New User!</h2>
-        <p>If you’re new to Semptify, start here:</p>
-        <a class="btn" href="/get_started">I am a brand new user</a>
-        <ul>
-          <li>Register to get your user number and unlock all features.</li>
-          <li>After registering, you’ll be guided to your Vault, housing help, and legal resources.</li>
-          <li>Use the navigation bar or Tools & Templates dropdown to explore more.</li>
-        </ul>
-      </section>
-      <section>
-        <h2>What Semptify does</h2>
-        <ul>
-          <li>Explains tenant rights in plain language and links to trusted resources.</li>
-          <li>Provides a secure Document Vault so renters can upload and keep records handy.</li>
-          <li>Offers simple status and health endpoints so you know the system is running.</li>
-        </ul>
-      </section>
-      <section>
-        <h2>Conditions for Registration</h2>
-        <ul>
-          <li>Registration is required to use Semptify’s services.</li>
-          <li>When you register, you are issued a user number (not Vault access). This number is used to identify you for future services and document management.</li>
-          <li>Your Vault and other features become available after registration and verification.</li>
-        </ul>
-        <p><a class="btn" href="/register">Register for your user number</a></p>
-      </section>
+{% block title %}SemptifyGUI{% endblock %}
 
-      <section>
-        <h2>Quick links</h2>
-        <ul>
-          <li><a href="/vault">Open Document Vault</a> <small>(use your private link from registration to sign in)</small></li>
-          <li><a href="/admin">Admin</a> <small>(requires admin token)</small></li>
-          <li><a href="/register">Register</a> · <a href="/copilot">AI Copilot</a> · <a href="/resources">Resources</a> · <a href="/health">Health</a> · <a href="/readyz">Readiness</a> · <a href="/info">Info</a> · <a href="/metrics">Metrics</a></li>
-        </ul>
-      </section>
+{% block content %}
+<header>
+  <h1>{{ message }}</h1>
+  <p class="tagline">Semptify is a tenants’ advocate: practical tools for renters to understand rights, organize documents, and act confidently.</p>
+</header>
 
-      <section>
-        <h2>Tools</h2>
-        <ul>
-          <li><a href="/move_checklist_form">Move-in/Move-out Inspection Checklist</a> <small>with photo options</small></li>
-          <li><a href="/notary">Virtual Notary (Attestation)</a></li>
-          <li><a href="/legal_notary">Legal Notary Record</a></li>
-        </ul>
-      </section>
+<main>
+  <section class="card narrow" style="background:#eaf6ff;margin-bottom:1.5rem;">
+    <h2>Welcome, New User!</h2>
+    <p>If you’re new to Semptify, start here:</p>
+    <a class="btn" href="/get_started">I am a brand new user</a>
+    <ul>
+      <li>Register to get your user number and unlock all features.</li>
+      <li>After registering, you’ll be guided to your Vault, housing help, and legal resources.</li>
+      <li>Use the navigation bar or Tools & Templates dropdown to explore more.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>What Semptify does</h2>
+    <ul>
+      <li>Explains tenant rights in plain language and links to trusted resources.</li>
+      <li>Provides a secure Document Vault so renters can upload and keep records handy.</li>
+      <li>Offers simple status and health endpoints so you know the system is running.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Conditions for Registration</h2>
+    <ul>
+      <li>Registration is required to use Semptify’s services.</li>
+      <li>When you register, you are issued a user number (not Vault access). This number is used to identify you for future services and document management.</li>
+      <li>Your Vault and other features become available after registration and verification.</li>
+    </ul>
+    <p><a class="btn" href="/register">Register for your user number</a></p>
+  </section>
+  <section>
+    <h2>Quick links</h2>
+    <ul>
+      <li><a href="/vault">Open Document Vault</a> <small>(use your private link from registration to sign in)</small></li>
+      <li><a href="/admin">Admin</a> <small>(requires admin token)</small></li>
+      <li><a href="/register">Register</a> · <a href="/copilot">AI Copilot</a> · <a href="/resources">Resources</a> · <a href="/health">Health</a> · <a href="/readyz">Readiness</a> · <a href="/info">Info</a> · <a href="/metrics">Metrics</a></li>
+    </ul>
+  </section>
+  <section>
+    <h2>Tools</h2>
+    <ul>
+      <li><a href="/move_checklist_form">Move-in/Move-out Inspection Checklist</a> <small>with photo options</small></li>
+      <li><a href="/notary">Virtual Notary (Attestation)</a></li>
+      <li><a href="/legal_notary">Legal Notary Record</a></li>
+    </ul>
+  </section>
+  <section>
+    <h2>Available runtime folders</h2>
+    <ul>{% for f in folders %}<li>{{ f }}</li>{% endfor %}</ul>
+  </section>
+</main>
+{% endblock %}
 
-      <section>
-        <h2>Available runtime folders</h2>
-        <ul>{% for f in folders %}<li>{{ f }}</li>{% endfor %}</ul>
-      </section>
-    </main>
-    <script>
-      if('serviceWorker' in navigator){
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/static/js/service-worker.js').catch(() => {});
-        });
-      }
-    </script>
-    {% include '_footer.html' %}
-  </body>
-  <script src="/static/js/help-panel.js"></script>
-  </html>
+{% block scripts %}
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/static/js/service-worker.js').catch(() => {});
+    });
+  }
+</script>
+<script src="/static/js/help-panel.js"></script>
+{% endblock %}
