@@ -15,6 +15,12 @@ from typing import Optional, Callable
 from ron_providers import get_provider
 import subprocess
 import shlex
+from modules.law_notes.mn_jurisdiction_checklist import mn_check
+from modules.law_notes.law_notes_actions import law_notes_actions
+from modules.law_notes.evidence_packet_builder import evidence_packet_builder
+from modules.law_notes.evidence_metadata import evidence_meta
+from modules.law_notes.complaint_templates import complaint_templates
+from modules.law_notes.attorney_trail import attorney_trail
 
 # -----------------------------
 # Rate limiting (simple sliding window) & config
@@ -96,16 +102,123 @@ app = Flask(
 # Secret key for session/CSRF (set FLASK_SECRET in production)
 app.secret_key = os.environ.get('FLASK_SECRET', os.urandom(32))
 
+# Register law_notes Blueprints
+try:
+    from modules.law_notes.mn_jurisdiction_checklist import mn_jurisdiction_checklist_bp
+    app.register_blueprint(mn_jurisdiction_checklist_bp)
+except ImportError:
+    pass
+try:
+    from modules.law_notes.law_notes_actions import law_notes_actions_bp
+    app.register_blueprint(law_notes_actions_bp)
+except ImportError:
+    pass
+try:
+    from modules.law_notes.evidence_packet_builder import evidence_packet_builder_bp
+    app.register_blueprint(evidence_packet_builder_bp)
+except ImportError:
+    pass
+try:
+    from modules.law_notes.evidence_metadata import evidence_metadata_bp
+    app.register_blueprint(evidence_metadata_bp)
+except ImportError:
+    pass
+try:
+    from modules.law_notes.complaint_templates import complaint_templates_bp
+    app.register_blueprint(complaint_templates_bp)
+except ImportError:
+    pass
+try:
+    from modules.law_notes.attorney_trail import attorney_trail_bp
+    app.register_blueprint(attorney_trail_bp)
+except ImportError:
+    pass
+
 # Optional data root for shared storage (e.g., NFS/volume mount) to enable horizontal scaling
 _DATA_ROOT = os.environ.get('SEMPTIFY_DATA_ROOT')
 if _DATA_ROOT:
     try:
         os.makedirs(_DATA_ROOT, exist_ok=True)
         os.chdir(_DATA_ROOT)
-    except Exception:
+    except OSError:
         # Best-effort; fall back to current working directory
         pass
 
+# Route to render all law_notes modules together
+@app.route('/law_notes/all_modules')
+def law_notes_all_modules():
+    # Use the same context data as the modules, not their view functions
+    checklist = {
+        'title': "Minnesota Jurisdiction Checklist",
+        'state_statutes': [
+            "Minn. Stat. Ch. 504B - Residential landlord and tenant",
+            "Minn. Stat. Ch. 327A - Eviction procedure references",
+            "Minn. Stat. Ch. 325F - Consumer protections where relevant"
+        ],
+        'local_actions': [
+            "Check city rental licensing (Minneapolis, St. Paul)",
+            "Lookup local code enforcement complaint process",
+            "Confirm filing venue and service rules for housing court"
+        ],
+        'filing_steps': [
+            "Record issue with dates and evidence",
+            "Send demand letter per statute and local form",
+            "File administrative complaint or small claims/civil filing as needed"
+        ]
+    }
+    address = ''
+
+    module = {
+        'title': 'Evidence Packet Builder',
+        'sections': [
+            {'heading':'Upload Evidence','text':'Attach photos, documents, audio, or video files that support your complaint.'},
+            {'heading':'Organize by Violation','text':'Group evidence by issue: late fees, unsafe conditions, retaliation, or harassment.'},
+            {'heading':'Export Packet','text':'Generate a printable, multilingual packet for regulators, attorneys, or court.'}
+        ],
+        'buttons': [
+            {'label':'Upload Files','action':'/upload_evidence'},
+            {'label':'Group by Violation','action':'/group_evidence'},
+            {'label':'Export Packet','action':'/export_evidence_packet'},
+            {'label':'Multilingual Export','action':'/export_multilingual'}
+        ]
+    }
+
+    template = {
+        'title': 'Late Fee Challenge - Minnesota',
+        'citation': 'Minn. Stat. Ch. 504B; local ordinance',
+        'body': 'Facts: [dates]; Legal basis: landlord failed to follow statutory notice and fee limits; Request: refund, correction, and penalty where applicable.'
+    }
+    lang = 'en'
+
+    metadata = [
+        {'filename': 'file1.pdf', 'violation_tag': 'Late Notice', 'timestamp_utc': '2025-10-16T12:00:00Z'},
+        {'filename': 'file2.pdf', 'violation_tag': 'Unlawful Entry', 'timestamp_utc': '2025-10-16T13:00:00Z'}
+    ]
+
+    attorney_content = {
+        'title': 'Attorney Trail',
+        'steps': [
+            'Identify claims and jurisdiction',
+            'Collect evidence packet',
+            'Prepare retainer outline and jurisdiction-specific deadlines',
+            'Draft cover memo for attorney review'
+        ]
+    }
+
+    return render_template(
+        'law_notes/semptify_all_modules.html',
+        checklist=checklist,
+        address=address,
+        module=module,
+        template=template,
+        lang=lang,
+        title='Evidence Packet Cover',
+        generated_at='2025-10-16',
+        translation_method='Manual',
+        reviewer='Attorney Smith',
+        metadata=metadata,
+        attorney_content=attorney_content
+    )
 # Required folders
 folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
 
@@ -128,11 +241,11 @@ def _bootstrap_tokens_if_needed():
         return
     entry = [{ 'id': 'legacy-bootstrap', 'hash': _hash_token(legacy), 'enabled': True }]
     try:
-        with open(path,'w') as f:
+        with open(path,'w', encoding='utf-8') as f:
             json.dump(entry, f, indent=2)
         _append_log('Bootstrapped admin_tokens.json from ADMIN_TOKEN env (legacy-bootstrap)')
         _event_log('tokens_bootstrap_created')
-    except Exception as e:  # pragma: no cover
+    except (OSError, json.JSONDecodeError) as e:  # pragma: no cover
         _append_log(f'tokens_bootstrap_failed {e}')
 
 def _utc_now():
@@ -154,7 +267,7 @@ def _rotate_if_needed(path: str):
         ts = _utc_now().strftime('%Y%m%d%H%M%S')
         rotated = f"{path}.{ts}"
         os.rename(path, rotated)
-    except Exception:
+    except OSError:
         # Silent failure; rotation is best-effort
         pass
 
@@ -178,7 +291,7 @@ def _help_panel_load(force: bool=False) -> dict:
                 HELP_PANEL_CACHE['data'] = json.load(f)
             HELP_PANEL_CACHE['mtime'] = mtime
         return HELP_PANEL_CACHE['data'] or {}
-    except Exception as e:  # pragma: no cover
+    except (OSError, json.JSONDecodeError) as e:  # pragma: no cover
         _append_log(f"help_panel_load_error {e}")
         return {}
 
@@ -191,7 +304,7 @@ def _help_panel_save(data: dict) -> bool:
         HELP_PANEL_CACHE['data'] = data
         HELP_PANEL_CACHE['mtime'] = os.path.getmtime(path)
         return True
-    except Exception as e:  # pragma: no cover
+    except (OSError, json.JSONDecodeError) as e:  # pragma: no cover
         _append_log(f"help_panel_save_error {e}")
         return False
 
@@ -244,7 +357,7 @@ def _append_log(line: str):
     log_path_local = os.path.join("logs", "init.log")
     _rotate_if_needed(log_path_local)
     timestamp_local = _utc_now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(log_path_local, "a") as f:
+    with open(log_path_local, "a", encoding="utf-8") as f:
         f.write(f"[{timestamp_local}] {line}\n")
 
 def _event_log(event: str, **fields):
@@ -257,9 +370,9 @@ def _event_log(event: str, **fields):
         **fields
     }
     try:
-        with open(log_path, 'a') as f:
+        with open(log_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(payload) + "\n")
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         _append_log(f"event_log_error {e}")
 
 def _sha256_hex(text: str) -> str:
@@ -306,7 +419,7 @@ def _load_users(force: bool = False):
                 })
             USERS_CACHE['users'] = norm
             USERS_CACHE['mtime'] = mtime
-    except Exception as e:  # pragma: no cover
+    except (OSError, json.JSONDecodeError) as e:  # pragma: no cover
         _append_log(f"users_load_error {e}")
 
 def _write_users(users: list) -> None:
@@ -320,7 +433,7 @@ def _write_users(users: list) -> None:
             { 'id': u.get('id'), 'name': u.get('name', u.get('id')), 'hash': u.get('hash'), 'enabled': u.get('enabled', True) }
             for u in users if u.get('hash') and u.get('id') and u.get('enabled', True)
         ]
-    except Exception as e:  # pragma: no cover
+    except (OSError, json.JSONDecodeError) as e:  # pragma: no cover
         _append_log(f"users_write_error {e}")
 
 # -----------------------------
@@ -365,7 +478,7 @@ def _load_grants(force: bool = False):
                 })
             GRANTS_CACHE['grants'] = norm
             GRANTS_CACHE['mtime'] = mtime
-    except Exception as e:  # pragma: no cover
+    except (OSError, json.JSONDecodeError) as e:  # pragma: no cover
         _append_log(f"grants_load_error {e}")
 
 def _write_grants(grants: list) -> None:
@@ -377,7 +490,7 @@ def _write_grants(grants: list) -> None:
         GRANTS_CACHE['mtime'] = os.path.getmtime(path)
         # refresh cache
         _load_grants(force=True)
-    except Exception as e:  # pragma: no cover
+    except (OSError, json.JSONDecodeError) as e:  # pragma: no cover
         _append_log(f"grants_write_error {e}")
 
 def _match_grant_token(grant_id: str, raw: Optional[str]):
@@ -578,7 +691,7 @@ def _logbook_load(user_id: str) -> list:
     try:
         with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except Exception:  # pragma: no cover
+    except (OSError, json.JSONDecodeError):  # pragma: no cover
         return []
 
 def _logbook_save(user_id: str, events: list):
@@ -610,7 +723,7 @@ def logbook_view():
         return (e.get('date',''), e.get('time',''))
     try:
         events.sort(key=_key)
-    except Exception:
+    except (TypeError, AttributeError):
         pass
     csrf_token = _get_or_create_csrf_token()
     today = _utc_now().date().strftime('%Y-%m-%d')
@@ -1340,12 +1453,11 @@ def release_now():
                     data = json.load(f)
             else:
                 data = []
-            data.insert(0, entry)
+            data.append(entry)
             with open(log_path, 'w') as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
-            _append_log(f'Failed to write release-log.json: {e}')
-
+            _append_log(f'release_log_write_error {e}')
         return redirect(f'https://github.com/{owner}/{repo}/releases/tag/{tag_name}')
     else:
         _append_log(f'Failed to create tag: {r.status_code} {r.text}')

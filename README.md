@@ -330,6 +330,22 @@ The `render.yaml` describes the service. Key env vars:
 
 After a push to `main`, Render auto deploys (if configured). Health check: `/health`.
 
+### Deployment checklist & automated config audit
+
+We've added a deployment checklist and a small audit tool to help you verify environment readiness before pushing to Render or other hosts.
+
+- See `docs/deployment_checklist.md` for a Render-focused pre-deploy and post-deploy checklist.
+- An example env file is provided at `.env.example` — copy it to `.env` or use the entries to populate your Render service environment variables.
+- To scan the repository for environment variable usage, external service hints, and runtime directory checks, run the audit script:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python .\scripts\config_audit.py
+```
+
+The script writes `logs/config_audit_report.json` and prints a short summary. Use this to find env vars that must be set in Render and to check writable runtime paths.
+
+
 ### Post-Deploy Smoke Test
 
 Use the provided PowerShell script:

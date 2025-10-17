@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Semptify Modules Overview{% endblock %}
+{% block content %}
+  <section>
+    <h2>Jurisdiction Checklist</h2>
+    <div>
+      <h3>{{ checklist.title }}</h3>
+      <h4>State Statutes</h4>
+      <ul>
+        {% for s in checklist.state_statutes %}
+          <li>{{ s }}</li>
+        {% endfor %}
+      </ul>
+      <h4>Local Actions</h4>
+      <ul>
+        {% for a in checklist.local_actions %}
+          <li>{{ a }}</li>
+        {% endfor %}
+      </ul>
+      <h4>Filing Steps</h4>
+      <ol>
+        {% for f in checklist.filing_steps %}
+          <li>{{ f }}</li>
+        {% endfor %}
+      </ol>
+      {% if address %}
+        <p><strong>Address looked up:</strong> {{ address }}</p>
+      {% endif %}
+    </div>
+  </section>
+  <hr>
+  <section>
+    <h2>Law Notes Module</h2>
+    <div>
+      <h3>{{ module.title }}</h3>
+      {% if module.sections %}
+        {% for section in module.sections %}
+          <h4>{{ section.heading }}</h4>
+          <p>{{ section.text }}</p>
+        {% endfor %}
+      {% endif %}
+      {% if module.buttons %}
+        {% for button in module.buttons %}
+          <form action="{{ button.action }}" method="get" style="display:inline-block;margin:6px;">
+            <button type="submit">{{ button.label }}</button>
+          </form>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </section>
+  <hr>
+  <section>
+    <h2>Complaint Template</h2>
+    <div>
+      <h3>{{ template.title }}</h3>
+      <p><strong>Statutory citations:</strong> {{ template.citation }}</p>
+      <h4>Facts</h4>
+      <p>[Insert facts and timeline]</p>
+      <h4>Law</h4>
+      <p>{{ template.body }}</p>
+      <h4>Relief Requested</h4>
+      <p>[Insert relief]</p>
+    </div>
+  </section>
+  <hr>
+  <section>
+    <h2>Evidence Metadata Cover</h2>
+    <div>
+      <h3>{{ title }}</h3>
+      <p><strong>Generated:</strong> {{ generated_at }}</p>
+      <p><strong>Language:</strong> {{ lang }}</p>
+      <h4>Translation disclosure</h4>
+      <p>This document was translated using: {{ translation_method }}; reviewer: {{ reviewer or 'none' }}</p>
+      <h4>Metadata Summary</h4>
+      <ul>
+        {% for f in metadata %}
+          <li>{{ f.filename }} — {{ f.violation_tag }} — uploaded {{ f.timestamp_utc }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+{% endblock %}

@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
+    {% extends "base.html" %}
+    {% block content %}
     <div class="card narrow">
       <h1>Certificate</h1>
       <p class="muted">Filename: {{ filename }}</p>
@@ -17,7 +19,7 @@
       {% endif %}
       <p><a href="/vault/certificates?user_token={{ request.args.get('user_token','') }}">Back to Certificates</a></p>
     </div>
-    {% include '_footer.html' %}
+    {% endblock %}
   </body>
   <script src="/static/js/help-panel.js"></script>
 </html>

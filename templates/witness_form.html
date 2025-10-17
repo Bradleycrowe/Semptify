@@ -9,6 +9,7 @@
     <meta name="help:instructions" content="Fill out the form, preview, then save to your Vault with your user token.">
   </head>
   <body>
+    {% block content %}
     <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you draft a witness statement. For legal advice, consult a licensed attorney.</div>
     <h1>Witness Statement</h1>
     
@@ -32,5 +33,6 @@
     </form>
     <script src="/static/js/help-panel.js"></script>
     {% include '_footer.html' %}
+    {% endblock %}
   </body>
 </html>

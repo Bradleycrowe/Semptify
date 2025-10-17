@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
+    {% extends "base.html" %}
+    {% block content %}
     <div class="card narrow">
       <h1>Events & Logbook</h1>
       <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you track meetings, maintenance, and deadlines. For legal advice, consult a licensed attorney.</div>
@@ -100,6 +102,7 @@
       {% endif %}
       <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
     </div>
+    {% endblock %}
     {% include '_footer.html' %}
   </body>
   <script src="/static/js/help-panel.js"></script>

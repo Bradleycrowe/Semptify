@@ -9,26 +9,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{% block title %}Semptify{% endblock %}</title>
-alighn right  spacingb more and bold smaller text line
+
     <link rel="stylesheet" href="/static/css/app.css" />
     <style>
       .top-nav-custom {
         justify-content: flex-end;
       }
       .top-nav-link {
-        font-size: 0.98rem;
-        letter-spacing: 0.04em;
-        font-weight: bold;
+        font-size: 0.93rem;
+        letter-spacing: 0.08em;
+        font-weight: normal;
         text-transform: none;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
       }
       @media (max-width: 768px) {
         .top-nav-link {
-          font-size: 0.93rem;
-          padding-left: 0.3rem;
-          padding-right: 0.3rem;
+          font-size: 0.89rem;
+          padding-left: 0.4rem;
+          padding-right: 0.4rem;
         }
+      }
+      .right-sidebar {
+        position: absolute;
+        top: 80px;
+        right: 0;
+        width: 260px;
+        text-align: right;
+        background: #f8f9fa;
+        border-left: 1px solid #dee2e6;
+        min-height: 300px;
+        padding: 1.5rem 1rem 1rem 1rem;
+        z-index: 10;
+      }
+      @media (max-width: 991px) {
+        .right-sidebar {
+          position: static;
+          width: 100%;
+          border-left: none;
+          min-height: unset;
+          text-align: right;
+        }
+      }
+      .right-sidebar h5, .right-sidebar ul, .right-sidebar li {
+        text-align: right;
       }
     </style>
 
@@ -48,7 +72,7 @@ alighn right  spacingb more and bold smaller text line
 
           <a href="/" class="d-flex align-items-center text-decoration-none">
 
-            <img src="/static/icons/semptify.png" alt="Semptify Logo" class="img-fluid logo-img me-2">
+            <img src="/static/icons/Semptfylogo.svg" alt="Semptify Logo" style="height:40px;width:auto;max-width:120px;object-fit:contain;" class="logo-img me-2">
 
             <span class="h4 mb-0 text-dark">Semptify</span>
 
@@ -56,14 +80,14 @@ alighn right  spacingb more and bold smaller text line
 
         </div>
 
-        <nav class="d-flex align-items-center ms-4 nav-container top-nav-custom">
-          <a href="/" class="mx-3 fw-bold top-nav-link">Home</a>
-          <a href="/rights" class="mx-3 fw-bold top-nav-link">Know Your Rights</a>
-          <a href="/library" class="mx-3 fw-bold top-nav-link">Library</a>
-          <a href="/tools" class="mx-3 fw-bold top-nav-link">Tools</a>
-          <a href="/vault" class="mx-3 fw-bold top-nav-link">Vault</a>
-          <a href="/help" class="mx-3 fw-bold top-nav-link">Help</a>
-          <a href="/contacts" class="mx-3 fw-bold top-nav-link">Contact</a>
+        <nav class="d-flex align-items-center ms-4 nav-container top-nav-custom" style="margin-left:auto;">
+          <a href="/" class="mx-3 top-nav-link">Home</a>
+          <a href="/rights" class="mx-3 top-nav-link">Know Your Rights</a>
+          <a href="/library" class="mx-3 top-nav-link">Library</a>
+          <a href="/tools" class="mx-3 top-nav-link">Tools</a>
+          <a href="/vault" class="mx-3 top-nav-link">Vault</a>
+          <a href="/help" class="mx-3 top-nav-link">Help</a>
+          <a href="/contacts" class="mx-3 top-nav-link">Contact</a>
         </nav>
 
         <div class="d-flex flex-column align-items-end signin-container">
@@ -99,6 +123,8 @@ alighn right  spacingb more and bold smaller text line
             <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
 
             <li><a href="https://www.justice.gov/crt/fair-housing" target="_blank" rel="noopener">DOJ Fair Housing</a></li>
+
+            <li><a href="https://mncourts.gov/getforms/housing-landlord-tenant" target="_blank" rel="noopener">MN Court Help (Landlord-Tenant Forms)</a></li>
 
           </ul>
 

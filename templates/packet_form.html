@@ -9,6 +9,8 @@
      <meta name="help:instructions" content="Complete the fields, preview, and save to your Vault.">
   </head>
   <body>
+    {% extends "base.html" %}
+    {% block content %}
     <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you assemble a filing packet summary. For legal advice, consult a licensed attorney.</div>
     <h1>Filing Packet Summary</h1>
     
@@ -34,6 +36,7 @@
       <button type="submit">Preview</button>
     </form>
     <script src="/static/js/help-panel.js"></script>
-  {% include '_footer.html' %}
+    {% include '_footer.html' %}
+    {% endblock %}
   </body>
 </html>

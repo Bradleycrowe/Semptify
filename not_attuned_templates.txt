@@ -1,0 +1,48 @@
+# Templates NOT attuned to base.html (do not extend base.html)
+
+## Evidence & Filing Workflow
+move_checklist_form.html
+move_checklist_preview.html
+packet_form.html
+packet_preview.html
+service_animal_form.html
+service_animal_preview.html
+witness_form.html
+witness_preview.html
+notary.html
+legal_notary.html
+certified_post.html
+court_clerk.html
+logbook.html
+ledger.html
+certificates.html
+certificate_view.html
+
+## User & Vault
+register_success.html
+vault.html
+vault_share.html
+share_success.html
+
+## Search & Resources
+home_search_form.html
+home_search_results.html
+contacts.html
+resources.html
+roadmap.html
+
+## Admin & System
+admin.html
+copilot.html
+sbom_list.html
+release_history.html
+setup_page.html
+site_map.html
+terms.html
+privacy.html
+dmca.html
+placeholder.html
+_footer.html
+
+# Note:
+This list is based on the absence of `{% extends "base.html" %}` in the template file. Some may be partials, popups, or utility pages. For full integration, consider updating these to extend base.html if they are meant to be full pages.

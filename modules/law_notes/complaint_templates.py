@@ -6,6 +6,8 @@ complaint_templates = Blueprint('complaint_templates', __name__)
 def complaint_template():
     lang = request.args.get('lang', 'en')
     jurisdiction = request.args.get('jur', 'mn')
+    # Minnesota courts housing/landlord-tenant forms link
+    mn_courts_forms_url = "https://mncourts.gov/getforms/housing-landlord-tenant"
     templates = {
         'mn': {
             'late_fee': {
@@ -22,4 +24,4 @@ def complaint_template():
     }
     ttype = request.args.get('type','late_fee')
     tmpl = templates.get(jurisdiction, templates['mn']).get(ttype, templates['mn']['late_fee'])
-    return render_template('law_notes/complaint_template.html', template=tmpl, lang=lang)
+    return render_template('law_notes/complaint_template.html', template=tmpl, lang=lang, mn_courts_forms_url=mn_courts_forms_url)

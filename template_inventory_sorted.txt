@@ -1,0 +1,57 @@
+# Template Inventory: Categorized and Sorted
+
+## Law Notes Module Templates (wired to Blueprints)
+- law_notes/jurisdiction_checklist.html   (mn_jurisdiction_checklist)
+- law_notes/law_notes_module.html         (evidence_packet_builder)
+- law_notes/complaint_template.html       (complaint_templates)
+- law_notes/evidence_metadata_cover.html  (evidence_metadata)
+- law_notes/semptify_all_modules.html     (combined overview)
+
+## Other Main App Templates (wired to routes)
+- index.html
+- admin.html
+- copilot.html
+- evidence_panel.html
+- move_checklist_form.html
+- move_checklist_preview.html
+- packet_form.html
+- packet_preview.html
+- register_success.html
+- register.html
+- release_history.html
+- resources.html
+- sbom_list.html
+- service_animal_form.html
+- service_animal_preview.html
+- vault.html
+- witness_form.html
+- witness_preview.html
+
+## Standalone/Utility Templates (may not be wired)
+- roadmap.html
+- privacy.html
+- placeholder.html
+- notary.html
+- logbook.html
+- legal_notary.html
+- ledger.html
+- home_search_results.html
+- home_search_form.html
+- electronic_service.html
+- dmca.html
+- contacts.html
+- certified_post.html
+- certificates.html
+- certificate_view.html
+- _footer.html
+- court_clerk.html
+- vault_share.html
+- terms.html
+- share_success.html
+- setup_page.html
+
+# Notes:
+- Law Notes templates are directly wired to their respective Blueprints and routes.
+- Main app templates are used for core features and are wired to Flask routes.
+- Standalone/utility templates may be used for specific features, popups, or admin tools, and may not be directly wired.
+- For a full wiring map, cross-reference with Blueprint registrations and route definitions in SemptifyGUI.py and modules/law_notes/.
