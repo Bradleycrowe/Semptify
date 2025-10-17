@@ -1,43 +1,34 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Filing Packet Preview</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
-    <h1>Filing Packet Preview</h1>
-    <pre>{{ (
-      'Filing Packet Summary\n' ~
-      '=====================\n\n' ~
-      'Title: ' ~ data.title ~ '\n' ~
-      'Date: ' ~ data.date ~ '\n' ~
-      'Parties: ' ~ data.parties ~ '\n\n' ~
-      'Summary:\n' ~ data.summary ~ '\n\n' ~
-      'Key Issues:\n' ~ data.issues ~ '\n\n' ~
-      'Checklist:\n- Cover Page\n- Summary Sheet\n- Evidence Index\n- Exhibits\n- Timeline\n- Witness Statements\n- Final Page (signature/date)\n\n' ~
-      'Attestation:\n' ~
-      'I declare under penalty of perjury that this summary accurately reflects the attached materials to the best of my knowledge.\n\n' ~
-      'Signature (typed): ' ~ data.sig_name ~ '\n'
-    ) }}</pre>
+{% extends "base.html" %}
+{% block content %}
+<h1>Filing Packet Preview</h1>
+<pre>{{ (
+  'Filing Packet Summary\n' ~
+  '=====================\n\n' ~
+  'Title: ' ~ data.title ~ '\n' ~
+  'Date: ' ~ data.date ~ '\n' ~
+  'Parties: ' ~ data.parties ~ '\n\n' ~
+  'Summary:\n' ~ data.summary ~ '\n\n' ~
+  'Key Issues:\n' ~ data.issues ~ '\n\n' ~
+  'Checklist:\n- Cover Page\n- Summary Sheet\n- Evidence Index\n- Exhibits\n- Timeline\n- Witness Statements\n- Final Page (signature/date)\n\n' ~
+  'Attestation:\n' ~
+  'I declare under penalty of perjury that this summary accurately reflects the attached materials to the best of my knowledge.\n\n' ~
+  'Signature (typed): ' ~ data.sig_name ~ '\n'
+) }}</pre>
 
-    {% if user_token %}
-      <form action="/resources/filing_packet_save" method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <input type="hidden" name="user_token" value="{{ user_token }}">
-        <input type="hidden" name="title" value="{{ data.title }}">
-        <input type="hidden" name="summary" value="{{ data.summary }}">
-        <input type="hidden" name="issues" value="{{ data.issues }}">
-        <input type="hidden" name="parties" value="{{ data.parties }}">
-        <input type="hidden" name="date" value="{{ data.date }}">
-  <input type="hidden" name="sig_name" value="{{ data.sig_name }}">
-  <input type="hidden" name="sig_consented" value="{{ data.sig_consented }}">
-  <button type="submit">Save to My Vault</button>
-      </form>
-    {% else %}
-      <p><em>Add your user_token on the previous page to save this to your Document Vault.</em></p>
-    {% endif %}
-    {% include '_footer.html' %}
-  </body>
-</html>
+{% if user_token %}
+  <form action="/resources/filing_packet_save" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="user_token" value="{{ user_token }}">
+    <input type="hidden" name="title" value="{{ data.title }}">
+    <input type="hidden" name="summary" value="{{ data.summary }}">
+    <input type="hidden" name="issues" value="{{ data.issues }}">
+    <input type="hidden" name="parties" value="{{ data.parties }}">
+    <input type="hidden" name="date" value="{{ data.date }}">
+    <input type="hidden" name="sig_name" value="{{ data.sig_name }}">
+    <input type="hidden" name="sig_consented" value="{{ data.sig_consented }}">
+    <button type="submit">Save to My Vault</button>
+  </form>
+{% else %}
+  <p><em>Add your user_token on the previous page to save this to your Document Vault.</em></p>
+{% endif %}
+{% endblock %}

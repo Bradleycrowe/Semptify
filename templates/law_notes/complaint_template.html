@@ -1,14 +1,11 @@
-<!doctype html>
-<html>
-<head><meta charset=""utf-8""><title>{{ template.title }}</title></head>
-<body>
-  <h1>{{ template.title }}</h1>
-  <p><strong>Statutory citations:</strong> {{ template.citation }}</p>
-  <h2>Facts</h2>
-  <p>[Insert facts and timeline]</p>
-  <h2>Law</h2>
-  <p>{{ template.body }}</p>
-  <h2>Relief Requested</h2>
-  <p>[Insert relief]</p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ template.title }}</h1>
+<p><strong>Statutory citations:</strong> {{ template.citation }}</p>
+<h2>Facts</h2>
+<p>[Insert facts and timeline]</p>
+<h2>Law</h2>
+<p>{{ template.body }}</p>
+<h2>Relief Requested</h2>
+<p>[Insert relief]</p>
+{% endblock %}

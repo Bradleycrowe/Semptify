@@ -9,6 +9,7 @@
       <meta name="help:instructions" content="Fill in recipient details and your need summary, then preview and save.">
   </head>
   <body>
+    {% block content %}
     <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you prepare a reasonable accommodation request. For legal advice, consult a licensed attorney.</div>
     <h1>Service/Support Animal Accommodation Request</h1>
     
@@ -33,6 +34,7 @@
       <button type="submit">Preview</button>
     </form>
     <script src="/static/js/help-panel.js"></script>
-  {% include '_footer.html' %}
+    {% include '_footer.html' %}
+    {% endblock %}
   </body>
 </html>

@@ -135,3 +135,18 @@ button:hover:not(:disabled) { filter:brightness(1.05); }
 .list { list-style: none; padding-left: 0; }
 .list li { padding: .35rem 0; border-bottom: 1px solid var(--border); }
 .list li:last-child { border-bottom: none; }
+
+.logo-container {
+  flex-shrink: 0;
+}
+.logo-img {
+  height: 40px;
+}
+.nav-container {
+  flex-grow: 1;
+}
+.signin-container {
+  min-width: 120px;
+}
+
+/* Remove inline styles from base.html and use these classes instead */

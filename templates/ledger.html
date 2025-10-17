@@ -9,6 +9,8 @@
     <meta name="help:instructions" content="Use the form below to add entries. Totals update automatically. Save your user token to persist.">
   </head>
   <body>
+    {% extends "base.html" %}
+    {% block content %}
     <h1>Rent Ledger</h1>
     <div class="ledger-summary">
       <div>Total Rent: ${{ '%.2f' % total_rent }}</div>
@@ -49,5 +51,6 @@
 
     <script src="/static/js/help-panel.js"></script>
     {% include '_footer.html' %}
+    {% endblock %}
   </body>
 </html>

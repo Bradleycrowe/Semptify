@@ -1,0 +1,67 @@
+# Template Link Status Summary
+
+## Linked & Working
+- index.html
+- logbook.html
+- witness_form.html
+- witness_preview.html
+- packet_form.html
+- packet_preview.html
+- service_animal_form.html
+- service_animal_preview.html
+- move_checklist_form.html
+- move_checklist_preview.html
+- legal_notary.html
+- notary.html
+- certified_post.html
+- court_clerk.html
+- ledger.html
+- contacts.html
+- resources.html
+- roadmap.html
+- register.html
+- register_success.html
+- vault.html
+- home_search_form.html
+- home_search_results.html
+- service_animal_form.html
+- service_animal_preview.html
+- witness_form.html
+- witness_preview.html
+- packet_form.html
+- packet_preview.html
+- certificates.html (admin)
+- certificate_view.html
+
+
+## Linked but Broken/Bad (Review Needed)
+- 
+
+
+## Not Linked/Unconnected
+- placeholder.html
+- _footer.html
+- tools.html
+- library.html
+- know_your_rights.html
+- advocacy.html
+- owner_trail.html
+- broker_trail.html
+- complaint_generator.html
+
+
+## Admin-only
+- admin.html
+- setup_page.html
+- sbom_list.html
+- release_history.html
+- certificates.html
+
+
+## Notes
+- Most templates have info/instructions via floating text boxes or banners.
+- Admin templates may have special instructions or actions.
+- Update this file as you connect, fix, or refactor templates.
+
+
+# Add notes below as needed:

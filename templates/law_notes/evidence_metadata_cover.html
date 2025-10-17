@@ -1,17 +1,14 @@
-<!doctype html>
-<html>
-<head><meta charset=""utf-8""><title>Evidence Packet Cover</title></head>
-<body>
-  <h1>{{ title }}</h1>
-  <p><strong>Generated:</strong> {{ generated_at }}</p>
-  <p><strong>Language:</strong> {{ lang }}</p>
-  <h2>Translation disclosure</h2>
-  <p>This document was translated using: {{ translation_method }}; reviewer: {{ reviewer or 'none' }}</p>
-  <h2>Metadata Summary</h2>
-  <ul>
-    {% for f in metadata %}
-      <li>{{ f.filename }} — {{ f.violation_tag }} — uploaded {{ f.timestamp_utc }}</li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p><strong>Generated:</strong> {{ generated_at }}</p>
+<p><strong>Language:</strong> {{ lang }}</p>
+<h2>Translation disclosure</h2>
+<p>This document was translated using: {{ translation_method }}; reviewer: {{ reviewer or 'none' }}</p>
+<h2>Metadata Summary</h2>
+<ul>
+  {% for f in metadata %}
+    <li>{{ f.filename }} — {{ f.violation_tag }} — uploaded {{ f.timestamp_utc }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}
