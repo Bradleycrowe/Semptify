@@ -1,3 +1,4 @@
+follow up nd through with filling in court and th ost effective way to get heard and some change i
 # Copilot Instructions for SemptifyGUI
 
 Concise, actionable guide for AI coding agents on this Flask app. Focus only on patterns discoverable from this repo.

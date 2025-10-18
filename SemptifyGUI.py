@@ -102,6 +102,13 @@ app = Flask(
 # Secret key for session/CSRF (set FLASK_SECRET in production)
 app.secret_key = os.environ.get('FLASK_SECRET', os.urandom(32))
 
+# Diagnostic startup marker
+try:
+    _append_log('startup: app created')
+except Exception:
+    # best effort; don't fail startup if logging isn't available
+    pass
+
 # Register law_notes Blueprints
 try:
     from modules.law_notes.mn_jurisdiction_checklist import mn_jurisdiction_checklist_bp
@@ -1173,6 +1180,17 @@ def inject_now():  # pragma: no cover (simple template helper)
         return {'now': str(_utc_now().year)}
     except Exception:
         return {'now': ''}
+
+
+@app.context_processor
+def inject_user():
+    """Expose current_user and user_token to templates derived from query/header/cookie."""
+    try:
+        supplied = request.args.get('user_token') or request.headers.get('X-User-Token') or request.cookies.get('user_token') or ''
+        user = _match_user_token(supplied)
+        return {'current_user': user, 'user_token': supplied}
+    except Exception:
+        return {'current_user': None, 'user_token': ''}
 
 @app.route('/legal/terms')
 def legal_terms():
@@ -3318,4 +3336,9 @@ def rotate_token():
     return redirect('/admin')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Some environments (Windows services, IDE runners) have trouble with
+    # Flask's automatic reloader which spawns a child process. Disable the
+    # reloader by default to avoid the process appearing to 'hang' during
+    # startup. Set SEMPTIFY_USE_RELOADER=1 in the environment to re-enable.
+    use_reloader = os.environ.get('SEMPTIFY_USE_RELOADER', '0') == '1'
+    app.run(debug=True, use_reloader=use_reloader)

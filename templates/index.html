@@ -10,7 +10,7 @@
       <p class="tagline">Semptify is a tenants’ advocate: practical tools for renters to understand rights, organize documents, and act confidently.</p>
     </header>
     <main>
-      <section class="card narrow" style="background:#eaf6ff;margin-bottom:1.5rem;">
+  <section class="card narrow card-narrow card-narrow-accent">
         <h2>Welcome, New User!</h2>
         <p>If you’re new to Semptify, start here:</p>
         <a class="btn" href="/get_started">I am a brand new user</a>
@@ -60,6 +60,31 @@
     </main>
   </section>
 </div>
+{% endblock %}
+
+{% block left_sidebar %}
+  <div class="left-sidebar">
+    <h5>Control Panel</h5>
+    <ul class="list-unstyled list">
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="/vault">Vault</a></li>
+      <li><a href="/move_checklist_form">Move Checklist</a></li>
+      <li><a href="/copilot">Copilot</a></li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block page_title %}
+  <h1>Home</h1>
+{% endblock %}
+
+{% block page_footer %}
+  <div class="page-footer sticky">
+    <div class="container">
+      <small class="muted">Disclaimer: This site provides informational resources and is not legal advice.</small>
+  <nav class="ml-8 footer-nav"><a href="/dmca">DMCA</a> · <a href="/contacts">Contact</a> · <a href="/about">About</a></nav>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
