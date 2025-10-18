@@ -1,0 +1,33 @@
+{% extends "shell.html" %}
+
+{% import '_macros.html' as macros %}
+
+{% block page_title %}
+  <div class="page-title"><h1>Example Module</h1></div>
+{% endblock %}
+
+{% block left_sidebar %}
+  {{ macros.left_sidebar_from_list([('intro','Intro'),('steps','Steps'),('export','Export')]) }}
+{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div id="intro">
+      <h3>Introduction</h3>
+      <p>This is an example module showing how Part 2 pages can be authored with a controlling left sidebar.</p>
+    </div>
+    <div id="steps">
+      <h3>Steps</h3>
+      <ol>
+        <li>Collect evidence</li>
+        <li>Organize by violation</li>
+        <li>Export packet</li>
+      </ol>
+    </div>
+    <div id="export">
+      <h3>Export</h3>
+      <p>Use the Export button to generate a PDF packet.</p>
+      <a class="btn btn-outline-primary" href="#">Export Packet</a>
+    </div>
+  </div>
+{% endblock %}

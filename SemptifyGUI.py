@@ -226,6 +226,22 @@ def law_notes_all_modules():
         metadata=metadata,
         attorney_content=attorney_content
     )
+
+
+# Generic module renderer: try 'law_notes/<name>.html' then 'modules/<name>.html'
+@app.route('/module/<module_name>')
+def render_module(module_name: str):
+    _inc('requests_total')
+    # sanitize simple path segments
+    safe_name = secure_filename(module_name)
+    candidates = [f'law_notes/{safe_name}.html', f'modules/{safe_name}.html']
+    for tpl in candidates:
+        try:
+            # render_template will raise if template not found
+            return render_template(tpl)
+        except Exception:
+            continue
+    abort(404)
 # Required folders
 folders = ["uploads", "logs", "copilot_sync", "final_notices", "security"]
 
