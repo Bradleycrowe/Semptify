@@ -10,49 +10,32 @@
 
     <title>{% block title %}Semptify{% endblock %}</title>
 
-    <link rel="stylesheet" href="/static/css/app.css" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <link rel="icon" type="image/x-icon" href="/static/icons/favicon.ico" />
     <style>
-      .top-nav-custom {
-        justify-content: flex-end;
-      }
-      .top-nav-link {
-        font-size: 0.93rem;
-        letter-spacing: 0.08em;
-        font-weight: normal;
-        text-transform: none;
-        padding-left: 0.7rem;
-        padding-right: 0.7rem;
-      }
-      @media (max-width: 768px) {
-        .top-nav-link {
-          font-size: 0.89rem;
-          padding-left: 0.4rem;
-          padding-right: 0.4rem;
-        }
-      }
+      /* Simplified header and sidebar styling */
+      .top-bar { display:flex; align-items:center; gap:1rem; }
+      .nav-container { display:flex; gap:1.25rem; align-items:flex-end; }
+      .nav-container a { color:#333; text-decoration:none; }
+      .signin-container { display:flex; flex-direction:column; gap:1rem; align-items:center; }
       .right-sidebar {
-        position: absolute;
-        top: 80px;
-        right: 0;
-        width: 260px;
-        text-align: right;
-        background: #f8f9fa;
-        border-left: 1px solid #dee2e6;
-        min-height: 300px;
-        padding: 1.5rem 1rem 1rem 1rem;
-        z-index: 10;
+        background:#f8f9fa;
+        border-left:1px solid #dee2e6;
+        padding:1.25rem;
+        /* anchor to the right and allow scrolling when tall */
+        position:sticky;
+        top:calc(var(--header-height) + 8px);
+        max-height:calc(100vh - (var(--header-height) + 40px));
+        overflow-y:auto;
+        text-align:center;
       }
+      .right-sidebar h5 { text-align:center; margin-bottom:1rem; }
+      .right-sidebar ul { margin:0 auto; display:block; text-align:center; padding-left:0; }
+      .right-sidebar ul li { list-style:none; }
+      .right-sidebar ul li a { display:inline-block; text-align:center; padding:0.25rem 0; }
+
       @media (max-width: 991px) {
-        .right-sidebar {
-          position: static;
-          width: 100%;
-          border-left: none;
-          min-height: unset;
-          text-align: right;
-        }
-      }
-      .right-sidebar h5, .right-sidebar ul, .right-sidebar li {
-        text-align: right;
+        .right-sidebar { position:static; max-height:none; overflow:visible; border-left:none; }
       }
     </style>
 
@@ -64,74 +47,75 @@
 
     <!-- Header -->
 
-    <header class="bg-light py-3 mb-4 border-bottom">
+  <header class="bg-light mb-4">
+      <div class="container-fluid">
+  <div class="top-bar d-flex align-items-start">
+          <div class="logo-container">
+            <a href="/" class="d-flex align-items-center text-decoration-none">
+              <img src="/static/icons/Semptfylogo.svg" alt="Semptify Logo" class="logo-img-large">
+            </a>
+          </div>
 
-      <div class="container-fluid d-flex align-items-center justify-content-between">
+          <div class="nav-container nav-column">
+            <nav class="d-flex site-nav">
+              <a href="/" class="site-nav-link">Home</a>
+              <a href="/rights" class="site-nav-link">Know Your Rights</a>
+              <a href="/library" class="site-nav-link">Library</a>
+              <a href="/tools" class="site-nav-link">Tools</a>
+              <a href="/vault" class="site-nav-link">Vault</a>
+              <a href="/help" class="site-nav-link">Help</a>
+            </nav>
+          </div>
 
-        <div class="d-flex align-items-center logo-container">
-
-          <a href="/" class="d-flex align-items-center text-decoration-none">
-
-            <img src="/static/icons/Semptfylogo.svg" alt="Semptify Logo" style="height:40px;width:auto;max-width:120px;object-fit:contain;" class="logo-img me-2">
-
-            <span class="h4 mb-0 text-dark">Semptify</span>
-
-          </a>
-
+          {% if not current_user %}
+          <div class="signin-box signin-container d-flex flex-column flex-md-row align-items-center gap-2 ms-auto">
+            <a href="/register" class="btn btn-outline-primary btn-sm btn-signup order-1 order-md-0">Sign Up</a>
+            <a href="/login" class="btn btn-outline-secondary btn-sm btn-signin order-0 order-md-1">Sign In</a>
+          </div>
+          {% else %}
+          <div class="signin-box">
+            <div>Signed in</div>
+            <a href="/vault?user_token={{ user_token }}" class="btn btn-sm btn-outline-primary mt-2">My Vault</a>
+            <a href="#" onclick="document.cookie='user_token=; Max-Age=0; path=/'; location.href='/'" class="btn btn-link btn-sm mt-2">Sign out</a>
+          </div>
+          {% endif %}
         </div>
-
-        <nav class="d-flex align-items-center ms-4 nav-container top-nav-custom" style="margin-left:auto;">
-          <a href="/" class="mx-3 top-nav-link">Home</a>
-          <a href="/rights" class="mx-3 top-nav-link">Know Your Rights</a>
-          <a href="/library" class="mx-3 top-nav-link">Library</a>
-          <a href="/tools" class="mx-3 top-nav-link">Tools</a>
-          <a href="/vault" class="mx-3 top-nav-link">Vault</a>
-          <a href="/help" class="mx-3 top-nav-link">Help</a>
-          <a href="/contacts" class="mx-3 top-nav-link">Contact</a>
-        </nav>
-
-        <div class="d-flex flex-column align-items-end signin-container">
-
-          <a href="/register" class="btn btn-outline-primary btn-sm mb-1">Sign Up</a>
-
-          <a href="/login" class="btn btn-outline-secondary btn-sm">Sign In</a>
-
-        </div>
-
       </div>
-
     </header>
 
     <div class="container-fluid flex-grow-1 main-content">
-
       <div class="row">
-
-        <main class="col-12 col-md-9 py-4">
-
-          {% block content %}{% endblock %}
-
-        </main>
-
-        <!-- Right Sidebar: Helpful Links -->
-
-        <aside class="right-sidebar py-4">
-
-          <h5>Helpful Links</h5>
-
-          <ul class="list-unstyled">
-
-            <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
-
-            <li><a href="https://www.justice.gov/crt/fair-housing" target="_blank" rel="noopener">DOJ Fair Housing</a></li>
-
-            <li><a href="https://mncourts.gov/getforms/housing-landlord-tenant" target="_blank" rel="noopener">MN Court Help (Landlord-Tenant Forms)</a></li>
-
-          </ul>
-
+        <!-- Left Sidebar: provided by page (Part 2) -->
+        <aside class="col-12 col-md-3 py-4">
+          {% block left_sidebar %}{% endblock %}
         </aside>
 
+        <!-- Main Content -->
+        <main class="col-12 col-md-6 py-4">
+          <div class="page-container">
+            <header class="page-title">
+              {% block page_title %}{% endblock %}
+            </header>
+            <div class="page-body">
+              {% block content %}{% endblock %}
+            </div>
+          </div>
+        </main>
+
+        <!-- Right Sidebar: Helpful Links (Part 1) -->
+        <aside class="col-12 col-md-3 py-4">
+          <div class="right-sidebar">
+            <h5>Helpful Links</h5>
+            <ul class="list-unstyled">
+              <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
+              <li><a href="https://www.justice.gov/crt/fair-housing" target="_blank" rel="noopener">DOJ Fair Housing</a></li>
+              <li><a href="https://mncourts.gov/getforms/housing-landlord-tenant" target="_blank" rel="noopener">MN Court Help (Landlord-Tenant Forms)</a></li>
+            </ul>
+          </div>
+        </aside>
       </div>
 
+      {% block page_footer %}{% endblock %}
     </div>
 
     <!-- Footer -->

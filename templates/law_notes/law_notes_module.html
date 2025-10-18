@@ -1,17 +1,64 @@
 {% extends "base.html" %}
+
+{# Left control panel for the law notes module (Part 2) #}
+{% block left_sidebar %}
+<div class="left-sidebar">
+    <h5>Contents</h5>
+    {% if module.sections %}
+    <ul class="list-unstyled">
+        {% for section in module.sections %}
+            <li><a href="#section-{{ loop.index }}">{{ section.heading }}</a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p class="muted">No sections available</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{# Page title slot (Part 2) #}
+{% block page_title %}
+    <h1>{{ module.title }}</h1>
+{% endblock %}
+
+{# Main content (scrollable body) #}
 {% block content %}
-<h1>{{ module.title }}</h1>
-{% if module.sections %}
-  {% for section in module.sections %}
-    <h2>{{ section.heading }}</h2>
-    <p>{{ section.text }}</p>
-  {% endfor %}
-{% endif %}
-{% if module.buttons %}
-  {% for button in module.buttons %}
-    <form action="{{ button.action }}" method="get" style="display:inline-block;margin:6px;">
-      <button type="submit">{{ button.label }}</button>
-    </form>
-  {% endfor %}
-{% endif %}
+    {% if module.sections %}
+        {% for section in module.sections %}
+            <section id="section-{{ loop.index }}" class="card mb-3">
+                <div class="card-body">
+                    <h2 class="h5">{{ section.heading }}</h2>
+                    <p>{{ section.text }}</p>
+                </div>
+            </section>
+        {% endfor %}
+    {% else %}
+        <div class="card card-narrow">
+            <div class="card-body">
+                <p class="muted">No content available for this module.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if module.buttons %}
+        <div class="mt-3">
+            {% for button in module.buttons %}
+                <form action="{{ button.action }}" method="get" class="btn-inline-form d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">{{ button.label }}</button>
+                </form>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{# Optional page footer for module pages (sticky to bottom of the page body) #}
+{% block page_footer %}
+    <div class="page-footer sticky">
+        <div class="container d-flex justify-content-between">
+            <div class="muted">Module: {{ module.title }}</div>
+            <nav class="footer-nav">
+                <a href="#top">Back to top</a>
+            </nav>
+        </div>
+    </div>
 {% endblock %}
