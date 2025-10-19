@@ -1,56 +1,49 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rent Ledger</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-    <meta name="help:read" content="Track rent, fees, and payments over time.">
-    <meta name="help:instructions" content="Use the form below to add entries. Totals update automatically. Save your user token to persist.">
-  </head>
-  <body>
-    {% extends "base.html" %}
-    {% block content %}
-    <h1>Rent Ledger</h1>
-    <div class="ledger-summary">
-      <div>Total Rent: ${{ '%.2f' % total_rent }}</div>
-      <div>Total Fees: ${{ '%.2f' % total_fees }}</div>
-      <div>Total Payments: ${{ '%.2f' % total_payments }}</div>
-      <div><strong>Balance: ${{ '%.2f' % balance }}</strong></div>
-    </div>
+{% extends "shell.html" %}
 
-    <form action="/resources/rent_ledger_add" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <label>Date <input name="date" placeholder="YYYY-MM-DD" /></label>
-      <label>Type
-        <select name="type">
-          <option value="rent">Rent</option>
-          <option value="fee">Fee</option>
-          <option value="payment">Payment</option>
-        </select>
-      </label>
-      <label>Amount <input name="amount" type="number" step="0.01" required /></label>
-      <label>Note <input name="note" placeholder="optional" /></label>
-      <label>Your user token <input name="user_token" placeholder="paste your user_token" /></label>
-      <button type="submit">Add</button>
-    </form>
+{% block title %}Rent Ledger{% endblock %}
 
-    <h2>Entries</h2>
-    <div class="list">
-      {% for e in entries %}
-      <div class="list-row">
-        <div>{{ e.date }}</div>
-        <div>{{ e.type }}</div>
-        <div>${{ '%.2f' % e.amount }}</div>
-        <div>{{ e.note }}</div>
-      </div>
-      {% else %}
-      <div class="muted">No entries yet.</div>
-      {% endfor %}
-    </div>
+{% block content %}
+<h1>Rent Ledger</h1>
+<div class="ledger-summary">
+  <div>Total Rent: ${{ '%.2f' % total_rent }}</div>
+  <div>Total Fees: ${{ '%.2f' % total_fees }}</div>
+  <div>Total Payments: ${{ '%.2f' % total_payments }}</div>
+  <div><strong>Balance: ${{ '%.2f' % balance }}</strong></div>
+</div>
 
-    <script src="/static/js/help-panel.js"></script>
-    {% include '_footer.html' %}
-    {% endblock %}
-  </body>
-</html>
+<form action="/resources/rent_ledger_add" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Date <input name="date" placeholder="YYYY-MM-DD" /></label>
+  <label>Type
+    <select name="type">
+      <option value="rent">Rent</option>
+      <option value="fee">Fee</option>
+      <option value="payment">Payment</option>
+    </select>
+  </label>
+  <label>Amount <input name="amount" type="number" step="0.01" required /></label>
+  <label>Note <input name="note" placeholder="optional" /></label>
+  <label>Your user token <input name="user_token" placeholder="paste your user_token" /></label>
+  <button type="submit">Add</button>
+</form>
+
+<h2>Entries</h2>
+<div class="list">
+  {% for e in entries %}
+  <div class="list-row">
+    <div>{{ e.date }}</div>
+    <div>{{ e.type }}</div>
+    <div>${{ '%.2f' % e.amount }}</div>
+    <div>{{ e.note }}</div>
+  </div>
+  {% else %}
+  <div class="muted">No entries yet.</div>
+  {% endfor %}
+</div>
+
+{% include '_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/help-panel.js"></script>
+{% endblock %}

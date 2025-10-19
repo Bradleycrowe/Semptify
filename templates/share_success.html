@@ -1,20 +1,15 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Share link created</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
-  <main class="card narrow">
-      <h1>Share link created</h1>
-      <p>Label: <strong>{{ label }}</strong></p>
-      <p>Expires in: <strong>{{ expires_days }}</strong> days</p>
-      <p>Copy this private link and send it to your trusted person:</p>
+{% extends "shell.html" %}
+
+{% block title %}Share link created{% endblock %}
+
+{% block content %}
+<main class="card narrow">
+  <h1>Share link created</h1>
+  <p>Label: <strong>{{ label }}</strong></p>
+  <p>Expires in: <strong>{{ expires_days }}</strong> days</p>
+  <p>Copy this private link and send it to your trusted person:</p>
   <pre class="code-block">{{ share_path }}</pre>
-      <p><em>Anyone with this link can view your vault read-only until it expires.</em></p>
-      <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to my vault</a></p>
-    </main>
-  </body>
-</html>
+  <p><em>Anyone with this link can view your vault read-only until it expires.</em></p>
+  <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to my vault</a></p>
+</main>
+{% endblock %}

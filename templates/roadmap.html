@@ -1,31 +1,30 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Roadmap & Future Services</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
-    <div class="card narrow">
-      <h1>Roadmap & Future Services</h1>
-      <p class="muted">What’s coming next and how to work today.</p>
-      <div class="list-block">
-        {% for i in items %}
-        <div class="list-item">
-          <strong>{{ i.title }}</strong>
-          <div class="muted">{{ i.desc }}</div>
-        </div>
-        {% endfor %}
-      </div>
-      <h2>How to get value now</h2>
-      <div class="list-block">
-        {% for g in guidance %}
-        <div class="list-item">{{ g }}</div>
-        {% endfor %}
-      </div>
-      <p><a href="/resources">Back to Resources</a></p>
+{% extends "shell.html" %}
+
+{% block title %}Roadmap{% endblock %}
+
+{% block content %}
+<div class="card narrow">
+  <h1>Roadmap & Future Services</h1>
+  <p class="muted">What’s coming next and how to work today.</p>
+  <div class="list-block">
+    {% for i in items %}
+    <div class="list-item">
+      <strong>{{ i.title }}</strong>
+      <div class="muted">{{ i.desc }}</div>
     </div>
-    <script src="/static/js/help-panel.js"></script>
-  </body>
-</html>
+    {% endfor %}
+  </div>
+  <h2>How to get value now</h2>
+  <div class="list-block">
+    {% for g in guidance %}
+    <div class="list-item">{{ g }}</div>
+    {% endfor %}
+  </div>
+  <p><a href="/resources">Back to Resources</a></p>
+</div>
+{% include '_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/help-panel.js"></script>
+{% endblock %}

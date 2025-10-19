@@ -5,37 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Semptify Copilot</title>
     <link rel="stylesheet" href="/static/css/app.css" />
-    <style>
-      .copilot { max-width: 780px; margin: 2rem auto; padding: 1rem; background: #fff; border-radius: 8px; }
-      textarea { width: 100%; min-height: 140px; }
-      pre { white-space: pre-wrap; background: #f6f8fa; padding: 12px; border-radius: 6px; }
-      .muted { color: #666; font-size: 0.9em; }
-    </style>
-  </head>
-  <body>
-    <div class="copilot">
-      <h1>Semptify Copilot</h1>
-      {% if provider in ['none',''] %}
-        <p class="muted">AI provider is not configured. Set AI_PROVIDER and related environment variables on the server to enable responses.</p>
-      {% else %}
-        <p class="muted">Provider: {{ provider }}</p>
-      {% endif %}
+    {% extends "shell.html" %}
 
-      <form id="copilot-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-        <label for="prompt">Ask anything related to tenant-justice automation:</label>
-        <textarea id="prompt" name="prompt" placeholder="e.g. Help me draft a service animal request letter..."></textarea>
-        <label><input type="checkbox" id="citations" name="citations"> Request citations and links to sources</label>
-        <button type="submit">Ask Copilot</button>
+    {% block title %}Copilot{% endblock %}
+
+    {% block content %}
+    <div class="card narrow">
+      <h1>Copilot</h1>
+      <p class="muted">Ask Semptify AI for help with forms, letters, and next steps.</p>
+      <form id="copilot-form" action="/api/copilot" method="post">
+        <label for="prompt">Ask a question</label>
+        <textarea id="prompt" name="prompt" rows="4"></textarea>
+        <button type="submit">Ask</button>
       </form>
-
-      <h3>Answer</h3>
-      <pre id="answer" class="muted">No answer yet.</pre>
     </div>
+    {% include '_footer.html' %}
+    {% endblock %}
+
+    {% block scripts %}
     <script>
       const form = document.getElementById('copilot-form');
-      const answer = document.getElementById('answer');
       form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = { prompt: document.getElementById('prompt').value };
+        const r = await fetch('/api/copilot', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        const json = await r.json();
+        alert(json.result || 'No result');
+      });
+    </script>
+    {% endblock %}
         e.preventDefault();
         const prompt = document.getElementById('prompt').value.trim();
         const csrf = form.querySelector('input[name="csrf_token"]').value;

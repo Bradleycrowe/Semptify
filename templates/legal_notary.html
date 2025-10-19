@@ -9,7 +9,11 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
-    {% extends "base.html" %}
+  {% extends "shell.html" %}
+    {% extends "shell.html" %}
+
+    {% block title %}Legal Notary Record{% endblock %}
+
     {% block content %}
     <div class="card narrow">
       <div class="legal-disclaimer-banner">
@@ -63,8 +67,7 @@
           </label>
         </p>
         <p><label>Notes<br>
-          <textarea name="notes" rows="3" placeholder="additional context (optional)"></textarea>
-        </label></p>
+          <textarea name="notes" rows="3" placeholder="additional context (optional)"></textarea></label></p>
         <details>
           <summary>Optional: evidence context</summary>
           <p><label>Timestamp <input type="text" name="evidence_timestamp" placeholder="auto if blank"></label></p>
@@ -95,6 +98,7 @@
     </div>
     {% include '_footer.html' %}
     {% endblock %}
-  </body>
-  <script src="/static/js/help-panel.js"></script>
-</html>
+
+    {% block scripts %}
+    <script src="/static/js/help-panel.js"></script>
+    {% endblock %}

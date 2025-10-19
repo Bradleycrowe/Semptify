@@ -1,29 +1,25 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Shared Vault (read-only)</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
-    <main class="card narrow">
-      <h1>Shared Vault (read-only)</h1>
-      <p>Shared by user: <strong>{{ grant.user_id }}</strong> · Label: <strong>{{ grant.label }}</strong></p>
-      {% if grant.expires_ts %}<p class="muted">Expires: {{ grant.expires_ts }}</p>{% endif %}
-      <h2>Files</h2>
-      <ul>
-        {% if files %}
-          {% for f in files %}
-          <li>
-            <a href="/vault/share/{{ grant.id }}/download/{{ f.name }}?grant_token={{ request.args.get('grant_token','') }}">{{ f.name }}</a>
-            <small>({{ f.size }} bytes)</small>
-          </li>
-          {% endfor %}
-        {% else %}
-          <li><em>No files yet.</em></li>
-        {% endif %}
-      </ul>
-    </main>
-  </body>
-</html>
+{% extends "shell.html" %}
+
+{% block title %}Shared Vault (read-only){% endblock %}
+
+{% block content %}
+<main class="card narrow">
+  <h1>Shared Vault (read-only)</h1>
+  <p>Shared by user: <strong>{{ grant.user_id }}</strong> · Label: <strong>{{ grant.label }}</strong></p>
+  {% if grant.expires_ts %}<p class="muted">Expires: {{ grant.expires_ts }}</p>{% endif %}
+  <h2>Files</h2>
+  <ul>
+    {% if files %}
+      {% for f in files %}
+      <li>
+        <a href="/vault/share/{{ grant.id }}/download/{{ f.name }}?grant_token={{ request.args.get('grant_token','') }}">{{ f.name }}</a>
+        <small>({{ f.size }} bytes)</small>
+      </li>
+      {% endfor %}
+    {% else %}
+      <li><em>No files yet.</em></li>
+    {% endif %}
+  </ul>
+</main>
+{% endblock %}
+

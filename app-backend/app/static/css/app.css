@@ -1,0 +1,68 @@
+:root{
+	--content-width: 900px; /* main content column width */
+	--left-sidebar-width: 300px; /* left control panel width */
+	--grid-gap: 20px; /* gap between sidebar and content */
+	--content-margin: 20px; /* page side margin/padding */
+}
+
+body { font-family: system-ui, Arial, sans-serif; margin:0; padding:0; }
+
+/* Fixed header (overlay) */
+.top-bar {
+	position: fixed;
+	inset: 0 0 auto 0; /* top:0; left:0; right:0 */
+	display:flex;
+	justify-content:space-between;
+	align-items:flex-end;
+	padding:8px 20px;
+	height:72px;
+	background: rgba(255,255,255,0.98);
+	border-bottom:1px solid #eee;
+		-webkit-backdrop-filter: blur(4px);
+		backdrop-filter: blur(4px);
+	z-index: 1000;
+}
+
+/* Provide spacing so page content isn't hidden behind the fixed header */
+/* logo smaller to reduce visual weight */
+.logo-container { font-weight:700; font-size:1.25rem; letter-spacing:0.5px; }
+
+/* increase top padding to account for larger header */
+.site-nav { display:flex; gap:14px; align-items:flex-end; margin-left: auto; text-align:right; align-self:flex-end; }
+.site-nav a { margin-left:0; text-decoration:none; color: rgba(0,0,0,0.7); font-weight:600; font-size:0.7rem; padding:6px 6px; }
+
+.header-actions { display:flex; gap:14px; align-items:center; padding-right:8px; }
+.text-link { color: rgba(0,0,0,0.6); text-decoration:none; font-size:0.85rem; }
+.btn { display:inline-block; padding:2px 8px; border-radius:6px; text-decoration:none; font-size:0.82rem; border:1px solid rgba(0,0,0,0.03); background: linear-gradient(180deg, rgba(235,245,255,0.95), rgba(215,235,255,0.95)); color: rgba(0,0,0,0.85); box-shadow: 0 1px 0 rgba(0,0,0,0.01); text-align:center; }
+.btn-primary { background: linear-gradient(180deg, #eaf6ff, #d7ecff); color: rgba(1,33,71,0.95); font-weight:600; border:1px solid rgba(1,33,71,0.08); }
+.btn-primary:hover { background: linear-gradient(180deg, #f6fdff, #eaf6ff); box-shadow: 0 2px 6px rgba(3,45,90,0.06); }
+
+.skip-link { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.skip-link:focus { left: 12px; top: 12px; width: auto; height: auto; background: #fff; padding:6px 8px; border:1px solid #ccc; z-index:1100; }
+
+.container{ padding:var(--content-margin); max-width:var(--content-width); margin:0 auto; box-sizing:border-box; }
+
+/* Right sidebar sticky rules */
+.right-sidebar { position: sticky; top: calc(72px + 8px); align-self: flex-start; max-height: calc(100vh - (72px + 16px)); overflow: auto; text-align:center; }
+
+/* Page grid for Part 2 layout: left controls + main content */
+.page-grid {
+	display: grid;
+	grid-template-columns: var(--left-sidebar-width) 1fr;
+	gap: var(--grid-gap);
+	align-items: start;
+	padding-top: calc(72px + 12px);
+	/* overall max width = left sidebar + gap + content width + horizontal margins */
+	max-width: calc(var(--left-sidebar-width) + var(--grid-gap) + var(--content-width) + (var(--content-margin) * 2));
+	margin: 0 auto;
+	padding-left: var(--content-margin);
+	padding-right: var(--content-margin);
+	box-sizing: border-box;
+}
+.left-sidebar { background: rgba(250,250,250,0.95); border:1px solid #eee; padding:12px; border-radius:8px; height:fit-content; position:sticky; top: calc(72px + 12px); width:var(--left-sidebar-width); box-sizing:border-box; }
+.page-main { background: transparent; }
+
+@media (max-width: 900px) {
+		.page-grid { grid-template-columns: 1fr; padding-top: calc(72px + 8px); max-width: calc(100% - (var(--content-margin) * 2)); }
+		.left-sidebar { position:relative; top:auto; width:100%; }
+}

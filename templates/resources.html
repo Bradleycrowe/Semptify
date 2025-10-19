@@ -1,91 +1,89 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Resources</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
-    <section class="card narrow">
-      <h2>Requesting Maintenance</h2>
-      <p class="muted">Always request repairs in writing. Use our sample letter and form to document your request and keep a copy for your records.</p>
-      <ul>
-        <li><a href="/resources/download/maintenance_request.txt">Sample Maintenance Request Letter (.txt)</a></li>
-        <li><a href="/maintenance_form">Submit Maintenance Request (form)</a></li>
-      </ul>
-    </section>
-    <section class="card narrow">
-      <h2>Neighborhood Demographics</h2>
-      <p class="muted">Use our AI to explore neighborhood demographics, safety, and amenities before you move. Get info on schools, crime rates, and more.</p>
-      <ul>
-        <li><a href="/ai/demographics">AI Neighborhood Explorer</a></li>
-      </ul>
-    </section>
-    <section class="card narrow">
-      <h2>AI Property & Rights Help</h2>
-      <p class="muted">Use Semptify AI to answer questions like "Who owns my apartment building?" or "What are my rights if my landlord accuses me of something?" All legal info is available in our advocacy and legal help sections.</p>
-      <ul>
-        <li><a href="/copilot">Ask Semptify AI</a></li>
-        <li><a href="/resources/advocacy">Legal Help & Rights Info</a></li>
-      </ul>
-    </section>
-    <section class="card narrow">
-      <h2>Emotional Support Animals (ESA)</h2>
-      <p class="muted">Learn your rights regarding emotional support animals in housing. Find forms, sample letters, and legal help.</p>
-      <ul>
-        <li><a href="https://www.hud.gov/program_offices/fair_housing_equal_opp/assistance_animals" target="_blank" rel="noopener">HUD: Assistance Animals in Housing</a></li>
-        <li><a href="https://www.ada.gov/resources/service-animals-2010-requirements/" target="_blank" rel="noopener">ADA: Service Animal Requirements</a></li>
-        <li><a href="/resources/download/service_animal_letter.txt">Sample ESA Letter (.txt)</a></li>
-        <li><a href="/service_animal_form">Request ESA Accommodation (form)</a></li>
-  <li>Assistance Animals in Housing</li>
-      </ul>
-    </section>
-    <h1>Resources</h1>
-    <section class="card narrow">
-      <h2>Housing Programs</h2>
-      <ul>
-        <li><strong>Federal:</strong> <a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Section 8, Rental Assistance</a></li>
-        <li><strong>State:</strong> <a href="https://www.nlihc.org/rental-assistance" target="_blank" rel="noopener">State Rental Assistance Directory</a></li>
-        <li><strong>County:</strong> <a href="https://www.unitedway.org/local/united-states" target="_blank" rel="noopener">United Way Local Programs</a></li>
-        <li><strong>City:</strong> <a href="https://www.hud.gov/program_offices/public_indian_housing/pha/contacts" target="_blank" rel="noopener">Find City Housing Authorities</a></li>
-        <li><strong>Other:</strong> <a href="https://www.huduser.gov/portal/datasets.html" target="_blank" rel="noopener">Residential Development Grants & Loans</a></li>
-      </ul>
-    </section>
-    <section class="card narrow">
-      <h2>Legal Help & Tenant Resources</h2>
-      <ul>
-        <li><a href="https://www.lsc.gov/what-legal-aid/find-legal-aid" target="_blank" rel="noopener">Legal Aid Directory (LSC)</a></li>
-        <li><a href="https://www.justice.gov/elderjustice/tenant-rights" target="_blank" rel="noopener">Tenant Rights (DOJ)</a></li>
-  <li>State Landlord-Tenant Laws</li>
-        <li><a href="https://www.unitedway.org/local/united-states" target="_blank" rel="noopener">United Way Local Legal Help</a></li>
-        <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
-  <li>Renters’ Rights Book</li>
-      </ul>
-    </section>
-    <section class="card narrow">
-      <h2>Templates & Tools</h2>
-      <ul>
-        <li><a href="/resources/download/witness_statement.txt">Witness Statement Template (.txt)</a></li>
-        <li><a href="/resources/download/filing_packet_checklist.txt">Filing Packet Checklist (.txt)</a></li>
-        <li><a href="/resources/download/filing_packet_timeline.txt">Filing Packet Timeline (Calendar) (.txt)</a></li>
-        <li><a href="/resources/home_search">Home Search (beta)</a></li>
-        <li><a href="/notary">Virtual Notary (attestation)</a></li>
-        <li><a href="/certified_post">Certified Post / Electronic Service</a></li>
-        <li><a href="/court_clerk">Court Clerk Filing</a></li>
-        <li><a href="/resources/logbook">Events & Logbook</a></li>
-        <li><a href="/resources/contacts">Contacts</a></li>
-        <li><a href="/legal_notary">Legal Notary (record)</a></li>
-        <li><a href="/electronic_service">Electronic Service (Email)</a></li>
-        <li><a href="/vault/certificates">View Certificates</a></li>
-        <li><a href="/resources/roadmap">Roadmap & Future Services</a></li>
-        <li><a href="/resources/advocacy">Advocacy & Learning</a></li>
-        <li><a href="/setup/ron">RON Provider Setup</a></li>
-        <li><a href="/setup/certified_mail">Certified Mail Setup</a></li>
-        <li><a href="/setup/email">Email Provider Setup</a></li>
-      </ul>
-    </section>
-    {% include '_footer.html' %}
-  </body>
-  <script src="/static/js/help-panel.js"></script>
-</html>
+{% extends "shell.html" %}
+
+{% block title %}Resources{% endblock %}
+
+{% block content %}
+<section class="card narrow">
+  <h2>Requesting Maintenance</h2>
+  <p class="muted">Always request repairs in writing. Use our sample letter and form to document your request and keep a copy for your records.</p>
+  <ul>
+    <li><a href="/resources/download/maintenance_request.txt">Sample Maintenance Request Letter (.txt)</a></li>
+    <li><a href="/maintenance_form">Submit Maintenance Request (form)</a></li>
+  </ul>
+</section>
+<section class="card narrow">
+  <h2>Neighborhood Demographics</h2>
+  <p class="muted">Use our AI to explore neighborhood demographics, safety, and amenities before you move. Get info on schools, crime rates, and more.</p>
+  <ul>
+    <li><a href="/ai/demographics">AI Neighborhood Explorer</a></li>
+  </ul>
+</section>
+<section class="card narrow">
+  <h2>AI Property & Rights Help</h2>
+  <p class="muted">Use Semptify AI to answer questions like "Who owns my apartment building?" or "What are my rights if my landlord accuses me of something?" All legal info is available in our advocacy and legal help sections.</p>
+  <ul>
+    <li><a href="/copilot">Ask Semptify AI</a></li>
+    <li><a href="/resources/advocacy">Legal Help & Rights Info</a></li>
+  </ul>
+</section>
+<section class="card narrow">
+  <h2>Emotional Support Animals (ESA)</h2>
+  <p class="muted">Learn your rights regarding emotional support animals in housing. Find forms, sample letters, and legal help.</p>
+  <ul>
+    <li><a href="https://www.hud.gov/program_offices/fair_housing_equal_opp/assistance_animals" target="_blank" rel="noopener">HUD: Assistance Animals in Housing</a></li>
+    <li><a href="https://www.ada.gov/resources/service-animals-2010-requirements/" target="_blank" rel="noopener">ADA: Service Animal Requirements</a></li>
+    <li><a href="/resources/download/service_animal_letter.txt">Sample ESA Letter (.txt)</a></li>
+    <li><a href="/service_animal_form">Request ESA Accommodation (form)</a></li>
+  </ul>
+</section>
+<h1>Resources</h1>
+<section class="card narrow">
+  <h2>Housing Programs</h2>
+  <ul>
+    <li><strong>Federal:</strong> <a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Section 8, Rental Assistance</a></li>
+    <li><strong>State:</strong> <a href="https://www.nlihc.org/rental-assistance" target="_blank" rel="noopener">State Rental Assistance Directory</a></li>
+    <li><strong>County:</strong> <a href="https://www.unitedway.org/local-united-states" target="_blank" rel="noopener">United Way Local Programs</a></li>
+    <li><strong>City:</strong> <a href="https://www.hud.gov/program_offices/public_indian_housing/pha/contacts" target="_blank" rel="noopener">Find City Housing Authorities</a></li>
+    <li><strong>Other:</strong> <a href="https://www.huduser.gov/portal/datasets.html" target="_blank" rel="noopener">Residential Development Grants & Loans</a></li>
+  </ul>
+</section>
+<section class="card narrow">
+  <h2>Legal Help & Tenant Resources</h2>
+  <ul>
+    <li><a href="https://www.lsc.gov/what-legal-aid/find-legal-aid" target="_blank" rel="noopener">Legal Aid Directory (LSC)</a></li>
+    <li><a href="https://www.justice.gov/elderjustice/tenant-rights" target="_blank" rel="noopener">Tenant Rights (DOJ)</a></li>
+    <li>State Landlord-Tenant Laws</li>
+    <li><a href="https://www.unitedway.org/local-united-states" target="_blank" rel="noopener">United Way Local Legal Help</a></li>
+    <li><a href="https://www.hud.gov/topics/rental_assistance" target="_blank" rel="noopener">HUD Rental Assistance</a></li>
+    <li>Renters’ Rights Book</li>
+  </ul>
+</section>
+<section class="card narrow">
+  <h2>Templates & Tools</h2>
+  <ul>
+    <li><a href="/resources/download/witness_statement.txt">Witness Statement Template (.txt)</a></li>
+    <li><a href="/resources/download/filing_packet_checklist.txt">Filing Packet Checklist (.txt)</a></li>
+    <li><a href="/resources/download/filing_packet_timeline.txt">Filing Packet Timeline (Calendar) (.txt)</a></li>
+    <li><a href="/resources/home_search">Home Search (beta)</a></li>
+    <li><a href="/notary">Virtual Notary (attestation)</a></li>
+    <li><a href="/certified_post">Certified Post / Electronic Service</a></li>
+    <li><a href="/court_clerk">Court Clerk Filing</a></li>
+    <li><a href="/resources/logbook">Events & Logbook</a></li>
+    <li><a href="/resources/contacts">Contacts</a></li>
+    <li><a href="/legal_notary">Legal Notary (record)</a></li>
+    <li><a href="/electronic_service">Electronic Service (Email)</a></li>
+    <li><a href="/vault/certificates">View Certificates</a></li>
+    <li><a href="/resources/roadmap">Roadmap & Future Services</a></li>
+    <li><a href="/resources/advocacy">Advocacy & Learning</a></li>
+    <li><a href="/setup/ron">RON Provider Setup</a></li>
+    <li><a href="/setup/certified_mail">Certified Mail Setup</a></li>
+    <li><a href="/setup/email">Email Provider Setup</a></li>
+  </ul>
+</section>
+{% include '_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/help-panel.js"></script>
+{% endblock %}
+
