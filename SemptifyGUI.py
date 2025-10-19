@@ -141,6 +141,14 @@ try:
 except ImportError:
     pass
 
+# Register Office module demo blueprint if present (non-fatal)
+try:
+    from modules.office_module.backend_demo import office_bp
+    app.register_blueprint(office_bp)
+except Exception:
+    # best-effort: don't fail startup if office module is missing or broken
+    pass
+
 # Optional data root for shared storage (e.g., NFS/volume mount) to enable horizontal scaling
 _DATA_ROOT = os.environ.get('SEMPTIFY_DATA_ROOT')
 if _DATA_ROOT:
