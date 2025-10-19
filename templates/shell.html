@@ -12,6 +12,7 @@
 
   <link rel="stylesheet" href="/static/css/app.css" />
   <link rel="icon" type="image/x-icon" href="/static/icons/favicon.ico" />
+    {% block head_extra %}{% endblock %}
     <style>
       /* Simplified header and sidebar styling */
       .top-bar { display:flex; align-items:center; gap:1rem; }
@@ -134,7 +135,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    {% block scripts %}{% endblock %}
+  {% block scripts %}{% endblock %}
 
   </body>
 

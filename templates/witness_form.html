@@ -1,38 +1,33 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Witness Statement</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-    <meta name="help:read" content="Write a clear statement of what you personally observed. Include dates, times, and facts.">
-    <meta name="help:instructions" content="Fill out the form, preview, then save to your Vault with your user token.">
-  </head>
-  <body>
-    {% block content %}
-    <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you draft a witness statement. For legal advice, consult a licensed attorney.</div>
-    <h1>Witness Statement</h1>
-    
-    {% include 'evidence_panel.html' %}
-    
-    <form action="/resources/witness_statement_preview" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <label>Full name <input name="full_name" required></label>
-      <label>Contact <input name="contact" placeholder="phone/email"></label>
-      <label>Date <input name="date" placeholder="YYYY-MM-DD"></label>
-      <label>Statement<br>
-        <textarea name="statement" rows="10" cols="80" required placeholder="Describe what you personally observed..."></textarea>
-      </label>
-      <fieldset>
-        <legend>E-sign</legend>
-        <label><input type="checkbox" name="sig_consented"> I agree to use an electronic signature for this statement.</label>
-        <label>Type your name as signature <input name="sig_name" placeholder="Full name"></label>
-      </fieldset>
-      <label>Your user token (optional to save to your Vault) <input name="user_token" placeholder="paste your user_token"></label>
-      <button type="submit">Preview</button>
-    </form>
-    <script src="/static/js/help-panel.js"></script>
-    {% include '_footer.html' %}
-    {% endblock %}
-  </body>
-</html>
+{% extends "shell.html" %}
+
+{% block title %}Witness Statement{% endblock %}
+
+{% block content %}
+<div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you draft a witness statement. For legal advice, consult a licensed attorney.</div>
+<h1>Witness Statement</h1>
+
+{% include 'evidence_panel.html' %}
+
+<form action="/resources/witness_statement_preview" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Full name <input name="full_name" required></label>
+  <label>Contact <input name="contact" placeholder="phone/email"></label>
+  <label>Date <input name="date" placeholder="YYYY-MM-DD"></label>
+  <label>Statement<br>
+    <textarea name="statement" rows="10" cols="80" required placeholder="Describe what you personally observed..."></textarea>
+  </label>
+  <fieldset>
+    <legend>E-sign</legend>
+    <label><input type="checkbox" name="sig_consented"> I agree to use an electronic signature for this statement.</label>
+    <label>Type your name as signature <input name="sig_name" placeholder="Full name"></label>
+  </fieldset>
+  <label>Your user token (optional to save to your Vault) <input name="user_token" placeholder="paste your user_token"></label>
+  <button type="submit">Preview</button>
+</form>
+
+{% include '_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/help-panel.js"></script>
+{% endblock %}

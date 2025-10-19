@@ -1,0 +1,74 @@
+<!-- gui_offensive_bundle.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Semptify Offensive Suite</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+    h1 { color: #b30000; }
+    section { margin-bottom: 40px; }
+    label, textarea, input { display: block; margin-top: 10px; width: 100%; }
+    button { margin-top: 20px; padding: 10px; background: #b30000; color: white; border: none; cursor: pointer; }
+    button:hover { background: #800000; }
+  </style>
+</head>
+<body>
+
+  <h1>Semptify Offensive Suite</h1>
+
+  <!-- Public Exposure Module -->
+  <section>
+    <h2>Public Exposure Module</h2>
+    <label for="landlordName">Landlord Name:</label>
+    <input type="text" id="landlordName">
+
+    <label for="propertyAddress">Property Address:</label>
+    <input type="text" id="propertyAddress">
+
+    <label for="violationSummary">Violation Summary:</label>
+    <textarea id="violationSummary" rows="6"></textarea>
+
+    <label for="evidenceLinks">Evidence Links (comma-separated):</label>
+    <input type="text" id="evidenceLinks">
+
+    <button onclick="publishExposure()">Publish Exposure</button>
+  </section>
+
+  <!-- Greed Watch Dashboard -->
+  <section>
+    <h2>Greed Watch Dashboard</h2>
+    <label for="targetEntity">Target Entity (Landlord/Company):</label>
+    <input type="text" id="targetEntity">
+
+    <label for="greedIndicators">Greed Indicators (comma-separated):</label>
+    <input type="text" id="greedIndicators">
+
+    <label for="communityImpact">Community Impact Summary:</label>
+    <textarea id="communityImpact" rows="6"></textarea>
+
+    <button onclick="logGreed()">Log Greed Pattern</button>
+  </section>
+
+  <script>
+    function publishExposure() {
+      const name = document.getElementById('landlordName').value;
+      const address = document.getElementById('propertyAddress').value;
+      const summary = document.getElementById('violationSummary').value;
+      const links = document.getElementById('evidenceLinks').value;
+
+      alert(`Exposure published for ${name} at ${address}.\n\nSummary:\n${summary}\n\nEvidence:\n${links}`);
+    }
+
+    function logGreed() {
+      const entity = document.getElementById('targetEntity').value;
+      const indicators = document.getElementById('greedIndicators').value;
+      const impact = document.getElementById('communityImpact').value;
+
+      alert(`Greed pattern logged for ${entity}.\n\nIndicators:\n${indicators}\n\nImpact:\n${impact}`);
+    }
+  </script>
+
+</body>
+</html>

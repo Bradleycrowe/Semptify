@@ -1,0 +1,25 @@
+aiofiles==25.1.0
+annotated-types==0.7.0
+anyio==4.11.0
+click==8.3.0
+colorama==0.4.6
+fastapi==0.119.0
+h11==0.16.0
+httptools==0.7.1
+idna==3.11
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+pydantic==2.12.3
+pydantic_core==2.41.4
+python-dotenv==1.1.1
+python-multipart==0.0.20
+PyYAML==6.0.3
+sniffio==1.3.1
+starlette==0.48.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+uvicorn==0.38.0
+watchfiles==1.1.1
+websockets==15.0.1
+# Pin to a compatible SQLAlchemy release available on PyPI for this Python version
+SQLAlchemy==2.0.44

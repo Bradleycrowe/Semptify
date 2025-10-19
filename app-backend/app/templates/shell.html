@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Semptify Prototype</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="top-bar" role="banner" aria-label="Site header">
+      <div class="logo-container">Semptify</div>
+      <nav class="site-nav" role="navigation" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/module/example_module">Example Module</a>
+        <a href="/resources">Resources</a>
+        <a href="/help">Help</a>
+      </nav>
+      <div class="header-actions">
+        <a class="text-link" href="/signin">Sign in</a>
+        <a class="btn btn-primary" href="/signup">Sign up</a>
+      </div>
+    </header>
+    <main id="main-content" role="main">
+      <div class="page-grid">
+        <aside class="left-sidebar" aria-label="Controls">
+          {% block left_sidebar %}{% endblock %}
+        </aside>
+        <section class="page-main">
+          {% block content %}{% endblock %}
+        </section>
+      </div>
+      {% block page_footer %}{% endblock %}
+    </main>
+    <footer role="contentinfo">&copy; 2025 Semptify</footer>
+  </body>
+</html>

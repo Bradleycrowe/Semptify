@@ -1,35 +1,33 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Certificates</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-  </head>
-  <body>
-    <div class="card narrow">
-      <h1>Certificates</h1>
-      <p class="muted">These are your saved attestations (notary, certified post, court clerk, electronic service).</p>
-      {% if certs and certs|length > 0 %}
-      <div class="list">
-        {% for c in certs %}
-        <div class="list-item">
-          <a href="/vault/certificates/{{ c.name }}?user_token={{ request.args.get('user_token','') }}">{{ c.name }}</a>
-          <small>({{ c.size }} bytes)</small>
-        </div>
-        {% endfor %}
-      </div>
-      <form class="inline" action="/vault/export_bundle" method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
-        <button type="submit">Download All (ZIP)</button>
-      </form>
-      {% else %}
-      <p><em>No certificates yet.</em></p>
-      {% endif %}
-      <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
+{% extends "shell.html" %}
+
+{% block title %}Certificates{% endblock %}
+
+{% block content %}
+<div class="card narrow">
+  <h1>Certificates</h1>
+  <p class="muted">These are your saved attestations (notary, certified post, court clerk, electronic service).</p>
+  {% if certs and certs|length > 0 %}
+  <div class="list">
+    {% for c in certs %}
+    <div class="list-item">
+      <a href="/vault/certificates/{{ c.name }}?user_token={{ request.args.get('user_token','') }}">{{ c.name }}</a>
+      <small>({{ c.size }} bytes)</small>
     </div>
-    {% include '_footer.html' %}
-  </body>
-  <script src="/static/js/help-panel.js"></script>
-</html>
+    {% endfor %}
+  </div>
+  <form class="inline" action="/vault/export_bundle" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="user_token" value="{{ request.args.get('user_token','') }}">
+    <button type="submit">Download All (ZIP)</button>
+  </form>
+  {% else %}
+  <p><em>No certificates yet.</em></p>
+  {% endif %}
+  <p><a href="/vault?user_token={{ request.args.get('user_token','') }}">Back to Vault</a></p>
+</div>
+{% include '_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/help-panel.js"></script>
+{% endblock %}

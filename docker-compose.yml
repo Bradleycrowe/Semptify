@@ -1,3 +1,17 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./app-backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./app-backend:/app:delegated
+      - ./uploads:/app/../uploads:delegated
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 version: "3.8"
 services:
   semptify:

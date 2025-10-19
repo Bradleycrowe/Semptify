@@ -1,42 +1,36 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-     <title>Filing Packet Builder</title>
-    <link rel="stylesheet" href="/static/css/app.css" />
-     <meta name="help:read" content="Draft a summary for your filing packet with issues and parties.">
-     <meta name="help:instructions" content="Complete the fields, preview, and save to your Vault.">
-  </head>
-  <body>
-    {% extends "base.html" %}
-    {% block content %}
-    <div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you assemble a filing packet summary. For legal advice, consult a licensed attorney.</div>
-    <h1>Filing Packet Summary</h1>
-    
-    {% include 'evidence_panel.html' %}
-    
-    <form action="/resources/filing_packet_preview" method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <label>Title <input name="title" placeholder="e.g., Security Deposit Return Request" required></label>
-      <label>Date <input name="date" placeholder="YYYY-MM-DD"></label>
-      <label>Parties <input name="parties" placeholder="you, landlord/agent"></label>
-      <label>Summary<br>
-        <textarea name="summary" rows="6" cols="80" required placeholder="1-2 page narrative..."></textarea>
-      </label>
-      <label>Key Issues<br>
-        <textarea name="issues" rows="6" cols="80" required placeholder="Bulleted issues or paragraphs..."></textarea>
-      </label>
-      <fieldset>
-        <legend>E-sign</legend>
-        <label><input type="checkbox" name="sig_consented"> I agree to use an electronic signature for this summary.</label>
-        <label>Type your name as signature <input name="sig_name" placeholder="Full name"></label>
-      </fieldset>
-      <label>Your user token (optional to save to your Vault) <input name="user_token" placeholder="paste your user_token"></label>
-      <button type="submit">Preview</button>
-    </form>
-    <script src="/static/js/help-panel.js"></script>
-    {% include '_footer.html' %}
-    {% endblock %}
-  </body>
-</html>
+{% extends "shell.html" %}
+
+{% block title %}Filing Packet Builder{% endblock %}
+
+{% block content %}
+<div class="legal-disclaimer-banner"><strong>Not Legal Advice</strong> This tool helps you assemble a filing packet summary. For legal advice, consult a licensed attorney.</div>
+<h1>Filing Packet Summary</h1>
+
+{% include 'evidence_panel.html' %}
+
+<form action="/resources/filing_packet_preview" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Title <input name="title" placeholder="e.g., Security Deposit Return Request" required></label>
+  <label>Date <input name="date" placeholder="YYYY-MM-DD"></label>
+  <label>Parties <input name="parties" placeholder="you, landlord/agent"></label>
+  <label>Summary<br>
+    <textarea name="summary" rows="6" cols="80" required placeholder="1-2 page narrative..."></textarea>
+  </label>
+  <label>Key Issues<br>
+    <textarea name="issues" rows="6" cols="80" required placeholder="Bulleted issues or paragraphs..."></textarea>
+  </label>
+  <fieldset>
+    <legend>E-sign</legend>
+    <label><input type="checkbox" name="sig_consented"> I agree to use an electronic signature for this summary.</label>
+    <label>Type your name as signature <input name="sig_name" placeholder="Full name"></label>
+  </fieldset>
+  <label>Your user token (optional to save to your Vault) <input name="user_token" placeholder="paste your user_token"></label>
+  <button type="submit">Preview</button>
+</form>
+
+{% include '_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/help-panel.js"></script>
+{% endblock %}

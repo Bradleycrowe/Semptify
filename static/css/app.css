@@ -270,3 +270,6 @@ button:hover:not(:disabled) { filter:brightness(1.05); }
 .page-title { margin-bottom: 0.75rem; }
 .page-title h1 { font-size: 1.5rem; margin:0; }
 .page-body { background: transparent; }
+
+/* Small helper for admin emoji (replaces inline styles) */
+.admin-emoji { font-size: 1.5em; vertical-align: middle; }

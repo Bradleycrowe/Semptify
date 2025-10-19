@@ -1,0 +1,18 @@
+{% extends 'shell.html' %}
+{% block content %}
+  {% block left_sidebar %}
+    <div class="left-controls">
+      <h3>Quick actions</h3>
+      <ul>
+        <li><a href="/module/example_module">Open Example Module</a></li>
+        <li><a href="/evidence_packet_builder">Evidence Packet Builder</a></li>
+        <li><a href="/attorney_trail">Attorney Trail</a></li>
+      </ul>
+    </div>
+  {% endblock %}
+
+  <div class="container">
+    <h1>Semptify FastAPI Prototype</h1>
+    <p>Use the left panel to access quick actions and controls. Visit the <a href="/module/example_module">example module</a>.</p>
+  </div>
+{% endblock %}
