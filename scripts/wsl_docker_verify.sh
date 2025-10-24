@@ -24,9 +24,9 @@ docker pull hello-world:latest >/dev/null
 docker run --rm hello-world:latest | head -n 3
 
 if [[ -f Dockerfile ]]; then
-  echo "[INFO] Building local SemptifyGUI image (quick validation)"
-  docker build -t semptifygui:local --progress=plain . >/dev/null
-  echo "[OK] Image built: semptifygui:local"
+  echo "[INFO] Building local Semptify image (quick validation)"
+  docker build -t Semptify:local --progress=plain . >/dev/null
+  echo "[OK] Image built: Semptify:local"
 else
   echo "[SKIP] No Dockerfile in current directory"
 fi

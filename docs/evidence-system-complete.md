@@ -16,7 +16,7 @@
 - `tests/test_evidence_system.py` - Comprehensive test coverage
 
 **Updated Files:**
-- `SemptifyGUI.py` - Enhanced backend with evidence data processing
+- `Semptify.py` - Enhanced backend with evidence data processing
 - `static/css/app.css` - Styling for evidence collection UI
 - `static/js/service-worker.js` - Updated to cache evidence JS
 - All form templates - Integrated evidence collection panel
@@ -30,7 +30,7 @@
 - Web Speech API for voice recognition
 - Enhanced AI communication with context
 
-**Backend Integration (`SemptifyGUI.py`):**
+**Backend Integration (`Semptify.py`):**
 - Evidence data extraction from forms
 - Enhanced certificate storage with location/timestamp
 - Improved AI endpoint with evidence context

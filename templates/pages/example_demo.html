@@ -1,0 +1,10 @@
+{% extends 'shell.html' %}
+
+{% block page_title %}Example Demo{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <p>Welcome to the example demo page. This content is inside the page block and uses the shell header and sidebar.</p>
+  {% include 'modules/notice_card.html' with context %}
+</div>
+{% endblock %}

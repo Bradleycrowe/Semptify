@@ -18,7 +18,7 @@ def setup_tokens(tmpdir):
     with open(os.path.join(sec_dir, 'admin_tokens.json'), 'w') as f:
         json.dump([{ 'id': 'bg', 'hash': bg_hash, 'enabled': True, 'breakglass': True }], f)
     os.chdir(tmpdir)
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     return sempt
@@ -42,3 +42,4 @@ def test_breakglass_one_shot_and_rate_limit(tmp_path):
     metrics = client.get('/metrics').data.decode()
     assert 'rate_limited_total' in metrics
     assert 'breakglass_used_total' in metrics
+

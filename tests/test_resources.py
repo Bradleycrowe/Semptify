@@ -1,6 +1,6 @@
 import os
 import pytest
-from SemptifyGUI import app
+from Semptify import app
 
 @pytest.fixture
 def client():
@@ -21,3 +21,4 @@ def test_download_timeline_template(client):
     assert rv.status_code == 200
     assert rv.headers['Content-Type'].startswith('text/plain')
     assert 'Filing Packet Timeline' in rv.data.decode('utf-8')
+

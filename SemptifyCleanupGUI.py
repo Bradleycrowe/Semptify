@@ -12,9 +12,9 @@ for folder in ['uploads', 'logs', 'copilot_sync', 'final_notices', 'security']:
 dashboard_html = """
 <!DOCTYPE html>
 <html>
-<head><title>SemptifyGUI</title></head>
+<head><title>Semptify</title></head>
 <body>
-  <h1>SemptifyGUI Control Panel</h1>
+  <h1>Semptify Control Panel</h1>
   <form action="/upload" method="post"><button>Upload Evidence</button></form>
   <a href="/logs"><button>View Logs</button></a>
   <form action="/sync" method="post"><button>Copilot Sync Now</button></form>
@@ -60,3 +60,4 @@ def security():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+

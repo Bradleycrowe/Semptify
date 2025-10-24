@@ -11,7 +11,7 @@ def test_ron_flow_simulated(tmp_path, monkeypatch):
     users_path = sec_dir / 'users.json'
     monkeypatch.chdir(tmp_path)
 
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()
@@ -49,3 +49,4 @@ def test_ron_flow_simulated(tmp_path, monkeypatch):
     assert data.get('provider') == 'bluenotary'
     assert data.get('status') == 'completed'
     assert data.get('evidence_links')
+

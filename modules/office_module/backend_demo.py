@@ -5,10 +5,10 @@ Flask blueprint demo for Office module minimal endpoints:
 - /api/rooms/<id>/token
 - /api/documents endpoints (list, upload/init, complete, lock, annotate)
 
-This demo uses in-memory stores and is suitable for local testing only. To wire into SemptifyGUI.py,
+This demo uses in-memory stores and is suitable for local testing only. To wire into Semptify.py,
 register the blueprint: app.register_blueprint(office_bp)
 """
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template
 import uuid
 import time
 
@@ -93,3 +93,14 @@ def annotate(doc_id):
         DOCUMENTS[doc_id]['annotations'] = []
     DOCUMENTS[doc_id]['annotations'].append({'text': data.get('text'),'timecode': data.get('timecode')})
     return jsonify({'ok': True})
+
+
+@office_bp.route('/office', methods=['GET'])
+def office_page():
+    """Render the Office UI page (templates/office.html)."""
+    try:
+        return render_template('office.html')
+    except Exception:
+        # fallback: simple JSON if template is not found
+        return jsonify({'ok': True, 'message': 'Office page template not found on server'}), 200
+

@@ -1,0 +1,18 @@
+{
+  "servers": {
+    "openedge-abl": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\bradc\\.vscode\\extensions\\ai4you.api4ui-0.3.16\\dist\\build\\openedge_mcp\\build\\src\\index.js"
+      ],
+      "env": {
+        "OPENEDGE_DLC_PATH": "C:\\Progress\\OpenEdge\\128",
+        "PATH": "C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Users\\bradc\\AppData\\Local\\Microsoft\\WindowsApps;C:\\adb;C:\\Program Files\\dotnet\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Microsoft SQL Server\\150\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files\\nodejs\\;C:\\ProgramData\\chocolatey\\bin;C:\\Program Files\\PowerShell\\7\\;C:\\Program Files\\GitHub CLI\\;C:\\Program Files\\PowerShell\\7-preview\\preview;C:\\Users\\bradc\\.local\\bin;C:\\Users\\bradc\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\;C:\\Users\\bradc\\AppData\\Local\\Programs\\Python\\Python313\\;C:\\Users\\bradc\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\bradc\\AppData\\Local\\GitHubDesktop\\bin;C:\\Users\\bradc\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\bradc\\.dotnet\\tools;C:\\Users\\bradc\\AppData\\Roaming\\npm;C:\\Users\\bradc\\AppData\\Local\\Python\\bin;D:\\shellcheck-v0.11.0 (1);C:\\Program Files\\nodejs;C:\\Progress\\OpenEdge\\128\\bin"
+      }
+    },
+    "IDL for VSCode": {
+      "type": "sse",
+      "url": "http://localhost:4142/sse"
+    }
+  }
+}

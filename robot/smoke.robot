@@ -16,4 +16,5 @@ Readyz Endpoint Returns 200
 
 Index Contains Banner
     ${resp}=    GET On Session    semptify    /
-    Should Contain    ${resp.text}    SemptifyGUI is live
+    Should Contain    ${resp.text}    Semptify is live
+

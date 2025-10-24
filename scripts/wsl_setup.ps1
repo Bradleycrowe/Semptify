@@ -1,12 +1,12 @@
 <#!
 .SYNOPSIS
-  Windows PowerShell wrapper to bootstrap SemptifyGUI inside Ubuntu WSL.
+  Windows PowerShell wrapper to bootstrap Semptify inside Ubuntu WSL.
 
 .EXAMPLE
   ./scripts/wsl_setup.ps1
 
 .EXAMPLE
-  ./scripts/wsl_setup.ps1 -WithDocker -ForceVenv -Dir /mnt/d/Semptify/SemptifyGUI
+  ./scripts/wsl_setup.ps1 -WithDocker -ForceVenv -Dir /mnt/d/Semptify/Semptify
 
 .NOTES
   Pass-through flags map to the bash script: --with-docker, --force-venv, --dir=...

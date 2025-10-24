@@ -9,7 +9,7 @@ def test_certificates_list_and_view_and_export(tmp_path, monkeypatch):
     users_path = sec_dir / 'users.json'
     monkeypatch.chdir(tmp_path)
 
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()
@@ -40,3 +40,4 @@ def test_certificates_list_and_view_and_export(tmp_path, monkeypatch):
     r3 = client.post('/vault/export_bundle', data={ 'user_token': token_plain }, follow_redirects=False)
     assert r3.status_code == 200
     assert r3.headers['Content-Type'].startswith('application/zip')
+

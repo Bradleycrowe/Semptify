@@ -1,9 +1,9 @@
 # Push-Semptify.ps1 — Push all modules and prep for Render deployment
 
 # Set canonical repo path
-$repoPath = "D:\Semptify\SemptifyGUI"
+$repoPath = "D:\Semptify\Semptify"
 $renderURL = "https://dashboard.render.com"
-$liveURL = "https://semptifygui.onrender.com"
+$liveURL = "https://Semptify.onrender.com"
 
 # Step 1: Navigate to repo
 Set-Location $repoPath
@@ -28,3 +28,4 @@ Write-Host "`n🌐 Live URL: $liveURL"
 # Step 5: Open live app (if already deployed)
 Start-Sleep -Seconds 5
 Start-Process $liveURL
+

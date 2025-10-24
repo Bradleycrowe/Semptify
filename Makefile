@@ -7,11 +7,11 @@
 # Variables:
 #   TAG?=dev
 #   PODMAN?=0  (set to 1 to use podman)
-#   IMAGE?=semptifygui
+#   IMAGE?=Semptify
 
 PODMAN?=0
 ENGINE=$(if $(filter 1,$(PODMAN)),podman,docker)
-IMAGE?=semptifygui
+IMAGE?=Semptify
 TAG?=dev
 PORT?=8080
 CONTAINER?=$(IMAGE)-$(TAG)
@@ -56,3 +56,4 @@ clean: stop ## Remove image and artifacts
 # Convenience target for podman build: make podman PODMAN=1
 podman: ## Build using podman explicitly (alias for build with PODMAN=1)
 	$(MAKE) build PODMAN=1
+

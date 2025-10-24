@@ -3,7 +3,7 @@ import os, importlib, re
 def setup_enforced():
     os.environ['SECURITY_MODE'] = 'enforced'
     os.environ['ADMIN_TOKEN'] = 'csrfsecret'
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     return sempt
@@ -50,3 +50,4 @@ def test_valid_csrf_allows_release_tag(monkeypatch):
     }, follow_redirects=False)
     # Should redirect to github releases (302)
     assert resp.status_code in (301,302)
+

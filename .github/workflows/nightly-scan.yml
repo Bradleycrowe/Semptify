@@ -25,12 +25,12 @@ jobs:
 
       - name: Build image for scanning
         run: |
-          docker build -t semptifygui:nightly .
+          docker build -t Semptify:nightly .
 
       - name: Run Trivy scan
         uses: aquasecurity/trivy-action@0.21.0
         with:
-          image-ref: semptifygui:nightly
+          image-ref: Semptify:nightly
           format: 'sarif'
           output: trivy-report.sarif
           exit-code: '1'
@@ -39,7 +39,7 @@ jobs:
       - name: Install Syft and Generate SBOM
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin v1.19.0
-          syft docker:semptifygui:nightly -o json > sbom.json
+          syft docker:Semptify:nightly -o json > sbom.json
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -48,3 +48,4 @@ jobs:
           path: |
             trivy-report.sarif
             sbom.json
+

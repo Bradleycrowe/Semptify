@@ -235,3 +235,66 @@
 {"ts": "2025-10-18T23:40:25.737509Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
 {"ts": "2025-10-18T23:40:25.897840Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
 {"ts": "2025-10-18T23:40:25.903228Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T06:37:03.431861Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T06:37:03.503092Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T06:37:03.794171Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T06:37:03.802313Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T17:57:50.617595Z", "event": "admin_unauthorized", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T17:57:50.673188Z", "event": "admin_auth", "method": "multi-token", "token_id": "legacy-bootstrap", "path": "/admin", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T17:57:51.125449Z", "event": "admin_unauthorized", "path": "/admin/status", "ip": "127.0.0.1"}
+{"ts": "2025-10-20T17:57:51.130778Z", "event": "admin_auth", "method": "legacy-token", "token_id": "legacy", "path": "/admin/status", "ip": "127.0.0.1"}
+{"event":"bootstrap_run","ts":"1761077027","id":"59a07a88-0928-43b8-9979-8ae14d8d8d7e"}
+{"event": "startup", "ts": 1761077030, "id": "ead811eb-848b-457b-8788-84848ee5122c", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761077032, "id": "56092e53-33e4-4dda-97c2-cea764d80ba1", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"id":"d72a95dd-133b-4576-8a0e-61edea1ac504","event":"bootstrap_run","ts":1761078383}
+{"event": "startup", "ts": 1761078392, "id": "5f6d0fce-9012-47d7-91a6-569ced60f25e", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078393, "id": "7c504e88-9ba6-4bff-8853-b3f438613cf8", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078394, "id": "ab7a12ab-5961-4c52-a75b-e611c5c9820b", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078397, "id": "b845921f-64e9-43bd-98a9-88d230563556", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078398, "id": "6b60840e-f212-4b88-8d18-3072c5d5a011", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"id":"a16f1fe7-6a3b-43b7-9f9f-4b95c5fef771","event":"bootstrap_run","ts":1761078792}
+{"event": "startup", "ts": 1761078800, "id": "11952f85-338e-4186-bfa6-9b72ff0dbaf4", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078801, "id": "f09954ac-2274-4855-bdf4-ffd4718ef691", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078802, "id": "0b609bd7-446c-47be-a12e-e0ee6539cd9f", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078804, "id": "7ec5da73-ccb6-413f-be78-2621322c5c1a", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761078806, "id": "0840305a-2c47-42fe-a444-ab8956718529", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079049, "id": "d6361fbc-e5a4-4b41-8729-33e01e0ee1e2", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079049, "id": "003e05c3-9da0-47e0-a340-27bddf9d4e42", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079050, "id": "5f4c1178-b501-4465-b466-fec45efc0dfd", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079052, "id": "2a391f5f-7b46-4716-a0a5-5b1dc061e5a0", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079053, "id": "abb59d48-7683-49a2-b674-fd1bd4297f00", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079145, "id": "9197a63b-920e-416e-94f9-afba01a04f40", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079145, "id": "92cd102d-e760-422d-9353-c4152ed03858", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079145, "id": "3cfa041e-56ca-4cb8-818d-47eb7210c4c6", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079153, "id": "d3f92768-951e-4ec8-b257-24168e16f654", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079154, "id": "18cb0344-dd21-4c32-8271-6b387eed75cd", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079156, "id": "a206796c-ceab-499e-bd48-821b14345509", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079156, "id": "01a2900f-e716-435d-8b44-634362cd2fab", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079157, "id": "c0b4f609-90a8-4698-829c-eec06e4868fb", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"id":"9e6371a6-7efd-4b95-9222-81b98cd855e0","event":"bootstrap_run","ts":1761079171}
+{"event":"bootstrap_run","ts":"1761079171","id":"b5b49370-16e7-4118-9d24-eb99264b00f0"}
+{"event": "startup", "ts": 1761079180, "id": "94056715-93fd-4b33-a16c-2705f8b09f22", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079180, "id": "df125a33-8f79-4bf6-b523-b1c64423fca0", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079181, "id": "2ee20766-33ab-4b0b-8410-b7922a56643a", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079181, "id": "0b342996-3fbd-4557-9926-40cde7ae104c", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079181, "id": "44b91953-5923-493a-ade0-2186a1ea9698", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079755, "id": "a02f643c-94a9-4775-936e-9fb9f0363039", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079756, "id": "391a9b67-414c-4e9e-8cff-0d8b2ab07b07", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079757, "id": "f71e3ab5-3416-44c7-9bff-1a9faa98f185", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079757, "id": "7efafbc3-d026-4756-bdf0-2e60525647aa", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079757, "id": "f525c1c9-6d03-49de-87de-b64b8dc79780", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761079759, "id": "35bafc79-4e5f-49e3-a74b-f6d52168b612", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080469, "id": "293636b6-6446-48cb-be72-ee55c7658534", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080491, "id": "7ad768b1-e243-4c3f-b72d-0a4ee123dae3", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080492, "id": "1c66d20d-f363-4a77-8365-6649cdeeb8d8", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080493, "id": "b201ab78-09f1-4f36-93e8-7a9a5c4c1a25", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080848, "id": "2f940a23-e0d2-4869-9ab1-3ae5671ce3ee", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080853, "id": "33ced393-cf62-4b22-8b0a-396309623d3c", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080867, "id": "f2cacf39-4e36-4798-929f-b05a10c4cb57", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080868, "id": "5a640c59-4f3e-467d-ae96-2c30abb8589d", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080869, "id": "63b132db-afc2-410f-87a3-4de6822cda39", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080959, "id": "80ba297e-ef96-4675-9728-148152188837", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761080977, "id": "36110559-6d15-4c42-a211-3e9a2b0be94b", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761088873, "id": "fcd4c59d-2378-4692-b385-7307374fc61d", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761088874, "id": "21686aca-f48c-46d9-9d95-d3f996c3e0aa", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "startup", "ts": 1761088875, "id": "c601821a-599b-467e-9504-719c8ed076f5", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}

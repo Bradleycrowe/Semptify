@@ -14,7 +14,7 @@ jobs:
 
       - name: Wait for Render (basic retries)
         run: |
-          URL="https://semptifygui.onrender.com/health"
+          URL="https://Semptify.onrender.com/health"
           for i in {1..30}; do
             echo "Attempt $i"
             if curl -fsS "$URL"; then echo "Up"; exit 0; fi
@@ -25,11 +25,11 @@ jobs:
 
       - name: Fetch version
         run: |
-          curl -fsS https://semptifygui.onrender.com/version | tee version.json
+          curl -fsS https://Semptify.onrender.com/version | tee version.json
 
       - name: Fetch metrics
         run: |
-            curl -fsS https://semptifygui.onrender.com/metrics | tee metrics.txt
+            curl -fsS https://Semptify.onrender.com/metrics | tee metrics.txt
 
       - name: Basic assertions
         run: |

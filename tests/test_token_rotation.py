@@ -11,7 +11,7 @@ def setup_enforced(tmpdir):
         json.dump([{ 'id': 'primary', 'hash': token_hash, 'enabled': True }], f)
     # Point app to this custom security path by chdir
     os.chdir(tmpdir)
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     return sempt
@@ -36,3 +36,4 @@ def test_token_rotation_flow(tmp_path):
     # Ensure metrics updated
     metrics = client.get('/metrics')
     assert b'token_rotations_total' in metrics.data
+

@@ -4,7 +4,7 @@ import importlib
 def test_admin_enforced_requires_token():
     os.environ['SECURITY_MODE'] = 'enforced'
     os.environ['ADMIN_TOKEN'] = 'secret123'
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()

@@ -77,7 +77,7 @@ $gitSha = (git rev-parse --short HEAD).Trim()
 $buildTime = (Get-Date -Format o)
 
 # --- Docker build & smoke ---
-$imageName = 'semptifygui:local'
+$imageName = 'Semptify:local'
 if(-not $SkipDocker){
   Info "Building image $imageName (sha=$gitSha)"
   docker build --build-arg GIT_SHA=$gitSha --build-arg BUILD_TIME=$buildTime -t $imageName .
@@ -143,7 +143,7 @@ if($Push){
 if($DispatchCI -and $Push){
   if($env:GITHUB_TOKEN){
     $owner = $env:GITHUB_OWNER; if(-not $owner){ $owner='Bradleycrowe' }
-    $repoName = $env:GITHUB_REPO; if(-not $repoName){ $repoName='SemptifyGUI' }
+    $repoName = $env:GITHUB_REPO; if(-not $repoName){ $repoName='Semptify' }
     $body = '{"ref":"main"}'
     $url = "https://api.github.com/repos/$owner/$repoName/actions/workflows/ci.yml/dispatches"
     Info 'Dispatching CI workflow'
@@ -164,3 +164,4 @@ Write-Host "FailOnVuln     : $FailOnVuln (exit=$vulnExit)"
 Write-Host "Docker Built   : $([bool](-not $SkipDocker))"
 Write-Host "Git SHA        : $gitSha"
 Write-Host '=========================================' -ForegroundColor Green
+

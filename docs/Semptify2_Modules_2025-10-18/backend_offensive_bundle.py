@@ -91,15 +91,10 @@ def build_counterclaim(tenant_name, landlord_name, case_number, original_claim_s
 
 def escalate_complaint(complaint_id, tenant_name, landlord_name, original_issue, escalation_reason, escalation_level):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return f"""
-    SEMPTIFY COMPLAINT ESCALATION NOTICE
-    ------------------------------------
-    Complaint ID: {complaint_id}
-    Tenant: {tenant_name}
-    Landlord: {landlord_name}
-    Escalation Level: {escalation_level}
-    Timestamp: {timestamp}
+    .\.venv-semp\Scripts\Activate.ps1
 
+    # once server is up, check /office
+    Invoke-WebRequest -UseBasicParsing -Uri http://127.0.0.1:5000/office -TimeoutSec 10
     Original Issue:
     {original_issue}
 

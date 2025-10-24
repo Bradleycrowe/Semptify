@@ -1,0 +1,9 @@
+<div class="card mb-3 notice-card">
+  <div class="card-body">
+    <h5 class="card-title">{{ title or 'Notice' }}</h5>
+    <p class="card-text">{{ body or 'Important information for tenants will appear here.' }}</p>
+    {% if link %}
+    <a href="{{ link.href }}" class="btn btn-sm btn-primary">{{ link.text }}</a>
+    {% endif %}
+  </div>
+</div>

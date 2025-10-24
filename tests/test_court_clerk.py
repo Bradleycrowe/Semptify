@@ -10,7 +10,7 @@ def test_court_clerk_flow(tmp_path, monkeypatch):
     users_path = sec_dir / 'users.json'
     monkeypatch.chdir(tmp_path)
 
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()
@@ -43,3 +43,4 @@ def test_court_clerk_flow(tmp_path, monkeypatch):
     assert r2.status_code == 200
     certs = list((tmp_path / 'uploads' / 'vault' / 'u1').glob('courtclerk_*.json'))
     assert len(certs) >= 1
+

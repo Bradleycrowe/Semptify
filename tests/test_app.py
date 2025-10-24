@@ -1,7 +1,7 @@
 import os
 import tempfile
 import pytest
-from SemptifyGUI import app
+from Semptify import app
 
 @pytest.fixture
 def client():
@@ -16,3 +16,4 @@ def test_index(client):
     assert b"Register" in rv.data
     assert b"Resources" in rv.data
     assert b"Health" in rv.data
+

@@ -1,4 +1,4 @@
-# 📘 SemptifyGUI Integration Brief: Law Notes Modules
+# 📘 Semptify Integration Brief: Law Notes Modules
 
 ## 🧭 Purpose
 
@@ -43,3 +43,4 @@ Each module includes push-button flows for filing complaints, generating demand 
 
 ### 🔹 File Structure
 Create three modular files:
+

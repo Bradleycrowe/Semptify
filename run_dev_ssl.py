@@ -1,5 +1,5 @@
 import os
-from SemptifyGUI import app
+from Semptify import app
 
 if __name__ == '__main__':
     # Paths to local dev cert and key (PEM). Customize via env or defaults under security/
@@ -13,5 +13,6 @@ if __name__ == '__main__':
     # Use waitress/production TLS only behind a proper reverse proxy.
     port = int(os.environ.get('SEMPTIFY_PORT') or os.environ.get('PORT', '8443'))
     host = os.environ.get('SEMPTIFY_HOST', '0.0.0.0')
-    print(f"Starting SemptifyGUI (dev SSL) on https://{host}:{port}")
+    print(f"Starting Semptify (dev SSL) on https://{host}:{port}")
     app.run(host=host, port=port, ssl_context=(cert_file, key_file), debug=False)
+

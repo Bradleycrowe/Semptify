@@ -2,7 +2,7 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-# SemptifyGUI WSL bootstrap script
+# Semptify WSL bootstrap script
 # Idempotent helper to provision dependencies, virtualenv, and run a smoke test
 # Usage:
 #   bash scripts/wsl_setup.sh                # basic python environment
@@ -11,8 +11,8 @@ set -euo pipefail
 #
 # Safe to re-run; will skip steps that are already satisfied.
 
-REPO_GIT="https://github.com/Bradleycrowe/SemptifyGUI.git"
-PROJECT_NAME="SemptifyGUI"
+REPO_GIT="https://github.com/Bradleycrowe/Semptify.git"
+PROJECT_NAME="Semptify"
 DEFAULT_WIN_PATH="/mnt/d/Semptify/${PROJECT_NAME}"  # Adjust if your code is elsewhere
 TARGET_DIR=""
 WITH_DOCKER=0
@@ -117,11 +117,11 @@ fi
 # -------- Run guidance --------
 cat <<'EOF'
 
-[DONE] SemptifyGUI environment prepared.
+[DONE] Semptify environment prepared.
 
 To run the development server inside WSL now:
 	source .venv/bin/activate
-	python SemptifyGUI.py
+	python Semptify.py
 
 Then visit: http://127.0.0.1:5000
 
@@ -141,3 +141,4 @@ If you enabled Docker and just added your user to the docker group, restart your
 EOF
 
 echo "[INFO] Script complete"
+

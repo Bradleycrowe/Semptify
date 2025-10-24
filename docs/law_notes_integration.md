@@ -1,4 +1,4 @@
-# ✅ SemptifyGUI Law Notes Integration – v0.2-lawnotes
+# ✅ Semptify Law Notes Integration – v0.2-lawnotes
 
 ## 📦 Modules Scaffolded
 - `broker_trail.py` – Broker liability module
@@ -32,4 +32,5 @@
 - Language toggles scaffolded for: `en`, `es`, `so`, `hm`, `om`, `vi`
 
 ## 🏁 Tagged Release
+
 

@@ -1,6 +1,6 @@
 import os
 from waitress import serve
-from SemptifyGUI import app
+from Semptify import app
 
 if __name__ == '__main__':
     # Read host/port from environment with sane defaults
@@ -16,5 +16,6 @@ if __name__ == '__main__':
 
     threads = int(os.environ.get('SEMPTIFY_THREADS', '8'))
     backlog = int(os.environ.get('SEMPTIFY_BACKLOG', '1024'))
-    print(f"Starting SemptifyGUI (production) on {host}:{port} threads={threads} backlog={backlog} (PORT env fallback supported)")
+    print(f"Starting Semptify (production) on {host}:{port} threads={threads} backlog={backlog} (PORT env fallback supported)")
     serve(app, host=host, port=port, threads=threads, backlog=backlog)
+

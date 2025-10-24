@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "properties": {
+    "manifestVersion": {
+      "type": "string",
+      "description": "Version of the manifest schema."
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the artifact."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Download URL for the artifact."
+          },
+          "hash": {
+            "type": "string",
+            "description": "SHA256 hash of the artifact."
+          },
+          "size": {
+            "type": "integer",
+            "description": "Size of the artifact in bytes."
+          }
+        },
+        "required": ["name", "url", "hash", "size"]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the manifest was created."
+        },
+        "updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the manifest was last updated."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the library or artifacts."
+        }
+      },
+      "required": ["created", "updated"]
+    }
+  },
+  "required": ["manifestVersion", "artifacts", "metadata"]
+}

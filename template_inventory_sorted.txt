@@ -54,4 +54,5 @@
 - Law Notes templates are directly wired to their respective Blueprints and routes.
 - Main app templates are used for core features and are wired to Flask routes.
 - Standalone/utility templates may be used for specific features, popups, or admin tools, and may not be directly wired.
-- For a full wiring map, cross-reference with Blueprint registrations and route definitions in SemptifyGUI.py and modules/law_notes/.
+- For a full wiring map, cross-reference with Blueprint registrations and route definitions in Semptify.py and modules/law_notes/.
+

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Full clean restart helper for SemptifyGUI (Linux/WSL)
+# Full clean restart helper for Semptify (Linux/WSL)
 # Flags:
 #   --force-venv      Recreate venv
 #   --prod            Run run_prod.py after setup
@@ -101,10 +101,11 @@ if [[ $auto_start -eq 1 ]]; then
     exec python run_prod.py
   else
     info "Starting development server (Flask debug)"
-    exec python SemptifyGUI.py
+    exec python Semptify.py
   fi
 else
   ok "Restart sequence complete. Use --auto-start to run automatically."
-  echo "Manual start (dev): source .venv/bin/activate; python SemptifyGUI.py"
+  echo "Manual start (dev): source .venv/bin/activate; python Semptify.py"
   echo "Manual start (prod): source .venv/bin/activate; python run_prod.py"
 fi
+
