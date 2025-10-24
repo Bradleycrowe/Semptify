@@ -1,10 +1,10 @@
 follow up nd through with filling in court and th ost effective way to get heard and some change i
-# Copilot Instructions for SemptifyGUI
+# Copilot Instructions for Semptify
 
 Concise, actionable guide for AI coding agents on this Flask app. Focus only on patterns discoverable from this repo.
 
 ## Architecture snapshot
-- Single Flask app: `SemptifyGUI.py` (templates in `templates/`, assets in `static/`).
+- Single Flask app: `Semptify.py` (templates in `templates/`, assets in `static/`).
 - Startup ensures runtime dirs exist: `uploads`, `logs`, `copilot_sync`, `final_notices`, `security`; logs initialization to `logs/init.log` and JSON events to `logs/events.log` (with rotation).
 - Key endpoints: `/`, `/health`, `/healthz`, `/readyz`, `/metrics`, `/info`, admin (`/admin`, `/admin/status`, POST `/release_now`, POST `/trigger_workflow`, `/release_history`, `/sbom*`), user resources (witness/packet/service-animal/move checklist), Document Vault (`/vault`, upload/download), rent ledger, registration (`/register`), Copilot UI/API (`/copilot`, POST `/api/copilot`).
 
@@ -22,11 +22,11 @@ Concise, actionable guide for AI coding agents on this Flask app. Focus only on 
 ## Runs, builds, tests (Windows PowerShell)
 - Dev run:
   ```powershell
-  Set-Location -LiteralPath 'd:\Semptify\SemptifyGUI'
+  Set-Location -LiteralPath 'd:\Semptify\Semptify'
   python -m venv .venv
   .\.venv\Scripts\Activate.ps1
   pip install -r requirements.txt
-  python .\SemptifyGUI.py
+  python .\Semptify.py
   ```
 - Prod run (waitress): `python .\run_prod.py` (uses `SEMPTIFY_PORT` or `PORT`). HTTPS dev: `python .\run_dev_ssl.py` with `security/dev-local.crt|key` and `FORCE_HTTPS=1`.
 - Tests: `python -m pytest -q` (see `tests/` for enforced/open mode, CSRF, rate limit, copilot, vault).
@@ -49,3 +49,4 @@ Concise, actionable guide for AI coding agents on this Flask app. Focus only on 
 - Do not commit anything under `security/` (tokens, flags) or large binaries under `uploads/`.
 
 If any section is unclear or missing important patterns you rely on, tell me what to expand (e.g., token rotation, Render deploy vars, or PWA assets) and I’ll update this file.
+

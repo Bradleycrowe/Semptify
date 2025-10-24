@@ -86,7 +86,7 @@ jobs:
 
     - name: Build Docker image (tests already ran)
       run: |
-        docker build -t semptifygui:ci .
+        docker build -t Semptify:ci .
   scan-image:
     name: Scan built image with Trivy
     runs-on: ubuntu-latest
@@ -97,7 +97,7 @@ jobs:
       # Update version deliberately when upgrading Trivy
       uses: aquasecurity/trivy-action@0.21.0
       with:
-        image-ref: semptifygui:ci
+        image-ref: Semptify:ci
         format: 'sarif'
         output: trivy-report.sarif
         exit-code: '1'
@@ -137,14 +137,14 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/semptifygui:${{ github.ref_name }}
-            ghcr.io/${{ github.repository_owner }}/semptifygui:latest
+            ghcr.io/${{ github.repository_owner }}/Semptify:${{ github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/Semptify:latest
 
       - name: Save image info artifact
         run: |
-          echo "repo=ghcr.io/${{ github.repository_owner }}/semptifygui" > image-info.txt
+          echo "repo=ghcr.io/${{ github.repository_owner }}/Semptify" > image-info.txt
           echo "tag=${{ github.ref_name }}" >> image-info.txt
-          echo "latest=ghcr.io/${{ github.repository_owner }}/semptifygui:latest" >> image-info.txt
+          echo "latest=ghcr.io/${{ github.repository_owner }}/Semptify:latest" >> image-info.txt
           echo "digest=${{ steps.build_and_push.outputs.digest }}" >> image-info.txt
         shell: bash
 
@@ -171,12 +171,12 @@ jobs:
 
       - name: Pull released image
         run: |
-          docker pull ghcr.io/${{ github.repository_owner }}/semptifygui:${{ github.ref_name }}
+          docker pull ghcr.io/${{ github.repository_owner }}/Semptify:${{ github.ref_name }}
 
       - name: Generate SBOM with Syft (pinned)
         run: |
           # Pinned Syft version to ensure reproducible SBOM format; update intentionally
-          docker run --rm anchore/syft:1.19.0 ghcr.io/${{ github.repository_owner }}/semptifygui:${{ github.ref_name }} -o json > sbom.json
+          docker run --rm anchore/syft:1.19.0 ghcr.io/${{ github.repository_owner }}/Semptify:${{ github.ref_name }} -o json > sbom.json
           test -s sbom.json || (echo "SBOM file empty" && exit 1)
 
       - name: Upload SBOM artifact
@@ -218,16 +218,16 @@ jobs:
         uses: actions/checkout@v4
       - name: Build image (docker)
         if: matrix.engine == 'docker'
-        run: docker build -t semptifygui:integration .
+        run: docker build -t Semptify:integration .
       - name: Build image (podman)
         if: matrix.engine == 'podman'
-        run: podman build -t semptifygui:integration .
+        run: podman build -t Semptify:integration .
       - name: Run container
         run: |
           if [ "${{ matrix.engine }}" = docker ]; then \
-             docker run -d --name semptify-integration -p 127.0.0.1:${{ matrix.port }}:8080 semptifygui:integration || (docker ps -a && docker logs semptify-integration && false); \
+             docker run -d --name semptify-integration -p 127.0.0.1:${{ matrix.port }}:8080 Semptify:integration || (docker ps -a && docker logs semptify-integration && false); \
           else \
-             podman run -d --name semptify-integration -p 127.0.0.1:${{ matrix.port }}:8080 semptifygui:integration || (podman ps -a && podman logs semptify-integration && false); \
+             podman run -d --name semptify-integration -p 127.0.0.1:${{ matrix.port }}:8080 Semptify:integration || (podman ps -a && podman logs semptify-integration && false); \
           fi
       - name: Wait for HTTP health (max 30s)
         run: |
@@ -236,7 +236,7 @@ jobs:
             sleep 1; echo waiting... $i; done
       - name: Smoke checks
         run: |
-          curl -fsS http://127.0.0.1:${{ matrix.port }}/ | grep -q "SemptifyGUI is live"
+          curl -fsS http://127.0.0.1:${{ matrix.port }}/ | grep -q "Semptify is live"
           curl -fsS http://127.0.0.1:${{ matrix.port }}/readyz
       - name: Robot Framework smoke suite
         run: |
@@ -246,7 +246,7 @@ jobs:
         if: matrix.engine == 'podman'
         uses: aquasecurity/trivy-action@0.21.0
         with:
-          image-ref: semptifygui:integration
+          image-ref: Semptify:integration
           format: 'table'
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
@@ -254,9 +254,9 @@ jobs:
         if: always()
         run: |
           if [ "${{ matrix.engine }}" = docker ]; then \
-             docker stop semptify-integration || true; docker rm semptify-integration || true; docker rmi semptifygui:integration || true; \
+             docker stop semptify-integration || true; docker rm semptify-integration || true; docker rmi Semptify:integration || true; \
           else \
-             podman stop semptify-integration || true; podman rm semptify-integration || true; podman rmi semptifygui:integration || true; \
+             podman stop semptify-integration || true; podman rm semptify-integration || true; podman rmi Semptify:integration || true; \
           fi
 
   publish-dockerhub:
@@ -281,8 +281,8 @@ jobs:
           context: .
           push: true
           tags: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/semptifygui:${{ github.ref_name }}
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/semptifygui:latest
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/Semptify:${{ github.ref_name }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/Semptify:latest
 
   create-release:
     name: Create GitHub Release and attach image info
@@ -351,3 +351,4 @@ jobs:
         with:
           name: image-info-${{ github.ref_name }}
           path: image-info.txt
+

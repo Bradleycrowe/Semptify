@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Appeal Builder</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    h1 { margin-bottom: 10px; }
+    button, select, input, textarea { margin: 6px 0; padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 100%; max-width: 500px; }
+    .section { margin-top: 20px; }
+    #preview { white-space: pre-wrap; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>📘 Appeal Builder</h1>
+  <p>Generate appeal documents with clear grounds, deadlines, and formatting.</p>
+
+  <div class="section">
+    <button onclick="fetchOverview()">Appeal Rights Overview</button>
+    <div id="overview"></div>
+  </div>
+
+  <div class="section">
+    <label for="grounds">Select Grounds for Appeal:</label>
+    <select id="grounds">
+      <option value="legal_error">Legal Error</option>
+      <option value="bias_or_misconduct">Bias or Misconduct</option>
+      <option value="new_evidence">New Evidence</option>
+      <option value="procedural_flaw">Procedural Flaw</option>
+    </select>
+    <button onclick="draftAppeal()">Draft Appeal Document</button>
+  </div>
+
+  <div class="section">
+    <label for="evidenceUpload">Upload Supporting Evidence:</label>
+    <input type="file" id="evidenceUpload" />
+    <button onclick="uploadEvidence()">Upload</button>
+  </div>
+
+  <div class="section">
+    <button onclick="previewAppeal()">Preview and Export Appeal</button>
+    <div id="preview"></div>
+  </div>
+
+  <div class="section">
+    <label for="filingDate">Track Filing Status:</label>
+    <input type="date" id="filingDate" />
+    <button onclick="trackStatus()">Log Filing</button>
+    <div id="statusLog"></div>
+  </div>
+
+  <script>
+    async function fetchOverview() {
+      const resp = await fetch('/appeal/overview');
+      const data = await resp.json();
+      document.getElementById('overview').textContent = data.content;
+    }
+
+    async function draftAppeal() {
+      const grounds = document.getElementById('grounds').value;
+      const resp = await fetch(`/appeal/draft/${grounds}`);
+      const data = await resp.json();
+      document.getElementById('preview').textContent = data.draft;
+    }
+
+    async function uploadEvidence() {
+      const file = document.getElementById('evidenceUpload').files[0];
+      if (!file) return alert("No file selected.");
+      const fd = new FormData();
+      fd.append('file', file);
+      const resp = await fetch('/appeal/upload_evidence', { method: 'POST', body: fd });
+      const data = await resp.json();
+      alert("Uploaded: " + data.filename);
+    }
+
+    async function previewAppeal() {
+      const resp = await fetch('/appeal/export');
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'appeal_document.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function trackStatus() {
+      const date = document.getElementById('filingDate').value;
+      document.getElementById('statusLog').textContent = `📅 Appeal filed on: ${date}`;
+    }
+  </script>
+</body>
+</html>

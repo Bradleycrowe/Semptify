@@ -3,7 +3,7 @@ import os, importlib, json
 def setup_enforced():
     os.environ['SECURITY_MODE'] = 'enforced'
     os.environ['ADMIN_TOKEN'] = 'statustoken'
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     return sempt
@@ -21,3 +21,4 @@ def test_admin_status_json():
     assert 'security_mode' in data and data['security_mode'] == 'enforced'
     assert 'metrics' in data and isinstance(data['metrics'], dict)
     assert 'tokens' in data
+

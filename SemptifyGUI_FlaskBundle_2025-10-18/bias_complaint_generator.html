@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bias Complaint Generator</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    h1 { margin-bottom: 10px; }
+    button, select, input, textarea { margin: 6px 0; padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 100%; max-width: 500px; }
+    .section { margin-top: 20px; }
+    #preview { white-space: pre-wrap; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>🚨 Bias Complaint Generator</h1>
+  <p>Document courtroom bias and auto-generate formal complaints for submission.</p>
+
+  <div class="section">
+    <button onclick="fetchExamples()">Bias Examples and Definitions</button>
+    <div id="examples"></div>
+  </div>
+
+  <div class="section">
+    <label for="incidentDesc">Describe Incident:</label>
+    <textarea id="incidentDesc" rows="5" placeholder="Describe what happened, who was involved, and how it impacted fairness."></textarea>
+    <button onclick="generateComplaint()">Generate Complaint Document</button>
+  </div>
+
+  <div class="section">
+    <label for="evidenceUpload">Upload Supporting Evidence:</label>
+    <input type="file" id="evidenceUpload" />
+    <button onclick="uploadEvidence()">Upload</button>
+  </div>
+
+  <div class="section">
+    <button onclick="previewComplaint()">Preview and Export Complaint</button>
+    <div id="preview"></div>
+  </div>
+
+  <div class="section">
+    <label for="submissionDate">Track Submission Status:</label>
+    <input type="date" id="submissionDate" />
+    <button onclick="trackStatus()">Log Submission</button>
+    <div id="statusLog"></div>
+  </div>
+
+  <script>
+    async function fetchExamples() {
+      const resp = await fetch('/bias/examples');
+      const data = await resp.json();
+      document.getElementById('examples').textContent = data.content;
+    }
+
+    async function generateComplaint() {
+      const desc = document.getElementById('incidentDesc').value;
+      const resp = await fetch('/bias/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: desc })
+      });
+      const data = await resp.json();
+      document.getElementById('preview').textContent = data.complaint;
+    }
+
+    async function uploadEvidence() {
+      const file = document.getElementById('evidenceUpload').files[0];
+      if (!file) return alert("No file selected.");
+      const fd = new FormData();
+      fd.append('file', file);
+      const resp = await fetch('/bias/upload_evidence', { method: 'POST', body: fd });
+      const data = await resp.json();
+      alert("Uploaded: " + data.filename);
+    }
+
+    async function previewComplaint() {
+      const resp = await fetch('/bias/export');
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bias_complaint.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function trackStatus() {
+      const date = document.getElementById('submissionDate').value;
+      document.getElementById('statusLog').textContent = `📅 Complaint submitted on: ${date}`;
+    }
+  </script>
+</body>
+</html>

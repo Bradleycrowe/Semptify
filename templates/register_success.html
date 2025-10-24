@@ -1,17 +1,1 @@
-{% extends "shell.html" %}
-
-{% block title %}Registration Complete{% endblock %}
-
-{% block content %}
-<main class="form-main">
-  <h1>You're all set</h1>
-  <p>Your user ID: <strong>{{ user_id }}</strong></p>
-  <p>Your one-time token (save this now, we won't show it again):</p>
-  <pre class="token-pre">{{ token }}</pre>
-  <p>Use your token to access your vault:</p>
-  <ul>
-    <li><a href="/vault?user_token={{ token }}">Open my Vault</a></li>
-  </ul>
-  <p class="muted">Tip: store your token in a password manager. If you lose it, an admin can rotate it for you.</p>
-</main>
-{% endblock %}
+<!doctype html><html><body><h2>Registration complete</h2><p>one-time token: <strong>{{ token }}</strong></p><p><a href="/vault?user_token={{ token }}">Open vault</a></p></body></html>

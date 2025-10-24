@@ -1,0 +1,21 @@
+{
+  "artifacts": [
+    {
+      "name": "library1",
+      "version": "1.0.0",
+      "hash": "abc123hashvalue"
+    },
+    {
+      "name": "library2",
+      "version": "2.3.4",
+      "hash": "def456hashvalue"
+    },
+    {
+      "name": "library3",
+      "version": "0.9.8",
+      "hash": "ghi789hashvalue"
+    }
+  ],
+  "timestamp": "2023-10-01T12:00:00Z",
+  "source": "https://example.com/library-manifest"
+}

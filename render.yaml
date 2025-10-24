@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: semptifygui
+    name: Semptify
     runtime: docker
     plan: free
     region: ohio
@@ -43,3 +43,4 @@ services:
         value: "60"
       - key: ADMIN_RATE_STATUS
         value: "429"
+

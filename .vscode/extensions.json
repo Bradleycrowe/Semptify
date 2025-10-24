@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-azuretools.vscode-docker",
+    "redhat.vscode-yaml",
+    "github.vscode-github-actions",
+    "DavidAnson.vscode-markdownlint",
+    "robocorp.robotframework-lsp",
+    "editorconfig.editorconfig",
+    "oracle.mysql-shell-for-vs-code"
+  ]
+}

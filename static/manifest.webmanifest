@@ -1,5 +1,5 @@
 {
-  "name": "SemptifyGUI",
+  "name": "Semptify",
   "short_name": "Semptify",
   "start_url": "/",
   "display": "standalone",
@@ -12,3 +12,4 @@
     {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
   ]
 }
+

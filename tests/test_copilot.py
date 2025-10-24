@@ -6,7 +6,7 @@ def test_copilot_page_and_api_open_mode(monkeypatch):
     # Open mode disables CSRF enforcement for simplicity in tests
     monkeypatch.setenv('SECURITY_MODE', 'open')
 
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()

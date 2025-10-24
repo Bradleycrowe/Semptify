@@ -15,7 +15,7 @@ Files:
 
 How to run demo backend locally (quick):
 
-1) Register the blueprint in your main Flask app (SemptifyGUI.py):
+1) Register the blueprint in your main Flask app (Semptify.py):
 
     from modules.office_module.backend_demo import office_bp
     app.register_blueprint(office_bp)
@@ -32,3 +32,4 @@ How to run the AI orchestrator demo:
 Notes:
 - These are demo scaffolds. Replace in-memory stores with persistent DB and secure AI endpoints before production.
 - Use signed URLs for production uploads and store file hashes in the documents table.
+

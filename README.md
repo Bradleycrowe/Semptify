@@ -1,18 +1,74 @@
-# SemptifyGUI
+$report = @()
+$expectedDirs = @("modules", "templates", "static", "uploads", "logs", "security", "copilot_sync", "final_notices", "tests", ".github", "admin_tools")
+$expectedFiles = @("Semptify.py", "run_prod.py", "requirements.txt", "README.md")
 
-![CI](https://github.com/Bradleycrowe/SemptifyGUI/actions/workflows/ci.yml/badge.svg)
-![Pages](https://github.com/Bradleycrowe/SemptifyGUI/actions/workflows/pages.yml/badge.svg)
+$report += "=== Directory Inventory ==="
+Get-ChildItem -Directory | ForEach-Object {
+    if ($expectedDirs -notcontains $_.Name) {
+        $report += "⚠️  Unexpected directory: $($_.Name)"
+    } else {
+        $report += "✔ $($_.Name)"
+    }
+}
+
+$report += "`n=== File Inventory ==="
+Get-ChildItem -File | ForEach-Object {
+    if ($expectedFiles -notcontains $_.Name) {
+        $report += "⚠️  Unexpected file: $($_.Name)"
+    } else {
+        $report += "✔ $($_.Name)"
+    }
+}
+
+$report += "`n=== Runtime Directory Check ==="
+foreach ($dir in $expectedDirs) {
+    if (!(Test-Path $dir)) {
+        $report += "❌ Missing runtime dir: $dir"
+    } else {
+        $report += "✔ $dir exists"
+    }
+}
+
+$report += "`n=== Module Inventory ==="
+Get-ChildItem -Path "modules" -Recurse -Include *.py | ForEach-Object { $report += $_.FullName }
+
+$report += "`n=== Template Inventory ==="
+Get-ChildItem -Path "templates" -Recurse -Include *.html | ForEach-Object { $report += $_.FullName }
+
+$report += "`n=== Static Asset Inventory ==="
+Get-ChildItem -Path "static" -Recurse | ForEach-Object { $report += $_.FullName }
+
+$report += "`n=== Notes, TODOs, and Instructions ==="
+$searchPatterns = @("TODO", "NOTE", "INSTRUCTION", "FIXME")
+foreach ($pattern in $searchPatterns) {
+    $report += "`n--- $pattern ---"
+    Get-ChildItem -Path . -Recurse -Include *.py,*.html,*.md | ForEach-Object {
+        $matches = Select-String -Path $_.FullName -Pattern $pattern
+        foreach ($m in $matches) {
+            $report += "$($m.Path): $($m.Line)"
+        }
+    }
+}
+
+$reportPath = "admin_tools\full_inventory_report.txt"
+$report | Set-Content $reportPath
+
+Write-Host "`nFull inventory report saved to $reportPath"
+Write-Host "Review this file for missing items, notes, TODOs, and instructions."# Semptify
+
+![CI](https://github.com/Bradleycrowe/Semptify/actions/workflows/ci.yml/badge.svg)
+![Pages](https://github.com/Bradleycrowe/Semptify/actions/workflows/pages.yml/badge.svg)
 
 Small Flask-based GUI for tenant-justice automation. This repository includes a development server, a production runner (`run_prod.py` using waitress), Docker support, tests, and CI workflows.
 
 Getting started (development)
 
 ```powershell
-Set-Location -LiteralPath 'd:\Semptify\SemptifyGUI'
+Set-Location -LiteralPath 'd:\Semptify\Semptify'
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python .\SemptifyGUI.py
+python .\Semptify.py
 ```
 
 Running in production (waitress)
@@ -26,8 +82,8 @@ python .\run_prod.py
 Docker
 
 ```powershell
-docker build -t semptifygui:latest .
-docker run --rm -p 8080:8080 semptifygui:latest
+docker build -t Semptify:latest .
+docker run --rm -p 8080:8080 Semptify:latest
 ```
 
 ## Podman (Rootless)
@@ -44,8 +100,8 @@ make run PODMAN=1   # run via podman
 Direct Podman commands:
 
 ```bash
-podman build -t semptifygui:dev .
-podman run --rm -p 8080:8080 semptifygui:dev
+podman build -t Semptify:dev .
+podman run --rm -p 8080:8080 Semptify:dev
 ```
 
 If you prefer docker CLI semantics with podman under the hood:
@@ -128,7 +184,7 @@ OpenAI
 ```powershell
 $env:AI_PROVIDER = 'openai'
 $env:OPENAI_API_KEY = '<your-key>'
-python .\SemptifyGUI.py
+python .\Semptify.py
 ```
 
 Azure OpenAI
@@ -138,7 +194,7 @@ $env:AI_PROVIDER = 'azure'
 $env:AZURE_OPENAI_ENDPOINT = 'https://<your-resource>.openai.azure.com/'
 $env:AZURE_OPENAI_API_KEY = '<your-key>'
 $env:AZURE_OPENAI_DEPLOYMENT = 'gpt-4o-mini'
-python .\SemptifyGUI.py
+python .\Semptify.py
 ```
 
 Ollama (local, recommended for offline/free trials)
@@ -147,7 +203,7 @@ Ollama (local, recommended for offline/free trials)
 $env:AI_PROVIDER = 'ollama'
 $env:OLLAMA_HOST = 'http://localhost:11434'
 $env:OLLAMA_MODEL = 'llama3.1:8b'
-python .\SemptifyGUI.py
+python .\Semptify.py
 ```
 
 Tip: On first model pull, Ollama will download the model. Keep the terminal open until it finishes.
@@ -351,13 +407,13 @@ The script writes `logs/config_audit_report.json` and prints a short summary. Us
 Use the provided PowerShell script:
 
 ```powershell
-./RenderSmokeTest.ps1 -BaseUrl https://semptifygui.onrender.com
+./RenderSmokeTest.ps1 -BaseUrl https://Semptify.onrender.com
 ```
 
 If in enforced mode:
 
 ```powershell
-RenderSmokeTest.ps1 -BaseUrl https://semptifygui.onrender.com -AdminToken YOUR_ADMIN_TOKEN
+RenderSmokeTest.ps1 -BaseUrl https://Semptify.onrender.com -AdminToken YOUR_ADMIN_TOKEN
 ```
 
 Outputs will confirm health, version metadata, and admin banner (OPEN or ENFORCED).
@@ -437,7 +493,7 @@ The app auto-loads `.env` at import time (without overriding already-set environ
 
 ## WSL Quick Setup
 
-You can bootstrap a working SemptifyGUI environment inside Ubuntu on WSL2 with the helper script:
+You can bootstrap a working Semptify environment inside Ubuntu on WSL2 with the helper script:
 
 ```bash
 bash scripts/wsl_setup.sh            # basic Python env
@@ -451,7 +507,7 @@ The script will:
 2. Clone or update this repository.
 3. Create / reuse a `.venv` and install `requirements.txt`.
 4. Run a light smoke test subset.
-5. Print next‑step commands for dev (`python SemptifyGUI.py`) or prod (`python run_prod.py`).
+5. Print next‑step commands for dev (`python Semptify.py`) or prod (`python run_prod.py`).
 
 Environment variables for security modes (examples):
 
@@ -471,7 +527,7 @@ If you pass `--with-docker`, the script installs Docker Engine under WSL; log ou
 From PowerShell you can call a convenience wrapper instead of remembering bash flags:
 
 ```powershell
-pwsh ./scripts/wsl_setup.ps1 -WithDocker -ForceVenv -Dir /mnt/d/Semptify/SemptifyGUI
+pwsh ./scripts/wsl_setup.ps1 -WithDocker -ForceVenv -Dir /mnt/d/Semptify/Semptify
 ```
 
 ### Docker Verification inside WSL
@@ -482,7 +538,7 @@ After enabling Docker (and restarting WSL session):
 bash scripts/wsl_docker_verify.sh
 ```
 
-It pulls `hello-world`, prints a short run excerpt, and (if the repo has a `Dockerfile`) builds a local image `semptifygui:local`.
+It pulls `hello-world`, prints a short run excerpt, and (if the repo has a `Dockerfile`) builds a local image `Semptify:local`.
 
 ### GitHub Codespaces / Dev Container
 
@@ -532,4 +588,5 @@ Notes:
 
 - `FORCE_HTTPS=1` enforces HTTPS redirects and adds HSTS headers (also active when a request is already secure via a reverse proxy).
 - For production, terminate TLS at your reverse proxy/load balancer and keep using `run_prod.py` behind it.
+
 

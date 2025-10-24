@@ -1,4 +1,2 @@
-
-{# Backwards-compatible shim: base.html now simply extends shell.html #}
-{% extends "shell.html" %}
+<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Semptify</title><link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}"></head><body><header><div class="container"><h1><a href="{{ url_for("index") }}">Semptify</a></h1><nav><a href="{{ url_for("register.register") }}">Register</a> | <a href="{{ url_for("vault.vault") }}">Vault</a> | <a href="{{ url_for("admin.dashboard") }}">Admin</a></nav></div></header><main class="container">{% block content %}{% endblock %}</main><footer>© Semptify</footer></body></html>
 

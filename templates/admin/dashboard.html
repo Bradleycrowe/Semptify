@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block content %}<h2>Admin Dashboard</h2><form method="POST" action="{{ url_for("admin.release_now") }}"><input type="hidden" name="csrf_token" value="{{ csrf_token if csrf_token is defined else "" }}"><label>Type "yes" to confirm:</label><input name="confirm_release"/><button type="submit">Release</button></form>{% endblock %}

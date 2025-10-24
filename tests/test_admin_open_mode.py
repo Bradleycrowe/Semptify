@@ -1,5 +1,5 @@
 import os
-from SemptifyGUI import app
+from Semptify import app
 
 
 def test_admin_open_mode_access():
@@ -10,3 +10,4 @@ def test_admin_open_mode_access():
         rv = client.get('/admin')
         assert rv.status_code == 200
         assert b'SECURITY MODE: OPEN' in rv.data
+

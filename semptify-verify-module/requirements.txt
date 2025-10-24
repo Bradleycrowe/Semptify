@@ -1,0 +1,6 @@
+Flask
+requests
+pytest
+pydantic
+flask-cors
+python-dotenv

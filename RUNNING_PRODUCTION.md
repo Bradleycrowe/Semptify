@@ -27,8 +27,8 @@ Notes
 Build the image locally:
 
 ```powershell
-Set-Location -LiteralPath 'd:\Semptify\SemptifyGUI'
-docker build -t semptifygui:latest .
+Set-Location -LiteralPath 'd:\Semptify\Semptify'
+docker build -t Semptify:latest .
 ```
 
 Run with Docker (bind port 8080):
@@ -38,7 +38,7 @@ docker run --rm -p 8080:8080 \
   -v ${PWD}:/app \
   -v ${PWD}\\uploads:/app/uploads \
   -v ${PWD}\\logs:/app/logs \
-  semptifygui:latest
+  Semptify:latest
 ```
 
 Or use docker-compose:
@@ -51,3 +51,4 @@ Notes:
 
 - `.dockerignore` excludes runtime and secret folders from the build context.
 - Volumes in `docker-compose.yml` map runtime folders to host for persistence and inspection.
+

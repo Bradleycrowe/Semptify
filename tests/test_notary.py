@@ -15,7 +15,7 @@ def test_notary_upload_and_attest_existing(tmp_path, monkeypatch):
     # Point CWD to tmp
     monkeypatch.chdir(tmp_path)
 
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()
@@ -53,3 +53,4 @@ def test_notary_upload_and_attest_existing(tmp_path, monkeypatch):
     assert r3.status_code == 200
     certs2 = list((tmp_path / 'uploads' / 'vault' / 'u1').glob('notary_*.json'))
     assert len(certs2) >= 2
+

@@ -1,7 +1,7 @@
-# Deploy-Semptify.ps1 — Justice-grade deployment from D:\Semptify\SemptifyGUI
+# Deploy-Semptify.ps1 — Justice-grade deployment from D:\Semptify\Semptify
 
 # Set canonical repo path
-$repoPath = "D:\Semptify\SemptifyGUI"
+$repoPath = "D:\Semptify\Semptify"
 $renderURL = "https://dashboard.render.com"
 $liveURL = "https://semptify.onrender.com"
 
@@ -27,3 +27,4 @@ Write-Host "`n🌐 Suggested live URL: $liveURL"
 # Step 5: Open live app (if already deployed)
 Start-Sleep -Seconds 5
 Start-Process $liveURL
+

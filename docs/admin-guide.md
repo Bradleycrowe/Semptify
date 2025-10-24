@@ -1,6 +1,6 @@
-# SemptifyGUI Admin Guide
+# Semptify Admin Guide
 
-This guide is the single source of truth for running, securing, operating, and troubleshooting SemptifyGUI. It assumes Windows + PowerShell and the repository at `d:\\Semptify\\SemptifyGUI`.
+This guide is the single source of truth for running, securing, operating, and troubleshooting Semptify. It assumes Windows + PowerShell and the repository at `d:\\Semptify\\Semptify`.
 
 ## Quick links
 - Live service: `RENDER_BASE_URL` (see security/render.env)
@@ -72,7 +72,7 @@ https://<your-service>.onrender.com/admin?token=<ADMIN_TOKEN>
 
 ```powershell
 # Python helper
-D:\Semptify\SemptifyGUI\.venv\Scripts\python.exe .\scripts\hash_token.py PlainTokenValue
+D:\Semptify\Semptify\.venv\Scripts\python.exe .\scripts\hash_token.py PlainTokenValue
 ```
 
 Note: The production container deletes any committed `security/admin_tokens.json` and bootstraps from `ADMIN_TOKEN` to avoid stale credentials. If you want to use a multi-token file in production, provide it securely at runtime.
@@ -121,3 +121,4 @@ Note: The production container deletes any committed `security/admin_tokens.json
 ---
 
 Last updated: 2025-10-09
+

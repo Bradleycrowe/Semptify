@@ -5,7 +5,10 @@ Run with: uvicorn ai_orchestrator:app --reload --port 9001
 This is a minimal in-memory demo. Replace in-memory stores with a real DB and secure AI endpoints
 for production. Use environment variables for DEFAULT_AI_ENDPOINT and AI_API_KEYS mapping.
 """
-from fastapi import FastAPI, BackgroundTasks, HTTPException
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import List, Dict, Any
 import uuid
@@ -14,7 +17,28 @@ import requests
 import os
 
 app = FastAPI(title="Semptify AI Orchestrator")
+app.mount("/static", StaticFiles(directory=os.path.abspath(os.path.join(os.path.dirname(__file__), '../../static'))), name="static")
+templates = Jinja2Templates(directory=os.path.abspath(os.path.join(os.path.dirname(__file__), '../../templates')))
+# Simple in-memory store for demo. Replace with persistent DB.
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
+
+@app.get("/office", response_class=HTMLResponse)
+async def office_page(request: Request):
+    """Render the Office UI template via FastAPI/Jinja2Templates."""
+    return templates.TemplateResponse("office.html", {"request": request})
+
+@app.get("/pages/{slug}", response_class=HTMLResponse)
+async def preview_page(request: Request, slug: str):
+    """Preview a converted page template at templates/pages/{slug}.html"""
+    template_name = f"pages/{slug}.html"
+    try:
+        return templates.TemplateResponse(template_name, {"request": request})
+    except Exception as e:
+        # return a helpful error so the developer sees what's wrong
+        return HTMLResponse(f"<h1>Template render error</h1><pre>{str(e)}</pre>", status_code=500)
 # Simple in-memory store for demo. Replace with persistent DB.
 AI_JOBS = {}
 

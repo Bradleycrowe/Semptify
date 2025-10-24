@@ -1,7 +1,7 @@
 import os
 import json
 import pytest
-from SemptifyGUI import app
+from Semptify import app
 
 @pytest.fixture
 def client():
@@ -106,3 +106,4 @@ def test_evidence_panel_template_exists():
     assert 'toggleRecording' in content
     assert 'toggleVoiceRecognition' in content
     assert 'askAI' in content
+

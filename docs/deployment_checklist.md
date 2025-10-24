@@ -1,6 +1,6 @@
-# Deployment Checklist for SemptifyGUI
+# Deployment Checklist for Semptify
 
-This checklist helps ensure SemptifyGUI is configured correctly for Render (or similar) deployments.
+This checklist helps ensure Semptify is configured correctly for Render (or similar) deployments.
 
 ## 1. Environment variables (required)
 - SECURITY_MODE (open|enforced)
@@ -54,3 +54,4 @@ Note: On Render, the repository directory is generally writable for short term b
 
 ## 8. Contact & Documentation
 - Update this file when adding new external integrations.
+

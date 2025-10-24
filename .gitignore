@@ -1,31 +1,15 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+venv/
 .venv/
+.venv-semp/
+*/.pytest_cache/
 
-# Security and secrets
+# Secrets / runtime
 security/
-!security/vuln_allowlist.example.json
-!security/render.env.example
-
-# Runtime dirs
-uploads/
 logs/
-final_notices/
-copilot_sync/
-
-# Local artifacts
-sbom/
-security/*.sarif
-.DS_Store
-Thumbs.db
-.env
-
-# VSCode
-.vscode/
-
-# Robot output
-output.xml
-report.html
-log.html
-*.ps1
+uploads/
+backups/
+*.sqlite3

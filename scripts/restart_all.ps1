@@ -1,6 +1,6 @@
 <#!
 .SYNOPSIS
-    Full clean restart of SemptifyGUI (local dev / pre-deploy) on Windows PowerShell.
+    Full clean restart of Semptify (local dev / pre-deploy) on Windows PowerShell.
 .DESCRIPTION
     Recreates virtual environment (optional), installs dependencies, purges runtime folders (except security allowlist),
     optionally generates an ADMIN_TOKEN & FLASK_SECRET, runs tests, and (optionally) starts the dev or production server.
@@ -105,10 +105,11 @@ if($AutoStart){
         python run_prod.py
     } else {
         Write-Info 'Starting development server (Flask debug)'
-        python SemptifyGUI.py
+        python Semptify.py
     }
 } else {
     Write-Ok 'Restart sequence completed. Use -AutoStart to auto-run next time.'
-    Write-Host 'Manual start (dev): .\.venv\Scripts\Activate.ps1; python SemptifyGUI.py'
+    Write-Host 'Manual start (dev): .\.venv\Scripts\Activate.ps1; python Semptify.py'
     Write-Host 'Manual start (prod): .\.venv\Scripts\Activate.ps1; python run_prod.py'
 }
+

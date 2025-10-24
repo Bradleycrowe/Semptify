@@ -1,0 +1,4 @@
+"oraios/serena": {
+  "type": "sse",
+  "url": "http://localhost:PORT/sse"
+}

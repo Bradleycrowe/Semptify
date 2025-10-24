@@ -1,0 +1,76 @@
+Verification and library check — deliverable checklist
+Goal — Fresh verification/check module from the web, ready to drop into Semptify/modules.
+
+Files to produce
+
+verify_module.py; web-fetch + integrity + retry logic
+
+verify_module.html; GUI panel with status, manual re-run, and recent logs
+
+verify_api.js; frontend ↔ backend calls, exponential backoff, toast messages
+
+verify_tests.py; unit tests for fetch, hash check, error paths
+
+README_VERIFY.md; install, config, env vars, expected outputs, recovery steps
+
+verify_schema.json; expected library manifest schema (fields + types)
+
+Config / env
+
+VERIFY_ENDPOINT; URL to pull library manifest
+
+VERIFY_API_KEY; optional, secure auth header
+
+VERIFY_POLL_INTERVAL; default 300s; override in GUI
+
+VERIFY_MAX_RETRIES; default 5
+
+VERIFY_LOG_PATH; path for persistent logs
+
+Behavior checklist
+
+Fetch manifest from VERIFY_ENDPOINT with auth if present.
+
+Validate manifest against verify_schema.json.
+
+For each listed artifact: stream download, compute SHA256, compare to manifest hash.
+
+On mismatch: mark artifact as quarantine, log details, emit GUI alert with one-click rollback suggestion.
+
+On transient network errors: retry with exponential backoff up to VERIFY_MAX_RETRIES.
+
+On success: update GUI status, write checkpoint file with timestamps and summary.
+
+Provide manual “Re-verify Now” button and a scheduled poll option.
+
+Quick verification tests (run locally)
+
+Start dev server.
+
+Run pytest verify_tests.py (includes: good-manifest, bad-hash, missing-field, network-failure simulated).
+
+Run GUI smoke: open verify_module.html, click Re-verify, confirm toast + log entry.
+
+Deployment / handoff notes for P
+
+Drop files into Semptify/modules/verify/
+
+Ensure env vars set in deployment config or secrets manager.
+
+Add route /modules/verify/run guarded by API key or user role.
+
+Add single-line entry in main README: how to start, default ports, and where logs land.
+
+Include a tiny demo manifest (demo_manifest.json) for smoke runs.
+
+Recovery & checkpointing
+
+On every run write checkpoint JSON: { timestamp, manifestUrl, artifacts: [{name, status, hash}], runId } to VERIFY_LOG_PATH/checkpoints/.
+
+Keep last 10 checkpoints; rotate older into archive.zip for immediate recovery.
+
+Priority items to deliver today
+
+verify_module.py, verify_api.js, verify_module.html, README_VERIFY.md, demo_manifest.json, verify_tests.py.
+
+If you want, I’ll output the exact content for each file next (starter code, manifest schema, and test cases) so you can copy-paste into the repo.

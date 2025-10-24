@@ -1,7 +1,7 @@
 import os
 import json
 import pytest
-from SemptifyGUI import app
+from Semptify import app
 
 @pytest.fixture
 def client():
@@ -146,7 +146,7 @@ def test_service_worker_caches_evidence_js(client):
 
 def test_build_evidence_prompt_function():
     """Test the evidence prompt building function"""
-    from SemptifyGUI import _build_evidence_prompt
+    from Semptify import _build_evidence_prompt
     
     # Test basic prompt
     result = _build_evidence_prompt(
@@ -167,7 +167,7 @@ def test_build_evidence_prompt_function():
 
 def test_evidence_prompt_with_minimal_data():
     """Test evidence prompt building with minimal data"""
-    from SemptifyGUI import _build_evidence_prompt
+    from Semptify import _build_evidence_prompt
     
     result = _build_evidence_prompt(
         "need help",

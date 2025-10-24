@@ -16,7 +16,7 @@ def test_vault_auth_and_upload(tmp_path, monkeypatch):
     # Point CWD to tmp to isolate writes
     monkeypatch.chdir(tmp_path)
 
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()
@@ -50,3 +50,4 @@ def test_vault_auth_and_upload(tmp_path, monkeypatch):
     dest = tmp_path / 'uploads' / 'vault' / 'u1' / 'note.txt'
     assert dest.exists()
     assert dest.read_text(encoding='utf-8') == 'hello'
+

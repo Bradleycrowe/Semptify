@@ -10,7 +10,7 @@ def test_legal_notary_record(tmp_path, monkeypatch):
     users_path = sec_dir / 'users.json'
     monkeypatch.chdir(tmp_path)
 
-    import SemptifyGUI as sempt
+    import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
     client = sempt.app.test_client()
@@ -56,3 +56,4 @@ def test_legal_notary_record(tmp_path, monkeypatch):
     assert payload.get('type') == 'legal_notary_record'
     assert payload.get('state') == 'CA'
     assert payload.get('notary_name') == 'Jane Notary'
+
