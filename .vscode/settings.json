@@ -4,5 +4,12 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "chat.agentSessionsViewLocation": "view"
+    "chat.agentSessionsViewLocation": "view",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-17",
+            "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot",
+            "default": true
+        }
+    ]
 }
