@@ -17,4 +17,4 @@
     "timestamp": "2025-10-09T05:22:31.480012",
     "simulated": true
   }
-]
+]{"event": "release_triggered", "ts": 1761450323, "id": "7ffffe8c-9ff4-4348-895f-29741fcd31fd"}

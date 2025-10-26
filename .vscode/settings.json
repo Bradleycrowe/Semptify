@@ -11,5 +11,32 @@
             "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot",
             "default": true
         }
+    ],
+    "taskExplorer.exclude": [
+        "**/.vscode-test/**",
+        "**/Assets/**",
+        "**/bin/**",
+        "**/build/**",
+        "**/dist/**",
+        "**/doc/**",
+        "**/example/**",
+        "**/examples/**",
+        "**/ext/**",
+        "**/obj/**",
+        "**/out/**",
+        "**/output/**",
+        "**/packages/**",
+        "**/release/**",
+        "**/releases/**",
+        "**/samples/**",
+        "**/sdks/**",
+        "**/static/**",
+        "**/target/**",
+        "**/test/**",
+        "**/third_party/**",
+        "**/vendor/**",
+        "**/work/**",
+        "/c:/Semptify/Semptify/backups/before_rename_20251021183523/Makefile",
+        "/c:/Semptify/Semptify/backups/before_rename_20251021222753/Makefile"
     ]
 }
