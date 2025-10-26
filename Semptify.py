@@ -1,4 +1,3 @@
-
 import os, json, time, uuid
 from flask import Flask, render_template, request, redirect, url_for
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -263,6 +262,10 @@ for m in ("register","metrics","readyz","vault"):
         app.register_blueprint(getattr(mod, m + "_bp"))
     except Exception:
         pass
+from modules.office_module.backend_demo import office_bp
+
+# Register the Office module blueprint
+app.register_blueprint(office_bp)
 
 # Minimal evidence prompt builder for test compatibility
 def _build_evidence_prompt(prompt, location, timestamp, form_type, form_data):
