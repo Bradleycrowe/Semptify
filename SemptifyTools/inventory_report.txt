@@ -79,3 +79,32 @@ D:\Semptify\Semptify\templates\_macros.html
 D:\Semptify\Semptify\templates\shell.html
 D:\Semptify\Semptify\templates\office.html
 
+# Inventory Report
+
+## Tools
+- PowerShell Scripts: 20+ identified
+- Python Scripts: 50+ identified
+- HTML Templates: 100+ identified
+
+## Modules
+- Flask Backend
+- PyQt5 GUI
+- OpenAPI Delivery Module
+
+## Links
+- Internal: 50+ references
+- External: 30+ references
+
+## Pages
+- Templates: 100+ HTML files
+- Static Pages: 20+ identified
+
+## Scripts
+- Deployment: 10+ PowerShell scripts
+- Backend: 50+ Python scripts
+
+## Next Steps
+1. Analyze dependencies and integration.
+2. Identify outdated or redundant components.
+3. Plan integration into the app.
+

@@ -1,0 +1,381 @@
+openapi: 3.0.3
+info:
+  title: Semptify Delivery Module API
+  version: 1.0.0
+  description: Delivery job creation, attempts, confirmation, file uploads, and webhook events for Semptify.
+servers:
+  - url: https://api.semptify.example
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    DeliveryStatus:
+      type: string
+      enum: [CREATED, PENDING, PARTIAL_COMPLETED, COMPLETED, FAILED, CANCELLED]
+    MethodType:
+      type: string
+      enum: [USPS, EMAIL, CERTIFIED_PRINT, TEXT, HAND_DELIVERED, SERVICE_IN_PERSON, FEDEX, COURT_SERVER, OTHER]
+    MethodStatus:
+      type: string
+      enum: [PENDING, ATTEMPTED, CONFIRMED, FAILED]
+    RecipientContact:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          type: string
+      additionalProperties: false
+    DeliveryMethod:
+      type: object
+      required: [id, type, status]
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/MethodType'
+        recipientName:
+          type: string
+        recipientContact:
+          $ref: '#/components/schemas/RecipientContact'
+        scheduledAt:
+          type: string
+          format: date-time
+        serviceProvider:
+          type: string
+        trackingNumber:
+          type: string
+        certifiedNumber:
+          type: string
+        proofFiles:
+          type: array
+          items:
+            type: string
+        instructions:
+          type: string
+        costEstimate:
+          type: number
+          format: double
+        currency:
+          type: string
+          example: USD
+        requiredFields:
+          type: array
+          items:
+            type: string
+        status:
+          $ref: '#/components/schemas/MethodStatus'
+    DeliveryHistory:
+      type: object
+      required: [id, deliveryMethodId, event, actor, timestamp]
+      properties:
+        id:
+          type: string
+        deliveryMethodId:
+          type: string
+        event:
+          type: string
+        actor:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+    DeliveryJob:
+      type: object
+      required: [id, caseId, createdBy, createdAt, methods, priorityOrder, status]
+      properties:
+        id:
+          type: string
+        caseId:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryMethod'
+        priorityOrder:
+          type: array
+          items:
+            type: string
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryHistory'
+        notes:
+          type: string
+    AttemptPayload:
+      type: object
+      required: [actor, attemptAt]
+      properties:
+        actor:
+          type: string
+        attemptAt:
+          type: string
+          format: date-time
+        providerResponse:
+          type: string
+        trackingNumber:
+          type: string
+        proofFileIds:
+          type: array
+          items:
+            type: string
+    ConfirmPayload:
+      type: object
+      required: [actor, confirmedAt]
+      properties:
+        actor:
+          type: string
+        confirmedAt:
+          type: string
+          format: date-time
+        proofFileIds:
+          type: array
+          items:
+            type: string
+    CreateDeliveryRequest:
+      type: object
+      required: [caseId, createdBy, createdAt, methods, priorityOrder, status]
+      properties:
+        caseId:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryMethod'
+        priorityOrder:
+          type: array
+          items:
+            type: string
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        notes:
+          type: string
+  responses:
+    BadRequest:
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+paths:
+  /api/deliveries:
+    post:
+      summary: Create delivery job
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliveryRequest'
+      responses:
+        '201':
+          description: Delivery job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryJob'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/deliveries/{deliveryId}:
+    get:
+      summary: Get delivery job by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryJob'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/deliveries/{deliveryId}/methods/{methodId}/attempt:
+    post:
+      summary: Record a delivery attempt for a method
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: methodId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttemptPayload'
+      responses:
+        '200':
+          description: Attempt recorded, returns updated DeliveryMethod and history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  method:
+                    $ref: '#/components/schemas/DeliveryMethod'
+                  historyEntry:
+                    $ref: '#/components/schemas/DeliveryHistory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/deliveries/{deliveryId}/methods/{methodId}/confirm:
+    post:
+      summary: Confirm a delivery method with proofs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: deliveryId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: methodId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmPayload'
+      responses:
+        '200':
+          description: Method confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  method:
+                    $ref: '#/components/schemas/DeliveryMethod'
+                  historyEntry:
+                    $ref: '#/components/schemas/DeliveryHistory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/cases/{caseId}/deliveries:
+    get:
+      summary: List deliveries for a case
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery job summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeliveryJob'
+  /api/files:
+    post:
+      summary: Upload file and return fileId
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                  filename:
+                    type: string
+                  contentType:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /webhooks/delivery-events:
+    post:
+      summary: Webhook endpoint for delivery events consumers may implement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                eventType:
+                  type: string
+                  enum: [DELIVERY_CREATED, DELIVERY_ATTEMPTED, DELIVERY_CONFIRMED, DELIVERY_FAILED]
+                payload:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Webhook received

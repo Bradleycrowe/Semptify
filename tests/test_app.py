@@ -1,7 +1,7 @@
 import os
 import tempfile
 import pytest
-from Semptify import app
+from c.Semptify.Semptify import app
 
 @pytest.fixture
 def client():
