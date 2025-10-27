@@ -2,8 +2,8 @@ import hashlib
 import sys
 
 
-def hash_token(raw: str) -> str:
-    return 'sha256:' + hashlib.sha256(raw.encode('utf-8')).hexdigest()
+def hash_token(token: str) -> str:
+    return 'sha256:' + hashlib.sha256(token.encode('utf-8')).hexdigest()
 
 
 if __name__ == '__main__':

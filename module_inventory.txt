@@ -1,0 +1,75 @@
+# Module Inventory
+
+## Working Modules
+
+1. **attorney_trail**
+   - **Status**: Integrated and functional.
+   - **Purpose**: Provides a step-by-step guide for attorneys.
+   - **Route**: `/law_notes/attorney_trail`
+
+2. **complaint_templates**
+   - **Status**: Integrated and functional.
+   - **Purpose**: Generates complaint templates based on jurisdiction and type.
+   - **Route**: `/law_notes/complaint_template`
+
+3. **mn_jurisdiction_checklist**
+   - **Status**: Functional.
+   - **Purpose**: Provides a checklist for Minnesota jurisdiction.
+   - **Route**: `/mn_checklist`
+
+4. **law_notes_actions**
+   - **Status**: Functional.
+   - **Purpose**: Provides various actions related to legal notes, such as generating demand letters, uploading evidence, and exporting packets.
+   - **Routes**:
+     - `/check_broker`
+     - `/file_broker_complaint`
+     - `/generate_demand_letter`
+     - `/identify_owner`
+     - `/file_owner_complaint`
+     - `/attach_evidence_packet`
+     - `/upload_evidence`
+     - `/group_evidence`
+     - `/export_evidence_packet`
+     - `/export_multilingual`
+
+## Modules Pending Integration
+
+1. **office_module**
+   - **Files**:
+     - `backend_demo.py`
+     - `ai_orchestrator.py`
+   - **Purpose**: Backend and AI orchestration functionalities.
+   - **Status**: Requires integration.
+
+2. **verify_module**
+   - **Files**:
+     - `verify_module.py`
+     - `verify_schema.json`
+   - **Purpose**: Verification-related functionalities.
+   - **Status**: Requires exploration and integration.
+
+3. **evidence_packet_builder**
+   - **Purpose**: Builds evidence packets.
+   - **Status**: Requires exploration.
+
+4. **evidence_metadata**
+   - **Purpose**: Manages metadata for evidence.
+   - **Status**: Requires exploration.
+
+## Modules in Idea/Concept Stage
+
+1. **public_exposure_module**
+   - **Purpose**: Controlled public campaign composer.
+   - **Status**: Conceptual.
+
+2. **greed_watch_dashboard**
+   - **Purpose**: Monitors landlord patterns and metrics.
+   - **Status**: Conceptual.
+
+3. **backend_offensive_bundle**
+   - **Purpose**: CLI for enforcement modules.
+   - **Status**: Conceptual.
+
+4. **gui_offensive_bundle**
+   - **Purpose**: Unified GUI shell for multiple modules.
+   - **Status**: Conceptual.

@@ -1,7 +1,38 @@
-import os, json, time, uuid
-from flask import Flask, render_template, request, redirect, url_for
+import os
+import json
+import time
+import uuid
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from security import _get_or_create_csrf_token
+
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
+
+# Core Pages
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
+@app.route('/vault')
+def vault():
+    user = {
+        "name": "John Doe",
+        "id": "u1"
+    }
+    return render_template('vault.html', user=user)
+
+@app.route('/admin')
+def admin_dashboard():
+    return render_template('admin.html')
+
+# Groups (Example)
+@app.route('/group/<group_id>')
+def group_page(group_id):
+    return render_template('group.html', group_id=group_id)
 
 # Minimal /legal_notary/start POST endpoint for RON flow simulation
 @app.route("/legal_notary/start", methods=["POST"])
@@ -10,12 +41,7 @@ def legal_notary_start():
     if not token:
         return "Unauthorized", 401
     # Simulate RON flow: redirect
-    return "", 302
-# filepath: d:\Semptify\Semptify\Semptify.py
-import os, json, time, uuid
-from flask import Flask, render_template, request, redirect, url_for
-app = Flask(__name__, template_folder="templates", static_folder="static")
-app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
+    return "", 302, {"Location": "/legal_notary/return?session_id=12345"}
 
 # Minimal download endpoint for witness_statement.txt
 @app.route("/resources/download/witness_statement.txt", methods=["GET"])
@@ -30,7 +56,6 @@ except ImportError:
         import hashlib
         return hashlib.sha256(token.encode()).hexdigest()
 
-import os
 def _is_enforced():
     return os.environ.get('SECURITY_MODE', 'open') == 'enforced'
 
@@ -40,7 +65,7 @@ def _is_admin_token(token):
 @app.route("/admin", strict_slashes=False)
 def admin():
     token = request.args.get('token')
-    csrf_token = uuid.uuid4().hex
+    csrf_token = _get_or_create_csrf_token()
     if _is_enforced():
         if not token or not _is_admin_token(token):
             return "Unauthorized", 401
@@ -55,9 +80,7 @@ def admin_status():
     if _is_enforced():
         if not token or not _is_admin_token(token):
             return "Unauthorized", 401
-            # Return expected JSON for enforced mode
-            return jsonify({"security_mode": "enforced", "status": "ok", "metrics": {"requests_total": 123, "errors_total": 0}}), 200
-    # Return expected JSON for open mode
+        return jsonify({"security_mode": "enforced", "status": "ok", "metrics": {"requests_total": 123, "errors_total": 0}}), 200
     return json.dumps({"status": "open", "security_mode": "open"}), 200, {"Content-Type": "application/json"}
 
 # Minimal /copilot page
@@ -81,8 +104,7 @@ def certified_post():
     if not token:
         return "Unauthorized", 401
     if request.method == "POST":
-        user_dir = os.path.join("uploads", "vault", "u1")
-        os.makedirs(user_dir, exist_ok=True)
+        user_dir = get_user_dir()
         cert_name = f"certpost_{int(time.time())}_test.json"
         cert_path = os.path.join(user_dir, cert_name)
         cert_data = {
@@ -157,12 +179,8 @@ def notary_upload():
     file = request.files.get('file')
     if not file:
         return "Missing file", 400
-    user_dir = os.path.join("uploads", "vault", "u1")
-    os.makedirs(user_dir, exist_ok=True)
-    dest_path = os.path.join(user_dir, file.filename)
-    file.save(dest_path)
-    # Create notary certificate JSON file
-    import time, json
+    user_dir = get_user_dir()
+    save_file(file, user_dir)
     cert_name = f"notary_{int(time.time())}_test.json"
     cert_path = os.path.join(user_dir, cert_name)
     cert = {"type": "notary_attestation", "filename": file.filename}
@@ -175,23 +193,17 @@ def legal_notary():
     token = request.args.get('user_token') or request.form.get('user_token')
     if not token:
         return "Unauthorized", 401
-        if request.method == "POST":
-            # Save legal notary record as JSON
-            token = request.form.get('user_token')
-            if not token:
-                return "Unauthorized", 401
-            user_dir = os.path.join("uploads", "vault", "u1")
-            os.makedirs(user_dir, exist_ok=True)
-            import time, json
-            cert_name = f"legalnotary_{int(time.time())}_test.json"
-            cert_path = os.path.join(user_dir, cert_name)
-            cert = {"type": "legal_notary_record", "status": "created"}
-            with open(cert_path, "w", encoding="utf-8") as f:
-                json.dump(cert, f)
-            return "Legal Notary Record Created", 302
+    if request.method == "POST":
+        user_dir = os.path.join("uploads", "vault", "u1")
+        os.makedirs(user_dir, exist_ok=True)
+        cert_name = f"legalnotary_{int(time.time())}_test.json"
+        cert_path = os.path.join(user_dir, cert_name)
         cert = {"type": "legal_notary_record", "status": "created"}
-        return jsonify(cert), 200
-    return "Legal Notary Form", 200
+        with open(cert_path, "w", encoding="utf-8") as f:
+            json.dump(cert, f)
+        return "Legal Notary Record Created", 302, {"Location": f"/vault/certificates/{cert_name}"}
+    cert = {"type": "legal_notary_record", "status": "created"}
+    return jsonify(cert), 200
 
 @app.route("/vault/certificates", methods=["GET"])
 @app.route("/vault/certificates/<cert>", methods=["GET"])
@@ -206,10 +218,14 @@ def vault_certificates(cert=None):
             with open(cert_path, "r", encoding="utf-8") as f:
                 return f.read(), 200, {"Content-Type": "application/json"}
         return "Not found", 404
-    files = []
-    if os.path.exists(user_dir):
-        files = os.listdir(user_dir)
-    return json.dumps(files), 200, {"Content-Type": "application/json"}
+    files = [f for f in os.listdir(user_dir) if f.endswith('.json')]
+    certificates = []
+    for file in files:
+        with open(os.path.join(user_dir, file), "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if data.get("type") == "notary_attestation":
+                certificates.append(file)
+    return jsonify(certificates), 200
 
 # Minimal download endpoint
 @app.route("/resources/download/filing_packet_timeline.txt", methods=["GET"])
@@ -229,8 +245,8 @@ def release_now():
 
 
 # Minimal /vault endpoint requiring user_token
-@app.route("/vault", methods=["GET"])
-def vault():
+@app.route("/vault", methods=["GET"], endpoint="vault_get")
+def vault_with_token():
     token = request.args.get('user_token')
     if not token:
         return "Unauthorized", 401
@@ -245,8 +261,11 @@ def vault_upload():
     file = request.files.get('file')
     if not file:
         return "Missing file", 400
-    user_dir = os.path.join("uploads", "vault", "u1")
+    user_id = token  # Assuming token corresponds to user_id for simplicity
+    user_dir = os.path.join("uploads", "vault", user_id)
     os.makedirs(user_dir, exist_ok=True)
+    if not file.filename:
+        return "Invalid file name", 400
     file.save(os.path.join(user_dir, file.filename))
     return "File uploaded", 200
 
@@ -254,18 +273,59 @@ def vault_upload():
 try:
     from admin.routes import admin_bp
     app.register_blueprint(admin_bp)
-except Exception:
+except ImportError:
     pass
-for m in ("register","metrics","readyz","vault"):
+for m in ("register", "metrics", "readyz", "vault"):
     try:
         mod = __import__(m)
         app.register_blueprint(getattr(mod, m + "_bp"))
-    except Exception:
+    except AttributeError:
         pass
-from modules.office_module.backend_demo import office_bp
 
-# Register the Office module blueprint
-app.register_blueprint(office_bp)
+# Register the vault blueprint
+try:
+    from vault import vault_bp as vault_blueprint
+    app.register_blueprint(vault_blueprint, name="unique_vault_blueprint")
+except ImportError:
+    pass
+
+# Register the tenant_narrative blueprint
+try:
+    from tenant_narrative_module import tenant_narrative_bp
+    app.register_blueprint(tenant_narrative_bp)
+except ImportError:
+    pass
+
+# Register the public_exposure blueprint
+try:
+    from modules.public_exposure_module import public_exposure_bp
+    app.register_blueprint(public_exposure_bp)
+except ImportError:
+    pass
+
+# Register the evidence_meta blueprint
+try:
+    from modules.law_notes.evidence_metadata import evidence_meta
+    app.register_blueprint(evidence_meta)
+except ImportError:
+    pass
+
+# Refactor repetitive code into helper functions
+
+def get_user_dir():
+    user_dir = os.path.join("uploads", "vault", "u1")
+    os.makedirs(user_dir, exist_ok=True)
+    return user_dir
+
+def save_file(file, user_dir):
+    if file and file.filename:
+        dest_path = os.path.join(user_dir, file.filename)
+        file.save(dest_path)
+        return dest_path
+    raise ValueError("Invalid file or filename")
+
+# Fix hash_token import type mismatch
+from scripts.hash_token import hash_token as _hash_token  # Ensure parameter names match expected signature
 
 # Minimal evidence prompt builder for test compatibility
 def _build_evidence_prompt(prompt, location, timestamp, form_type, form_data):
@@ -310,18 +370,18 @@ def witness_statement_save():
     return "Unauthorized", 401
 
 @app.route("/api/copilot", methods=["POST"])
-def api_copilot():
+def copilot_api():
     data = request.get_json(force=True, silent=True)
     if not data or 'prompt' not in data:
-           return {"error": "missing_prompt"}, 400
-    # Simulate copilot response
-    return {"result": "copilot output"}, 200
+        return {"error": "missing_prompt"}, 400
+    return {"status": "ok"}
 
+# Minimal /health endpoint
 @app.route("/health")
 def health():
     return {"status":"ok"}
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=True)
 

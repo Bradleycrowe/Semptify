@@ -1,5 +1,5 @@
 import os
-from Semptify import app
+from c.Semptify.Semptify import app
 
 
 def test_admin_open_mode_access():

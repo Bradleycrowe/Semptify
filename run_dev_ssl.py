@@ -6,6 +6,10 @@ if __name__ == '__main__':
     cert_file = os.environ.get('DEV_SSL_CERT', os.path.join('security', 'dev-local.crt'))
     key_file = os.environ.get('DEV_SSL_KEY', os.path.join('security', 'dev-local.key'))
 
+    # Ensure SSL files exist
+    if not os.path.exists(cert_file) or not os.path.exists(key_file):
+        raise FileNotFoundError(f"SSL certificate or key file not found: {cert_file}, {key_file}")
+
     # Enforce HTTPS in-app redirects/headers if desired
     os.environ.setdefault('FORCE_HTTPS', '1')
 

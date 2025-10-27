@@ -2,7 +2,7 @@
 import os, time, json, hashlib
 from flask import Blueprint, request, jsonify, abort, send_file
 from werkzeug.utils import secure_filename
-vault_bp = Blueprint("vault", __name__)
+vault_bp = Blueprint("vault_blueprint", __name__)
 
 @vault_bp.route("/vault", methods=["GET","POST"])
 def vault():
@@ -12,7 +12,7 @@ def vault():
     if not t:
         abort(401)
     f = request.files.get("file")
-    if not f:
+    if not f or not f.filename:
         return "no file", 400
     userdir = os.path.join("uploads","vault", t)
     os.makedirs(userdir, exist_ok=True)
