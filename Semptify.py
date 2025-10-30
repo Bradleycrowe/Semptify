@@ -9,9 +9,9 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
 
 # Core Pages
-@app.route('/')
+@app.route("/")
 def home():
-    return render_template('home.html')
+    return render_template('index.html')
 
 @app.route('/register')
 def register():

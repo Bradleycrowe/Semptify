@@ -1,270 +1,358 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generator="Robot 7.3.2 (Python 3.14.0 on win32)" generated="2025-10-27T14:00:49.830383" rpa="false" schemaversion="5">
-<suite id="s1" name="Backups" source="c:\Semptify\Semptify\backups">
-<suite id="s1-s1" name="Before Rename 20251021183523" source="c:\Semptify\Semptify\backups\before_rename_20251021183523">
-<suite id="s1-s1-s1" name="Robot Smoke" source="c:\Semptify\Semptify\backups\before_rename_20251021183523\robot_smoke.robot">
+<robot generator="Robot 7.3.2 (Python 3.14.0 on win32)" generated="2025-10-27T15:17:21.058280" rpa="false" schemaversion="5">
+<suite id="s1" name="Robot &amp; Backups">
+<suite id="s1-s1" name="Robot" source="c:\Semptify\Semptify\robot">
+<suite id="s1-s1-s1" name="Smoke" source="c:\Semptify\Semptify\robot\smoke.robot">
 <kw name="Create Session" owner="RequestsLibrary" type="SETUP">
-<msg time="2025-10-27T14:00:50.660700" level="INFO">Creating Session using : alias=semptify, url=http://127.0.0.1:8081, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
+<msg time="2025-10-27T15:17:21.714283" level="INFO">Creating Session using : alias=semptify, url=http://127.0.0.1:8081, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
 <arg>semptify</arg>
 <arg>${BASE_URL}</arg>
 <doc>Create Session: create a HTTP session to a server</doc>
-<status status="PASS" start="2025-10-27T14:00:50.659927" elapsed="0.025431"/>
+<status status="PASS" start="2025-10-27T15:17:21.713346" elapsed="0.004854"/>
 </kw>
 <test id="s1-s1-s1-t1" name="Health Endpoint Returns 200" line="9">
 <kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:00:52.776109" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBC8DE80&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:00:55.000374" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCF6710&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:00:57.427848" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCF6990&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:00:59.463990" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBD4F950&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<msg time="2025-10-27T15:17:23.764910" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF899BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:25.983746" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF90E350&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:28.398449" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF90E5D0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:30.444653" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8FEEA0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
 <var>${resp}</var>
 <arg>semptify</arg>
 <arg>/health</arg>
 <doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:00:50.687073" elapsed="8.954548">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBD4F950&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+<status status="FAIL" start="2025-10-27T15:17:21.720166" elapsed="8.743170">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8FEEA0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
 </kw>
 <kw name="Should Be Equal As Integers" owner="BuiltIn">
 <arg>${resp.status_code}</arg>
 <arg>200</arg>
 <doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="NOT RUN" start="2025-10-27T14:00:59.642478" elapsed="0.000266"/>
+<status status="NOT RUN" start="2025-10-27T15:17:30.464218" elapsed="0.000197"/>
 </kw>
-<status status="FAIL" start="2025-10-27T14:00:50.685866" elapsed="8.957723">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBD4F950&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+<status status="FAIL" start="2025-10-27T15:17:21.718830" elapsed="8.746263">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8FEEA0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
 </test>
 <test id="s1-s1-s1-t2" name="Readyz Endpoint Returns 200" line="13">
 <kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:01:01.661352" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBD64180&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:03.913762" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBD2A7B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:06.344603" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC6B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:08.381417" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCAF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<msg time="2025-10-27T15:17:32.523665" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8FF100&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:17:34.757719" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF94A570&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:17:37.201865" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5106B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:17:39.230769" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF510AF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
 <var>${resp}</var>
 <arg>semptify</arg>
 <arg>/readyz</arg>
 <doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:00:59.645438" elapsed="8.744747">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCAF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+<status status="FAIL" start="2025-10-27T15:17:30.467119" elapsed="8.770483">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF510AF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
 </kw>
 <kw name="Should Be Equal As Integers" owner="BuiltIn">
 <arg>${resp.status_code}</arg>
 <arg>200</arg>
 <doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="NOT RUN" start="2025-10-27T14:01:08.390985" elapsed="0.000187"/>
+<status status="NOT RUN" start="2025-10-27T15:17:39.238436" elapsed="0.000182"/>
 </kw>
-<status status="FAIL" start="2025-10-27T14:00:59.644879" elapsed="8.746926">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCAF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+<status status="FAIL" start="2025-10-27T15:17:30.466396" elapsed="8.773046">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF510AF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
 </test>
 <test id="s1-s1-s1-t3" name="Index Contains Banner" line="17">
 <kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:01:10.422940" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD8C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:12.632260" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFDBF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:15.074309" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE030&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:17.112890" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<msg time="2025-10-27T15:17:41.253691" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5118C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:17:43.488007" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF511BF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:17:45.920215" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512030&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:17:47.931630" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
 <var>${resp}</var>
 <arg>semptify</arg>
 <arg>/</arg>
 <doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:01:08.394075" elapsed="8.724758">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</kw>
-<kw name="Should Contain" owner="BuiltIn">
-<arg>${resp.text}</arg>
-<arg>SemptifyGUI is live</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="NOT RUN" start="2025-10-27T14:01:17.119710" elapsed="0.000204"/>
-</kw>
-<status status="FAIL" start="2025-10-27T14:01:08.393408" elapsed="8.727304">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</test>
-<status status="FAIL" start="2025-10-27T14:00:50.437604" elapsed="26.685054"/>
-</suite>
-<status status="FAIL" start="2025-10-27T14:00:50.433689" elapsed="26.691355"/>
-</suite>
-<suite id="s1-s2" name="Before Rename 20251021185657" source="c:\Semptify\Semptify\backups\before_rename_20251021185657">
-<suite id="s1-s2-s1" name="Robot Smoke" source="c:\Semptify\Semptify\backups\before_rename_20251021185657\robot_smoke.robot">
-<kw name="Create Session" owner="RequestsLibrary" type="SETUP">
-<msg time="2025-10-27T14:01:17.134193" level="INFO">Creating Session using : alias=semptify, url=http://127.0.0.1:8081, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
-<arg>semptify</arg>
-<arg>${BASE_URL}</arg>
-<doc>Create Session: create a HTTP session to a server</doc>
-<status status="PASS" start="2025-10-27T14:01:17.133931" elapsed="0.001153"/>
-</kw>
-<test id="s1-s2-s1-t1" name="Health Endpoint Returns 200" line="9">
-<kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:01:19.161033" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCBBBD0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:21.391767" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCBBAC0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:23.824577" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCBB460&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:25.854755" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE470&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
-<var>${resp}</var>
-<arg>semptify</arg>
-<arg>/health</arg>
-<doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:01:17.135978" elapsed="8.727444">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE470&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</kw>
-<kw name="Should Be Equal As Integers" owner="BuiltIn">
-<arg>${resp.status_code}</arg>
-<arg>200</arg>
-<doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="NOT RUN" start="2025-10-27T14:01:25.864202" elapsed="0.000181"/>
-</kw>
-<status status="FAIL" start="2025-10-27T14:01:17.135270" elapsed="8.729737">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE470&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</test>
-<test id="s1-s2-s1-t2" name="Readyz Endpoint Returns 200" line="13">
-<kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:01:27.904720" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFDF20&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:30.138866" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD6A0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:32.572053" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC270&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:34.604838" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD260&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
-<var>${resp}</var>
-<arg>semptify</arg>
-<arg>/readyz</arg>
-<doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:01:25.867019" elapsed="8.747201">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD260&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</kw>
-<kw name="Should Be Equal As Integers" owner="BuiltIn">
-<arg>${resp.status_code}</arg>
-<arg>200</arg>
-<doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="NOT RUN" start="2025-10-27T14:01:34.614934" elapsed="0.000153"/>
-</kw>
-<status status="FAIL" start="2025-10-27T14:01:25.866418" elapsed="8.749320">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD260&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</test>
-<test id="s1-s2-s1-t3" name="Index Contains Banner" line="17">
-<kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:01:36.640177" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD040&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:38.858135" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCAF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:41.274710" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC7C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:43.303496" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC050&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
-<var>${resp}</var>
-<arg>semptify</arg>
-<arg>/</arg>
-<doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:01:34.618147" elapsed="8.692194">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC050&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</kw>
-<kw name="Should Contain" owner="BuiltIn">
-<arg>${resp.text}</arg>
-<arg>SemptifyGUI is live</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="NOT RUN" start="2025-10-27T14:01:43.311193" elapsed="0.000205"/>
-</kw>
-<status status="FAIL" start="2025-10-27T14:01:34.617352" elapsed="8.694851">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC050&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</test>
-<status status="FAIL" start="2025-10-27T14:01:17.130547" elapsed="26.183198"/>
-</suite>
-<status status="FAIL" start="2025-10-27T14:01:17.126955" elapsed="26.189126"/>
-</suite>
-<suite id="s1-s3" name="Before Rename 20251021222753" source="c:\Semptify\Semptify\backups\before_rename_20251021222753">
-<suite id="s1-s3-s1" name="Robot Smoke" source="c:\Semptify\Semptify\backups\before_rename_20251021222753\robot_smoke.robot">
-<kw name="Create Session" owner="RequestsLibrary" type="SETUP">
-<msg time="2025-10-27T14:01:43.325121" level="INFO">Creating Session using : alias=semptify, url=http://127.0.0.1:8081, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
-<arg>semptify</arg>
-<arg>${BASE_URL}</arg>
-<doc>Create Session: create a HTTP session to a server</doc>
-<status status="PASS" start="2025-10-27T14:01:43.324859" elapsed="0.001151"/>
-</kw>
-<test id="s1-s3-s1-t1" name="Health Endpoint Returns 200" line="9">
-<kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:01:45.370793" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3C160&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:47.606084" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3C490&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:50.038836" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3C8D0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:52.072178" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3CC00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
-<var>${resp}</var>
-<arg>semptify</arg>
-<arg>/health</arg>
-<doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:01:43.326871" elapsed="8.753690">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3CC00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</kw>
-<kw name="Should Be Equal As Integers" owner="BuiltIn">
-<arg>${resp.status_code}</arg>
-<arg>200</arg>
-<doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="NOT RUN" start="2025-10-27T14:01:52.081521" elapsed="0.000208"/>
-</kw>
-<status status="FAIL" start="2025-10-27T14:01:43.326202" elapsed="8.756351">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3CC00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</test>
-<test id="s1-s3-s1-t2" name="Readyz Endpoint Returns 200" line="13">
-<kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:01:54.106404" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3D370&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:56.324370" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3D480&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:58.757710" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFFCE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:02:00.789812" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFFDF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
-<var>${resp}</var>
-<arg>semptify</arg>
-<arg>/readyz</arg>
-<doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:01:52.084658" elapsed="8.712987">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFFDF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</kw>
-<kw name="Should Be Equal As Integers" owner="BuiltIn">
-<arg>${resp.status_code}</arg>
-<arg>200</arg>
-<doc>Fails if objects are unequal after converting them to integers.</doc>
-<status status="NOT RUN" start="2025-10-27T14:02:00.798493" elapsed="0.000209"/>
-</kw>
-<status status="FAIL" start="2025-10-27T14:01:52.083968" elapsed="8.715448">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFFDF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
-</test>
-<test id="s1-s3-s1-t3" name="Index Contains Banner" line="17">
-<kw name="GET On Session" owner="RequestsLibrary">
-<msg time="2025-10-27T14:02:02.822698" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFF460&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:02:05.056570" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCC00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:02:07.488724" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCAF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:02:09.521438" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC160&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
-<var>${resp}</var>
-<arg>semptify</arg>
-<arg>/</arg>
-<doc>Sends a GET request on a previously created HTTP Session.</doc>
-<status status="FAIL" start="2025-10-27T14:02:00.801423" elapsed="8.727865">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC160&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+<status status="FAIL" start="2025-10-27T15:17:39.241926" elapsed="8.695631">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
 </kw>
 <kw name="Should Contain" owner="BuiltIn">
 <arg>${resp.text}</arg>
 <arg>Semptify is live</arg>
 <doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="NOT RUN" start="2025-10-27T14:02:09.530184" elapsed="0.000251"/>
+<status status="NOT RUN" start="2025-10-27T15:17:47.938481" elapsed="0.000220"/>
 </kw>
-<status status="FAIL" start="2025-10-27T14:02:00.800820" elapsed="8.730399">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC160&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+<status status="FAIL" start="2025-10-27T15:17:39.241008" elapsed="8.698390">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
 </test>
-<status status="FAIL" start="2025-10-27T14:01:43.320457" elapsed="26.212207"/>
+<status status="FAIL" start="2025-10-27T15:17:21.499515" elapsed="26.441751"/>
 </suite>
-<status status="FAIL" start="2025-10-27T14:01:43.317994" elapsed="26.216716"/>
+<status status="FAIL" start="2025-10-27T15:17:21.495690" elapsed="26.447500"/>
 </suite>
-<status status="FAIL" start="2025-10-27T14:00:50.382167" elapsed="79.154615"/>
+<suite id="s1-s2" name="Backups" source="c:\Semptify\Semptify\backups">
+<suite id="s1-s2-s1" name="Before Rename 20251021183523" source="c:\Semptify\Semptify\backups\before_rename_20251021183523">
+<suite id="s1-s2-s1-s1" name="Robot Smoke" source="c:\Semptify\Semptify\backups\before_rename_20251021183523\robot_smoke.robot">
+<kw name="Create Session" owner="RequestsLibrary" type="SETUP">
+<msg time="2025-10-27T15:17:47.955053" level="INFO">Creating Session using : alias=semptify, url=http://127.0.0.1:8081, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
+<arg>semptify</arg>
+<arg>${BASE_URL}</arg>
+<doc>Create Session: create a HTTP session to a server</doc>
+<status status="PASS" start="2025-10-27T15:17:47.954788" elapsed="0.001291"/>
+</kw>
+<test id="s1-s2-s1-s1-t1" name="Health Endpoint Returns 200" line="9">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:17:49.979470" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5128B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:52.227173" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5109E0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:54.658117" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF510D10&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:56.690905" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/health</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:17:47.957010" elapsed="8.741427">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Be Equal As Integers" owner="BuiltIn">
+<arg>${resp.status_code}</arg>
+<arg>200</arg>
+<doc>Fails if objects are unequal after converting them to integers.</doc>
+<status status="NOT RUN" start="2025-10-27T15:17:56.699271" elapsed="0.000170"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:17:47.956318" elapsed="8.743918">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<test id="s1-s2-s1-s1-t2" name="Readyz Endpoint Returns 200" line="13">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:17:58.724606" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512F10&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:00.956970" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513350&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:03.375388" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513680&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:05.406284" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513AC0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/readyz</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:17:56.702296" elapsed="8.711670">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513AC0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Be Equal As Integers" owner="BuiltIn">
+<arg>${resp.status_code}</arg>
+<arg>200</arg>
+<doc>Fails if objects are unequal after converting them to integers.</doc>
+<status status="NOT RUN" start="2025-10-27T15:18:05.414748" elapsed="0.000226"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:17:56.701639" elapsed="8.714117">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513AC0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<test id="s1-s2-s1-s1-t3" name="Index Contains Banner" line="17">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:18:07.424317" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524050&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:09.673169" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524380&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:12.106734" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5247C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:14.141159" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524AF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:18:05.417889" elapsed="8.733879">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524AF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${resp.text}</arg>
+<arg>SemptifyGUI is live</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="NOT RUN" start="2025-10-27T15:18:14.152548" elapsed="0.000213"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:18:05.417264" elapsed="8.736216">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524AF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<status status="FAIL" start="2025-10-27T15:17:47.951600" elapsed="26.203496"/>
+</suite>
+<status status="FAIL" start="2025-10-27T15:17:47.948662" elapsed="26.209284"/>
+</suite>
+<suite id="s1-s2-s2" name="Before Rename 20251021185657" source="c:\Semptify\Semptify\backups\before_rename_20251021185657">
+<suite id="s1-s2-s2-s1" name="Robot Smoke" source="c:\Semptify\Semptify\backups\before_rename_20251021185657\robot_smoke.robot">
+<kw name="Create Session" owner="RequestsLibrary" type="SETUP">
+<msg time="2025-10-27T15:18:14.167775" level="INFO">Creating Session using : alias=semptify, url=http://127.0.0.1:8081, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
+<arg>semptify</arg>
+<arg>${BASE_URL}</arg>
+<doc>Create Session: create a HTTP session to a server</doc>
+<status status="PASS" start="2025-10-27T15:18:14.167503" elapsed="0.001022"/>
+</kw>
+<test id="s1-s2-s2-s1-t1" name="Health Endpoint Returns 200" line="9">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:18:16.191077" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526030&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:18.426402" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:20.856440" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513F00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:22.878846" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513020&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/health</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:18:14.169430" elapsed="8.716407">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513020&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Be Equal As Integers" owner="BuiltIn">
+<arg>${resp.status_code}</arg>
+<arg>200</arg>
+<doc>Fails if objects are unequal after converting them to integers.</doc>
+<status status="NOT RUN" start="2025-10-27T15:18:22.886615" elapsed="0.000229"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:18:14.168728" elapsed="8.718896">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513020&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<test id="s1-s2-s2-s1-t2" name="Readyz Endpoint Returns 200" line="13">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:18:24.907526" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5139B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:27.141206" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5138A0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:29.564363" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5128B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:31.577524" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/readyz</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:18:22.892184" elapsed="8.690661">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Be Equal As Integers" owner="BuiltIn">
+<arg>${resp.status_code}</arg>
+<arg>200</arg>
+<doc>Fails if objects are unequal after converting them to integers.</doc>
+<status status="NOT RUN" start="2025-10-27T15:18:31.583683" elapsed="0.000187"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:18:22.891139" elapsed="8.693586">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<test id="s1-s2-s2-s1-t3" name="Index Contains Banner" line="17">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:18:33.608764" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF510C00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:35.871950" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512690&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:38.305865" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8B9D00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:40.323356" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8BB680&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:18:31.586840" elapsed="8.742225">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8BB680&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${resp.text}</arg>
+<arg>SemptifyGUI is live</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="NOT RUN" start="2025-10-27T15:18:40.329952" elapsed="0.000292"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:18:31.586144" elapsed="8.744780">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8BB680&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<status status="FAIL" start="2025-10-27T15:18:14.163196" elapsed="26.169170"/>
+</suite>
+<status status="FAIL" start="2025-10-27T15:18:14.160259" elapsed="26.174343"/>
+</suite>
+<suite id="s1-s2-s3" name="Before Rename 20251021222753" source="c:\Semptify\Semptify\backups\before_rename_20251021222753">
+<suite id="s1-s2-s3-s1" name="Robot Smoke" source="c:\Semptify\Semptify\backups\before_rename_20251021222753\robot_smoke.robot">
+<kw name="Create Session" owner="RequestsLibrary" type="SETUP">
+<msg time="2025-10-27T15:18:40.344151" level="INFO">Creating Session using : alias=semptify, url=http://127.0.0.1:8081, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
+<arg>semptify</arg>
+<arg>${BASE_URL}</arg>
+<doc>Create Session: create a HTTP session to a server</doc>
+<status status="PASS" start="2025-10-27T15:18:40.343747" elapsed="0.001396"/>
+</kw>
+<test id="s1-s2-s3-s1-t1" name="Health Endpoint Returns 200" line="9">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:18:42.370975" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524E20&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:44.608617" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524D10&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:47.024420" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5247C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:49.057453" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524C00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/health</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:18:40.346393" elapsed="8.720345">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524C00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Be Equal As Integers" owner="BuiltIn">
+<arg>${resp.status_code}</arg>
+<arg>200</arg>
+<doc>Fails if objects are unequal after converting them to integers.</doc>
+<status status="NOT RUN" start="2025-10-27T15:18:49.067740" elapsed="0.000228"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:18:40.345450" elapsed="8.723250">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524C00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<test id="s1-s2-s3-s1-t2" name="Readyz Endpoint Returns 200" line="13">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:18:51.105425" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526AD0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:53.337506" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5267A0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:55.762488" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5269C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:57.791853" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526E00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/readyz</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:18:49.070867" elapsed="8.736995">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526E00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Be Equal As Integers" owner="BuiltIn">
+<arg>${resp.status_code}</arg>
+<arg>200</arg>
+<doc>Fails if objects are unequal after converting them to integers.</doc>
+<status status="NOT RUN" start="2025-10-27T15:18:57.809009" elapsed="0.000270"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:18:49.070139" elapsed="8.740112">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: /readyz (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526E00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<test id="s1-s2-s3-s1-t3" name="Index Contains Banner" line="17">
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-10-27T15:18:59.838089" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527130&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:19:02.074245" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527680&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:19:04.493328" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527350&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:19:06.507118" level="FAIL">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527BD0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</msg>
+<var>${resp}</var>
+<arg>semptify</arg>
+<arg>/</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="FAIL" start="2025-10-27T15:18:57.813429" elapsed="8.701690">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527BD0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</kw>
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${resp.text}</arg>
+<arg>Semptify is live</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="NOT RUN" start="2025-10-27T15:19:06.515894" elapsed="0.000164"/>
+</kw>
+<status status="FAIL" start="2025-10-27T15:18:57.812389" elapsed="8.704470">ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=8081): Max retries exceeded with url: / (Caused by NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527BD0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))</status>
+</test>
+<status status="FAIL" start="2025-10-27T15:18:40.339357" elapsed="26.179115"/>
+</suite>
+<status status="FAIL" start="2025-10-27T15:18:40.336862" elapsed="26.183386"/>
+</suite>
+<status status="FAIL" start="2025-10-27T15:17:47.945033" elapsed="78.577315"/>
+</suite>
+<status status="FAIL" start="2025-10-27T15:17:21.440845" elapsed="105.084332"/>
 </suite>
 <statistics>
 <total>
-<stat pass="0" fail="9" skip="0">All Tests</stat>
+<stat pass="0" fail="12" skip="0">All Tests</stat>
 </total>
 <tag>
 </tag>
 <suite>
-<stat name="Backups" id="s1" pass="0" fail="9" skip="0">Backups</stat>
-<stat name="Before Rename 20251021183523" id="s1-s1" pass="0" fail="3" skip="0">Backups.Before Rename 20251021183523</stat>
-<stat name="Robot Smoke" id="s1-s1-s1" pass="0" fail="3" skip="0">Backups.Before Rename 20251021183523.Robot Smoke</stat>
-<stat name="Before Rename 20251021185657" id="s1-s2" pass="0" fail="3" skip="0">Backups.Before Rename 20251021185657</stat>
-<stat name="Robot Smoke" id="s1-s2-s1" pass="0" fail="3" skip="0">Backups.Before Rename 20251021185657.Robot Smoke</stat>
-<stat name="Before Rename 20251021222753" id="s1-s3" pass="0" fail="3" skip="0">Backups.Before Rename 20251021222753</stat>
-<stat name="Robot Smoke" id="s1-s3-s1" pass="0" fail="3" skip="0">Backups.Before Rename 20251021222753.Robot Smoke</stat>
+<stat name="Robot &amp; Backups" id="s1" pass="0" fail="12" skip="0">Robot &amp; Backups</stat>
+<stat name="Robot" id="s1-s1" pass="0" fail="3" skip="0">Robot &amp; Backups.Robot</stat>
+<stat name="Smoke" id="s1-s1-s1" pass="0" fail="3" skip="0">Robot &amp; Backups.Robot.Smoke</stat>
+<stat name="Backups" id="s1-s2" pass="0" fail="9" skip="0">Robot &amp; Backups.Backups</stat>
+<stat name="Before Rename 20251021183523" id="s1-s2-s1" pass="0" fail="3" skip="0">Robot &amp; Backups.Backups.Before Rename 20251021183523</stat>
+<stat name="Robot Smoke" id="s1-s2-s1-s1" pass="0" fail="3" skip="0">Robot &amp; Backups.Backups.Before Rename 20251021183523.Robot Smoke</stat>
+<stat name="Before Rename 20251021185657" id="s1-s2-s2" pass="0" fail="3" skip="0">Robot &amp; Backups.Backups.Before Rename 20251021185657</stat>
+<stat name="Robot Smoke" id="s1-s2-s2-s1" pass="0" fail="3" skip="0">Robot &amp; Backups.Backups.Before Rename 20251021185657.Robot Smoke</stat>
+<stat name="Before Rename 20251021222753" id="s1-s2-s3" pass="0" fail="3" skip="0">Robot &amp; Backups.Backups.Before Rename 20251021222753</stat>
+<stat name="Robot Smoke" id="s1-s2-s3-s1" pass="0" fail="3" skip="0">Robot &amp; Backups.Backups.Before Rename 20251021222753.Robot Smoke</stat>
 </suite>
 </statistics>
 <errors>
-<msg time="2025-10-27T14:00:52.776109" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBC8DE80&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:00:55.000374" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCF6710&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:00:57.427848" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCF6990&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:01.661352" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBD64180&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:03.913762" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBD2A7B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:06.344603" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC6B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:10.422940" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD8C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:12.632260" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFDBF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:15.074309" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFE030&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:19.161033" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCBBBD0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:21.391767" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCBBAC0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:23.824577" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBCBB460&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:27.904720" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFDF20&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:30.138866" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD6A0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:32.572053" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC270&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:36.640177" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFD040&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:38.858135" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCAF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:41.274710" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFC7C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:01:45.370793" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3C160&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:47.606084" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3C490&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:50.038836" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3C8D0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
-<msg time="2025-10-27T14:01:54.106404" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3D370&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:56.324370" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBE3D480&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:01:58.757710" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFFCE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
-<msg time="2025-10-27T14:02:02.822698" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFF460&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:02:05.056570" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCC00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
-<msg time="2025-10-27T14:02:07.488724" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x0000029EFBDFCAF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:17:23.764910" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF899BE0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:25.983746" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF90E350&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:28.398449" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF90E5D0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:32.523665" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8FF100&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:17:34.757719" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF94A570&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:17:37.201865" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5106B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:17:41.253691" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5118C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:17:43.488007" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF511BF0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:17:45.920215" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512030&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:17:49.979470" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5128B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:52.227173" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5109E0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:54.658117" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF510D10&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:17:58.724606" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512F10&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:00.956970" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513350&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:03.375388" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513680&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:07.424317" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524050&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:09.673169" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524380&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:12.106734" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5247C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:16.191077" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526030&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:18.426402" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526360&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:20.856440" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF513F00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:24.907526" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5139B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:27.141206" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5138A0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:29.564363" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5128B0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:33.608764" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF510C00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:35.871950" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF512690&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:38.305865" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF8B9D00&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:18:42.370975" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524E20&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:44.608617" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF524D10&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:47.024420" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5247C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /health</msg>
+<msg time="2025-10-27T15:18:51.105425" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF526AD0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:53.337506" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5267A0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:55.762488" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF5269C0&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /readyz</msg>
+<msg time="2025-10-27T15:18:59.838089" level="WARN">Retrying (RetryAdapter(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527130&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:19:02.074245" level="WARN">Retrying (RetryAdapter(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527680&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
+<msg time="2025-10-27T15:19:04.493328" level="WARN">Retrying (RetryAdapter(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('&lt;urllib3.connection.HTTPConnection object at 0x000002CEDF527350&gt;: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /</msg>
 </errors>
 </robot>

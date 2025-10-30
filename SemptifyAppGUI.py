@@ -1,453 +1,543 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QFrame, QGraphicsDropShadowEffect, QLineEdit, QComboBox, QStackedWidget
+import json
+import os
+from spellchecker import SpellChecker
+
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout,
+    QFrame, QStackedWidget, QDialog, QTextEdit, QListWidget, QComboBox, QLineEdit, QMessageBox
+)
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
-import hashlib
-import secrets
-from datetime import datetime, timedelta
 
-# Create a Flask app instance
-app = Flask(__name__)
-
-# Placeholder for backend integration
-@app.route('/api/data', methods=['GET', 'POST'])
-def api_data():
-    if request.method == 'POST':
-        data = request.json
-        # Process the data and integrate with backend
-        return {'status': 'success', 'message': 'Data processed successfully'}
-    return {'status': 'success', 'data': 'Sample data from backend'}
-
-# Example integration with core pages
-@app.route('/dashboard')
-def dashboard():
-    # Fetch data from backend and render dashboard
-    data = {'user': 'John Doe', 'notifications': 5}
-    return render_template('dashboard.html', data=data)
 
 class SemptifyAppGUI(QMainWindow):
     def __init__(self):
         super().__init__()
+        # Initialize attributes early so linters/tools know they exist.
+        self.pages = None
+        self.home_page = None
+        self.library_page = None
+        self.office_page = None
+        self.tools_page = None
+        self.vault_page = None
+        self.help_page = None
+
         self.setWindowTitle("Semptify App GUI")
         self.setGeometry(100, 100, 900, 600)
-        self.setWindowIcon(QIcon("static/icons/Semptfylogo.svg"))
+        try:
+            # setWindowIcon will be a no-op if QIcon is a stub
+            self.setWindowIcon(QIcon("static/icons/Semptfylogo.svg"))
+        except Exception:
+            pass
         self.initUI()
 
     def initUI(self):
+        # Main window setup
         central_widget = QWidget()
+        self.main_layout = QVBoxLayout()
+        central_widget.setLayout(self.main_layout)
         self.setCentralWidget(central_widget)
-        layout = QVBoxLayout()
-        central_widget.setLayout(layout)
 
         # Top Bar
+        self.setup_top_bar()
+
+        # Bottom layout: pages on left, concierge box on right
+        bottom_layout = QHBoxLayout()
+        self.pages = QStackedWidget()
+        bottom_layout.addWidget(self.pages, 1)  # pages expand
+        self.concierge_box = self.make_concierge_box()
+        bottom_layout.addWidget(self.concierge_box, 0)  # concierge fixed
+        self.main_layout.addLayout(bottom_layout)
+
+        # Add core pages
+        self.setup_core_pages()
+
+        # Add Office module buttons
+        self.setup_office_buttons()
+
+    def setup_top_bar(self):
         top_bar = QFrame()
         top_bar.setFrameShape(QFrame.StyledPanel)
         top_bar.setStyleSheet("background: #fff; border-bottom: 1px solid #e9eef6; width: 100%;")
+        # Set top-bar height to match logo height plus nudge
+        top_bar.setFixedHeight(150)
         top_bar_layout = QHBoxLayout()
         top_bar.setLayout(top_bar_layout)
 
-        # Logo
         logo_label = QLabel()
         pixmap = QPixmap("static/icons/Semptfylogo.svg")
         if pixmap.isNull():
             logo_label.setText("Semptify")
         else:
-            logo_label.setPixmap(pixmap.scaled(192, 192, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        # Use the correct alignment type for the logo label
-        top_bar_layout.addWidget(logo_label, alignment=int(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop))
+            # scale the logo to fit with border
+            logo_size = 140  # increased for total image and border
+            scaled_pixmap = pixmap.scaled(logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            logo_label.setPixmap(scaled_pixmap)
+            logo_label.setFixedSize(logo_size, logo_size)
 
-        # Nav Links
-        nav_frame = QFrame()
-        nav_layout = QHBoxLayout()
-        nav_frame.setLayout(nav_layout)
-        nav_links = ["Home", "Library", "Office", "Tools", "Vault", "Help"]
-        for link in nav_links:
-            btn = QPushButton(link)
-            btn.setStyleSheet(
-                "background: none; border: none; font-size: 16px; color: #222; padding: 0 16px; letter-spacing: 0.6px; font-style: italic;"
-            )
-            btn.clicked.connect(lambda checked, group=link: self.set_active_modules(group))
-            nav_layout.addWidget(btn)
-        # Correct alignment attribute
-        top_bar_layout.addWidget(nav_frame, alignment=Qt.AlignmentFlag.AlignVCenter)
+        top_bar_layout.addWidget(logo_label, alignment=Qt.AlignTop)
 
-        # Adjust the alignment of the text line in the top bar
-        nav_frame.setContentsMargins(0, 0, 0, int(top_bar.height() * 0.25))
+        # Navigation buttons to switch between core pages
+        nav = [
+            ("Home", lambda: self.pages.setCurrentWidget(self.home_page)),
+            ("Library", lambda: self.pages.setCurrentWidget(self.library_page)),
+            ("Office", lambda: self.pages.setCurrentWidget(self.office_page)),
+            ("Tools", lambda: self.pages.setCurrentWidget(self.tools_page)),
+            ("Vault", lambda: self.pages.setCurrentWidget(self.vault_page)),
+            ("Admin", lambda: self.pages.setCurrentWidget(self.admin_page)),
+        ]
+        for (lbl, cb) in nav:
+            b = QPushButton(lbl)
+            b.setFlat(True)
+            b.setStyleSheet("text-align: right;")
+            b.clicked.connect(cb)
+            top_bar_layout.addWidget(b)
 
-        # Adjust top bar height to match logo height
-        top_bar.setMinimumHeight(192)
+        # push any future top-bar widgets to the right; keeps logo compact
+        top_bar_layout.addStretch()
 
-        layout.addWidget(top_bar)
+        self.main_layout.addWidget(top_bar)
 
-        # Remove or hide the 'Button Box' text
-        button_box_label = QLabel("Button Box:")
-        button_box_label.setStyleSheet("font-size: 14px; font-weight: bold; margin-top: 8px;")
-        button_box_label.setVisible(False)
-        layout.addWidget(button_box_label, alignment=Qt.AlignmentFlag.AlignTop)
+    def setup_core_pages(self):
+        # create simple placeholder content for each page so they open visibly
+        def make_page(title_text):
+            p = QWidget()
+            layout = QVBoxLayout()
+            p.setLayout(layout)
+            lbl = QLabel(title_text)
+            lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+            layout.addWidget(lbl)
+            layout.addStretch()
+            return p
 
-        # Main Content Label
-        content_label = QLabel("Main Content:")
-        content_label.setStyleSheet("font-size: 14px; font-weight: bold; margin-top: 8px;")
-        layout.addWidget(content_label, alignment=Qt.AlignmentFlag.AlignTop)
+        self.home_page = make_page("Home")
+        self.library_page = make_page("Library")
+        self.office_page = self.make_office_page()
+        self.tools_page = self.make_tools_page()
+        self.vault_page = self.make_vault_page()
+        self.temp_todo_page = self.make_temp_todo_page()
+        self.admin_page = self.make_admin_page()
 
-        # Main Content Placeholder
-        main_content = QLabel("Semptify App GUI - Main Content Area")
-        main_content.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        main_content.setStyleSheet("font-size: 22px; color: #555; margin-top: 60px;")
-        layout.addWidget(main_content)
+        for p in (self.home_page, self.library_page, self.office_page, self.tools_page, self.vault_page, self.temp_todo_page, self.admin_page):
+            self.pages.addWidget(p)
 
-        # Set the background color of the button box to match the top bar
-        # Add drop shadows to buttons
-        shadow_effect1 = QGraphicsDropShadowEffect()
-        shadow_effect1.setBlurRadius(10)
-        shadow_effect1.setOffset(2, 2)
-        # button1.setGraphicsEffect(shadow_effect1)
+    def make_office_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Office")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
 
-        shadow_effect2 = QGraphicsDropShadowEffect()
-        shadow_effect2.setBlurRadius(10)
-        shadow_effect2.setOffset(2, 2)
-        # button2.setGraphicsEffect(shadow_effect2)
+        # Add office-specific buttons
+        generate_complaint_btn = QPushButton("Generate Complaint")
+        generate_complaint_btn.clicked.connect(self.open_complaint_generator)
+        layout.addWidget(generate_complaint_btn)
 
-        # Add Office module buttons
+        layout.addStretch()
+        return p
+
+    def make_tools_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Tools")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
+
+        # Add tools buttons
+        rights_explorer_btn = QPushButton("Rights Explorer")
+        rights_explorer_btn.clicked.connect(self.open_rights_explorer)
+        layout.addWidget(rights_explorer_btn)
+
+        violation_mapper_btn = QPushButton("Violation Mapper")
+        violation_mapper_btn.clicked.connect(self.open_violation_mapper)
+        layout.addWidget(violation_mapper_btn)
+
+        layout.addStretch()
+        return p
+
+    def make_temp_todo_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Temp Todo Checklist")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
+
+        self.todo_list = QListWidget()
+        self.todo_list.setStyleSheet("font-size:14px;")
+        layout.addWidget(self.todo_list)
+
+        # Load existing todos
+        self.load_temp_todos()
+
+        # Add new todo input
+        input_layout = QHBoxLayout()
+        self.todo_input = QLineEdit()
+        self.todo_input.setPlaceholderText("Add new temp todo...")
+        add_btn = QPushButton("Add")
+        add_btn.clicked.connect(self.add_temp_todo)
+        input_layout.addWidget(self.todo_input)
+        input_layout.addWidget(add_btn)
+        layout.addLayout(input_layout)
+
+        # Save button
+        save_btn = QPushButton("Save Todos")
+        save_btn.clicked.connect(self.save_temp_todos)
+        layout.addWidget(save_btn)
+
+        layout.addStretch()
+        return p
+
+
+    def make_concierge_box(self):
+        p = QWidget()
+        p.setFixedWidth(120)  # as big as logo width
+        p.setStyleSheet("border: 1px solid #ccc; padding: 2px;")
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Concierge")
+        lbl.setStyleSheet("font-size:12px; font-weight:600; margin:2px;")
+        layout.addWidget(lbl)
+
+        # Chat history - smaller
+        self.chat_history = QTextEdit()
+        self.chat_history.setReadOnly(True)
+        self.chat_history.setMaximumHeight(200)
+        layout.addWidget(self.chat_history)
+
+        # Input - smaller
+        input_layout = QHBoxLayout()
+        self.chat_input = QLineEdit()
+        self.chat_input.setPlaceholderText("Ask...")
+        send_btn = QPushButton("Send")
+        send_btn.setFixedSize(40, 20)
+        send_btn.clicked.connect(self.send_to_concierge)
+        input_layout.addWidget(self.chat_input)
+        input_layout.addWidget(send_btn)
+        layout.addLayout(input_layout)
+
+        return p
+
+    def make_vault_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Vault")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
+
+        # Local AI Chat
+        chat_layout = QVBoxLayout()
+        chat_layout.addWidget(QLabel("Local AI Assistant:"))
+        self.vault_chat_history = QTextEdit()
+        self.vault_chat_history.setReadOnly(True)
+        self.vault_chat_history.setMaximumHeight(200)
+        chat_layout.addWidget(self.vault_chat_history)
+
+        input_layout = QHBoxLayout()
+        self.vault_chat_input = QLineEdit()
+        self.vault_chat_input.setPlaceholderText("Ask local AI...")
+        send_btn = QPushButton("Send")
+        send_btn.clicked.connect(self.send_to_local_ai)
+        input_layout.addWidget(self.vault_chat_input)
+        input_layout.addWidget(send_btn)
+        chat_layout.addLayout(input_layout)
+        layout.addLayout(chat_layout)
+
+        layout.addStretch()
+        return p
+
+    def make_admin_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Admin AI Management")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
+
+        # AI Config
+        layout.addWidget(QLabel("AI Configurations:"))
+        update_local_btn = QPushButton("Update Local AI Model")
+        update_local_btn.clicked.connect(self.update_local_model)
+        layout.addWidget(update_local_btn)
+
+        update_external_btn = QPushButton("Update External AI Settings")
+        update_external_btn.clicked.connect(self.update_external_settings)
+        layout.addWidget(update_external_btn)
+
+        # Parenting/Training
+        layout.addWidget(QLabel("AI Parenting & Learning:"))
+        train_btn = QPushButton("Train AIs")
+        train_btn.clicked.connect(self.train_ais)
+        layout.addWidget(train_btn)
+
+        # Journal
+        layout.addWidget(QLabel("Journal:"))
+        # Workspace input
+        ws_layout = QHBoxLayout()
+        ws_layout.addWidget(QLabel("Workspace/Environment:"))
+        self.ws_input = QLineEdit()
+        self.ws_input.setPlaceholderText("e.g., Semptify dev")
+        ws_layout.addWidget(self.ws_input)
+        layout.addLayout(ws_layout)
+
+        # Notes editor
+        self.notes_editor = QTextEdit()
+        self.notes_editor.setPlaceholderText("Add notes here...")
+        layout.addWidget(self.notes_editor)
+
+        # Load/Save buttons
+        btn_layout = QHBoxLayout()
+        load_btn = QPushButton("Load Journal")
+        load_btn.clicked.connect(self.load_journal)
+        save_btn = QPushButton("Save & Sync")
+        save_btn.clicked.connect(self.save_journal)
+        spellcheck_btn = QPushButton("Spellcheck")
+        spellcheck_btn.clicked.connect(self.spellcheck_notes)
+        btn_layout.addWidget(load_btn)
+        btn_layout.addWidget(save_btn)
+        btn_layout.addWidget(spellcheck_btn)
+        layout.addLayout(btn_layout)
+
+        layout.addStretch()
+        return p
+
+    def setup_office_buttons(self):
         office_button = QPushButton("Office Module")
         office_button.clicked.connect(self.open_office_page)
-        # button_box_layout.addWidget(office_button)
+        self.main_layout.addWidget(office_button)
 
         create_room_button = QPushButton("Create Room")
         create_room_button.clicked.connect(self.create_room)
-        # button_box_layout.addWidget(create_room_button)
+        self.main_layout.addWidget(create_room_button)
 
         list_rooms_button = QPushButton("List Rooms")
         list_rooms_button.clicked.connect(self.list_rooms)
-        # button_box_layout.addWidget(list_rooms_button)
+        self.main_layout.addWidget(list_rooms_button)
 
-        # Add document-related buttons
         upload_document_button = QPushButton("Upload Document")
         upload_document_button.clicked.connect(self.upload_document)
-        # button_box_layout.addWidget(upload_document_button)
-
-        lock_document_button = QPushButton("Lock Document")
-        lock_document_button.clicked.connect(self.lock_document)
-        # button_box_layout.addWidget(lock_document_button)
-
-        annotate_document_button = QPushButton("Annotate Document")
-        annotate_document_button.clicked.connect(self.annotate_document)
-        # button_box_layout.addWidget(button_box_layout.addWidget(annotate_document_button)
-
-        # Add navigation for law notes
-        law_notes_button = QPushButton("Law Notes")
-        law_notes_button.clicked.connect(self.open_law_notes)
-        # button_box_layout.addWidget(law_notes_button)
-
-        # Add navigation for law notes modules
-        self.add_navigation_option('Attorney Trail', '/law_notes/attorney_trail')
-        self.add_navigation_option('Complaint Templates', '/law_notes/complaint_template')
-
-        # Add navigation for new modules
-        public_exposure_button = QPushButton("Public Exposure Module")
-        public_exposure_button.clicked.connect(lambda: self.open_navigation_page('/public_exposure'))
-        # button_box_layout.addWidget(public_exposure_button)
-
-        enforcement_button = QPushButton("Enforcement Module")
-        enforcement_button.clicked.connect(lambda: self.open_navigation_page('/enforcement'))
-        # button_box_layout.addWidget(enforcement_button)
-
-        # Remove the lowest box (dynamic content area)
-        # layout.removeWidget(self.dynamic_content)
-        # self.dynamic_content.deleteLater()
-        # self.dynamic_content = None
-
-        # Add a control bar for module settings and inputs
-        self.control_bar = QFrame()
-        self.control_bar.setFrameShape(QFrame.StyledPanel)
-        self.control_bar.setStyleSheet("background: #f7f7f7; border-bottom: 1px solid #ccc;")
-        self.control_bar_layout = QVBoxLayout()
-        self.control_bar.setLayout(self.control_bar_layout)
-        layout.addWidget(self.control_bar, alignment=Qt.AlignmentFlag.AlignTop)
-
-        # Add module selector
-        self.module_selector = QPushButton("Select Module")
-        self.module_selector.setStyleSheet("background: #007bff; color: white; padding: 8px; border-radius: 4px;")
-        self.module_selector.clicked.connect(self.show_module_options)
-        self.control_bar_layout.addWidget(self.module_selector)
-
-        # Add dynamic input area
-        self.input_area = QFrame()
-        self.input_area.setFrameShape(QFrame.StyledPanel)
-        self.input_area.setStyleSheet("background: #fff; border: 1px solid #ddd; padding: 8px;")
-        self.input_area_layout = QVBoxLayout()
-        self.input_area.setLayout(self.input_area_layout)
-        self.control_bar_layout.addWidget(self.input_area)
-
-        # Add output buttons
-        self.output_buttons = QFrame()
-        self.output_buttons.setFrameShape(QFrame.StyledPanel)
-        self.output_buttons.setStyleSheet("background: #fff; border: 1px solid #ddd; padding: 8px;")
-        self.output_buttons_layout = QHBoxLayout()
-        self.output_buttons.setLayout(self.output_buttons_layout)
-        self.control_bar_layout.addWidget(self.output_buttons)
-
-        # Remove the left sidebar and its widgets
-        # layout.removeWidget(self.left_sidebar)
-        # self.left_sidebar.deleteLater()
-        # self.left_sidebar = None
-
-        # Remove the active module label and its layout
-        # self.left_sidebar_layout.removeWidget(self.active_module_label)
-        # self.active_module_label.deleteLater()
-        # self.active_module_label = None
-
-        # Remove the right sidebar layout and its widgets
-        # self.right_sidebar_layout.addWidget(lock_document_button)
-        # self.right_sidebar_layout.addWidget(annotate_document_button)
-
-        # Adjust the right button container bar to align to the top
-        # self.right_sidebar_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        # Make the right button smaller
-        lock_document_button.setFixedSize(100, 30)
-        annotate_document_button.setFixedSize(100, 30)
-
-        # Add a footer with a scrolling disclaimer
-        footer = QFrame()
-        footer.setFrameShape(QFrame.StyledPanel)
-        footer.setStyleSheet("background: #f7f7f7; border-top: 1px solid #ccc; padding: 8px;")
-        footer_layout = QHBoxLayout()
-        footer.setLayout(footer_layout)
-
-        disclaimer_label = QLabel("Not legal advice")
-        disclaimer_label.setStyleSheet("font-size: 12px; color: #888;")
-        footer_layout.addWidget(disclaimer_label, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        layout.addWidget(footer, alignment=Qt.AlignmentFlag.AlignBottom)
-
-        # Create a stacked widget to manage pages
-        self.pages = QStackedWidget()
-        self.setCentralWidget(self.pages)
-
-        # Add core pages
-        self.home_page = QWidget()
-        self.register_page = QWidget()
-        self.vault_page = QWidget()
-        self.admin_page = QWidget()
-        self.library_page = QWidget()  # Add library page
-
-        self.pages.addWidget(self.home_page)
-        self.pages.addWidget(self.register_page)
-        self.pages.addWidget(self.vault_page)
-        self.pages.addWidget(self.admin_page)
-        self.pages.addWidget(self.library_page)  # Add library page to stack
-
-        # Navigation buttons
-        self.nav_buttons = QVBoxLayout()
-        self.home_button = QPushButton("Home")
-        self.register_button = QPushButton("Register")
-        self.vault_button = QPushButton("Vault")
-        self.admin_button = QPushButton("Admin")
-        self.library_button = QPushButton("Library")  # Add library button
-
-        self.nav_buttons.addWidget(self.home_button)
-        self.nav_buttons.addWidget(self.register_button)
-        self.nav_buttons.addWidget(self.vault_button)
-        self.nav_buttons.addWidget(self.admin_button)
-        self.nav_buttons.addWidget(self.library_button)  # Add library button to layout
-
-        # Connect buttons to pages
-        self.home_button.clicked.connect(lambda: self.pages.setCurrentWidget(self.home_page))
-        self.register_button.clicked.connect(lambda: self.pages.setCurrentWidget(self.register_page))
-        self.vault_button.clicked.connect(lambda: self.pages.setCurrentWidget(self.vault_page))
-        self.admin_button.clicked.connect(lambda: self.pages.setCurrentWidget(self.admin_page))
-        self.library_button.clicked.connect(lambda: self.pages.setCurrentWidget(self.library_page))  # Connect library button
-
-        # Set up the layout
-        main_layout = QVBoxLayout()
-        main_layout.addLayout(self.nav_buttons)
-        main_layout.addWidget(self.pages)
-
-        container = QWidget()
-        container.setLayout(main_layout)
-        self.setCentralWidget(container)
+        self.main_layout.addWidget(upload_document_button)
 
     def open_office_page(self):
-        pass
+        print("Office Module Opened")
 
     def create_room(self):
-        pass
+        print("Create Room Triggered")
 
     def list_rooms(self):
-        pass
+        print("List Rooms Triggered")
 
     def upload_document(self):
-        pass
+        print("Upload Document Triggered")
 
-    def lock_document(self):
-        pass
+    def open_rights_explorer(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Rights Scenario Explorer")
+        dialog.setGeometry(200, 200, 600, 400)
+        layout = QVBoxLayout()
 
-    def annotate_document(self):
-        pass
+        label = QLabel("Select a legal scenario:")
+        layout.addWidget(label)
 
-    def open_law_notes(self):
-        pass
+        scenarios = QListWidget()
+        scenarios.addItem("Eviction Notice")
+        scenarios.addItem("Rent Increase")
+        scenarios.addItem("Maintenance Issues")
+        scenarios.addItem("Lease Violation")
+        layout.addWidget(scenarios)
 
-    def add_navigation_option(self, name, path):
-        pass
+        generate_button = QPushButton("Generate Complaint")
+        generate_button.clicked.connect(lambda: self.generate_complaint(scenarios.currentItem().text() if scenarios.currentItem() else "None"))
+        layout.addWidget(generate_button)
 
-    def open_navigation_page(self, path):
-        pass
+        dialog.setLayout(layout)
+        dialog.exec_()
 
-    def show_module_options(self):
-        pass
+    def generate_complaint(self, scenario):
+        print(f"Generating complaint for: {scenario}")
+        # Placeholder for complaint generation logic
 
-    def set_active_modules(self, group):
-        # Functionality to change the active set of modules based on the clicked navigation link
-        print(f"Active module group set to: {group}")
-        # Add logic here to update the active modules in the GUI
+    def open_violation_mapper(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Violation Pattern Mapper")
+        dialog.setGeometry(200, 200, 600, 400)
+        layout = QVBoxLayout()
 
+        label = QLabel("Log a violation:")
+        layout.addWidget(label)
 
-class UserManager:
-    def __init__(self):
-        self.users = {}  # Store user data in memory for simplicity
+        violation_input = QTextEdit()
+        violation_input.setPlaceholderText("Describe the violation...")
+        layout.addWidget(violation_input)
 
-    def generate_user_id(self):
-        return secrets.token_hex(8)  # Generate a unique 16-character user ID
+        log_button = QPushButton("Log Violation")
+        log_button.clicked.connect(lambda: self.log_violation(violation_input.toPlainText()))
+        layout.addWidget(log_button)
 
-    def generate_token(self):
-        return secrets.token_hex(16)  # Generate a secure 32-character token
+        visualize_button = QPushButton("Visualize Patterns")
+        visualize_button.clicked.connect(self.visualize_patterns)
+        layout.addWidget(visualize_button)
 
-    def hash_token(self, token):
-        return hashlib.sha256(token.encode()).hexdigest()
+        dialog.setLayout(layout)
+        dialog.exec_()
 
-    def create_user(self, user_data):
-        user_id = self.generate_user_id()
-        token = self.generate_token()
-        hashed_token = self.hash_token(token)
+    def log_violation(self, violation):
+        print(f"Logged violation: {violation}")
+        # Placeholder for logging logic
 
-        self.users[user_id] = {
-            'data': user_data,
-            'token': hashed_token,
-            'created_at': datetime.now(),
-            'expires_at': datetime.now() + timedelta(hours=24)  # Token expires in 24 hours
+    def visualize_patterns(self):
+        print("Visualizing violation patterns")
+        # Placeholder for visualization logic
+
+    def open_complaint_generator(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Complaint Generator")
+        dialog.setGeometry(200, 200, 600, 400)
+        layout = QVBoxLayout()
+
+        label = QLabel("Select a scenario to generate a complaint:")
+        layout.addWidget(label)
+
+        scenarios = QListWidget()
+        scenarios.addItem("Eviction Notice")
+        scenarios.addItem("Rent Increase")
+        scenarios.addItem("Maintenance Issues")
+        scenarios.addItem("Lease Violation")
+        layout.addWidget(scenarios)
+
+        generate_button = QPushButton("Generate Complaint")
+        generate_button.clicked.connect(lambda: self.generate_complaint(scenarios.currentItem().text() if scenarios.currentItem() else "None"))
+        layout.addWidget(generate_button)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+    def load_temp_todos(self):
+        try:
+            with open('temp_todo.json', 'r') as f:
+                todos = json.load(f)
+                for todo in todos:
+                    self.todo_list.addItem(todo)
+        except FileNotFoundError:
+            pass
+
+    def add_temp_todo(self):
+        text = self.todo_input.text().strip()
+        if text:
+            self.todo_list.addItem(text)
+            self.todo_input.clear()
+
+    def save_temp_todos(self):
+        todos = [self.todo_list.item(i).text() for i in range(self.todo_list.count())]
+        with open('temp_todo.json', 'w') as f:
+            json.dump(todos, f)
+
+    def load_journal(self):
+        try:
+            with open('journal.json', 'r') as f:
+                data = json.load(f)
+                self.ws_input.setText(data.get('workspace', ''))
+                self.notes_editor.setPlainText(data.get('notes', ''))
+        except FileNotFoundError:
+            pass
+
+    def save_journal(self):
+        data = {
+            'workspace': self.ws_input.text(),
+            'notes': self.notes_editor.toPlainText(),
+            'timestamp': str(os.times())
         }
+        with open('journal.json', 'w') as f:
+            json.dump(data, f)
+        # Sync via git if in repo
+        try:
+            os.system('git add journal.json temp_todo.json')
+            os.system('git commit -m "Update journal and temp todos"')
+        except Exception:
+            pass
 
-        return user_id, token
+    def send_to_concierge(self):
+        query = self.chat_input.text().strip()
+        if not query:
+            return
+        self.chat_history.append(f"You: {query}")
+        self.chat_input.clear()
+        # Send to backend
+        try:
+            import requests
+            response = requests.post("http://localhost:5000/api/copilot", json={"prompt": query}, timeout=10)
+            if response.status_code == 200:
+                result = response.json().get("response", "No response")
+                self.chat_history.append(f"Concierge: {result}")
+            else:
+                self.chat_history.append("Concierge: Error communicating with AI.")
+        except Exception as e:
+            self.chat_history.append(f"Concierge: Error - {str(e)}")
 
-    def validate_token(self, user_id, token):
-        if user_id not in self.users:
-            return False
+    def send_to_local_ai(self):
+        query = self.vault_chat_input.text().strip()
+        if not query:
+            return
+        self.vault_chat_history.append(f"You: {query}")
+        self.vault_chat_input.clear()
+        # Send to Ollama
+        try:
+            import requests
+            response = requests.post("http://localhost:11434/api/generate", json={"model": "llama3.2", "prompt": query, "stream": False}, timeout=30)
+            if response.status_code == 200:
+                result = response.json().get("response", "No response")
+                self.vault_chat_history.append(f"Local AI: {result}")
+            else:
+                self.vault_chat_history.append("Local AI: Error communicating.")
+        except Exception as e:
+            self.vault_chat_history.append(f"Local AI: Error - {str(e)}")
 
-        user = self.users[user_id]
-        hashed_token = self.hash_token(token)
+    def update_local_model(self):
+        try:
+            import subprocess
+            subprocess.run(["ollama", "pull", "llama3.2"], check=True)
+            QMessageBox.information(self, "Update", "Local AI model updated!")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to update: {str(e)}")
 
-        if user['token'] != hashed_token:
-            return False
+    def update_external_settings(self):
+        QMessageBox.information(self, "Update", "External AI settings updated (placeholder).")
 
-        if datetime.now() > user['expires_at']:
-            return False
+    def train_ais(self):
+        QMessageBox.information(self, "Train", "AIs trained (placeholder).")
 
-        return True
+    def spellcheck_notes(self):
+        spell = SpellChecker()
+        text = self.notes_editor.toPlainText()
+        words = text.split()
+        misspelled = spell.unknown(words)
+        if misspelled:
+            corrections = {}
+            for word in misspelled:
+                corrections[word] = spell.candidates(word)
+            # Show dialog with corrections
+            dialog = QDialog(self)
+            dialog.setWindowTitle("Spellcheck Results")
+            layout = QVBoxLayout()
+            label = QLabel("Misspelled words and suggestions:")
+            layout.addWidget(label)
+            for word, sugg in corrections.items():
+                layout.addWidget(QLabel(f"{word}: {', '.join(list(sugg)[:5])}"))  # Top 5 suggestions
+            ok_btn = QPushButton("OK")
+            ok_btn.clicked.connect(dialog.accept)
+            layout.addWidget(ok_btn)
+            dialog.setLayout(layout)
+            dialog.exec_()
+        else:
+            QMessageBox.information(self, "Spellcheck", "No misspellings found!")
 
-class DocumentVault:
-    def __init__(self):
-        self.documents = {}  # Store documents with their metadata
 
-    def add_document(self, user_token, document_id, document_data):
-        if user_token not in self.documents:
-            self.documents[user_token] = []
-
-        self.documents[user_token].append({
-            'document_id': document_id,
-            'data': document_data,
-            'uploaded_at': datetime.now()
-        })
-
-    def get_documents(self, user_token):
-        return self.documents.get(user_token, [])
-
-class AnonymousInteraction:
-    def __init__(self):
-        self.interactions = []  # Store interaction logs
-
-    def log_interaction(self, user_token, entity, action, details):
-        self.interactions.append({
-            'user_token': user_token,
-            'entity': entity,
-            'action': action,
-            'details': details,
-            'timestamp': datetime.now()
-        })
-
-    def get_interactions(self, user_token):
-        return [interaction for interaction in self.interactions if interaction['user_token'] == user_token]
-
-class BreakGlassProcedure:
-    def __init__(self, log_file="logs/breakglass.log"):
-        self.log_file = log_file
-
-    def trigger_break_glass(self, admin_token, reason):
-        if not self._is_valid_token(admin_token):
-            raise ValueError("Invalid admin token")
-
-        self._log_break_glass(admin_token, reason)
-        print("Break-glass procedure triggered. Admin access granted.")
-
-    def _is_valid_token(self, token):
-        # Placeholder for token validation logic
-        return token == "emergency_admin_token"
-
-    def _log_break_glass(self, admin_token, reason):
-        with open(self.log_file, "a") as log:
-            log.write(f"Break-glass triggered by token: {admin_token}\n")
-            log.write(f"Reason: {reason}\n")
-            log.write(f"Timestamp: {datetime.now()}\n\n")
-
-# Example usage
 if __name__ == "__main__":
-    user_manager = UserManager()
-
-    # Create a new user
-    user_id, token = user_manager.create_user({'name': 'John Doe', 'email': 'john@example.com'})
-    print("User ID:", user_id)
-    print("Token:", token)
-
-    # Validate the token
-    is_valid = user_manager.validate_token(user_id, token)
-    print("Is token valid?", is_valid)
-
-    vault = DocumentVault()
-
-    # Add a document
-    user_token = "example_user_token"
-    document_id = "doc_12345"
-    document_data = "Sample document content"
-
-    vault.add_document(user_token, document_id, document_data)
-
-    # Retrieve documents for the user
-    user_documents = vault.get_documents(user_token)
-    print("User Documents:", user_documents)
-
-    interaction_manager = AnonymousInteraction()
-
-    # Log an interaction
-    user_token = "example_user_token"
-    entity = "Court"
-    action = "Submit Document"
-    details = "Submitted document ID doc_12345"
-
-    interaction_manager.log_interaction(user_token, entity, action, details)
-
-    # Retrieve interactions for the user
-    user_interactions = interaction_manager.get_interactions(user_token)
-    print("User Interactions:", user_interactions)
-
-    break_glass = BreakGlassProcedure()
-
-    try:
-        break_glass.trigger_break_glass("emergency_admin_token", "System outage")
-    except ValueError as e:
-        print(e)
-
-    qt_app = QApplication(sys.argv)
+    app = QApplication(sys.argv)
     window = SemptifyAppGUI()
     window.show()
-    sys.exit(qt_app.exec_())
+    sys.exit(app.exec_())

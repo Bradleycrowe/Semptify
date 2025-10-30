@@ -98,6 +98,31 @@ This inventory found many references to docs and helper scripts but no centraliz
 
 If you'd like, I can run a repository-wide TODO search and append results to this inventory.
 
+---
+### TODO/FIXME Scan Results (2025-10-27)
+
+**Python**
+- SemptifyAppGUI.py:165  # TODO: Load modal_trigger.js and modal_ui.html from rights_scenario_explorer module
+- SemptifyAppGUI.py:169  # TODO: Load modal_trigger.js and modal_ui.html from violation_pattern_mapper module
+- modules/law_notes/evidence_metadata.py:24  # TODO: validate and persist metadata
+
+**JavaScript**
+- static/js/help-panel.js:17  // Back-compat migration from v1 global notes/todo
+- static/js/help-panel.js:20  if (legacy && (legacy.notes || legacy.todo))
+- static/js/help-panel.js:21  allState[PAGE_KEY] = { notes: legacy.notes || '', todo: legacy.todo || '' };
+- static/js/help-panel.js:25  if (!allState[PAGE_KEY]) allState[PAGE_KEY] = { notes: '', todo: '' };
+- static/js/help-panel.js:32  todo: state.todo || meta('help:todo') || ''
+- static/js/help-panel.js:54  <button class="help-tab" data-tab="todo">To-Do</button>
+- static/js/help-panel.js:72  if(tab === 'todo') html = `<textarea id="help-todo" placeholder="Your to-do items...">${escapeHtml(defaults.todo)}</textarea>`;
+- static/js/help-panel.js:78  if(tab === 'todo'){
+- static/js/help-panel.js:79  const ta = $('#help-todo', body);
+- static/js/help-panel.js:80  ta.addEventListener('input', () => { state.todo = ta.value; allState[PAGE_KEY] = state; saveAll(allState); });
+
+**Markdown/Text**
+- INVENTORY_MANUALS_TODOS.md:93  ## TODOs & Action Items
+- README.md:41  $report += "`n=== Notes, TODOs, and Instructions ==="
+- README.md:42  $searchPatterns = @("TODO", "NOTE", "INSTRUCTION", "FIXME")
+- README.md:57  Write-Host "Review this file for missing items, notes, TODOs, and instructions."# Semptify
 ## Additional Notes and Suggested Next Steps
 
 - I focused on files that are clearly documentation-like (README, docs/, modules/*/help, templates, and scripts). If you want a deeper inventory (e.g., every template file, every docs/ subfolder, every test referencing a doc string), I can expand the list and include short excerpts for every file.

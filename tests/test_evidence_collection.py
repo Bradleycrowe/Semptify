@@ -1,7 +1,7 @@
 import os
 import json
 import pytest
-from c.Semptify.Semptify import app
+from Semptify import app
 
 @pytest.fixture
 def client():
