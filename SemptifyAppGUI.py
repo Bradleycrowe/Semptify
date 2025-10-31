@@ -1,35 +1,45 @@
 import sys
+import sys
 import json
 import os
 from spellchecker import SpellChecker
 
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout,
-    QFrame, QStackedWidget, QDialog, QTextEdit, QListWidget, QComboBox, QLineEdit, QMessageBox
+    QFrame, QStackedWidget, QDialog, QTextEdit, QListWidget, QLineEdit, QMessageBox
 )
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import Qt
 
 
 class SemptifyAppGUI(QMainWindow):
     def __init__(self):
         super().__init__()
         # Initialize attributes early so linters/tools know they exist.
-        self.pages = None
-        self.home_page = None
-        self.library_page = None
-        self.office_page = None
-        self.tools_page = None
-        self.vault_page = None
-        self.help_page = None
+        self.pages = QStackedWidget()
+        self.home_page = QWidget()
+        self.library_page = QWidget()
+        self.office_page = QWidget()
+        self.tools_page = QWidget()
+        self.vault_page = QWidget()
+        self.help_page = QWidget()
+        self.admin_page = QWidget()
+        self.todo_list = QListWidget()
+        self.todo_input = QLineEdit()
+        self.chat_history = QTextEdit()
+        self.chat_input = QLineEdit()
+        self.vault_chat_history = QTextEdit()
+        self.vault_chat_input = QLineEdit()
+        self.ws_input = QLineEdit()
+        self.notes_editor = QTextEdit()
 
         self.setWindowTitle("Semptify App GUI")
         self.setGeometry(100, 100, 900, 600)
+        # Always-on-top is disabled due to Qt version issues
+        # self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         try:
-            # setWindowIcon will be a no-op if QIcon is a stub
             self.setWindowIcon(QIcon("static/icons/Semptfylogo.svg"))
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Icon load error: {e}")
         self.initUI()
 
     def initUI(self):
@@ -38,9 +48,6 @@ class SemptifyAppGUI(QMainWindow):
         self.main_layout = QVBoxLayout()
         central_widget.setLayout(self.main_layout)
         self.setCentralWidget(central_widget)
-
-        # Top Bar
-        self.setup_top_bar()
 
         # Bottom layout: pages on left, concierge box on right
         bottom_layout = QHBoxLayout()
@@ -52,6 +59,9 @@ class SemptifyAppGUI(QMainWindow):
 
         # Add core pages
         self.setup_core_pages()
+
+        # Top Bar
+        self.setup_top_bar()
 
         # Add Office module buttons
         self.setup_office_buttons()
@@ -72,11 +82,17 @@ class SemptifyAppGUI(QMainWindow):
         else:
             # scale the logo to fit with border
             logo_size = 140  # increased for total image and border
-            scaled_pixmap = pixmap.scaled(logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            from PyQt5 import QtCore
+            scaled_pixmap = pixmap.scaled(
+                logo_size,
+                logo_size,
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                QtCore.Qt.TransformationMode.SmoothTransformation
+            )
             logo_label.setPixmap(scaled_pixmap)
             logo_label.setFixedSize(logo_size, logo_size)
 
-        top_bar_layout.addWidget(logo_label, alignment=Qt.AlignTop)
+        top_bar_layout.addWidget(logo_label)
 
         # Navigation buttons to switch between core pages
         nav = [
@@ -87,17 +103,48 @@ class SemptifyAppGUI(QMainWindow):
             ("Vault", lambda: self.pages.setCurrentWidget(self.vault_page)),
             ("Admin", lambda: self.pages.setCurrentWidget(self.admin_page)),
         ]
-        for (lbl, cb) in nav:
+        # User navigation buttons
+        user_nav = [
+            ("Home", lambda: self.pages.setCurrentWidget(self.home_page)),
+            ("Library", lambda: self.pages.setCurrentWidget(self.library_page)),
+            ("Office", lambda: self.pages.setCurrentWidget(self.office_page)),
+            ("Tools", lambda: self.pages.setCurrentWidget(self.tools_page)),
+            ("Vault", lambda: self.pages.setCurrentWidget(self.vault_page)),
+            ("Help", lambda: self.pages.setCurrentWidget(self.help_page)),
+        ]
+        for (lbl, cb) in user_nav:
             b = QPushButton(lbl)
             b.setFlat(True)
-            b.setStyleSheet("text-align: right;")
+            b.setStyleSheet("text-align: right; padding: 2px 1px; font-size: 15px;")
             b.clicked.connect(cb)
             top_bar_layout.addWidget(b)
 
+        # Separator for admin section
+        sep = QLabel(" | ")
+        sep.setStyleSheet("font-weight: bold; color: #888; margin: 0 8px;")
+        top_bar_layout.addWidget(sep)
+
+        # Admin navigation button
+        admin_btn = QPushButton("Admin")
+        admin_btn.setFlat(True)
+        admin_btn.setStyleSheet("text-align: right; padding: 2px 1px; font-size: 15px; color: #b00;")
+        admin_btn.clicked.connect(lambda: self.pages.setCurrentWidget(self.admin_page))
+        top_bar_layout.addWidget(admin_btn)
+
+        # Add Reload GUI button for live editing
+        reload_btn = QPushButton("Reload GUI")
+        reload_btn.setFlat(True)
+        reload_btn.setStyleSheet("color: #0078d7; font-weight: bold;")
+        reload_btn.clicked.connect(self.reload_gui)
+        top_bar_layout.addWidget(reload_btn)
+
         # push any future top-bar widgets to the right; keeps logo compact
         top_bar_layout.addStretch()
-
         self.main_layout.addWidget(top_bar)
+
+    def reload_gui(self):
+        # Re-initialize the UI for live editing
+        self.initUI()
 
     def setup_core_pages(self):
         # create simple placeholder content for each page so they open visibly
@@ -116,10 +163,11 @@ class SemptifyAppGUI(QMainWindow):
         self.office_page = self.make_office_page()
         self.tools_page = self.make_tools_page()
         self.vault_page = self.make_vault_page()
-        self.temp_todo_page = self.make_temp_todo_page()
+        self.help_page = make_page("Help")
         self.admin_page = self.make_admin_page()
 
-        for p in (self.home_page, self.library_page, self.office_page, self.tools_page, self.vault_page, self.temp_todo_page, self.admin_page):
+        # Add all pages to QStackedWidget
+        for p in (self.home_page, self.library_page, self.office_page, self.tools_page, self.vault_page, self.help_page, self.admin_page):
             self.pages.addWidget(p)
 
     def make_office_page(self):
@@ -168,6 +216,7 @@ class SemptifyAppGUI(QMainWindow):
 
         self.todo_list = QListWidget()
         self.todo_list.setStyleSheet("font-size:14px;")
+        self.todo_list.setDragDropMode(self.todo_list.InternalMove)
         layout.addWidget(self.todo_list)
 
         # Load existing todos
@@ -182,6 +231,11 @@ class SemptifyAppGUI(QMainWindow):
         input_layout.addWidget(self.todo_input)
         input_layout.addWidget(add_btn)
         layout.addLayout(input_layout)
+
+        # Delete selected todo button
+        del_btn = QPushButton("Delete Selected")
+        del_btn.clicked.connect(self.delete_selected_todo)
+        layout.addWidget(del_btn)
 
         # Save button
         save_btn = QPushButton("Save Todos")
@@ -262,6 +316,7 @@ class SemptifyAppGUI(QMainWindow):
         layout.addWidget(QLabel("AI Configurations:"))
         update_local_btn = QPushButton("Update Local AI Model")
         update_local_btn.clicked.connect(self.update_local_model)
+
         layout.addWidget(update_local_btn)
 
         update_external_btn = QPushButton("Update External AI Settings")
@@ -351,7 +406,10 @@ class SemptifyAppGUI(QMainWindow):
         layout.addWidget(scenarios)
 
         generate_button = QPushButton("Generate Complaint")
-        generate_button.clicked.connect(lambda: self.generate_complaint(scenarios.currentItem().text() if scenarios.currentItem() else "None"))
+        def get_selected_scenario():
+            item = scenarios.currentItem()
+            return item.text() if item and hasattr(item, 'text') else "None"
+        generate_button.clicked.connect(lambda: self.generate_complaint(get_selected_scenario()))
         layout.addWidget(generate_button)
 
         dialog.setLayout(layout)
@@ -410,7 +468,10 @@ class SemptifyAppGUI(QMainWindow):
         layout.addWidget(scenarios)
 
         generate_button = QPushButton("Generate Complaint")
-        generate_button.clicked.connect(lambda: self.generate_complaint(scenarios.currentItem().text() if scenarios.currentItem() else "None"))
+        def get_selected_scenario():
+            item = scenarios.currentItem()
+            return item.text() if item and hasattr(item, 'text') else "None"
+        generate_button.clicked.connect(lambda: self.generate_complaint(get_selected_scenario()))
         layout.addWidget(generate_button)
 
         dialog.setLayout(layout)
@@ -418,83 +479,112 @@ class SemptifyAppGUI(QMainWindow):
 
     def load_temp_todos(self):
         try:
-            with open('temp_todo.json', 'r') as f:
+            with open('temp_todos.json', 'r', encoding='utf-8') as f:
                 todos = json.load(f)
-                for todo in todos:
-                    self.todo_list.addItem(todo)
-        except FileNotFoundError:
-            pass
+                if self.todo_list:
+                    self.todo_list.clear()
+                    for todo in todos:
+                        self.todo_list.addItem(todo)
+        except (FileNotFoundError, json.JSONDecodeError):
+            if self.todo_list:
+                self.todo_list.clear()
 
     def add_temp_todo(self):
-        text = self.todo_input.text().strip()
-        if text:
+        text = self.todo_input.text().strip() if self.todo_input else ""
+        if text and self.todo_list:
             self.todo_list.addItem(text)
             self.todo_input.clear()
 
     def save_temp_todos(self):
-        todos = [self.todo_list.item(i).text() for i in range(self.todo_list.count())]
-        with open('temp_todo.json', 'w') as f:
-            json.dump(todos, f)
+        todos = []
+        if self.todo_list:
+            for i in range(self.todo_list.count()):
+                item = self.todo_list.item(i)
+                if item and hasattr(item, 'text'):
+                    todos.append(item.text())
+        try:
+            with open('temp_todos.json', 'w', encoding='utf-8') as f:
+                json.dump(todos, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"Save todos error: {e}")
+
+    def delete_selected_todo(self):
+        if self.todo_list:
+            selected = self.todo_list.selectedItems()
+            for item in selected:
+                self.todo_list.takeItem(self.todo_list.row(item))
 
     def load_journal(self):
         try:
-            with open('journal.json', 'r') as f:
+            with open('journal.json', 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                self.ws_input.setText(data.get('workspace', ''))
-                self.notes_editor.setPlainText(data.get('notes', ''))
-        except FileNotFoundError:
+                if self.ws_input:
+                    self.ws_input.setText(data.get('workspace', ''))
+                if self.notes_editor:
+                    self.notes_editor.setPlainText(data.get('notes', ''))
+        except (FileNotFoundError, json.JSONDecodeError):
             pass
 
     def save_journal(self):
         data = {
-            'workspace': self.ws_input.text(),
-            'notes': self.notes_editor.toPlainText(),
+            'workspace': self.ws_input.text() if self.ws_input else "",
+            'notes': self.notes_editor.toPlainText() if self.notes_editor else "",
             'timestamp': str(os.times())
         }
-        with open('journal.json', 'w') as f:
+        with open('journal.json', 'w', encoding='utf-8') as f:
             json.dump(data, f)
         # Sync via git if in repo
         try:
-            os.system('git add journal.json temp_todo.json')
+            os.system('git add journal.json temp_todos.json')
             os.system('git commit -m "Update journal and temp todos"')
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Git sync error: {e}")
 
     def send_to_concierge(self):
-        query = self.chat_input.text().strip()
+        query = self.chat_input.text().strip() if self.chat_input else ""
         if not query:
             return
-        self.chat_history.append(f"You: {query}")
-        self.chat_input.clear()
+        if self.chat_history:
+            self.chat_history.append(f"You: {query}")
+        if self.chat_input:
+            self.chat_input.clear()
         # Send to backend
         try:
             import requests
             response = requests.post("http://localhost:5000/api/copilot", json={"prompt": query}, timeout=10)
             if response.status_code == 200:
                 result = response.json().get("response", "No response")
-                self.chat_history.append(f"Concierge: {result}")
+                if self.chat_history:
+                    self.chat_history.append(f"Concierge: {result}")
             else:
-                self.chat_history.append("Concierge: Error communicating with AI.")
+                if self.chat_history:
+                    self.chat_history.append("Concierge: Error communicating with AI.")
         except Exception as e:
-            self.chat_history.append(f"Concierge: Error - {str(e)}")
+            if self.chat_history:
+                self.chat_history.append(f"Concierge: Error - {str(e)}")
 
     def send_to_local_ai(self):
-        query = self.vault_chat_input.text().strip()
+        query = self.vault_chat_input.text().strip() if self.vault_chat_input else ""
         if not query:
             return
-        self.vault_chat_history.append(f"You: {query}")
-        self.vault_chat_input.clear()
+        if self.vault_chat_history:
+            self.vault_chat_history.append(f"You: {query}")
+        if self.vault_chat_input:
+            self.vault_chat_input.clear()
         # Send to Ollama
         try:
             import requests
             response = requests.post("http://localhost:11434/api/generate", json={"model": "llama3.2", "prompt": query, "stream": False}, timeout=30)
             if response.status_code == 200:
                 result = response.json().get("response", "No response")
-                self.vault_chat_history.append(f"Local AI: {result}")
+                if self.vault_chat_history:
+                    self.vault_chat_history.append(f"Local AI: {result}")
             else:
-                self.vault_chat_history.append("Local AI: Error communicating.")
+                if self.vault_chat_history:
+                    self.vault_chat_history.append("Local AI: Error communicating.")
         except Exception as e:
-            self.vault_chat_history.append(f"Local AI: Error - {str(e)}")
+            if self.vault_chat_history:
+                self.vault_chat_history.append(f"Local AI: Error - {str(e)}")
 
     def update_local_model(self):
         try:
@@ -512,7 +602,7 @@ class SemptifyAppGUI(QMainWindow):
 
     def spellcheck_notes(self):
         spell = SpellChecker()
-        text = self.notes_editor.toPlainText()
+        text = self.notes_editor.toPlainText() if self.notes_editor else ""
         words = text.split()
         misspelled = spell.unknown(words)
         if misspelled:
@@ -541,3 +631,5 @@ if __name__ == "__main__":
     window = SemptifyAppGUI()
     window.show()
     sys.exit(app.exec_())
+
+

@@ -1,4 +1,4 @@
-<#
+m<#
 run_all.ps1
 Helper script to activate the project's virtual environment, install dependencies,
 and start the Flask server and the PyQt5 GUI in separate processes.
