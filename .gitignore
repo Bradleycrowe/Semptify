@@ -1,10 +1,35 @@
-# Python
+/.venv
+/.venv*/
+.venv311/
+/.venv311/
+venv/
+env/
+__pycache__/
+.pytest_cache/
+uploads/vault/media_logs/
+uploads/*.log
+logs/*.log
+*.pyc
+*.pyo
+*.pyd
+/.env
+.env
+/.venv311
+/.venv311/
+.DS_Store
+/.vscode/
+node_modules/
+dist/
+build/
+tmp/# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
 venv/
 .venv/
 .venv-semp/
+ .venv311/
+ .env
 */.pytest_cache/
 
 # Secrets / runtime
