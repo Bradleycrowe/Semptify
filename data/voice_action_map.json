@@ -1,0 +1,83 @@
+{
+  "map": {
+    "Send notice to Maria": {
+      "action": "send_notice",
+      "method": "POST",
+      "route": "/deliveries",
+      "params": {"vault_id": "vault_001", "to": "Maria Lopez"},
+      "description": "Sends stored notice (vault_001) to Maria via configured delivery channels."
+    },
+    "Track delivery for heater invoice": {
+      "action": "track_shipment",
+      "method": "GET",
+      "route": "/shipments/track",
+      "params": {"tracking_number": "1Z999AA10123456784"},
+      "description": "Lookup shipment tracking status for the heater invoice."
+    },
+    "Read inspection notice aloud": {
+      "action": "tts_read",
+      "method": "GET",
+      "route": "/vault/read",
+      "params": {"vault_id": "vault_001", "lang": "auto"},
+      "description": "Use TTS to read the inspection notice in the selected language."
+    },
+    "Open vault entry for Unit 3B": {
+      "action": "open_vault",
+      "method": "GET",
+      "route": "/vault/view",
+      "params": {"vault_id": "vault_001"},
+      "description": "Open the document vault entry for Unit 3B."
+    },
+    "Start notarization flow": {
+      "action": "start_notarization",
+      "method": "POST",
+      "route": "/notary/start",
+      "params": {"vault_id": "vault_001"},
+      "description": "Begin in-house or 3rd-party notarization for a document."
+    },
+    "View Lease Agreement": {
+      "action": "open_modal",
+      "method": "GET",
+      "route": "/templates/tmpl_lease_agreement",
+      "params": {},
+      "description": "Open the lease agreement modal (multi-language help text available)."
+    },
+    "View Eviction Notice": {
+      "action": "open_modal",
+      "method": "GET",
+      "route": "/templates/tmpl_eviction_notice",
+      "params": {},
+      "description": "Open the eviction notice modal (shows rights and support info)."
+    },
+    "Send Formal Notice": {
+      "action": "send_formal_notice",
+      "method": "POST",
+      "route": "/deliveries/formal",
+      "params": {"template_id": "tmpl_eviction_notice"},
+      "description": "Send a formal notice (e.g., eviction) using configured delivery methods."
+    },
+    "Request Notarization": {
+      "action": "request_notary",
+      "method": "POST",
+      "route": "/notary/request",
+      "params": {"vault_id": "vault_001"},
+      "description": "Request notarization for the selected document."
+    },
+    "Track Certified Mail": {
+      "action": "track_certified_mail",
+      "method": "GET",
+      "route": "/deliveries/track",
+      "params": {"type": "certified"},
+      "description": "Track certified mail deliveries by delivery id or tracking number."
+    },
+    "Switch Language": {
+      "action": "switch_language",
+      "method": "POST",
+      "route": "/ui/language",
+      "params": {"lang": "en"},
+      "description": "Switch the UI/reader language; the voice command should include the language code or name."
+    }
+  },
+  "created_by": "importer",
+  "created_at": "2025-11-01T00:00:00"
+}

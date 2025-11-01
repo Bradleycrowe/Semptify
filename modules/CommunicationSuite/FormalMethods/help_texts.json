@@ -1,0 +1,14 @@
+{
+  "lease_help": {
+    "en": "This is your signed lease agreement. You may download, print, or request notarization.",
+    "es": "Este es su contrato de arrendamiento firmado. Puede descargarlo, imprimirlo o solicitar notarización.",
+    "som": "Tani waa heshiiskaaga kirada ee la saxiixay. Waxaad u soo dejisan kartaa, daabacan kartaa, ama codsan kartaa xaqiijin.",
+    "hmn": "Qhov no yog koj daim ntawv cog lus xauj tsev uas tau kos npe. Koj tuaj yeem rub tawm, luam tawm, lossis thov kom muaj kev lees paub."
+  },
+  "eviction_help": {
+    "en": "This is a formal eviction notice. Please review your rights and contact support.",
+    "es": "Este es un aviso formal de desalojo. Revise sus derechos y comuníquese con el soporte.",
+    "som": "Tani waa ogeysiis rasmi ah oo ka saarid ah. Fadlan dib u eeg xuquuqdaada oo la xiriir taageerada.",
+    "hmn": "Qhov no yog ib daim ntawv ceeb toom tshem tawm. Thov xyuas koj cov cai thiab hu rau kev pab."
+  }
+}

@@ -1,0 +1,3 @@
+notary_id,linked_vault_id,service,status,timestamp,agent,verification_url,language,title_es,title_som,created_by,created_at
+not_001,vault_001,BlueNotary,Completed,2025-10-28T14:32:00,"BlueNotary Remote Agent",https://bluenotary.com/verify/ABC123,en,"Notarización completada","Xaqiijinta la dhammeeyay",importer,2025-11-01T00:00:00
+not_002,vault_004,"LexFlats In-House",Pending,,"James Patel",,en,"Notarización pendiente","Xaqiijinta sugaya",importer,2025-11-01T00:00:00

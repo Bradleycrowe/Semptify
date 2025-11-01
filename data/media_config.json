@@ -1,0 +1,12 @@
+{
+  "recording_modes": [
+    "Voice memo (tenant statement)",
+    "Video walkthrough (damage report)",
+    "Audio log (phone call summary)"
+  ],
+  "storage_path": "vault/media_logs/",
+  "linked_to": ["vault_id", "event_id", "contact_id"],
+  "created_by": "importer",
+  "created_at": "2025-11-01T00:00:00",
+  "notes": "Configuration for storing tenant-supplied media and staff recordings. Ensure `vault/media_logs/` is writeable and access-controlled."
+}

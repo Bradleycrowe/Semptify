@@ -1,0 +1,22 @@
+[
+  {
+    "id": "lease_agreement",
+    "title": "Lease Agreement",
+    "template_id": "tmpl_lease_agreement",
+    "recommended_delivery": ["Email", "Tenant Portal", "Certified Mail"],
+    "notary_required": false,
+    "languages": ["en", "es", "som", "hmn"],
+    "modal_trigger": "View Lease Agreement",
+    "help_text_key": "lease_help"
+  },
+  {
+    "id": "eviction_notice",
+    "title": "Eviction Notice",
+    "template_id": "tmpl_eviction_notice",
+    "recommended_delivery": ["Certified Mail", "USPS", "In-person"],
+    "notary_required": true,
+    "languages": ["en", "es", "som", "hmn"],
+    "modal_trigger": "View Eviction Notice",
+    "help_text_key": "eviction_help"
+  }
+]

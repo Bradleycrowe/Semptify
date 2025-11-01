@@ -1,0 +1,12 @@
+{
+  "scan_modes": [
+    "Document scan (PDF + OCR)",
+    "QR code scan (delivery tracking, vault access)",
+    "Photo capture (damage, repairs)"
+  ],
+  "output_format": ["PDF", "JPEG", "Text"],
+  "linked_to": ["vault_id", "delivery_id", "notary_id"],
+  "created_by": "importer",
+  "created_at": "2025-11-01T00:00:00",
+  "notes": "Configuration for mobile/desktop scanning workflows. Ensure OCR library and QR decoder are available when integrating."
+}

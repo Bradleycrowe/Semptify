@@ -1,0 +1,14 @@
+[
+  {
+    "id": "ship-1z999aa10123456784",
+    "carrier": "UPS",
+    "tracking_number": "1Z999AA10123456784",
+    "status": "Out for delivery",
+    "expected_delivery": "2025-11-02",
+    "expected_datetime": "2025-11-02T00:00:00",
+    "linked_event": "Heater Repair - Unit 3B",
+    "notes": "Tracking record imported.",
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  }
+]

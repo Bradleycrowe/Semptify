@@ -1,0 +1,2 @@
+id,carrier,tracking_number,status,expected_delivery,expected_datetime,linked_event,notes
+ship-1z999aa10123456784,UPS,1Z999AA10123456784,"Out for delivery",2025-11-02,2025-11-02T00:00:00,"Heater Repair - Unit 3B","Tracking record imported."

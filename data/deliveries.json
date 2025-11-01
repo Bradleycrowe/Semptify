@@ -1,0 +1,30 @@
+[
+  {
+    "id": "deliv-20251028-inspection-email",
+    "date": "2025-10-28",
+    "datetime": "2025-10-28T00:00:00",
+    "method": "email",
+    "from": "James Patel",
+    "to": "Maria Lopez",
+    "subject": "Notice of Annual Inspection",
+    "status": "Delivered",
+    "delivery_confirmation": "Read receipt logged",
+    "linked_event": "Annual Inspection - Unit 3B",
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  },
+  {
+    "id": "deliv-20251030-heater-sms",
+    "date": "2025-10-30",
+    "datetime": "2025-10-30T00:00:00",
+    "method": "text",
+    "from": "System",
+    "to": "Maria Lopez",
+    "subject": "Heater Repair Scheduled",
+    "status": "Delivered",
+    "delivery_confirmation": "SMS delivered",
+    "linked_event": "Heater Repair - Unit 3B",
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  }
+]

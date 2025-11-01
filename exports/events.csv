@@ -1,0 +1,4 @@
+title,type,date,time,datetime,location,participants,delivery_required,notes
+"Annual Inspection - Unit 3B",Inspection,2025-11-05,14:00,2025-11-05T14:00:00,Unit 3B,"Maria Lopez;James Patel",false,"24-hour notice sent via email and text."
+"Rent Due - November",Payment,2025-11-01,00:00,2025-11-01T00:00:00,Online Portal,"Maria Lopez",false,"Auto-reminder sent 3 days prior."
+"Heater Repair - Unit 3B",Maintenance,2025-11-03,10:00,2025-11-03T10:00:00,Unit 3B,"Maria Lopez;Repair Tech",true,"Part delivery scheduled via UPS."

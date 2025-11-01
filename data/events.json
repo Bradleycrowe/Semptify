@@ -1,0 +1,44 @@
+[
+  {
+    "id": "evt-20251105-3b-inspection",
+    "title": "Annual Inspection - Unit 3B",
+    "type": "Inspection",
+    "date": "2025-11-05",
+    "time": "14:00",
+    "datetime": "2025-11-05T14:00:00",
+    "location": "Unit 3B",
+    "participants": ["Maria Lopez", "James Patel"],
+    "delivery_required": false,
+    "notes": "24-hour notice sent via email and text.",
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  },
+  {
+    "id": "evt-20251101-rent-nov",
+    "title": "Rent Due - November",
+    "type": "Payment",
+    "date": "2025-11-01",
+    "time": "00:00",
+    "datetime": "2025-11-01T00:00:00",
+    "location": "Online Portal",
+    "participants": ["Maria Lopez"],
+    "delivery_required": false,
+    "notes": "Auto-reminder sent 3 days prior.",
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  },
+  {
+    "id": "evt-20251103-heater-repair",
+    "title": "Heater Repair - Unit 3B",
+    "type": "Maintenance",
+    "date": "2025-11-03",
+    "time": "10:00",
+    "datetime": "2025-11-03T10:00:00",
+    "location": "Unit 3B",
+    "participants": ["Maria Lopez", "Repair Tech"],
+    "delivery_required": true,
+    "notes": "Part delivery scheduled via UPS.",
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  }
+]

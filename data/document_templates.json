@@ -1,0 +1,36 @@
+[
+  {
+    "id": "tmpl_lease_agreement",
+    "method": "Lease Agreement",
+    "format": "PDF / e-signature",
+    "delivery": ["Email", "Certified Mail", "Tenant Portal"],
+    "notary": "Optional",
+    "languages": ["en", "es", "som", "hmn"],
+    "modal_trigger": "View Lease Agreement",
+    "help_text": {
+      "en": "This is your signed lease agreement. You may download, print, or request notarization.",
+      "es": "Este es su contrato de arrendamiento firmado. Puede descargarlo, imprimirlo o solicitar notarización.",
+      "som": "Tani waa heshiiskaaga kirada ee la saxiixay. Waxaad u soo dejisan kartaa, daabacan kartaa, ama codsan kartaa xaqiijin.",
+      "hmn": "Qhov no yog koj daim ntawv cog lus xauj tsev uas tau kos npe. Koj tuaj yeem rub tawm, luam tawm, lossis thov kom muaj kev lees paub."
+    },
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  },
+  {
+    "id": "tmpl_eviction_notice",
+    "method": "Eviction Notice",
+    "format": "PDF / Certified Mail",
+    "delivery": ["USPS", "Email", "In-person"],
+    "notary": "Required",
+    "languages": ["en", "es", "som", "hmn"],
+    "modal_trigger": "View Eviction Notice",
+    "help_text": {
+      "en": "This is a formal eviction notice. Please review your rights and contact support.",
+      "es": "Este es un aviso formal de desalojo. Revise sus derechos y comuníquese con el soporte.",
+      "som": "Tani waa ogeysiis rasmi ah oo ka saarid ah. Fadlan dib u eeg xuquuqdaada oo la xiriir taageerada.",
+      "hmn": "Qhov no yog ib daim ntawv ceeb toom tshem tawm. Thov xyuas koj cov cai thiab hu rau kev pab."
+    },
+    "created_by": "importer",
+    "created_at": "2025-11-01T00:00:00"
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "voice_triggers": [
+    "Send notice to Maria",
+    "Track delivery for heater invoice",
+    "Read inspection notice aloud",
+    "Open vault entry for Unit 3B",
+    "Start notarization flow",
+    "View Lease Agreement",
+    "View Eviction Notice",
+    "Send Formal Notice",
+    "Request Notarization",
+    "Track Certified Mail",
+    "Switch Language"
+  ],
+  "reader_modes": [
+    "Text-to-speech (TTS)",
+    "Language toggle (en/es/som/hmn)",
+    "Speed control",
+    "Pause/resume"
+  ],
+  "created_by": "importer",
+  "created_at": "2025-11-01T00:00:00",
+  "updated_at": "2025-11-01T00:00:00",
+  "notes": "Simple config for voice UI integration. Add locale codes and mapping when wiring into the app."
+}
