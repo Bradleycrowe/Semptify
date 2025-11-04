@@ -38,3 +38,57 @@ logs/
 uploads/
 backups/
 *.sqlite3
+
+# Large binary files (Ollama, installers, etc.)
+*.zip
+*.exe
+*.msi
+*.dmg
+*.pkg
+*.tar.gz
+*.7z
+ollama.zip
+OllamaSetup.exe
+
+# OS and IDE
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Build and dist
+dist/
+build/
+*.egg-info/
+
+# Virtual environments - comprehensive
+.venv/
+.venv*/
+venv/
+ENV/
+env/
+.env.local
+.env.*.local
+
+# Cache and temp
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+*.rar
+
+# Docker
+docker-compose.override.yml
+
+# Misc
+*.log
+.DS_Store
+.env.production.local
+
