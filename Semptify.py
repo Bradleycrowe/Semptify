@@ -415,7 +415,7 @@ def _is_admin_token(token):
                 stored_hex = stored
             if hashlib.sha256(token.encode()).hexdigest() == stored_hex:
                 return True
-    except Exception:
+    except (OSError, json.JSONDecodeError):
         pass
     return False
 
