@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0078d7">
+    <meta name="description" content="Semptify Mobile - Capture and manage evidence on the go">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/static/icons/Semptfylogo.svg">
+    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+    <title>Semptify Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0078d7 0%, #106ebe 100%);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-logo {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 60px;
+            overscroll-behavior: contain;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            gap: 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9eef6;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+            z-index: 200;
+            height: 60px;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            cursor: pointer;
+            color: #666;
+            font-size: 11px;
+            border: none;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: #0078d7;
+            background: rgba(0,120,215,0.05);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        /* CAPTURE TAB */
+        .capture-section {
+            padding: 16px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .capture-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 12px 16px;
+            background: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:active {
+            background: #106ebe;
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:active {
+            background: #e9e9e9;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .location-info {
+            background: #f0f7ff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            border-left: 3px solid #0078d7;
+        }
+
+        /* EVIDENCE GALLERY */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            padding: 16px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+        }
+
+        .gallery-item:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item-type {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .gallery-item-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            color: white;
+            padding: 8px 4px 4px;
+            font-size: 10px;
+        }
+
+        /* TIMELINE */
+        .timeline {
+            padding: 16px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .timeline-marker {
+            width: 12px;
+            height: 12px;
+            background: #0078d7;
+            border-radius: 50%;
+            margin-top: 4px;
+            flex-shrink: 0;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #0078d7;
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e9eef6;
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            color: #0078d7;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timeline-description {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* NOTIFICATIONS */
+        .notification {
+            background: white;
+            border-left: 3px solid #0078d7;
+            padding: 12px 16px;
+            margin: 8px 16px;
+            border-radius: 4px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .notification-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .notification-message {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .notification.warning {
+            border-left-color: #ffb900;
+        }
+
+        .notification.warning .notification-icon {
+            color: #ffb900;
+        }
+
+        .notification.error {
+            border-left-color: #d13438;
+        }
+
+        .notification.error .notification-icon {
+            color: #d13438;
+        }
+
+        /* LOADING STATE */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0078d7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .empty-message {
+            font-size: 12px;
+            color: #bbb;
+        }
+
+        /* UTILITY CLASSES */
+        .mt-16 { margin-top: 16px; }
+        .mb-16 { margin-bottom: 16px; }
+        .text-center { text-align: center; }
+        .text-muted { color: #999; }
+        .text-small { font-size: 12px; }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-title">
+                <div class="header-logo">📱</div>
+                <span>Semptify</span>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="sync-btn" title="Sync">🔄</button>
+                <button class="icon-btn" id="menu-btn" title="Menu">⋮</button>
+            </div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="content">
+            <!-- CAPTURE TAB -->
+            <div id="capture-tab" class="tab-content active">
+                <div class="capture-section">
+                    <div class="camera-preview">
+                        <video id="video" style="display:none;"></video>
+                        <div id="preview-placeholder">📹 Camera</div>
+                    </div>
+
+                    <div class="capture-controls">
+                        <button class="btn-primary" id="start-camera">Start Camera</button>
+                        <button class="btn-secondary" id="stop-camera">Stop</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Capture Type</label>
+                        <select id="capture-type">
+                            <option value="video">📹 Record Video</option>
+                            <option value="photo">📷 Take Photo</option>
+                            <option value="audio">🎤 Record Audio</option>
+                        </select>
+                    </div>
+
+                    <div class="location-info" id="location-info" style="display:none;">
+                        📍 <span id="location-text">Getting location...</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="capture-description" placeholder="What are you capturing? (e.g., Broken AC in bedroom)"></textarea>
+                    </div>
+
+                    <button class="btn-primary mt-16" id="upload-btn">Upload Evidence</button>
+                </div>
+            </div>
+
+            <!-- IMPORT TAB -->
+            <div id="import-tab" class="tab-content">
+                <div style="padding: 16px;">
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 12px; font-size: 14px; font-weight: 600;">SMS/Text Messages</h3>
+                        <button class="btn-primary">Copy & Paste SMS</button>
+                        <button class="btn-secondary mt-16">Import from File</button>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 12px; font-size: 14px; font-weight: 600;">Voicemail</h3>
+                        <p class="text-small text-muted" style="margin-bottom: 12px;">Forward voicemail to: semptify@voicemail.example.com</p>
+                        <button class="btn-secondary">Import voicemail</button>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 12px; font-size: 14px; font-weight: 600;">Email</h3>
+                        <p class="text-small text-muted" style="margin-bottom: 12px;">Forward emails to case inbox</p>
+                        <button class="btn-secondary">Import emails</button>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 12px; font-size: 14px; font-weight: 600;">Chat/Messaging</h3>
+                        <button class="btn-secondary">Import Slack</button>
+                        <button class="btn-secondary mt-16">Import Signal</button>
+                        <button class="btn-secondary mt-16">Import WhatsApp</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VAULT TAB -->
+            <div id="vault-tab" class="tab-content">
+                <div class="gallery" id="evidence-gallery">
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <div class="empty-title">No Evidence Yet</div>
+                        <div class="empty-message">Capture photos/videos using the Capture tab</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASES TAB -->
+            <div id="cases-tab" class="tab-content">
+                <div style="padding: 16px;">
+                    <div id="cases-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <div class="empty-title">No Cases Yet</div>
+                            <div class="empty-message">Create a new case to get started</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIMELINE TAB -->
+            <div id="timeline-tab" class="tab-content">
+                <div class="timeline" id="timeline-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <div class="empty-title">No Events Yet</div>
+                        <div class="empty-message">Evidence will appear here as you capture</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS TAB -->
+            <div id="notifications-tab" class="tab-content">
+                <div id="notifications-list" style="padding: 16px;">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔔</div>
+                        <div class="empty-title">No Notifications</div>
+                        <div class="empty-message">You're all caught up!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-tab="capture-tab">
+                <div class="nav-icon">📹</div>
+                <div>Capture</div>
+            </button>
+            <button class="nav-item" data-tab="import-tab">
+                <div class="nav-icon">📥</div>
+                <div>Import</div>
+            </button>
+            <button class="nav-item" data-tab="vault-tab">
+                <div class="nav-icon">📦</div>
+                <div>Vault</div>
+            </button>
+            <button class="nav-item" data-tab="cases-tab">
+                <div class="nav-icon">📋</div>
+                <div>Cases</div>
+            </button>
+            <button class="nav-item" data-tab="timeline-tab">
+                <div class="nav-icon">📅</div>
+                <div>Timeline</div>
+            </button>
+            <button class="nav-item" data-tab="notifications-tab">
+                <div class="nav-icon">🔔</div>
+                <div>Alerts</div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW error:', err));
+        }
+
+        // Tab Navigation
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+                // Show selected tab
+                document.getElementById(tabName).classList.add('active');
+
+                // Update nav item
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Camera Functionality
+        let stream = null;
+        const video = document.getElementById('video');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+
+        document.getElementById('start-camera').addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                previewPlaceholder.style.display = 'none';
+            } catch (err) {
+                alert('Camera access denied: ' + err.message);
+            }
+        });
+
+        document.getElementById('stop-camera').addEventListener('click', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.style.display = 'none';
+                previewPlaceholder.style.display = 'flex';
+            }
+        });
+
+        // Geolocation
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const { latitude, longitude, accuracy } = pos.coords;
+                document.getElementById('location-info').style.display = 'block';
+                document.getElementById('location-text').textContent =
+                    `${latitude.toFixed(4)}, ${longitude.toFixed(4)} (±${accuracy.toFixed(0)}m)`;
+            });
+        }
+
+        // Upload Handler
+        document.getElementById('upload-btn').addEventListener('click', async () => {
+            const description = document.getElementById('capture-description').value;
+            if (!description) {
+                alert('Please enter a description');
+                return;
+            }
+
+            // In real app, capture video/photo and upload to /api/evidence/capture/*
+            alert('Upload functionality would send to backend here');
+        });
+
+        // Sync Handler
+        document.getElementById('sync-btn').addEventListener('click', () => {
+            alert('Syncing with server...');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{%% extends "shell.html" %%}
+
+{%% block title %%}Rights Explorer • Semptify{%% endblock %%}
+
+{%% block content %%}
+<div class="page-header">
+  <h1 class="page-title">Rights Explorer</h1>
+  <p class="page-subtitle">Learn about your legal rights</p>
+</div>
+
+
+    <div class="container container-lg">
+      <div class="card">
+        <div class="card-body">
+          <form method="post">
+            <div class="form-group">
+              <label for="scenario">Select Your Situation</label>
+              <select id="scenario" name="scenario">
+                <option value="">-- Choose --</option>
+                <option value="eviction">Landlord served eviction notice</option>
+                <option value="maintenance">Landlord won't make repairs</option>
+                <option value="harassment">Experiencing harassment</option>
+                <option value="entry">Landlord entered without notice</option>
+                <option value="rent-increase">Received rent increase notice</option>
+              </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Explore Rights</button>
+          </form>
+        </div>
+      </div>
+      
+      <div id="rights-info" class="mt-4" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Your Rights</h2>
+          </div>
+          <div class="card-body" id="rights-content">
+            <!-- Rights content will appear here -->
+          </div>
+        </div>
+      </div>
+    </div>
+        
+{%% endblock %%}

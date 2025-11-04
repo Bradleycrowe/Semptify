@@ -298,3 +298,49 @@
 {"event": "startup", "ts": 1761088873, "id": "fcd4c59d-2378-4692-b385-7307374fc61d", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
 {"event": "startup", "ts": 1761088874, "id": "21686aca-f48c-46d9-9d95-d3f996c3e0aa", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
 {"event": "startup", "ts": 1761088875, "id": "c601821a-599b-467e-9504-719c8ed076f5", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"event": "user_token_created", "payload": {"token_len": 43}, "ts": 1762203089.4051979}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227202.9564755}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227256.004701}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227264.318292}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227295.051078}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227295.0592618}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227313.7633688}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227313.7680671}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227367.9975736}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227368.0075119}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227454.374459}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227454.3849835}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227471.3894126}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227471.3959734}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227510.1586711}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762227510.1665385}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228192.873718}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228192.8807552}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228682.1750464}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228682.1793435}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228813.8329437}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228813.8399675}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228973.4050708}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762228973.4096756}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762229112.6037395}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762229112.609761}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762231037.2193978}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762231037.2283995}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762232836.6999633}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762232836.7124398}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237044.4536536}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237044.4661806}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237080.4539123}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237080.4632814}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237181.1032784}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237181.1032784}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237515.8104062}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762237515.829405}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762238508.2566214}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762238508.2566214}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762238542.1985898}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762238542.210447}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762242008.620148}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762242008.6216416}
+{"event": "admin_token_saved", "payload": {"breakglass": false}, "ts": 1762255648.1108081}
+{"event": "user_token_created", "payload": {"token_len": 43}, "ts": 1762256512.456752}

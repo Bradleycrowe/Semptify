@@ -1,0 +1,439 @@
+<!-- Semptify Navigation Component -->
+<!-- Include this in your base.html or shell.html template -->
+
+{% macro render_nav() %}
+<nav>
+  <a href="/" class="nav-link">Home</a>
+  
+  <div class="nav-group">
+    <button class="nav-dropdown-toggle">
+      Evidence & Documents
+      <span class="nav-arrow">▼</span>
+    </button>
+    <div class="nav-dropdown">
+      <a href="/vault">Document Vault</a>
+      <a href="/evidence/gallery">Evidence Gallery</a>
+      <a href="/witness_form">Witness Statement</a>
+      <a href="/packet_form">Evidence Packet</a>
+      <a href="/service_animal_form">Service Animal Form</a>
+    </div>
+  </div>
+  
+  <div class="nav-group">
+    <button class="nav-dropdown-toggle">
+      Tools & Resources
+      <span class="nav-arrow">▼</span>
+    </button>
+    <div class="nav-dropdown">
+      <a href="/tools/complaint-generator">Complaint Generator</a>
+      <a href="/tools/statute-calculator">Statute Calculator</a>
+      <a href="/tools/court-packet">Court Packet Builder</a>
+      <a href="/know-your-rights">Know Your Rights</a>
+      <a href="/library">Legal Library</a>
+    </div>
+  </div>
+  
+  <div class="nav-group">
+    <button class="nav-dropdown-toggle">
+      Calendar & Tracking
+      <span class="nav-arrow">▼</span>
+    </button>
+    <div class="nav-dropdown">
+      <a href="/ledger-calendar">Timeline Dashboard</a>
+      <a href="/calendar-widgets">Calendar View</a>
+      <a href="/ledger">Ledger</a>
+      <a href="/move_checklist_form">Move Checklist</a>
+    </div>
+  </div>
+  
+  <a href="/copilot" class="nav-link nav-ai">🤖 AI Copilot</a>
+  
+  <div class="nav-group">
+    <button class="nav-dropdown-toggle">
+      Account
+      <span class="nav-arrow">▼</span>
+    </button>
+    <div class="nav-dropdown">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/register">Register</a>
+      <a href="/settings">Settings</a>
+      <a href="/help">Help & Support</a>
+      <a href="/about">About</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Breadcrumb Component -->
+{% endmacro %}
+
+{% macro render_breadcrumb(items) %}
+<nav aria-label="Breadcrumb">
+  <ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    {% for item in items %}
+      <li>
+        {% if item.url %}
+          <a href="{{ item.url }}">{{ item.name }}</a>
+        {% else %}
+          <span>{{ item.name }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</nav>
+{% endmacro %}
+
+<!-- Sidebar Navigation -->
+{% macro render_sidebar() %}
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a href="/" class="sidebar-logo">Semptify</a>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Main</h3>
+      <a href="/dashboard" class="sidebar-link">
+        <span class="sidebar-icon">🏠</span>
+        <span>Dashboard</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Evidence</h3>
+      <a href="/vault" class="sidebar-link">
+        <span class="sidebar-icon">📦</span>
+        <span>Vault</span>
+      </a>
+      <a href="/evidence/gallery" class="sidebar-link">
+        <span class="sidebar-icon">📷</span>
+        <span>Gallery</span>
+      </a>
+      <a href="/witness_form" class="sidebar-link">
+        <span class="sidebar-icon">👁️</span>
+        <span>Witness Form</span>
+      </a>
+      <a href="/packet_form" class="sidebar-link">
+        <span class="sidebar-icon">📋</span>
+        <span>Evidence Packet</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Calendar & Tracking</h3>
+      <a href="/ledger-calendar" class="sidebar-link">
+        <span class="sidebar-icon">📅</span>
+        <span>Timeline</span>
+      </a>
+      <a href="/calendar-widgets" class="sidebar-link">
+        <span class="sidebar-icon">🗓️</span>
+        <span>Calendar</span>
+      </a>
+      <a href="/ledger" class="sidebar-link">
+        <span class="sidebar-icon">📊</span>
+        <span>Ledger</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Tools</h3>
+      <a href="/tools/complaint-generator" class="sidebar-link">
+        <span class="sidebar-icon">📝</span>
+        <span>Complaint Generator</span>
+      </a>
+      <a href="/tools/statute-calculator" class="sidebar-link">
+        <span class="sidebar-icon">⏱️</span>
+        <span>Statute Calculator</span>
+      </a>
+      <a href="/tools/court-packet" class="sidebar-link">
+        <span class="sidebar-icon">⚖️</span>
+        <span>Court Packet</span>
+      </a>
+      <a href="/know-your-rights" class="sidebar-link">
+        <span class="sidebar-icon">📚</span>
+        <span>Know Your Rights</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">AI & Resources</h3>
+      <a href="/copilot" class="sidebar-link sidebar-link-highlight">
+        <span class="sidebar-icon">🤖</span>
+        <span>AI Copilot</span>
+      </a>
+      <a href="/library" class="sidebar-link">
+        <span class="sidebar-icon">📖</span>
+        <span>Library</span>
+      </a>
+      <a href="/help" class="sidebar-link">
+        <span class="sidebar-icon">❓</span>
+        <span>Help</span>
+      </a>
+    </div>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <a href="/settings" class="sidebar-link">⚙️ Settings</a>
+    <a href="/about" class="sidebar-link">ℹ️ About</a>
+  </div>
+</aside>
+{% endmacro %}
+
+<!-- Navigation Styles -->
+<style>
+  /* Dropdown Navigation */
+  .nav-group {
+    position: relative;
+    display: inline-block;
+  }
+
+  .nav-dropdown-toggle {
+    background: none;
+    border: none;
+    color: var(--dark-text);
+    cursor: pointer;
+    padding: var(--space-sm) var(--space-md);
+    font-weight: var(--font-weight-semibold);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-md);
+  }
+
+  .nav-dropdown-toggle:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+  }
+
+  .nav-arrow {
+    font-size: 0.75rem;
+    transition: transform var(--transition-fast);
+  }
+
+  .nav-group:hover .nav-arrow {
+    transform: rotateZ(180deg);
+  }
+
+  .nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    min-width: 200px;
+    display: none;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-dropdown);
+  }
+
+  .nav-group:hover .nav-dropdown {
+    display: flex;
+  }
+
+  .nav-dropdown a {
+    padding: var(--space-sm) var(--space-lg);
+    color: var(--dark-text);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+  }
+
+  .nav-dropdown a:first-child {
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+  }
+
+  .nav-dropdown a:last-child {
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+  }
+
+  .nav-dropdown a:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+
+  .nav-ai {
+    background-color: var(--primary);
+    color: var(--light);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .nav-ai:hover {
+    background-color: var(--primary-dark);
+  }
+
+  /* Sidebar Navigation */
+  .sidebar {
+    background: var(--light);
+    border-right: 1px solid var(--border-color);
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+
+  .sidebar-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .sidebar-logo {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: var(--space-lg) 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    margin-bottom: var(--space-lg);
+  }
+
+  .sidebar-section-title {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    color: var(--gray-600);
+    padding: 0 var(--space-lg);
+    margin-bottom: var(--space-sm);
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--dark-text);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+  }
+
+  .sidebar-link:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+
+  .sidebar-link-highlight {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .sidebar-link-highlight:hover {
+    background-color: var(--primary);
+    color: var(--light);
+  }
+
+  .sidebar-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
+  .sidebar-footer {
+    padding: var(--space-lg) 0;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-footer .sidebar-link {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      border-right: none;
+      border-top: 1px solid var(--border-color);
+      height: auto;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .sidebar-header,
+    .sidebar-footer {
+      display: none;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      gap: var(--space-lg);
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .sidebar-section {
+      margin-bottom: 0;
+      min-width: 150px;
+    }
+
+    .sidebar-section-title {
+      display: none;
+    }
+
+    .sidebar-link {
+      flex-direction: column;
+      padding: var(--space-sm);
+      font-size: var(--font-size-xs);
+      border: none;
+      text-align: center;
+    }
+
+    .sidebar-icon {
+      width: 100%;
+      font-size: 1.5rem;
+      margin-bottom: var(--space-xs);
+    }
+  }
+
+  /* Breadcrumb Responsive */
+  @media (max-width: 480px) {
+    .breadcrumb {
+      font-size: var(--font-size-xs);
+    }
+  }
+
+  /* Navigation Link */
+  .nav-link {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-md);
+    color: var(--dark-text);
+    text-decoration: none;
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+  }
+
+  .nav-link:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+  }
+
+  /* Keyboard Navigation Support */
+  .nav-dropdown-toggle:focus-visible,
+  .nav-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+</style>

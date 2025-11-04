@@ -9,13 +9,75 @@ from PyQt5.QtWidgets import (
     QFrame, QStackedWidget, QDialog, QTextEdit, QListWidget, QLineEdit, QMessageBox
 )
 from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import QObject, pyqtSignal, QThread
 
 
 class SemptifyAppGUI(QMainWindow):
+    def make_others_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Others")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
+        concierge_btn = QPushButton("Go to Concierge")
+        concierge_btn.clicked.connect(lambda: self.show_page(self.concierge_page))
+        layout.addWidget(concierge_btn)
+        local_ai_btn = QPushButton("Go to Local AI")
+        local_ai_btn.clicked.connect(lambda: self.show_page(self.local_ai_page))
+        layout.addWidget(local_ai_btn)
+        layout.addStretch()
+        return p
+
+    def make_concierge_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Concierge")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
+        self.chat_history = QTextEdit()
+        self.chat_history.setReadOnly(True)
+        self.chat_history.setMaximumHeight(200)
+        layout.addWidget(self.chat_history)
+        input_layout = QHBoxLayout()
+        self.chat_input = QLineEdit()
+        self.chat_input.setPlaceholderText("Ask...")
+        send_btn = QPushButton("Send")
+        send_btn.setFixedSize(40, 20)
+        send_btn.clicked.connect(self.send_to_concierge)
+        input_layout.addWidget(self.chat_input)
+        input_layout.addWidget(send_btn)
+        layout.addLayout(input_layout)
+        layout.addStretch()
+        return p
+
+    def make_local_ai_page(self):
+        p = QWidget()
+        layout = QVBoxLayout()
+        p.setLayout(layout)
+        lbl = QLabel("Local AI")
+        lbl.setStyleSheet("font-size:18px; font-weight:600; margin:12px;")
+        layout.addWidget(lbl)
+        self.vault_chat_history = QTextEdit()
+        self.vault_chat_history.setReadOnly(True)
+        self.vault_chat_history.setMaximumHeight(200)
+        layout.addWidget(self.vault_chat_history)
+        input_layout = QHBoxLayout()
+        self.vault_chat_input = QLineEdit()
+        self.vault_chat_input.setPlaceholderText("Ask local AI...")
+        send_btn = QPushButton("Send")
+        send_btn.clicked.connect(self.send_to_local_ai)
+        input_layout.addWidget(self.vault_chat_input)
+        input_layout.addWidget(send_btn)
+        layout.addLayout(input_layout)
+        layout.addStretch()
+        return p
+    # Add link to Others page on Home page
     def __init__(self):
         super().__init__()
         # Initialize attributes early so linters/tools know they exist.
-        self.pages = QStackedWidget()
+        self.current_page = None
         self.home_page = QWidget()
         self.library_page = QWidget()
         self.office_page = QWidget()
@@ -49,13 +111,20 @@ class SemptifyAppGUI(QMainWindow):
         central_widget.setLayout(self.main_layout)
         self.setCentralWidget(central_widget)
 
-        # Bottom layout: pages on left, concierge box on right
-        bottom_layout = QHBoxLayout()
-        self.pages = QStackedWidget()
-        bottom_layout.addWidget(self.pages, 1)  # pages expand
-        self.concierge_box = self.make_concierge_box()
-        bottom_layout.addWidget(self.concierge_box, 0)  # concierge fixed
-        self.main_layout.addLayout(bottom_layout)
+        # Page container for switching pages
+        self.page_container = QVBoxLayout()
+        self.main_layout.addLayout(self.page_container)
+        self.show_page(self.home_page)
+        self.setup_core_pages()
+        self.setup_top_bar()
+
+    def show_page(self, page_widget):
+        # Remove current page from container and add new one
+        if self.current_page:
+            self.page_container.removeWidget(self.current_page)
+            self.current_page.setParent(None)
+        self.page_container.addWidget(page_widget)
+        self.current_page = page_widget
 
         # Add core pages
         self.setup_core_pages()
@@ -527,41 +596,59 @@ class SemptifyAppGUI(QMainWindow):
 
     def save_journal(self):
         data = {
-            'workspace': self.ws_input.text() if self.ws_input else "",
-            'notes': self.notes_editor.toPlainText() if self.notes_editor else "",
-            'timestamp': str(os.times())
+            'workspace': self.ws_input.text() if self.ws_input else '',
+            'notes': self.notes_editor.toPlainText() if self.notes_editor else ''
         }
-        with open('journal.json', 'w', encoding='utf-8') as f:
-            json.dump(data, f)
-        # Sync via git if in repo
         try:
-            os.system('git add journal.json temp_todos.json')
-            os.system('git commit -m "Update journal and temp todos"')
+            with open('journal.json', 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            print(f"Git sync error: {e}")
+            print(f"Save journal error: {e}")
 
     def send_to_concierge(self):
         query = self.chat_input.text().strip() if self.chat_input else ""
         if not query:
             return
+        # append user message immediately and log
         if self.chat_history:
             self.chat_history.append(f"You: {query}")
         if self.chat_input:
             self.chat_input.clear()
-        # Send to backend
         try:
-            import requests
-            response = requests.post("http://localhost:5000/api/copilot", json={"prompt": query}, timeout=10)
-            if response.status_code == 200:
-                result = response.json().get("response", "No response")
-                if self.chat_history:
-                    self.chat_history.append(f"Concierge: {result}")
-            else:
-                if self.chat_history:
-                    self.chat_history.append("Concierge: Error communicating with AI.")
-        except Exception as e:
-            if self.chat_history:
-                self.chat_history.append(f"Concierge: Error - {str(e)}")
+            os.makedirs('chats', exist_ok=True)
+            with open(os.path.join('chats', 'concierge.log'), 'a', encoding='utf-8') as f:
+                f.write(f"USER|{str(__import__('time').time())}|{query}\n")
+        except Exception:
+            pass
+
+        # Use a background worker to avoid blocking the UI
+        class Worker(QObject):
+            finished = pyqtSignal(str)
+            error = pyqtSignal(str)
+
+            def __init__(self, prompt):
+                super().__init__()
+                self.prompt = prompt
+
+            def run(self):
+                try:
+                    import requests
+                    response = requests.post("http://localhost:5000/api/copilot", json={"prompt": self.prompt}, timeout=15)
+                    if response.status_code == 200:
+                        result = response.json().get('response', 'No response')
+                        self.finished.emit(result)
+                    else:
+                        self.error.emit(f'Status {response.status_code}')
+                except Exception as e:
+                    self.error.emit(str(e))
+
+        worker = Worker(query)
+        thread = QThread(self)
+        worker.moveToThread(thread)
+        worker.finished.connect(lambda res: self._on_concierge_response(res, thread))
+        worker.error.connect(lambda err: self._on_concierge_error(err, thread))
+        thread.started.connect(worker.run)
+        thread.start()
 
     def send_to_local_ai(self):
         query = self.vault_chat_input.text().strip() if self.vault_chat_input else ""
@@ -571,20 +658,40 @@ class SemptifyAppGUI(QMainWindow):
             self.vault_chat_history.append(f"You: {query}")
         if self.vault_chat_input:
             self.vault_chat_input.clear()
-        # Send to Ollama
         try:
-            import requests
-            response = requests.post("http://localhost:11434/api/generate", json={"model": "llama3.2", "prompt": query, "stream": False}, timeout=30)
-            if response.status_code == 200:
-                result = response.json().get("response", "No response")
-                if self.vault_chat_history:
-                    self.vault_chat_history.append(f"Local AI: {result}")
-            else:
-                if self.vault_chat_history:
-                    self.vault_chat_history.append("Local AI: Error communicating.")
-        except Exception as e:
-            if self.vault_chat_history:
-                self.vault_chat_history.append(f"Local AI: Error - {str(e)}")
+            os.makedirs('chats', exist_ok=True)
+            with open(os.path.join('chats', 'local_ai.log'), 'a', encoding='utf-8') as f:
+                f.write(f"USER|{str(__import__('time').time())}|{query}\n")
+        except Exception:
+            pass
+
+        class WorkerLocal(QObject):
+            finished = pyqtSignal(str)
+            error = pyqtSignal(str)
+
+            def __init__(self, prompt):
+                super().__init__()
+                self.prompt = prompt
+
+            def run(self):
+                try:
+                    import requests
+                    response = requests.post("http://localhost:11434/api/generate", json={"model": "llama3.2", "prompt": self.prompt, "stream": False}, timeout=30)
+                    if response.status_code == 200:
+                        result = response.json().get('response', 'No response')
+                        self.finished.emit(result)
+                    else:
+                        self.error.emit(f'Status {response.status_code}')
+                except Exception as e:
+                    self.error.emit(str(e))
+
+        worker = WorkerLocal(query)
+        thread = QThread(self)
+        worker.moveToThread(thread)
+        worker.finished.connect(lambda res: self._on_local_ai_response(res, thread))
+        worker.error.connect(lambda err: self._on_local_ai_error(err, thread))
+        thread.started.connect(worker.run)
+        thread.start()
 
     def update_local_model(self):
         try:
@@ -599,6 +706,49 @@ class SemptifyAppGUI(QMainWindow):
 
     def train_ais(self):
         QMessageBox.information(self, "Train", "AIs trained (placeholder).")
+
+    # Handlers for background worker results
+    def _on_concierge_response(self, result, thread: QThread):
+        try:
+            if self.chat_history:
+                self.chat_history.append(f"Concierge: {result}")
+            os.makedirs('chats', exist_ok=True)
+            with open(os.path.join('chats', 'concierge.log'), 'a', encoding='utf-8') as f:
+                f.write(f"AI|{str(__import__('time').time())}|{result}\n")
+        finally:
+            thread.quit()
+            thread.wait()
+
+    def _on_concierge_error(self, err, thread: QThread):
+        try:
+            if self.chat_history:
+                self.chat_history.append(f"Concierge: Error - {err}")
+            with open(os.path.join('chats', 'concierge.log'), 'a', encoding='utf-8') as f:
+                f.write(f"ERROR|{str(__import__('time').time())}|{err}\n")
+        finally:
+            thread.quit()
+            thread.wait()
+
+    def _on_local_ai_response(self, result, thread: QThread):
+        try:
+            if self.vault_chat_history:
+                self.vault_chat_history.append(f"Local AI: {result}")
+            os.makedirs('chats', exist_ok=True)
+            with open(os.path.join('chats', 'local_ai.log'), 'a', encoding='utf-8') as f:
+                f.write(f"AI|{str(__import__('time').time())}|{result}\n")
+        finally:
+            thread.quit()
+            thread.wait()
+
+    def _on_local_ai_error(self, err, thread: QThread):
+        try:
+            if self.vault_chat_history:
+                self.vault_chat_history.append(f"Local AI: Error - {err}")
+            with open(os.path.join('chats', 'local_ai.log'), 'a', encoding='utf-8') as f:
+                f.write(f"ERROR|{str(__import__('time').time())}|{err}\n")
+        finally:
+            thread.quit()
+            thread.wait()
 
     def spellcheck_notes(self):
         spell = SpellChecker()

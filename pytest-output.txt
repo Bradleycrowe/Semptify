@@ -1,0 +1,468 @@
+...FF.........................F....F..F.                                 [100%]
+================================== FAILURES ===================================
+_________________________________ test_index __________________________________
+
+client = <FlaskClient <Flask 'Semptify'>>
+
+    def test_index(client):
+>       rv = client.get('/')
+             ^^^^^^^^^^^^^^^
+
+tests\test_app.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Semptify.py:22: in home
+    return render_template('index.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\templating.py:150: in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\templating.py:131: in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\jinja2\environment.py:1295: in render
+    self.environment.handle_exception()
+.venv311\Lib\site-packages\jinja2\environment.py:942: in handle_exception
+    raise rewrite_traceback_stack(source=source)
+templates\index.html:1: in top-level template code
+    {% extends "base.html" %}
+templates\base.html:15: in top-level template code
+    <a href="{{ url_for('vault_blueprint.vault') }}">Vault</a> |
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:1121: in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv311\Lib\site-packages\flask\app.py:1110: in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <werkzeug.routing.map.MapAdapter object at 0x000001F1E8A49910>
+endpoint = 'vault_blueprint.vault', values = {}, method = None
+force_external = False, append_unknown = True, url_scheme = None
+
+    def build(
+        self,
+        endpoint: t.Any,
+        values: t.Mapping[str, t.Any] | None = None,
+        method: str | None = None,
+        force_external: bool = False,
+        append_unknown: bool = True,
+        url_scheme: str | None = None,
+    ) -> str:
+        """Building URLs works pretty much the other way round.  Instead of
+        `match` you call `build` and pass it the endpoint and a dict of
+        arguments for the placeholders.
+    
+        The `build` function also accepts an argument called `force_external`
+        which, if you set it to `True` will force external URLs. Per default
+        external URLs (include the server name) will only be used if the
+        target URL is on a different subdomain.
+    
+        >>> m = Map([
+        ...     Rule('/', endpoint='index'),
+        ...     Rule('/downloads/', endpoint='downloads/index'),
+        ...     Rule('/downloads/<int:id>', endpoint='downloads/show')
+        ... ])
+        >>> urls = m.bind("example.com", "/")
+        >>> urls.build("index", {})
+        '/'
+        >>> urls.build("downloads/show", {'id': 42})
+        '/downloads/42'
+        >>> urls.build("downloads/show", {'id': 42}, force_external=True)
+        'http://example.com/downloads/42'
+    
+        Because URLs cannot contain non ASCII data you will always get
+        bytes back.  Non ASCII characters are urlencoded with the
+        charset defined on the map instance.
+    
+        Additional values are converted to strings and appended to the URL as
+        URL querystring parameters:
+    
+        >>> urls.build("index", {'q': 'My Searchstring'})
+        '/?q=My+Searchstring'
+    
+        When processing those additional values, lists are furthermore
+        interpreted as multiple values (as per
+        :py:class:`werkzeug.datastructures.MultiDict`):
+    
+        >>> urls.build("index", {'q': ['a', 'b', 'c']})
+        '/?q=a&q=b&q=c'
+    
+        Passing a ``MultiDict`` will also add multiple values:
+    
+        >>> urls.build("index", MultiDict((('p', 'z'), ('q', 'a'), ('q', 'b'))))
+        '/?p=z&q=a&q=b'
+    
+        If a rule does not exist when building a `BuildError` exception is
+        raised.
+    
+        The build method accepts an argument called `method` which allows you
+        to specify the method you want to have an URL built for if you have
+        different methods for the same endpoint specified.
+    
+        :param endpoint: the endpoint of the URL to build.
+        :param values: the values for the URL to build.  Unhandled values are
+                       appended to the URL as query parameters.
+        :param method: the HTTP method for the rule if there are different
+                       URLs for different methods on the same endpoint.
+        :param force_external: enforce full canonical external URLs. If the URL
+                               scheme is not provided, this will generate
+                               a protocol-relative URL.
+        :param append_unknown: unknown parameters are appended to the generated
+                               URL as query string argument.  Disable this
+                               if you want the builder to ignore those.
+        :param url_scheme: Scheme to use in place of the bound
+            :attr:`url_scheme`.
+    
+        .. versionchanged:: 2.0
+            Added the ``url_scheme`` parameter.
+    
+        .. versionadded:: 0.6
+           Added the ``append_unknown`` parameter.
+        """
+        self.map.update()
+    
+        if values:
+            if isinstance(values, MultiDict):
+                values = {
+                    k: (v[0] if len(v) == 1 else v)
+                    for k, v in dict.items(values)
+                    if len(v) != 0
+                }
+            else:  # plain dict
+                values = {k: v for k, v in values.items() if v is not None}
+        else:
+            values = {}
+    
+        rv = self._partial_build(endpoint, values, method, append_unknown)
+        if rv is None:
+>           raise BuildError(endpoint, values, method, self)
+E           werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'vault_blueprint.vault'. Did you mean 'vault_export_bundle' instead?
+
+.venv311\Lib\site-packages\werkzeug\routing\map.py:924: BuildError
+___________________ test_breakglass_one_shot_and_rate_limit ___________________
+
+tmp_path = WindowsPath('C:/Users/bradc/AppData/Local/Temp/pytest-of-bradc/pytest-33/test_breakglass_one_shot_and_r0')
+
+    def test_breakglass_one_shot_and_rate_limit(tmp_path):
+        sempt = setup_tokens(str(tmp_path))
+        client = sempt.app.test_client()
+        # Use breakglass token first time (flag exists)
+        r1 = client.get('/admin?token=glass123')
+>       assert r1.status_code == 200
+E       assert 401 == 200
+E        +  where 401 = <WrapperTestResponse streamed [401 UNAUTHORIZED]>.status_code
+
+c:\Semptify\Semptify\tests\test_breakglass_and_ratelimit.py:31: AssertionError
+___________________ test_notary_upload_and_attest_existing ____________________
+
+tmp_path = WindowsPath('C:/Users/bradc/AppData/Local/Temp/pytest-of-bradc/pytest-33/test_notary_upload_and_attest_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F1E8EFC6D0>
+
+    def test_notary_upload_and_attest_existing(tmp_path, monkeypatch):
+        # Open mode to bypass CSRF
+        monkeypatch.setenv('SECURITY_MODE', 'open')
+    
+        # Prepare users.json
+        sec_dir = tmp_path / 'security'
+        sec_dir.mkdir()
+        users_path = sec_dir / 'users.json'
+    
+        # Point CWD to tmp
+        monkeypatch.chdir(tmp_path)
+    
+        import Semptify as sempt
+        importlib.reload(sempt)
+        sempt.app.config['TESTING'] = True
+        client = sempt.app.test_client()
+    
+        token_plain = 'u1token'
+        user_entry = [{
+            'id': 'u1', 'name': 'User One', 'hash': sempt._hash_token(token_plain), 'enabled': True
+        }]
+        users_path.write_text(json.dumps(user_entry), encoding='utf-8')
+    
+        # GET notary requires auth
+        r0 = client.get('/notary')
+        assert r0.status_code == 401
+    
+        r1 = client.get('/notary?user_token=' + token_plain)
+        assert r1.status_code == 200
+        assert b'Virtual Notary' in r1.data
+    
+        # Upload via notary
+        data = {
+            'user_token': token_plain,
+            'file': (io.BytesIO(b'hello notarized'), 'noted.txt')
+        }
+        r2 = client.post('/notary/upload', data=data, content_type='multipart/form-data', follow_redirects=True)
+        assert r2.status_code == 200
+        # File exists
+        dest = tmp_path / 'uploads' / 'vault' / 'u1' / 'noted.txt'
+        assert dest.exists()
+        # Certificate exists (one created recently)
+        certs = list((tmp_path / 'uploads' / 'vault' / 'u1').glob('notary_*.json'))
+        assert len(certs) >= 1
+    
+        # Attest existing
+        r3 = client.post('/notary/attest_existing', data={ 'user_token': token_plain, 'filename': 'noted.txt' }, follow_redirects=True)
+        assert r3.status_code == 200
+        certs2 = list((tmp_path / 'uploads' / 'vault' / 'u1').glob('notary_*.json'))
+>       assert len(certs2) >= 2
+E       AssertionError: assert 1 >= 2
+E        +  where 1 = len([WindowsPath('C:/Users/bradc/AppData/Local/Temp/pytest-of-bradc/pytest-33/test_notary_upload_and_attest_0/uploads/vault/u1/notary_1762148178_test.json')])
+
+c:\Semptify\Semptify\tests\test_notary.py:55: AssertionError
+____________________________ test_root_returns_200 ____________________________
+
+    def test_root_returns_200():
+        # Import the Flask app from the project
+        app = importlib.import_module('Semptify').app
+        app.testing = True
+        with app.test_client() as client:
+>           resp = client.get('/')
+                   ^^^^^^^^^^^^^^^
+
+c:\Semptify\Semptify\tests\test_root.py:9: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Semptify\Semptify\.venv311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+C:\Semptify\Semptify\.venv311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\Semptify.py:22: in home
+    return render_template('index.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\templating.py:150: in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\templating.py:131: in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\jinja2\environment.py:1295: in render
+    self.environment.handle_exception()
+C:\Semptify\Semptify\.venv311\Lib\site-packages\jinja2\environment.py:942: in handle_exception
+    raise rewrite_traceback_stack(source=source)
+C:\Semptify\Semptify\templates\index.html:1: in top-level template code
+    {% extends "base.html" %}
+C:\Semptify\Semptify\templates\base.html:15: in top-level template code
+    <a href="{{ url_for('vault_blueprint.vault') }}">Vault</a> |
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:1121: in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Semptify\Semptify\.venv311\Lib\site-packages\flask\app.py:1110: in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <werkzeug.routing.map.MapAdapter object at 0x000001F1EA0BCCD0>
+endpoint = 'vault_blueprint.vault', values = {}, method = None
+force_external = False, append_unknown = True, url_scheme = None
+
+    def build(
+        self,
+        endpoint: t.Any,
+        values: t.Mapping[str, t.Any] | None = None,
+        method: str | None = None,
+        force_external: bool = False,
+        append_unknown: bool = True,
+        url_scheme: str | None = None,
+    ) -> str:
+        """Building URLs works pretty much the other way round.  Instead of
+        `match` you call `build` and pass it the endpoint and a dict of
+        arguments for the placeholders.
+    
+        The `build` function also accepts an argument called `force_external`
+        which, if you set it to `True` will force external URLs. Per default
+        external URLs (include the server name) will only be used if the
+        target URL is on a different subdomain.
+    
+        >>> m = Map([
+        ...     Rule('/', endpoint='index'),
+        ...     Rule('/downloads/', endpoint='downloads/index'),
+        ...     Rule('/downloads/<int:id>', endpoint='downloads/show')
+        ... ])
+        >>> urls = m.bind("example.com", "/")
+        >>> urls.build("index", {})
+        '/'
+        >>> urls.build("downloads/show", {'id': 42})
+        '/downloads/42'
+        >>> urls.build("downloads/show", {'id': 42}, force_external=True)
+        'http://example.com/downloads/42'
+    
+        Because URLs cannot contain non ASCII data you will always get
+        bytes back.  Non ASCII characters are urlencoded with the
+        charset defined on the map instance.
+    
+        Additional values are converted to strings and appended to the URL as
+        URL querystring parameters:
+    
+        >>> urls.build("index", {'q': 'My Searchstring'})
+        '/?q=My+Searchstring'
+    
+        When processing those additional values, lists are furthermore
+        interpreted as multiple values (as per
+        :py:class:`werkzeug.datastructures.MultiDict`):
+    
+        >>> urls.build("index", {'q': ['a', 'b', 'c']})
+        '/?q=a&q=b&q=c'
+    
+        Passing a ``MultiDict`` will also add multiple values:
+    
+        >>> urls.build("index", MultiDict((('p', 'z'), ('q', 'a'), ('q', 'b'))))
+        '/?p=z&q=a&q=b'
+    
+        If a rule does not exist when building a `BuildError` exception is
+        raised.
+    
+        The build method accepts an argument called `method` which allows you
+        to specify the method you want to have an URL built for if you have
+        different methods for the same endpoint specified.
+    
+        :param endpoint: the endpoint of the URL to build.
+        :param values: the values for the URL to build.  Unhandled values are
+                       appended to the URL as query parameters.
+        :param method: the HTTP method for the rule if there are different
+                       URLs for different methods on the same endpoint.
+        :param force_external: enforce full canonical external URLs. If the URL
+                               scheme is not provided, this will generate
+                               a protocol-relative URL.
+        :param append_unknown: unknown parameters are appended to the generated
+                               URL as query string argument.  Disable this
+                               if you want the builder to ignore those.
+        :param url_scheme: Scheme to use in place of the bound
+            :attr:`url_scheme`.
+    
+        .. versionchanged:: 2.0
+            Added the ``url_scheme`` parameter.
+    
+        .. versionadded:: 0.6
+           Added the ``append_unknown`` parameter.
+        """
+        self.map.update()
+    
+        if values:
+            if isinstance(values, MultiDict):
+                values = {
+                    k: (v[0] if len(v) == 1 else v)
+                    for k, v in dict.items(values)
+                    if len(v) != 0
+                }
+            else:  # plain dict
+                values = {k: v for k, v in values.items() if v is not None}
+        else:
+            values = {}
+    
+        rv = self._partial_build(endpoint, values, method, append_unknown)
+        if rv is None:
+>           raise BuildError(endpoint, values, method, self)
+E           werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'vault_blueprint.vault'. Did you mean 'vault_export_bundle' instead?
+
+C:\Semptify\Semptify\.venv311\Lib\site-packages\werkzeug\routing\map.py:924: BuildError
+_________________________ test_vault_auth_and_upload __________________________
+
+tmp_path = WindowsPath('C:/Users/bradc/AppData/Local/Temp/pytest-of-bradc/pytest-33/test_vault_auth_and_upload0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F1EA064710>
+
+    def test_vault_auth_and_upload(tmp_path, monkeypatch):
+        # Use open mode to avoid CSRF on POST
+        monkeypatch.setenv('SECURITY_MODE', 'open')
+    
+        # Prepare users.json
+        sec_dir = tmp_path / 'security'
+        sec_dir.mkdir()
+        users_path = sec_dir / 'users.json'
+    
+        # Point CWD to tmp to isolate writes
+        monkeypatch.chdir(tmp_path)
+    
+        import Semptify as sempt
+        importlib.reload(sempt)
+        sempt.app.config['TESTING'] = True
+        client = sempt.app.test_client()
+    
+        token_plain = 'u1token'
+        user_entry = [{
+            'id': 'u1',
+            'name': 'User One',
+            'hash': sempt._hash_token(token_plain),  # internal helper for tests
+            'enabled': True
+        }]
+        users_path.write_text(json.dumps(user_entry), encoding='utf-8')
+    
+        # 401 without token
+        r1 = client.get('/vault')
+        assert r1.status_code == 401
+    
+        # 200 with token
+        r2 = client.get('/vault?user_token=' + token_plain)
+>       assert r2.status_code == 200
+E       assert 401 == 200
+E        +  where 401 = <WrapperTestResponse streamed [401 UNAUTHORIZED]>.status_code
+
+c:\Semptify\Semptify\tests\test_vault.py:39: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_app.py::test_index - werkzeug.routing.exceptions.BuildError...
+FAILED tests/test_breakglass_and_ratelimit.py::test_breakglass_one_shot_and_rate_limit
+FAILED tests/test_notary.py::test_notary_upload_and_attest_existing - Asserti...
+FAILED tests/test_root.py::test_root_returns_200 - werkzeug.routing.exception...
+FAILED tests/test_vault.py::test_vault_auth_and_upload - assert 401 == 200
+5 failed, 35 passed in 1.88s

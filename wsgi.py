@@ -1,4 +1,4 @@
-from SemptifyAppGUI import app
+from Semptify import app
 
 if __name__ == "__main__":
     app.run()

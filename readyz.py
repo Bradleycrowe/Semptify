@@ -5,8 +5,11 @@ readyz_bp = Blueprint("readyz", __name__)
 def readyz():
     details = {}
     status = "ready"
+    http_code = 200
     for d in ["uploads","logs","copilot_sync","final_notices","security"]:
         ok = os.access(d, os.W_OK)
         details[d] = "ok" if ok else "not writable"
-        if not ok: status = "degraded"
-    return jsonify(status=status, details=details)
+        if not ok:
+            status = "degraded"
+            http_code = 503
+    return jsonify(status=status, details=details), http_code

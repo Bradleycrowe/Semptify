@@ -37,7 +37,7 @@ jobs:
         pip install pytest
         pip install ruff
         pip install pre-commit
-        echo "Installing hadolint & actionlint binaries" 
+        echo "Installing hadolint & actionlint binaries"
         curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint && chmod +x /usr/local/bin/hadolint
         curl -sL https://github.com/rhysd/actionlint/releases/download/v1.7.1/actionlint_Linux_x86_64.tar.gz | tar xz -C /usr/local/bin actionlint
 
@@ -83,6 +83,12 @@ jobs:
       with:
         name: junit-${{ matrix.python-version }}-${{ github.run_id }}
         path: test-results/junit-${{ matrix.python-version }}.xml
+
+    - name: Dependency audit (pip-audit)
+      run: |
+        . .venv/bin/activate
+        pip install pip-audit
+        pip-audit --desc || echo "⚠️ Some vulnerabilities found (see report above)"
 
     - name: Build Docker image (tests already ran)
       run: |

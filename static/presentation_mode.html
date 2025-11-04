@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify Court Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        /* PRESENTATION MODES */
+        .presentation-mode {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .presentation-mode.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TIMELINE MODE */
+        .timeline-mode {
+            background: #1a1a1a;
+            padding: 40px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timeline-header {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .case-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #0078d7;
+        }
+
+        .slide-counter {
+            font-size: 28px;
+            color: #999;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1600px;
+        }
+
+        .timeline-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(0,120,215,0.3);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .timeline-card:hover,
+        .timeline-card.active {
+            background: rgba(0,120,215,0.1);
+            border-color: #0078d7;
+            transform: scale(1.05);
+        }
+
+        .timeline-date {
+            font-size: 20px;
+            color: #0078d7;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .timeline-event-type {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .evidence-count {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* GALLERY MODE */
+        .gallery-mode {
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .gallery-header {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .gallery-title {
+            font-size: 36px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .gallery-metadata {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            right: 40px;
+            background: rgba(0,0,0,0.7);
+            padding: 16px 24px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .metadata-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .metadata-label {
+            color: #999;
+        }
+
+        .gallery-media {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 8px;
+        }
+
+        .gallery-media img,
+        .gallery-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .gallery-nav button {
+            background: rgba(0,120,215,0.2);
+            border: 1px solid #0078d7;
+            color: #0078d7;
+            width: 48px;
+            height: 48px;
+            border-radius: 4px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .gallery-nav button:hover {
+            background: rgba(0,120,215,0.3);
+        }
+
+        /* STATUTE MODE */
+        .statute-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a3a66 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .statute-container {
+            text-align: center;
+        }
+
+        .statute-action {
+            font-size: 32px;
+            color: #0078d7;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+
+        .countdown-timer {
+            font-size: 120px;
+            font-weight: 700;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 32px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 8px;
+        }
+
+        .countdown-timer.critical {
+            color: #d13438;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .countdown-date {
+            font-size: 28px;
+            color: #ccc;
+            margin-bottom: 32px;
+        }
+
+        .statute-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1000px;
+            margin-top: 40px;
+        }
+
+        .statute-box {
+            background: rgba(0,120,215,0.1);
+            padding: 24px;
+            border-radius: 8px;
+            border: 2px solid #0078d7;
+        }
+
+        .statute-box-label {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .statute-box-value {
+            font-size: 24px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* COMPARISON MODE */
+        .comparison-mode {
+            background: #1a1a1a;
+            display: flex;
+            padding: 40px;
+            gap: 40px;
+        }
+
+        .comparison-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .comparison-header {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid;
+        }
+
+        .comparison-column.rights .comparison-header {
+            border-bottom-color: #107c10;
+            color: #107c10;
+        }
+
+        .comparison-column.violations .comparison-header {
+            border-bottom-color: #d13438;
+            color: #d13438;
+        }
+
+        .comparison-items {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .comparison-item {
+            background: rgba(255,255,255,0.05);
+            padding: 16px;
+            border-radius: 4px;
+            border-left: 4px solid;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .comparison-column.rights .comparison-item {
+            border-left-color: #107c10;
+        }
+
+        .comparison-column.violations .comparison-item {
+            border-left-color: #d13438;
+        }
+
+        /* CONTROLS */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.8);
+            padding: 12px 16px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .presentation:hover .controls {
+            opacity: 1;
+        }
+
+        .control-btn {
+            background: rgba(0,120,215,0.2);
+            border: 1px solid #0078d7;
+            color: #0078d7;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: rgba(0,120,215,0.3);
+        }
+
+        /* HELP */
+        .help {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,120,215,0.1);
+            border: 1px solid #0078d7;
+            color: #0078d7;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        .help:hover {
+            background: rgba(0,120,215,0.2);
+        }
+
+        /* KEYBOARD HELP */
+        .keyboard-help {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            border: 2px solid #0078d7;
+            padding: 32px;
+            border-radius: 8px;
+            z-index: 2000;
+            max-width: 600px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .keyboard-help.show {
+            display: block;
+        }
+
+        .keyboard-help h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: #0078d7;
+        }
+
+        .keyboard-help .help-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .key {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #0078d7;
+        }
+
+        @media (max-width: 1200px) {
+            .case-title { font-size: 36px; }
+            .slide-counter { font-size: 18px; }
+            .timeline-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <!-- TIMELINE MODE -->
+        <div class="timeline-mode presentation-mode active">
+            <div class="timeline-header">
+                <div class="case-title">Case Timeline</div>
+                <div class="slide-counter"><span id="current-slide">1</span> / <span id="total-slides">12</span></div>
+            </div>
+            <div class="timeline-grid" id="timeline-grid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- GALLERY MODE -->
+        <div class="gallery-mode presentation-mode">
+            <div class="gallery-header">
+                <div class="gallery-title">
+                    <span id="gallery-icon">📷</span>
+                    <span id="gallery-title">Evidence</span>
+                </div>
+                <div style="font-size: 20px; color: #999;">
+                    <span id="gallery-index">1</span> / <span id="gallery-total">10</span>
+                </div>
+            </div>
+
+            <div class="gallery-media" id="gallery-media">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div class="gallery-metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">Date:</span>
+                    <span id="metadata-date">2025-01-15</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Location:</span>
+                    <span id="metadata-location">📍 37.7749, -122.4194</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Type:</span>
+                    <span id="metadata-type">Photo</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Hash:</span>
+                    <span id="metadata-hash" style="font-size: 12px; font-family: monospace;">sha256...</span>
+                </div>
+            </div>
+
+            <div class="gallery-nav">
+                <button onclick="prevGallery()" title="Previous [←]">‹</button>
+                <button onclick="toggleSlideshow()" title="Slideshow [Space]">⏵</button>
+                <button onclick="nextGallery()" title="Next [→]">›</button>
+            </div>
+        </div>
+
+        <!-- STATUTE MODE -->
+        <div class="statute-mode presentation-mode">
+            <div class="statute-container">
+                <div class="statute-action" id="statute-action">Eviction Notice</div>
+                <div class="countdown-timer" id="countdown-timer">45</div>
+                <div class="countdown-date" id="countdown-date">Expires: March 15, 2025</div>
+
+                <div class="statute-info">
+                    <div class="statute-box">
+                        <div class="statute-box-label">Filed</div>
+                        <div class="statute-box-value">January 15, 2025</div>
+                    </div>
+                    <div class="statute-box">
+                        <div class="statute-box-label">Jurisdiction</div>
+                        <div class="statute-box-value">California</div>
+                    </div>
+                    <div class="statute-box">
+                        <div class="statute-box-label">Days Remaining</div>
+                        <div class="statute-box-value critical-text" id="days-remaining">45</div>
+                    </div>
+                    <div class="statute-box">
+                        <div class="statute-box-label">Status</div>
+                        <div class="statute-box-value" id="statue-status">Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARISON MODE -->
+        <div class="comparison-mode presentation-mode">
+            <div class="comparison-column rights">
+                <div class="comparison-header">✓ Tenant Rights</div>
+                <div class="comparison-items" id="rights-list">
+                    <div class="comparison-item">Right to habitable conditions</div>
+                    <div class="comparison-item">Right to privacy</div>
+                    <div class="comparison-item">Right to timely repairs</div>
+                    <div class="comparison-item">Right to lease terms</div>
+                </div>
+            </div>
+
+            <div class="comparison-column violations">
+                <div class="comparison-header">✗ Violations Found</div>
+                <div class="comparison-items" id="violations-list">
+                    <div class="comparison-item">• No repairs within 30 days</div>
+                    <div class="comparison-item">• Entered without notice (photo 5)</div>
+                    <div class="comparison-item">• No heat in winter (SMS proof)</div>
+                    <div class="comparison-item">• Failed to return deposit</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HELP -->
+        <div class="help" onclick="toggleKeyboardHelp()" title="Press ? for help">?</div>
+
+        <!-- KEYBOARD HELP -->
+        <div class="keyboard-help" id="keyboard-help">
+            <h2>Keyboard Controls</h2>
+            <div class="help-item">
+                <span>Timeline View</span>
+                <span>Press <span class="key">T</span></span>
+            </div>
+            <div class="help-item">
+                <span>Gallery View</span>
+                <span>Press <span class="key">G</span></span>
+            </div>
+            <div class="help-item">
+                <span>Statute View</span>
+                <span>Press <span class="key">S</span></span>
+            </div>
+            <div class="help-item">
+                <span>Comparison View</span>
+                <span>Press <span class="key">C</span></span>
+            </div>
+            <div class="help-item">
+                <span>Previous Slide</span>
+                <span><span class="key">←</span> or <span class="key">A</span></span>
+            </div>
+            <div class="help-item">
+                <span>Next Slide</span>
+                <span><span class="key">→</span> or <span class="key">D</span></span>
+            </div>
+            <div class="help-item">
+                <span>Zoom In</span>
+                <span><span class="key">+</span></span>
+            </div>
+            <div class="help-item">
+                <span>Zoom Out</span>
+                <span><span class="key">-</span></span>
+            </div>
+            <div class="help-item">
+                <span>Fullscreen</span>
+                <span><span class="key">F</span></span>
+            </div>
+            <div class="help-item">
+                <span>Exit Presentation</span>
+                <span><span class="key">Esc</span></span>
+            </div>
+            <div class="help-item">
+                <span>Slideshow</span>
+                <span><span class="key">Space</span></span>
+            </div>
+            <div class="help-item">
+                <span>Help</span>
+                <span><span class="key">?</span></span>
+            </div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls">
+            <button class="control-btn" onclick="switchMode('timeline')">Timeline</button>
+            <button class="control-btn" onclick="switchMode('gallery')">Gallery</button>
+            <button class="control-btn" onclick="switchMode('statute')">Statute</button>
+            <button class="control-btn" onclick="switchMode('comparison')">Comparison</button>
+            <button class="control-btn" onclick="toggleFullscreen()">Fullscreen</button>
+            <button class="control-btn" onclick="exitPresentation()">Exit</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'timeline';
+        let currentSlide = 0;
+        let slideshowActive = false;
+        let slideshowTimer = null;
+
+        // Sample data (in real app, fetched from backend)
+        const sampleTimeline = [
+            { date: '2025-01-15', title: 'Eviction Notice Filed', type: 'document', evidenceCount: 1 },
+            { date: '2025-01-20', title: 'Photo: Broken AC', type: 'photo', evidenceCount: 3 },
+            { date: '2025-01-25', title: 'SMS: Repair Request', type: 'communication', evidenceCount: 5 },
+            { date: '2025-02-01', title: 'Email: No Response', type: 'communication', evidenceCount: 2 },
+            { date: '2025-02-10', title: 'Video: Temperature Check', type: 'video', evidenceCount: 1 },
+            { date: '2025-02-15', title: 'SMS: Complaint', type: 'communication', evidenceCount: 3 },
+        ];
+
+        const sampleGallery = [
+            { type: 'photo', src: '/static/evidence/photo1.jpg', date: '2025-01-20', location: '37.7749, -122.4194', description: 'Broken AC unit' },
+            { type: 'video', src: '/static/evidence/video1.mp4', date: '2025-02-10', location: '37.7749, -122.4194', description: 'Temperature reading' },
+        ];
+
+        // Initialize
+        function init() {
+            renderTimeline();
+            setupKeyboardControls();
+        }
+
+        // TIMELINE RENDERING
+        function renderTimeline() {
+            const grid = document.getElementById('timeline-grid');
+            grid.innerHTML = sampleTimeline.map((item, idx) => `
+                <div class="timeline-card" onclick="selectTimelineCard(${idx})">
+                    <div class="timeline-date">${item.date}</div>
+                    <div class="timeline-event-type">${item.type}</div>
+                    <div class="timeline-title">${item.title}</div>
+                    <div class="evidence-count">${item.evidenceCount} evidence</div>
+                </div>
+            `).join('');
+            document.getElementById('total-slides').textContent = sampleTimeline.length;
+        }
+
+        function selectTimelineCard(idx) {
+            currentSlide = idx;
+            document.querySelectorAll('.timeline-card').forEach((card, i) => {
+                card.classList.toggle('active', i === idx);
+            });
+            document.getElementById('current-slide').textContent = idx + 1;
+        }
+
+        // GALLERY NAVIGATION
+        function nextGallery() {
+            if (sampleGallery.length === 0) return;
+            currentSlide = (currentSlide + 1) % sampleGallery.length;
+            renderGallery();
+        }
+
+        function prevGallery() {
+            if (sampleGallery.length === 0) return;
+            currentSlide = (currentSlide - 1 + sampleGallery.length) % sampleGallery.length;
+            renderGallery();
+        }
+
+        function renderGallery() {
+            const item = sampleGallery[currentSlide];
+            const mediaDiv = document.getElementById('gallery-media');
+
+            if (item.type === 'photo') {
+                mediaDiv.innerHTML = `<img src="${item.src}" class="gallery-media" alt="Evidence">`;
+                document.getElementById('gallery-icon').textContent = '📷';
+            } else if (item.type === 'video') {
+                mediaDiv.innerHTML = `<video class="gallery-media" controls><source src="${item.src}"></video>`;
+                document.getElementById('gallery-icon').textContent = '🎥';
+            }
+
+            document.getElementById('gallery-index').textContent = currentSlide + 1;
+            document.getElementById('gallery-total').textContent = sampleGallery.length;
+            document.getElementById('metadata-date').textContent = item.date;
+            document.getElementById('metadata-location').textContent = `📍 ${item.location}`;
+        }
+
+        function toggleSlideshow() {
+            slideshowActive = !slideshowActive;
+            if (slideshowActive) {
+                slideshowTimer = setInterval(nextGallery, 3000);
+            } else {
+                clearInterval(slideshowTimer);
+            }
+        }
+
+        // MODE SWITCHING
+        function switchMode(mode) {
+            document.querySelectorAll('.presentation-mode').forEach(m => m.classList.remove('active'));
+            document.querySelector(`.${mode}-mode`).classList.add('active');
+            currentMode = mode;
+            currentSlide = 0;
+
+            if (mode === 'gallery') renderGallery();
+        }
+
+        // KEYBOARD CONTROLS
+        function setupKeyboardControls() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '?') toggleKeyboardHelp();
+                if (e.key === 't' || e.key === 'T') switchMode('timeline');
+                if (e.key === 'g' || e.key === 'G') switchMode('gallery');
+                if (e.key === 's' || e.key === 'S') switchMode('statute');
+                if (e.key === 'c' || e.key === 'C') switchMode('comparison');
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') nextGallery();
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') prevGallery();
+                if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+                if (e.key === 'Escape') exitPresentation();
+                if (e.key === ' ') { e.preventDefault(); toggleSlideshow(); }
+                if (e.key === '+') document.body.style.fontSize = (parseFloat(getComputedStyle(document.body).fontSize) * 1.1) + 'px';
+                if (e.key === '-') document.body.style.fontSize = (parseFloat(getComputedStyle(document.body).fontSize) / 1.1) + 'px';
+            });
+        }
+
+        function toggleKeyboardHelp() {
+            document.getElementById('keyboard-help').classList.toggle('show');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function exitPresentation() {
+            if (confirm('Exit presentation mode?')) {
+                window.history.back();
+            }
+        }
+
+        // INITIALIZE
+        init();
+    </script>
+</body>
+</html>

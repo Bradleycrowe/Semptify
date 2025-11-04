@@ -14,10 +14,13 @@ def setup_enforced(tmpdir):
     import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
+    # Clear rate history for the test
+    from security import _clear_rate_history
+    _clear_rate_history()
     return sempt
 
 def extract_csrf(html: str):
-    m = re.search(r'name="csrf_token" value="([0-9a-f]+)"', html)
+    m = re.search(r'name="csrf_token" value="([0-9a-zA-Z_\-]+)"', html)
     assert m, 'csrf token missing'
     return m.group(1)
 

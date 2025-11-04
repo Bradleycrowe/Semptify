@@ -1,0 +1,42 @@
+{%% extends "shell.html" %%}
+
+{%% block title %%}Court Packet Builder • Semptify{%% endblock %%}
+
+{%% block content %%}
+<div class="page-header">
+  <h1 class="page-title">Court Packet Builder</h1>
+  <p class="page-subtitle">Assemble evidence into court-ready documents</p>
+</div>
+
+
+    <div class="container">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Available Evidence</h2>
+          </div>
+          <div class="card-body">
+            <div id="evidence-list" style="max-height: 400px; overflow-y: auto;">
+              <p class="text-muted">No evidence available. <a href="/evidence/gallery">View your evidence gallery.</a></p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Court Packet</h2>
+          </div>
+          <div class="card-body">
+            <div id="packet-preview" style="max-height: 400px; overflow-y: auto;">
+              <p class="text-muted">Add evidence to begin building your packet.</p>
+            </div>
+            <div style="margin-top: var(--space-lg); display: flex; gap: var(--space-md);">
+              <button class="btn btn-primary">Export as PDF</button>
+              <button class="btn btn-outline">Clear All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+        
+{%% endblock %%}

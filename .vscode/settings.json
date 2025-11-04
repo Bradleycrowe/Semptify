@@ -39,8 +39,8 @@
         "/c:/Semptify/Semptify/backups/before_rename_20251021183523/Makefile",
         "/c:/Semptify/Semptify/backups/before_rename_20251021222753/Makefile"
     ],
-    // Pin the workspace Python interpreter to the project venv311 (Python 3.11)
-    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv311\\Scripts\\python.exe",
-    "python.pythonPath": "${workspaceFolder}\\.venv311\\Scripts\\python.exe",
+    // Pin the workspace Python interpreter to the project venv (Python 3.14)
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "python.pythonPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
     "chat.todoListTool.writeOnly": true
 }

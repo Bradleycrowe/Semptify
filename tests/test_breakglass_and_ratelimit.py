@@ -21,6 +21,9 @@ def setup_tokens(tmpdir):
     import Semptify as sempt
     importlib.reload(sempt)
     sempt.app.config['TESTING'] = True
+    # Clear rate history for the test
+    from security import _clear_rate_history
+    _clear_rate_history()
     return sempt
 
 def test_breakglass_one_shot_and_rate_limit(tmp_path):
