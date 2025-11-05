@@ -371,6 +371,32 @@ def _is_admin_token(token: str) -> bool:
     return validate_admin_token(token) is not None
 
 
+def check_rate_limit(key: str) -> bool:
+    """Check if a rate limit key is within acceptable limits.
+    Returns True if request is allowed, False if rate limited.
+    Uses sliding window with env vars: ADMIN_RATE_WINDOW (seconds), ADMIN_RATE_MAX (count).
+    """
+    window = int(os.getenv("ADMIN_RATE_WINDOW", "60"))
+    max_requests = int(os.getenv("ADMIN_RATE_MAX", "60"))
+    
+    if not hasattr(check_rate_limit, '_buckets'):
+        check_rate_limit._buckets = {}
+    
+    now = time.time()
+    bucket = check_rate_limit._buckets.get(key, [])
+    
+    # Remove old entries outside the window
+    bucket = [ts for ts in bucket if now - ts < window]
+    
+    if len(bucket) >= max_requests:
+        incr_metric("rate_limited_total", 1)
+        return False
+    
+    bucket.append(now)
+    check_rate_limit._buckets[key] = bucket
+    return True
+
+
 def _require_admin_or_401() -> bool:
     """Compatibility helper used by the app: returns True if the current request
     is authorized as admin, False otherwise.
