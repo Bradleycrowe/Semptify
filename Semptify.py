@@ -112,12 +112,7 @@ _has_admin_bp = _importlib_util.find_spec('admin') is not None
 # Core Pages
 @app.route("/")
 def home():
-    return render_template('spa.html')
-
-@app.route('/app')
-def app_single_page():
-    """Modern single-page application with modals and integrated UI."""
-    return render_template('spa.html')
+    return render_template('index.html')
 
 if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
     @app.route('/register')

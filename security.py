@@ -1,41 +1,19 @@
-"""Security and token helpers used by Semptify and tests.
-
-This module intentionally uses cwd-aware fallbacks so pytest fixtures
-that create `security/*.json` under a temporary cwd are honored.
-"""
+"""Security and token helpers used by Semptify and tests."""
 
 import os
 import json
 import hashlib
 import secrets
 import uuid
-import tempfile
 import time
-import threading
 from datetime import datetime, timezone
 from typing import Any, Optional
-
 from flask import session, request
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
-# Helper to resolve security paths (security dir, users file, admin tokens file, logs dir, events log)
-def _resolve_paths_impl():
-    root = os.path.dirname(os.path.abspath(__file__))
-    sec_dir = os.path.join(root, "security")
-    users_path = os.path.join(sec_dir, "users.json")
-    admin_tokens_path = os.path.join(sec_dir, "admin_tokens.json")
-    logs_dir = os.path.join(root, "logs")
-    events_log = os.path.join(logs_dir, "events.log")
-    return sec_dir, users_path, admin_tokens_path, logs_dir, events_log
-
-# Backwards compatible public name
-_resolve_paths = _resolve_paths_impl
-
-
-# Canonical resolver: always prefer current working directory when available.
 def _resolve_paths():
+    """Resolve paths to security files, preferring cwd."""
     cwd = os.getcwd()
     sec_dir = os.path.join(cwd, "security") if os.path.isdir(os.path.join(cwd, "security")) else os.path.join(ROOT_DIR, "security")
     users_path = os.path.join(sec_dir, "users.json")
@@ -44,347 +22,235 @@ def _resolve_paths():
     events_log = os.path.join(logs_dir, "events.log")
     return sec_dir, users_path, admin_tokens_path, logs_dir, events_log
 
-# Ensure public alias points to the canonical resolver
-_resolve_paths_impl = _resolve_paths
-_resolve_paths = _resolve_paths
+# Public paths
+def get_security_dir():
+    return _resolve_paths()[0]
 
+def get_users_file():
+    return _resolve_paths()[1]
 
-def _ensure_dirs():
-    sec_dir, users_path, admin_tokens_path, logs_dir, events_log = _resolve_paths()
-    os.makedirs(sec_dir, exist_ok=True)
-    os.makedirs(os.path.dirname(events_log) or ".", exist_ok=True)
+def get_admin_tokens_file():
+    return _resolve_paths()[2]
 
+ADMIN_FILE = get_admin_tokens_file()
 
-def _load_json(path: str):
+# ============================================================================
+# Metrics & Logging
+# ============================================================================
+
+_metrics = {
+    'requests_total': 0,
+    'admin_requests_total': 0,
+    'admin_actions_total': 0,
+    'errors_total': 0,
+    'releases_total': 0,
+    'rate_limited_total': 0,
+    'breakglass_used_total': 0,
+    'token_rotations_total': 0,
+}
+
+def incr_metric(name: str, delta: int = 1):
+    """Increment a counter metric."""
+    if name in _metrics:
+        _metrics[name] += delta
+
+def get_metrics() -> dict:
+    """Get all metrics."""
+    return dict(_metrics)
+
+def log_event(event_type: str, details: dict = None):
+    """Log an event to events.log (JSON format)."""
     try:
-        if path and os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
+        _, _, _, logs_dir, events_log = _resolve_paths()
+        os.makedirs(logs_dir, exist_ok=True)
+        event = {
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'type': event_type,
+            'details': details or {}
+        }
+        with open(events_log, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(event) + '\n')
+    except Exception:
+        pass
+
+def record_request_latency(latency: float):
+    """Record request latency (for metrics)."""
+    pass
+
+# ============================================================================
+# CSRF Token Handling
+# ============================================================================
+
+def _get_or_create_csrf_token():
+    """Get or create CSRF token for the session."""
+    if 'csrf_token' not in session:
+        session['csrf_token'] = secrets.token_hex(16)
+    return session['csrf_token']
+
+# ============================================================================
+# Token Management
+# ============================================================================
+
+def _hash_token(token: str) -> str:
+    """Hash a token using SHA256."""
+    return hashlib.sha256(token.encode()).hexdigest()
+
+def _load_json(path: str, default=None):
+    """Load JSON from file, with fallback."""
+    try:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
                 return json.load(f)
     except Exception:
         pass
-    # defaults
-    if path and path.endswith("users.json"):
-        return []
-    return {}
+    return default if default is not None else {}
 
+def validate_user_token(token: Optional[str]) -> Optional[str]:
+    """Validate a user token and return the user ID if valid."""
+    if not token:
+        return None
 
-def _atomic_write_json(path: str, data: Any):
-    d = os.path.dirname(path) or "."
-    os.makedirs(d, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir=d, prefix=".tmp-", text=True)
+    users_file = get_users_file()
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, sort_keys=True)
-            f.flush()
-            try:
-                os.fsync(f.fileno())
-            except Exception:
-                pass
-        os.replace(tmp, path)
-    finally:
+        users_data = _load_json(users_file, {})
+        h = _hash_token(token)
+
+        # Users can be stored as dict or list
+        if isinstance(users_data, dict):
+            for user_id, user_info in users_data.items():
+                if isinstance(user_info, dict):
+                    stored_hash = user_info.get('hash')
+                else:
+                    stored_hash = user_info
+                if stored_hash == h:
+                    return user_id
+        elif isinstance(users_data, list):
+            for user in users_data:
+                if isinstance(user, dict) and user.get('hash') == h:
+                    return user.get('id')
+    except Exception:
+        pass
+
+    return None
+
+def validate_admin_token(token: Optional[str]) -> Optional[str]:
+    """Validate an admin token and return the token ID if valid."""
+    if not token:
+        return None
+
+    # Check environment variable first (legacy support)
+    env_token = os.getenv("ADMIN_TOKEN")
+    if env_token and token == env_token:
+        return "env_admin"
+
+    # Check admin_tokens.json
+    admin_file = get_admin_tokens_file()
+    try:
+        adata = _load_json(admin_file, {})
+        h = _hash_token(token)
+
+        if isinstance(adata, dict):
+            for token_id, token_info in adata.items():
+                if isinstance(token_info, dict):
+                    stored_hash = token_info.get('hash')
+                else:
+                    stored_hash = token_info
+                if stored_hash == h:
+                    return token_id
+        elif isinstance(adata, list):
+            for item in adata:
+                if isinstance(item, dict) and item.get('hash') == h:
+                    return item.get('id')
+    except Exception:
+        pass
+
+    return None
+
+# ============================================================================
+# Rate Limiting
+# ============================================================================
+
+_rate_limit_buckets = {}
+
+def check_rate_limit(key: str) -> bool:
+    """Check if a rate limit key is within acceptable limits.
+    Returns True if request is allowed, False if rate limited.
+    Uses sliding window with env vars: ADMIN_RATE_WINDOW (seconds), ADMIN_RATE_MAX (count).
+    """
+    window = int(os.getenv("ADMIN_RATE_WINDOW", "60"))
+    max_requests = int(os.getenv("ADMIN_RATE_MAX", "60"))
+
+    now = time.time()
+    bucket = _rate_limit_buckets.get(key, [])
+
+    # Remove old entries outside the window
+    bucket = [ts for ts in bucket if now - ts < window]
+
+    if len(bucket) >= max_requests:
+        incr_metric("rate_limited_total", 1)
+        log_event("rate_limited", {"key": key})
+        return False
+
+    bucket.append(now)
+    _rate_limit_buckets[key] = bucket
+    return True
+
+# ============================================================================
+# Breakglass Access
+# ============================================================================
+
+_breakglass_used = False
+
+def is_breakglass_active() -> bool:
+    """Check if breakglass.flag file exists."""
+    sec_dir = get_security_dir()
+    return os.path.exists(os.path.join(sec_dir, "breakglass.flag"))
+
+def consume_breakglass():
+    """Remove the breakglass.flag file (one-time use)."""
+    global _breakglass_used
+    if not _breakglass_used:
+        sec_dir = get_security_dir()
+        flag_path = os.path.join(sec_dir, "breakglass.flag")
         try:
-            if os.path.exists(tmp):
-                os.remove(tmp)
+            if os.path.exists(flag_path):
+                os.remove(flag_path)
+            _breakglass_used = True
+            incr_metric("breakglass_used_total", 1)
+            log_event("breakglass_consumed")
         except Exception:
             pass
 
-
-def _hash_token(token: str) -> str:
-    return hashlib.sha256(token.encode("utf-8")).hexdigest()
-
-
-# lightweight in-memory metrics with thread-safety
-_metrics_lock = threading.Lock()
-_metrics = {
-    "requests_total": 0,
-    "admin_requests_total": 0,
-    "releases_total": 0,
-    "rate_limited_total": 0,
-    "breakglass_used_total": 0,
-    "token_rotations_total": 0,
-}
-_start_time = time.monotonic()
-
-
-def incr_metric(name: str, amount: int = 1):
-    """Increment a metric counter (thread-safe)."""
-    try:
-        with _metrics_lock:
-            _metrics[name] = _metrics.get(name, 0) + int(amount)
-    except Exception:
-        with _metrics_lock:
-            _metrics[name] = int(amount)
-
-
-def get_metrics():
-    """Return a copy of current metrics including uptime_seconds."""
-    uptime = time.monotonic() - _start_time
-    with _metrics_lock:
-        result = _metrics.copy()
-    result["uptime_seconds"] = int(uptime)
-    return result
-
-
-# CSRF helper
-def _get_or_create_csrf_token() -> str:
-    if "csrf" not in session:
-        session["csrf"] = uuid.uuid4().hex
-    return session["csrf"]
-
-
-# Paths initialized lazily
-SECURITY_DIR: Optional[str] = None
-USERS_FILE: Optional[str] = None
-ADMIN_FILE: Optional[str] = None
-LOGS_DIR: Optional[str] = None
-EVENTS_LOG: Optional[str] = None
-
-
-def _init_paths():
-    global SECURITY_DIR, USERS_FILE, ADMIN_FILE, LOGS_DIR, EVENTS_LOG
-    sec_dir, users_path, admin_tokens_path, logs_dir, events_log = _resolve_paths()
-    SECURITY_DIR = sec_dir
-    USERS_FILE = users_path
-    ADMIN_FILE = admin_tokens_path
-    LOGS_DIR = logs_dir
-    EVENTS_LOG = events_log
-
-
-_init_paths()
-
-
-def _load_admins():
-    return _load_json(ADMIN_FILE) if ADMIN_FILE else {}
-
-
-def save_user_token(plain: Optional[str] = None):
-    _ensure_dirs()
-    if not plain:
-        plain = secrets.token_urlsafe(8)
-    h = _hash_token(plain)
-    data = _load_json(USERS_FILE)
-    if isinstance(data, dict):
-        entries = []
-        for k, v in data.items():
-            entries.append({
-                "id": k,
-                "hash": v.get("hash") if isinstance(v, dict) else v,
-                "created": v.get("created", int(time.time())) if isinstance(v, dict) else int(time.time()),
-                "enabled": v.get("enabled", True) if isinstance(v, dict) else True,
-            })
-        data = entries
-    if not isinstance(data, list):
-        data = []
-    user_id = "u" + uuid.uuid4().hex[:8]
-    entry = {"id": user_id, "hash": h, "created": int(time.time()), "enabled": True}
-    data.append(entry)
-    _atomic_write_json(USERS_FILE, data)
-    return user_id, plain
-
-
-def validate_user_token(token: str):
-    if not token:
-        return None
-    data = _load_json(USERS_FILE)
-    h = _hash_token(token)
-
-    if isinstance(data, dict):
-        for k, v in data.items():
-            stored = v.get("hash") if isinstance(v, dict) else v
-            if isinstance(stored, str) and stored.startswith("sha256:"):
-                stored = stored.split(":", 1)[1]
-            if stored == h:
-                return k
-
-    if isinstance(data, list):
-        for item in data:
-            try:
-                stored = item.get("hash") or item.get("h") or ""
-                if isinstance(stored, str) and stored.startswith("sha256:"):
-                    stored = stored.split(":", 1)[1]
-                if stored == h:
-                    return item.get("id")
-            except Exception:
-                continue
-
-    # fallback: check cwd/security/users.json
-    try:
-        up = os.path.join(os.getcwd(), "security", "users.json")
-        if os.path.exists(up):
-            with open(up, "r", encoding="utf-8") as uf:
-                udata = json.load(uf)
-            if isinstance(udata, dict):
-                for k, v in udata.items():
-                    stored = v.get('hash') if isinstance(v, dict) else v
-                    if isinstance(stored, str) and stored.startswith('sha256:'):
-                        stored = stored.split(':',1)[1]
-                    if stored == h:
-                        return k
-            elif isinstance(udata, list):
-                for it in udata:
-                    try:
-                        stored = it.get('hash') or it.get('h') or ''
-                        if isinstance(stored, str) and stored.startswith('sha256:'):
-                            stored = stored.split(':',1)[1]
-                        if stored == h:
-                            return it.get('id')
-                    except Exception:
-                        continue
-    except Exception:
-        pass
-
-    return None
-
-
-def get_token_from_request(req):
-    for header in ("X-User-Token", "X-Auth-Token", "Authorization"):
-        v = req.headers.get(header)
-        if v:
-            if header == "Authorization" and v.lower().startswith("bearer "):
-                return v.split(None, 1)[1]
-            return v
-    return req.args.get("user_token") or req.form.get("user_token") or req.args.get("token") or req.form.get("token")
-
-
-def log_event(event_type: str, user_id: Optional[str] = None, doc_id: Optional[str] = None, extra: Any = None):
-    _ensure_dirs()
-    entry = {"ts": datetime.now(timezone.utc).isoformat(), "event": event_type, "user_id": user_id, "doc_id": doc_id, "extra": extra or {}}
-    try:
-        with open(EVENTS_LOG, "a", encoding="utf-8") as f:
-            f.write(json.dumps(entry, separators=(",", ":"), ensure_ascii=False) + "\n")
-    except Exception:
-        pass
-
-
-def save_admin_token(plain: Optional[str] = None, breakglass: bool = False):
-    _ensure_dirs()
-    if not plain:
-        plain = secrets.token_urlsafe(12)
-    h = _hash_token(plain)
-    data = _load_json(ADMIN_FILE)
-    if isinstance(data, dict):
-        admin_id = "a" + uuid.uuid4().hex[:8]
-        data[admin_id] = {"hash": h, "breakglass": breakglass, "created": int(time.time()), "enabled": True}
-    elif isinstance(data, list):
-        admin_id = "a" + uuid.uuid4().hex[:8]
-        data.append({"id": admin_id, "hash": h, "breakglass": breakglass, "created": int(time.time()), "enabled": True})
-    else:
-        admin_id = "a" + uuid.uuid4().hex[:8]
-        data = {admin_id: {"hash": h, "breakglass": breakglass, "created": int(time.time()), "enabled": True}}
-    _atomic_write_json(ADMIN_FILE, data)
-    return admin_id, plain
-
-
-def is_breakglass_active() -> bool:
-    try:
-        sec_dir, _, _, _, _ = _resolve_paths()
-        flag = os.path.join(sec_dir, "breakglass.flag")
-        return os.path.exists(flag)
-    except Exception:
-        return False
-
-
-def _consume_breakglass() -> bool:
-    try:
-        sec_dir, _, _, _, _ = _resolve_paths()
-        flag = os.path.join(sec_dir, "breakglass.flag")
-        if os.path.exists(flag):
-            os.remove(flag)
-            incr_metric("breakglass_used_total", 1)
-            log_event("breakglass.used", extra={"consumed": True})
-            return True
-    except Exception:
-        pass
-    return False
-
-
-def validate_admin_token(token: str):
-    if not token:
-        return None
-    legacy = os.environ.get("ADMIN_TOKEN")
-    if legacy and token == legacy:
-        return "legacy-admin"
-
-    data = _load_admins() or {}
-    h = _hash_token(token)
-
-    if isinstance(data, dict):
-        for aid, info in data.items():
-            try:
-                stored = info.get("hash") or ""
-                if isinstance(stored, str) and stored.startswith("sha256:"):
-                    stored = stored.split(":", 1)[1]
-                if stored == h and info.get("enabled", True):
-                    if info.get("breakglass") and is_breakglass_active():
-                        _consume_breakglass()
-                    return aid
-            except Exception:
-                continue
-
-    if isinstance(data, list):
-        for item in data:
-            try:
-                stored = item.get("hash") or ""
-                if isinstance(stored, str) and stored.startswith("sha256:"):
-                    stored = stored.split(":", 1)[1]
-                if stored == h and item.get("enabled", True):
-                    if item.get("breakglass") and is_breakglass_active():
-                        _consume_breakglass()
-                    return item.get("id")
-            except Exception:
-                continue
-
-    # fallback to cwd admin file
-    try:
-        ap = os.path.join(os.getcwd(), 'security', 'admin_tokens.json')
-        if os.path.exists(ap):
-            with open(ap, 'r', encoding='utf-8') as af:
-                adata = json.load(af)
-            if isinstance(adata, dict):
-                for k, v in adata.items():
-                    stored = v.get('hash') if isinstance(v, dict) else v
-                    if isinstance(stored, str) and stored.startswith('sha256:'):
-                        stored = stored.split(':',1)[1]
-                    if stored == h:
-                        if isinstance(v, dict) and v.get('breakglass') and is_breakglass_active():
-                            _consume_breakglass()
-                        return k
-            if isinstance(adata, list):
-                for it in adata:
-                    try:
-                        stored = it.get('hash') or ''
-                        if isinstance(stored, str) and stored.startswith('sha256:'):
-                            stored = stored.split(':',1)[1]
-                        if stored == h:
-                            if it.get('breakglass') and is_breakglass_active():
-                                _consume_breakglass()
-                            return it.get('id')
-                    except Exception:
-                        continue
-    except Exception:
-        pass
-
-    return None
-
-
-def _is_admin_token(token: str) -> bool:
-    return validate_admin_token(token) is not None
-
+# ============================================================================
+# Admin Authorization
+# ============================================================================
 
 def _require_admin_or_401() -> bool:
-    """Compatibility helper used by the app: returns True if the current request
-    is authorized as admin, False otherwise.
-    """
+    """Check if current request is authorized as admin."""
     t = request.headers.get("X-Admin-Token") or request.args.get("token") or request.args.get("admin_token")
+
     # If running in open mode and no token supplied, allow
     if not t and os.getenv("SECURITY_MODE", "open") == "open":
         return True
+
     if not t:
         return False
+
     aid = validate_admin_token(t)
     if aid:
         incr_metric("admin_requests_total", 1)
         return True
+
     return False
 
+def _require_user_or_401() -> bool:
+    """Check if current request has valid user token."""
+    t = (request.headers.get("X-User-Token") or
+         request.args.get("user_token") or
+         request.form.get("user_token"))
 
+    if not t:
+        return False
+
+    uid = validate_user_token(t)
+    return uid is not None
