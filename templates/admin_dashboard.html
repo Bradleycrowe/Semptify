@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spa.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="admin-brand">
+                <h1>🔐 Admin Dashboard</h1>
+                <p>Semptify Control Center</p>
+            </div>
+            <nav class="admin-nav">
+                <a href="/" class="btn">🏠 Home</a>
+                <a href="/ledger-calendar" class="btn">📊 Ledger</a>
+                <button onclick="logout()" class="btn btn-danger">🚪 Logout</button>
+            </nav>
+        </header>
+
+        <!-- System Overview -->
+        <section class="admin-section">
+            <h2>📈 System Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="total-users">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📁</div>
+                    <div class="stat-label">Evidence Items</div>
+                    <div class="stat-value" id="total-evidence">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Transactions</div>
+                    <div class="stat-value" id="total-transactions">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚖️</div>
+                    <div class="stat-label">Active Statutes</div>
+                    <div class="stat-value" id="active-statutes">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="admin-section">
+            <h2>⚡ Quick Actions</h2>
+            <div class="action-grid">
+                <button onclick="manageUsers()" class="action-btn">
+                    <span class="action-icon">👥</span>
+                    <span>Manage Users</span>
+                </button>
+                <button onclick="viewLogs()" class="action-btn">
+                    <span class="action-icon">📜</span>
+                    <span>View Logs</span>
+                </button>
+                <button onclick="configureSystem()" class="action-btn">
+                    <span class="action-icon">⚙️</span>
+                    <span>System Config</span>
+                </button>
+                <button onclick="exportData()" class="action-btn">
+                    <span class="action-icon">💾</span>
+                    <span>Export Data</span>
+                </button>
+                <button onclick="manageTokens()" class="action-btn">
+                    <span class="action-icon">🔑</span>
+                    <span>Manage Tokens</span>
+                </button>
+                <button onclick="viewMetrics()" class="action-btn">
+                    <span class="action-icon">📊</span>
+                    <span>View Metrics</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Security & Access -->
+        <section class="admin-section">
+            <h2>🔒 Security & Access Control</h2>
+            <div class="security-panel">
+                <div class="security-status">
+                    <h3>Current Security Mode</h3>
+                    <div class="mode-indicator" id="security-mode">
+                        <span class="mode-badge">Checking...</span>
+                    </div>
+                </div>
+                <div class="recent-access">
+                    <h3>Recent Admin Access</h3>
+                    <div id="recent-access-list">Loading...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ledger Configuration -->
+        <section class="admin-section">
+            <h2>⚖️ Ledger & Statute Configuration</h2>
+            <div class="config-panel">
+                <div class="config-item">
+                    <h3>Statute Durations</h3>
+                    <button onclick="editStatuteDurations()" class="btn btn-primary">Edit Durations</button>
+                </div>
+                <div class="config-item">
+                    <h3>Time Sensitivities</h3>
+                    <button onclick="editTimeSensitivities()" class="btn btn-primary">Edit Sensitivities</button>
+                </div>
+                <div class="config-item">
+                    <h3>Weather Settings</h3>
+                    <button onclick="editWeatherSettings()" class="btn btn-primary">Edit Weather</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Health -->
+        <section class="admin-section">
+            <h2>🏥 System Health</h2>
+            <div class="health-grid">
+                <div class="health-item">
+                    <div class="health-label">API Status</div>
+                    <div class="health-status" id="api-health">
+                        <span class="status-dot"></span>
+                        <span>Checking...</span>
+                    </div>
+                </div>
+                <div class="health-item">
+                    <div class="health-label">Ledger System</div>
+                    <div class="health-status" id="ledger-health">
+                        <span class="status-dot"></span>
+                        <span>Checking...</span>
+                    </div>
+                </div>
+                <div class="health-item">
+                    <div class="health-label">Evidence Storage</div>
+                    <div class="health-status" id="evidence-health">
+                        <span class="status-dot"></span>
+                        <span>Checking...</span>
+                    </div>
+                </div>
+                <div class="health-item">
+                    <div class="health-label">Database</div>
+                    <div class="health-status" id="db-health">
+                        <span class="status-dot"></span>
+                        <span>Checking...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activity Log -->
+        <section class="admin-section">
+            <h2>📋 Recent Activity</h2>
+            <div class="activity-log" id="activity-log">
+                <p>Loading recent activity...</p>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='spa.js') }}"></script>
+    <script>
+        // Load admin dashboard data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+            checkSystemHealth();
+            loadRecentActivity();
+            checkSecurityMode();
+        });
+
+        function loadDashboardStats() {
+            // Load ledger stats
+            fetch('/admin/ledger/stats')
+                .then(r => r.json())
+                .then(data => {
+                    const totalTrans = (data.money_ledger?.transaction_count || 0) +
+                                     (data.time_ledger?.transaction_count || 0) +
+                                     (data.service_ledger?.transaction_count || 0);
+                    document.getElementById('total-transactions').textContent = totalTrans;
+                })
+                .catch(e => console.log('Stats unavailable:', e));
+
+            // Load statute stats
+            fetch('/admin/ledger/statutes/summary')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('active-statutes').textContent = data.active_statutes || 0;
+                })
+                .catch(e => console.log('Statute stats unavailable:', e));
+
+            // Load evidence stats
+            fetch('/api/evidence/summary')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('total-evidence').textContent = data.summary?.total || 0;
+                })
+                .catch(e => console.log('Evidence stats unavailable:', e));
+        }
+
+        function checkSystemHealth() {
+            // Check ledger health
+            fetch('/admin/ledger/health')
+                .then(r => r.json())
+                .then(data => updateHealthStatus('ledger-health', data.status === 'healthy'))
+                .catch(e => updateHealthStatus('ledger-health', false));
+
+            // Check evidence health
+            fetch('/api/evidence/health')
+                .then(r => r.json())
+                .then(data => updateHealthStatus('evidence-health', data.status === 'healthy'))
+                .catch(e => updateHealthStatus('evidence-health', false));
+
+            // Check API health
+            fetch('/health')
+                .then(r => r.json())
+                .then(data => updateHealthStatus('api-health', data.status === 'healthy'))
+                .catch(e => updateHealthStatus('api-health', false));
+
+            // Simulate DB health (would be real endpoint)
+            updateHealthStatus('db-health', true);
+        }
+
+        function updateHealthStatus(elementId, isHealthy) {
+            const element = document.getElementById(elementId);
+            const dot = element.querySelector('.status-dot');
+            const text = element.querySelector('span:last-child');
+            
+            if (isHealthy) {
+                dot.className = 'status-dot status-ok';
+                text.textContent = 'Healthy';
+            } else {
+                dot.className = 'status-dot status-error';
+                text.textContent = 'Error';
+            }
+        }
+
+        function checkSecurityMode() {
+            // Check if SECURITY_MODE env is set (would come from backend)
+            const modeElement = document.getElementById('security-mode');
+            modeElement.innerHTML = '<span class="mode-badge mode-enforced">Enforced</span>';
+        }
+
+        function loadRecentActivity() {
+            const activityLog = document.getElementById('activity-log');
+            activityLog.innerHTML = `
+                <div class="activity-item">
+                    <span class="activity-time">Just now</span>
+                    <span class="activity-text">Admin dashboard accessed</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-time">5 min ago</span>
+                    <span class="activity-text">System health check completed</span>
+                </div>
+            `;
+        }
+
+        // Action handlers
+        function manageUsers() { alert('User management - Coming soon'); }
+        function viewLogs() { window.location.href = '/admin/logs'; }
+        function configureSystem() { alert('System configuration - Coming soon'); }
+        function exportData() { alert('Data export - Coming soon'); }
+        function manageTokens() { alert('Token management - Coming soon'); }
+        function viewMetrics() { window.location.href = '/metrics'; }
+        function editStatuteDurations() { alert('Edit statute durations - Coming soon'); }
+        function editTimeSensitivities() { alert('Edit time sensitivities - Coming soon'); }
+        function editWeatherSettings() { alert('Edit weather settings - Coming soon'); }
+        function logout() { 
+            if (confirm('Logout from admin panel?')) {
+                window.location.href = '/';
+            }
+        }
+    </script>
+</body>
+</html>

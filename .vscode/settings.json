@@ -11,5 +11,6 @@
             "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot",
             "default": true
         }
-    ]
+    ],
+    "github.copilot.nextEditSuggestions.enabled": true
 }

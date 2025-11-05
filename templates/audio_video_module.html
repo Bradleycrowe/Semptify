@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio/Video Evidence Module - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spa.css') }}">
+    <style>
+        .semptify-logo {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            width: 120px;
+            height: auto;
+            z-index: 1000;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .semptify-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .av-module-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .av-header {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white;
+            padding: 2rem;
+            padding-left: 150px; /* Make room for logo */
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .semptify-logo {
+                width: 80px;
+                top: 0.5rem;
+                left: 0.5rem;
+            }
+            
+            .av-header {
+                padding-left: 2rem;
+                padding-top: 4rem; /* Move content below logo on mobile */
+            }
+        }
+
+        .capture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .capture-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .capture-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .record-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .record-btn.recording {
+            background: #22c55e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .preview-area {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            min-height: 200px;
+            margin-bottom: 1rem;
+        }
+
+        .preview-area video,
+        .preview-area audio {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .transcription-area {
+            background: #fffbeb;
+            border: 2px solid #fde68a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .transcription-text {
+            min-height: 100px;
+            padding: 1rem;
+            background: white;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .metadata-panel {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .export-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-format {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .format-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .format-btn:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .format-btn.selected {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: white;
+        }
+
+        .import-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .drop-zone {
+            border: 3px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .drop-zone:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .drop-zone.dragover {
+            border-color: #2563eb;
+            background: #dbeafe;
+        }
+    </style>
+</head>
+<body>
+    <!-- Semptify Logo -->
+    <a href="/">
+        <img src="{{ url_for('static', filename='icons/Semptfylogo.svg') }}" 
+             alt="Semptify Logo" 
+             class="semptify-logo">
+    </a>
+
+    <div class="av-module-container">
+        <header class="av-header">
+            <h1>🎙️ Audio/Video Evidence Module</h1>
+            <p>Record, transcribe, and export multimedia evidence with voice-to-text capabilities</p>
+            <nav style="margin-top: 1rem;">
+                <a href="/" class="btn">🏠 Home</a>
+                <a href="/education" class="btn">📚 Learn More</a>
+            </nav>
+        </header>
+
+        <!-- Capture Grid -->
+        <div class="capture-grid">
+            <!-- Video Capture -->
+            <div class="capture-card">
+                <div class="capture-icon">🎥</div>
+                <h2>Video Recording</h2>
+                <p>Capture video evidence with GPS location and timestamp</p>
+
+                <button id="video-record-btn" class="record-btn" onclick="toggleVideoRecording()">
+                    ● Start Video Recording
+                </button>
+
+                <div class="preview-area" id="video-preview">
+                    <p>📹 Video preview will appear here</p>
+                    <video id="video-element" controls style="display:none;"></video>
+                </div>
+
+                <div class="metadata-panel" id="video-metadata" style="display:none;">
+                    <strong>Metadata:</strong>
+                    <div id="video-meta-content"></div>
+                </div>
+
+                <button class="btn-primary" onclick="uploadVideo()" style="width: 100%; display:none;" id="video-upload-btn">
+                    📤 Upload to Vault
+                </button>
+            </div>
+
+            <!-- Audio Capture with Voice-to-Text -->
+            <div class="capture-card">
+                <div class="capture-icon">🎤</div>
+                <h2>Audio Recording + Voice-to-Text</h2>
+                <p>Record audio and get instant transcription</p>
+
+                <button id="audio-record-btn" class="record-btn" onclick="toggleAudioRecording()">
+                    ● Start Audio Recording
+                </button>
+
+                <div class="preview-area" id="audio-preview">
+                    <p>🎙️ Audio preview will appear here</p>
+                    <audio id="audio-element" controls style="display:none;"></audio>
+                </div>
+
+                <div class="transcription-area" id="transcription-panel" style="display:none;">
+                    <strong>🔤 Live Transcription:</strong>
+                    <div class="transcription-text" id="transcription-text">
+                        Transcription will appear here...
+                    </div>
+                    <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                        ℹ️ Using browser's built-in speech recognition
+                    </p>
+                </div>
+
+                <div class="metadata-panel" id="audio-metadata" style="display:none;">
+                    <strong>Metadata:</strong>
+                    <div id="audio-meta-content"></div>
+                </div>
+
+                <button class="btn-primary" onclick="uploadAudio()" style="width: 100%; display:none;" id="audio-upload-btn">
+                    📤 Upload to Vault
+                </button>
+            </div>
+
+            <!-- Photo Capture -->
+            <div class="capture-card">
+                <div class="capture-icon">📸</div>
+                <h2>Photo Capture</h2>
+                <p>Take timestamped photos with location data</p>
+
+                <button class="record-btn" onclick="capturePhoto()">
+                    📷 Take Photo
+                </button>
+
+                <div class="preview-area" id="photo-preview">
+                    <p>📷 Photo preview will appear here</p>
+                    <canvas id="photo-canvas" style="display:none; max-width: 100%;"></canvas>
+                </div>
+
+                <div class="metadata-panel" id="photo-metadata" style="display:none;">
+                    <strong>Metadata:</strong>
+                    <div id="photo-meta-content"></div>
+                </div>
+
+                <button class="btn-primary" onclick="uploadPhoto()" style="width: 100%; display:none;" id="photo-upload-btn">
+                    📤 Upload to Vault
+                </button>
+            </div>
+        </div>
+
+        <!-- Import Section -->
+        <div class="import-section">
+            <h2>📥 Import Communications</h2>
+            <p>Import voicemails, text messages, and emails as evidence</p>
+
+            <div class="capture-grid">
+                <div class="capture-card">
+                    <h3>📞 Voicemail Import</h3>
+                    <p>Upload voicemail audio files with automatic transcription</p>
+                    <div class="drop-zone" id="voicemail-drop" onclick="document.getElementById('voicemail-input').click()">
+                        <p>📞 Click or drag voicemail files here</p>
+                        <p style="font-size: 0.875rem; color: #64748b;">Supported: MP3, WAV, M4A</p>
+                    </div>
+                    <input type="file" id="voicemail-input" accept="audio/*" style="display:none;" onchange="handleVoicemailUpload(event)">
+                </div>
+
+                <div class="capture-card">
+                    <h3>💬 Text Message Import</h3>
+                    <p>Import text message screenshots or exports</p>
+                    <div class="drop-zone" id="text-drop" onclick="document.getElementById('text-input').click()">
+                        <p>💬 Click or drag text exports here</p>
+                        <p style="font-size: 0.875rem; color: #64748b;">Supported: PNG, JPG, TXT, JSON</p>
+                    </div>
+                    <input type="file" id="text-input" accept="image/*,.txt,.json" style="display:none;" onchange="handleTextUpload(event)">
+                </div>
+
+                <div class="capture-card">
+                    <h3>📧 Email Import</h3>
+                    <p>Import email messages with attachments</p>
+                    <div class="drop-zone" id="email-drop" onclick="document.getElementById('email-input').click()">
+                        <p>📧 Click or drag email files here</p>
+                        <p style="font-size: 0.875rem; color: #64748b;">Supported: EML, MSG, PDF</p>
+                    </div>
+                    <input type="file" id="email-input" accept=".eml,.msg,.pdf" style="display:none;" onchange="handleEmailUpload(event)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="export-section" style="margin-top: 2rem;">
+            <h2>💾 Export Evidence Package</h2>
+            <p>Export all evidence with instructions for court submission</p>
+
+            <div style="margin-top: 1.5rem;">
+                <label><strong>Select Export Format:</strong></label>
+                <div class="export-format">
+                    <button class="format-btn selected" data-format="pdf">📄 PDF Package</button>
+                    <button class="format-btn" data-format="zip">📦 ZIP Archive</button>
+                    <button class="format-btn" data-format="timeline">📅 Timeline HTML</button>
+                    <button class="format-btn" data-format="court">⚖️ Court Packet</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <label><strong>Include:</strong></label>
+                <div style="margin-top: 0.5rem;">
+                    <label><input type="checkbox" checked> Transcriptions</label><br>
+                    <label><input type="checkbox" checked> Metadata & Timestamps</label><br>
+                    <label><input type="checkbox" checked> Location Data</label><br>
+                    <label><input type="checkbox" checked> SHA-256 Certificates</label><br>
+                    <label><input type="checkbox" checked> Filing Instructions</label>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="exportEvidence()" style="margin-top: 1.5rem; padding: 1rem 2rem; font-size: 1.1rem;">
+                💾 Generate Export Package
+            </button>
+
+            <div id="export-instructions" style="margin-top: 1.5rem; display:none; background: #eff6ff; padding: 1.5rem; border-radius: 8px; border: 2px solid #3b82f6;">
+                <h3>📋 Court Filing Instructions</h3>
+                <ol style="margin-left: 1.5rem; line-height: 1.8;">
+                    <li>Review all exported evidence for accuracy and completeness</li>
+                    <li>Verify SHA-256 hashes match the certificates provided</li>
+                    <li>Organize exhibits in chronological order</li>
+                    <li>Submit copies - keep originals secure</li>
+                    <li>Follow local court rules for electronic evidence submission</li>
+                    <li>Consult with your attorney before filing</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='spa.js') }}"></script>
+    <script src="{{ url_for('static', filename='av_module.js') }}"></script>
+</body>
+</html>

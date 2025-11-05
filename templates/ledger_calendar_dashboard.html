@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ledger & Calendar Dashboard - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spa.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>📊 Ledger & Calendar Dashboard</h1>
+            <nav>
+                <a href="/" class="btn">← Back to Home</a>
+            </nav>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Calendar View -->
+            <section class="dashboard-card">
+                <h2>📅 Calendar Events</h2>
+                <div id="calendar-view">
+                    <p>Calendar integration active. Event data flows through central hub.</p>
+                    <div class="stat-box">
+                        <div class="stat-label">Active Events</div>
+                        <div class="stat-value">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Money Ledger -->
+            <section class="dashboard-card">
+                <h2>💰 Money Ledger</h2>
+                <div class="ledger-summary">
+                    <div class="stat-box">
+                        <div class="stat-label">Total Transactions</div>
+                        <div class="stat-value" id="money-count">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Tracked</div>
+                        <div class="stat-value" id="money-total">$0.00</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="showAddMoney()">+ Add Transaction</button>
+            </section>
+
+            <!-- Time Ledger -->
+            <section class="dashboard-card">
+                <h2>⏰ Time Ledger</h2>
+                <div class="ledger-summary">
+                    <div class="stat-box">
+                        <div class="stat-label">Time Entries</div>
+                        <div class="stat-value" id="time-count">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Days</div>
+                        <div class="stat-value" id="time-total">0</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="showAddTime()">+ Add Entry</button>
+            </section>
+
+            <!-- Statute Tracking -->
+            <section class="dashboard-card">
+                <h2>⚖️ Statute of Limitations</h2>
+                <div class="ledger-summary">
+                    <div class="stat-box">
+                        <div class="stat-label">Active Statutes</div>
+                        <div class="stat-value" id="statute-active">0</div>
+                    </div>
+                    <div class="stat-box warning">
+                        <div class="stat-label">Expiring Soon</div>
+                        <div class="stat-value" id="statute-expiring">0</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="showAddStatute()">+ Create Statute</button>
+            </section>
+
+            <!-- Service Dates -->
+            <section class="dashboard-card">
+                <h2>📮 Service Dates</h2>
+                <div class="ledger-summary">
+                    <div class="stat-box">
+                        <div class="stat-label">Service Attempts</div>
+                        <div class="stat-value" id="service-count">0</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="showAddService()">+ Record Service</button>
+            </section>
+
+            <!-- Weather Tracking -->
+            <section class="dashboard-card">
+                <h2>🌤️ Weather & Time Sensitivity</h2>
+                <div class="ledger-summary">
+                    <div class="stat-box">
+                        <div class="stat-label">Weather Records</div>
+                        <div class="stat-value" id="weather-count">0</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="showAddWeather()">+ Add Weather</button>
+            </section>
+        </div>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <button class="btn" onclick="loadStats()">🔄 Refresh Stats</button>
+                <button class="btn" onclick="viewHistory()">📜 View History</button>
+                <button class="btn" onclick="exportData()">💾 Export Data</button>
+            </div>
+        </section>
+
+        <!-- API Status -->
+        <section class="api-status">
+            <div class="status-indicator">
+                <span id="api-status-dot" class="status-dot"></span>
+                <span id="api-status-text">Checking API status...</span>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='spa.js') }}"></script>
+    <script>
+        // Load dashboard stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            checkHealth();
+        });
+
+        function loadStats() {
+            // Load ledger stats
+            fetch('/admin/ledger/stats')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.money_ledger) {
+                        document.getElementById('money-count').textContent = data.money_ledger.transaction_count || 0;
+                        document.getElementById('money-total').textContent = '$' + (data.money_ledger.total_tracked || 0).toFixed(2);
+                    }
+                    if (data.time_ledger) {
+                        document.getElementById('time-count').textContent = data.time_ledger.transaction_count || 0;
+                        document.getElementById('time-total').textContent = data.time_ledger.total_tracked || 0;
+                    }
+                    if (data.service_ledger) {
+                        document.getElementById('service-count').textContent = data.service_ledger.transaction_count || 0;
+                    }
+                })
+                .catch(e => console.log('Stats not available:', e));
+
+            // Load statute stats
+            fetch('/admin/ledger/statutes/summary')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('statute-active').textContent = data.active_statutes || 0;
+                    document.getElementById('statute-expiring').textContent = data.expiring_in_30_days || 0;
+                })
+                .catch(e => console.log('Statute stats not available:', e));
+        }
+
+        function checkHealth() {
+            fetch('/admin/ledger/health')
+                .then(r => r.json())
+                .then(data => {
+                    const dot = document.getElementById('api-status-dot');
+                    const text = document.getElementById('api-status-text');
+                    if (data.status === 'healthy') {
+                        dot.className = 'status-dot status-ok';
+                        text.textContent = 'API Status: Healthy ✓';
+                    } else {
+                        dot.className = 'status-dot status-error';
+                        text.textContent = 'API Status: ' + (data.error || 'Unknown');
+                    }
+                })
+                .catch(e => {
+                    document.getElementById('api-status-dot').className = 'status-dot status-error';
+                    document.getElementById('api-status-text').textContent = 'API Status: Offline';
+                });
+        }
+
+        function showAddMoney() {
+            alert('Money transaction form - integrate with API /api/ledger-tracking/money/add');
+        }
+
+        function showAddTime() {
+            alert('Time transaction form - integrate with API /api/ledger-tracking/time/add');
+        }
+
+        function showAddStatute() {
+            alert('Statute form - integrate with API /api/ledger-tracking/statute/create');
+        }
+
+        function showAddService() {
+            alert('Service date form - integrate with API /api/ledger-tracking/service-date/add');
+        }
+
+        function showAddWeather() {
+            alert('Weather form - integrate with API /api/ledger-tracking/weather/add');
+        }
+
+        function viewHistory() {
+            window.location.href = '/admin/ledger';
+        }
+
+        function exportData() {
+            alert('Export functionality coming soon');
+        }
+    </script>
+</body>
+</html>

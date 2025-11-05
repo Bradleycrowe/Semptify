@@ -161,6 +161,24 @@ def ledger_calendar_dashboard():
     """Display integrated Ledger & Calendar dashboard with forms."""
     return render_template('ledger_calendar_dashboard.html')
 
+# Admin Dashboard (Admin Only)
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    """Admin-only dashboard with system controls."""
+    return render_template('admin_dashboard.html')
+
+# Education Center
+@app.route('/education')
+def education_center():
+    """Know Your Rights - Educational multimedia center."""
+    return render_template('education.html')
+
+# Audio/Video Evidence Module
+@app.route('/evidence/audio-video')
+def audio_video_module():
+    """Audio/video capture with voice-to-text and export capabilities."""
+    return render_template('audio_video_module.html')
+
 # Calendar Widgets & Components
 @app.route('/calendar-widgets')
 def calendar_widgets():

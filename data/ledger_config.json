@@ -1,0 +1,89 @@
+{
+  "statute_durations": {
+    "eviction_notice": 60,
+    "unlawful_detainer": 5,
+    "answer_to_complaint": 30,
+    "appeal_filing": 60,
+    "discovery_motion": 45,
+    "default_judgment": 10,
+    "rent_demand": 3,
+    "cure_or_quit": 30,
+    "complaint": 365,
+    "counterclaim": 30
+  },
+  "time_sensitivities": {
+    "service_deadline": {
+      "duration_days": 60,
+      "business_days_only": true,
+      "exclude_holidays": true,
+      "weather_dependent": true,
+      "max_weather_extension_days": 7
+    },
+    "answer_deadline": {
+      "duration_days": 30,
+      "business_days_only": true,
+      "exclude_holidays": true,
+      "weather_dependent": false
+    },
+    "discovery_deadline": {
+      "duration_days": 45,
+      "business_days_only": true,
+      "exclude_holidays": true,
+      "weather_dependent": true,
+      "max_weather_extension_days": 5
+    },
+    "rent_payment": {
+      "duration_days": 5,
+      "business_days_only": false,
+      "exclude_holidays": false,
+      "weather_dependent": false
+    },
+    "response_deadline": {
+      "duration_days": 21,
+      "business_days_only": true,
+      "exclude_holidays": true,
+      "weather_dependent": true,
+      "max_weather_extension_days": 3
+    }
+  },
+  "weather_settings": {
+    "severe_conditions": [
+      "blizzard",
+      "hurricane",
+      "tornado",
+      "flood",
+      "ice_storm"
+    ],
+    "visibility_threshold_miles": 0.5,
+    "wind_alert_threshold_mph": 40,
+    "precipitation_threshold_inches": 2.0,
+    "alert_types": [
+      "flood_watch",
+      "flood_warning",
+      "tornado_watch",
+      "tornado_warning",
+      "hurricane_watch",
+      "hurricane_warning",
+      "winter_storm_warning",
+      "blizzard_warning",
+      "heat_advisory",
+      "excessive_heat_warning"
+    ]
+  },
+  "notification_settings": {
+    "alert_days_before_statute_expiry": 30,
+    "alert_days_before_service_deadline": 14,
+    "alert_on_severe_weather": true,
+    "alert_on_deadline_extension": true
+  },
+  "retention_settings": {
+    "keep_transactions_days": 2555,
+    "keep_weather_data_days": 365,
+    "archive_expired_statutes": true
+  },
+  "jurisdiction_settings": {
+    "default_jurisdiction": "US",
+    "state": "CA",
+    "county": ""
+  }
+}

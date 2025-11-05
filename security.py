@@ -105,6 +105,38 @@ def _load_json(path: str, default=None):
         pass
     return default if default is not None else {}
 
+def save_user_token() -> str:
+    """Create and save a new user token. Returns the plain-text token (show once)."""
+    # Generate a random digits-only token (anonymous)
+    token = ''.join(secrets.choice('0123456789') for _ in range(16))
+    user_id = str(uuid.uuid4())
+
+    users_file = get_users_file()
+
+    # Ensure security directory exists
+    sec_dir = get_security_dir()
+    os.makedirs(sec_dir, exist_ok=True)
+
+    # Load existing users
+    users_data = _load_json(users_file, {})
+    if not isinstance(users_data, dict):
+        users_data = {}
+
+    # Add new user
+    users_data[user_id] = {
+        'hash': _hash_token(token),
+        'created_at': datetime.now(timezone.utc).isoformat(),
+    }
+
+    # Save to file
+    try:
+        with open(users_file, 'w', encoding='utf-8') as f:
+            json.dump(users_data, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
+
+    return token
+
 def validate_user_token(token: Optional[str]) -> Optional[str]:
     """Validate a user token and return the user ID if valid."""
     if not token:

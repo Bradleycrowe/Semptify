@@ -298,3 +298,4 @@
 {"event": "startup", "ts": 1761088873, "id": "fcd4c59d-2378-4692-b385-7307374fc61d", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
 {"event": "startup", "ts": 1761088874, "id": "21686aca-f48c-46d9-9d95-d3f996c3e0aa", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
 {"event": "startup", "ts": 1761088875, "id": "c601821a-599b-467e-9504-719c8ed076f5", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"timestamp": "2025-11-05T13:38:28.774300+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
