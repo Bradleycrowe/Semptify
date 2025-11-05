@@ -111,9 +111,9 @@ def education_center():
   - Metadata extraction and display
   - Export package generation
 
-**Routes Added:**
+**Routes Added:**Page 
 ```python
-@app.route('/evidence/audio-video')
+@app.route('/evidence/audio-video')Page 
 def audio_video_module():
     """Audio/video evidence capture with voice-to-text"""
 ```

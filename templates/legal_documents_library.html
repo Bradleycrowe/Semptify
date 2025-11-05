@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Documents & Forms Library - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spa.css') }}">
+    <style>
+        .docs-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .docs-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .docs-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .docs-header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .search-section {
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .search-box button:hover {
+            background: #5568d3;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-tab:hover {
+            border-color: #667eea;
+        }
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .doc-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .doc-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .doc-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .doc-category {
+            display: inline-block;
+            background: #eff6ff;
+            color: #0369a1;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .doc-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .doc-description {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .doc-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .doc-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .doc-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .doc-btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .doc-btn-secondary {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+
+        .doc-btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .category-section {
+            margin-bottom: 3rem;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .quick-access-bar {
+            background: #f0f4ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-access-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .quick-access-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .download-count {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .recently-viewed {
+            background: #fffbeb;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #fbbf24;
+        }
+
+        .recently-viewed h3 {
+            margin: 0 0 0.5rem 0;
+            color: #92400e;
+        }
+
+        .recently-viewed-items {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .recently-viewed-item {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #fcd34d;
+        }
+
+        .recently-viewed-item:hover {
+            background: #fef3c7;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .print-friendly {
+            print-color-adjust: exact;
+        }
+
+        .favorite-btn {
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .favorite-btn.favorited {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="docs-container">
+        <!-- Header -->
+        <header class="docs-header">
+            <h1>📚 Legal Documents & Forms Library</h1>
+            <p>Access all tenant rights templates and legal forms with one click</p>
+            <nav style="margin-top: 1rem;">
+                <a href="/" class="btn">🏠 Home</a>
+                <a href="/education" class="btn">📚 Learn More</a>
+                <a href="/admin/dashboard" class="btn">⚙️ Admin</a>
+            </nav>
+        </header>
+
+        <!-- Recently Viewed -->
+        <div class="recently-viewed" id="recently-viewed" style="display:none;">
+            <h3>⏱️ Recently Viewed Documents</h3>
+            <div class="recently-viewed-items" id="recently-viewed-items"></div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search documents by name, type, or keyword...">
+                <button onclick="performSearch()">🔍 Search</button>
+            </div>
+
+            <div class="filter-tabs">
+                <div class="filter-tab active" onclick="filterByCategory('all')">All Documents</div>
+                <div class="filter-tab" onclick="filterByCategory('complaint')">📋 Complaints</div>
+                <div class="filter-tab" onclick="filterByCategory('demand')">📧 Demand Letters</div>
+                <div class="filter-tab" onclick="filterByCategory('evidence')">📸 Evidence Packets</div>
+                <div class="filter-tab" onclick="filterByCategory('rights')">⚖️ Rights</div>
+                <div class="filter-tab" onclick="filterByCategory('notice')">📢 Notices</div>
+                <div class="filter-tab" onclick="filterByCategory('motion')">📄 Motions</div>
+            </div>
+        </div>
+
+        <!-- Quick Access Bar -->
+        <div class="quick-access-bar">
+            <strong style="align-self: center;">⭐ Quick Access:</strong>
+            <button class="quick-access-btn" onclick="downloadTemplate('complaint')">Formal Complaint</button>
+            <button class="quick-access-btn" onclick="downloadTemplate('demand-letter')">Demand Letter</button>
+            <button class="quick-access-btn" onclick="downloadTemplate('evidence-packet')">Evidence Packet</button>
+            <button class="quick-access-btn" onclick="downloadTemplate('rights-summary')">Tenant Rights</button>
+            <button class="quick-access-btn" onclick="downloadTemplate('notice-to-cure')">Notice to Cure</button>
+        </div>
+
+        <!-- Documents Grid -->
+        <div id="documents-container"></div>
+    </div>
+
+    <script>
+        // Document Library Data
+        const documentsLibrary = {
+            complaint: [
+                {
+                    id: 'complaint-broker',
+                    title: 'Broker Liability Complaint',
+                    description: 'Formal complaint against broker for illegal activity or violations',
+                    icon: '📋',
+                    category: 'complaint',
+                    type: 'Legal Form',
+                    difficulty: 'Medium',
+                    downloads: 1247,
+                    template: 'complaint_broker.docx',
+                    preview: '/templates/preview/complaint_broker.html'
+                },
+                {
+                    id: 'complaint-landlord',
+                    title: 'Landlord Violation Complaint',
+                    description: 'Formal complaint documenting landlord lease violations',
+                    icon: '🏢',
+                    category: 'complaint',
+                    type: 'Legal Form',
+                    difficulty: 'Medium',
+                    downloads: 892,
+                    template: 'complaint_landlord.docx',
+                    preview: '/templates/preview/complaint_landlord.html'
+                },
+                {
+                    id: 'complaint-housing',
+                    title: 'Housing Authority Complaint',
+                    description: 'File complaint with housing authority (HUD, State, Local)',
+                    icon: '🏛️',
+                    category: 'complaint',
+                    type: 'Legal Form',
+                    difficulty: 'Hard',
+                    downloads: 456,
+                    template: 'complaint_housing.docx',
+                    preview: '/templates/preview/complaint_housing.html'
+                }
+            ],
+            demand: [
+                {
+                    id: 'demand-repairs',
+                    title: 'Demand for Repairs Letter',
+                    description: 'Formal demand requiring property repairs within deadline',
+                    icon: '🔧',
+                    category: 'demand',
+                    type: 'Letter Template',
+                    difficulty: 'Easy',
+                    downloads: 2341,
+                    template: 'demand_repairs.docx',
+                    preview: '/templates/preview/demand_repairs.html'
+                },
+                {
+                    id: 'demand-payment',
+                    title: 'Demand for Payment Letter',
+                    description: 'Formal demand for refund of illegal charges or deposits',
+                    icon: '💰',
+                    category: 'demand',
+                    type: 'Letter Template',
+                    difficulty: 'Easy',
+                    downloads: 1876,
+                    template: 'demand_payment.docx',
+                    preview: '/templates/preview/demand_payment.html'
+                },
+                {
+                    id: 'demand-habitability',
+                    title: 'Demand for Habitability',
+                    description: 'Assert right to habitable conditions with legal deadline',
+                    icon: '🏠',
+                    category: 'demand',
+                    type: 'Letter Template',
+                    difficulty: 'Medium',
+                    downloads: 1543,
+                    template: 'demand_habitability.docx',
+                    preview: '/templates/preview/demand_habitability.html'
+                }
+            ],
+            evidence: [
+                {
+                    id: 'evidence-packet-standard',
+                    title: 'Standard Evidence Packet Template',
+                    description: 'Organize photos, videos, documents with cover sheet and index',
+                    icon: '📸',
+                    category: 'evidence',
+                    type: 'Evidence Organizer',
+                    difficulty: 'Easy',
+                    downloads: 3012,
+                    template: 'evidence_packet_standard.docx',
+                    preview: '/templates/preview/evidence_packet_standard.html'
+                },
+                {
+                    id: 'evidence-packet-detailed',
+                    title: 'Detailed Evidence Packet with Analysis',
+                    description: 'Evidence packet with violation analysis and legal references',
+                    icon: '📊',
+                    category: 'evidence',
+                    type: 'Evidence Organizer',
+                    difficulty: 'Hard',
+                    downloads: 1834,
+                    template: 'evidence_packet_detailed.docx',
+                    preview: '/templates/preview/evidence_packet_detailed.html'
+                },
+                {
+                    id: 'photo-log',
+                    title: 'Photo/Video Evidence Log',
+                    description: 'Document and catalog all photographic evidence chronologically',
+                    icon: '📹',
+                    category: 'evidence',
+                    type: 'Log Sheet',
+                    difficulty: 'Easy',
+                    downloads: 2156,
+                    template: 'photo_evidence_log.docx',
+                    preview: '/templates/preview/photo_evidence_log.html'
+                }
+            ],
+            rights: [
+                {
+                    id: 'rights-summary',
+                    title: 'Tenant Rights Summary Card',
+                    description: 'One-page summary of key tenant rights (wallet card size)',
+                    icon: '⚖️',
+                    category: 'rights',
+                    type: 'Reference Card',
+                    difficulty: 'Easy',
+                    downloads: 5432,
+                    template: 'rights_summary_card.pdf',
+                    preview: '/templates/preview/rights_summary_card.html'
+                },
+                {
+                    id: 'rights-guide',
+                    title: 'Complete Tenant Rights Guide',
+                    description: 'Comprehensive guide to all tenant rights in your state',
+                    icon: '📖',
+                    category: 'rights',
+                    type: 'Guide',
+                    difficulty: 'Medium',
+                    downloads: 3876,
+                    template: 'rights_complete_guide.pdf',
+                    preview: '/templates/preview/rights_complete_guide.html'
+                },
+                {
+                    id: 'rights-checklist',
+                    title: 'Tenant Rights Checklist',
+                    description: 'Interactive checklist of your protections and remedies',
+                    icon: '✓',
+                    category: 'rights',
+                    type: 'Checklist',
+                    difficulty: 'Easy',
+                    downloads: 2765,
+                    template: 'rights_checklist.docx',
+                    preview: '/templates/preview/rights_checklist.html'
+                }
+            ],
+            notice: [
+                {
+                    id: 'notice-to-cure',
+                    title: 'Notice to Cure or Quit',
+                    description: 'Formal notice of lease violation requiring cure or eviction',
+                    icon: '📢',
+                    category: 'notice',
+                    type: 'Legal Notice',
+                    difficulty: 'Medium',
+                    downloads: 1923,
+                    template: 'notice_cure_or_quit.docx',
+                    preview: '/templates/preview/notice_cure_or_quit.html'
+                },
+                {
+                    id: 'notice-termination',
+                    title: 'Notice of Termination',
+                    description: 'Formal notice terminating lease with required notice period',
+                    icon: '⏰',
+                    category: 'notice',
+                    type: 'Legal Notice',
+                    difficulty: 'Easy',
+                    downloads: 2654,
+                    template: 'notice_termination.docx',
+                    preview: '/templates/preview/notice_termination.html'
+                },
+                {
+                    id: 'notice-retaliation',
+                    title: 'Notice of Retaliation Protection',
+                    description: 'Assert protection against retaliatory conduct by landlord',
+                    icon: '🛡️',
+                    category: 'notice',
+                    type: 'Legal Notice',
+                    difficulty: 'Medium',
+                    downloads: 1432,
+                    template: 'notice_retaliation.docx',
+                    preview: '/templates/preview/notice_retaliation.html'
+                }
+            ],
+            motion: [
+                {
+                    id: 'motion-stay-eviction',
+                    title: 'Motion to Stay Eviction',
+                    description: 'Court motion requesting postponement of eviction proceedings',
+                    icon: '⚔️',
+                    category: 'motion',
+                    type: 'Court Motion',
+                    difficulty: 'Hard',
+                    downloads: 876,
+                    template: 'motion_stay_eviction.docx',
+                    preview: '/templates/preview/motion_stay_eviction.html'
+                },
+                {
+                    id: 'motion-summary-judgment',
+                    title: 'Motion for Summary Judgment',
+                    description: 'Motion requesting judgment without trial based on evidence',
+                    icon: '⚖️',
+                    category: 'motion',
+                    type: 'Court Motion',
+                    difficulty: 'Hard',
+                    downloads: 654,
+                    template: 'motion_summary_judgment.docx',
+                    preview: '/templates/preview/motion_summary_judgment.html'
+                },
+                {
+                    id: 'motion-dismiss',
+                    title: 'Motion to Dismiss',
+                    description: 'Motion requesting dismissal of eviction case',
+                    icon: '🚫',
+                    category: 'motion',
+                    type: 'Court Motion',
+                    difficulty: 'Hard',
+                    downloads: 543,
+                    template: 'motion_dismiss.docx',
+                    preview: '/templates/preview/motion_dismiss.html'
+                }
+            ]
+        };
+
+        let currentFilter = 'all';
+        let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewedDocs')) || [];
+
+        function flattenDocuments() {
+            return Object.values(documentsLibrary).flat();
+        }
+
+        function renderDocuments(docs = flattenDocuments()) {
+            const container = document.getElementById('documents-container');
+
+            if (docs.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">📭</div>
+                        <h2>No Documents Found</h2>
+                        <p>Try adjusting your search or filters</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = docs.map(doc => `
+                <div class="category-section" style="display: ${currentFilter === 'all' || currentFilter === doc.category ? 'block' : 'none'}; grid-column: 1 / -1;">
+                    ${docs.indexOf(doc) === 0 || docs[docs.indexOf(doc) - 1].category !== doc.category ?
+                        `<h2 class="category-title">${getCategoryIcon(doc.category)} ${getCategoryName(doc.category)}</h2>` : ''}
+                    <div class="documents-grid" style="margin-top: 0;">
+                        ${docs.filter(d => d.category === doc.category).map(d => createDocCard(d)).join('')}
+                    </div>
+                </div>
+            `).filter((val, idx, arr) => arr.indexOf(val) === idx).join('');
+
+            container.innerHTML = html;
+        }
+
+        function createDocCard(doc) {
+            const isFavorited = localStorage.getItem(`favorite_${doc.id}`) === 'true';
+            return `
+                <div class="doc-card" onclick="trackView('${doc.id}')">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div class="doc-icon">${doc.icon}</div>
+                        <span class="favorite-btn ${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavorite('${doc.id}', this)">♡</span>
+                    </div>
+                    <span class="doc-category">${doc.type}</span>
+                    <div class="doc-title">${doc.title}</div>
+                    <div class="doc-description">${doc.description}</div>
+                    <div class="doc-meta">
+                        <span>Difficulty: <strong>${doc.difficulty}</strong></span>
+                        <span class="download-count">📥 ${doc.downloads}</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-btn doc-btn-primary" onclick="event.stopPropagation(); downloadTemplate('${doc.id}')">📥 Download</button>
+                        <button class="doc-btn doc-btn-secondary" onclick="event.stopPropagation(); previewDocument('${doc.id}')">👁️ Preview</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                complaint: '📋',
+                demand: '📧',
+                evidence: '📸',
+                rights: '⚖️',
+                notice: '📢',
+                motion: '📄'
+            };
+            return icons[category] || '📄';
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                complaint: 'Complaints',
+                demand: 'Demand Letters',
+                evidence: 'Evidence Packets',
+                rights: 'Tenant Rights',
+                notice: 'Legal Notices',
+                motion: 'Court Motions'
+            };
+            return names[category] || 'Documents';
+        }
+
+        function filterByCategory(category) {
+            currentFilter = category;
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (category === 'all') {
+                renderDocuments(flattenDocuments());
+            } else {
+                renderDocuments(flattenDocuments().filter(d => d.category === category));
+            }
+        }
+
+        function performSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const results = flattenDocuments().filter(doc =>
+                doc.title.toLowerCase().includes(query) ||
+                doc.description.toLowerCase().includes(query) ||
+                doc.category.toLowerCase().includes(query)
+            );
+            renderDocuments(results);
+        }
+
+        function downloadTemplate(docId) {
+            const doc = flattenDocuments().find(d => d.id === docId);
+            if (doc) {
+                alert(`📥 Downloading: ${doc.title}\n\nFile: ${doc.template}\n\nThe template will open in your default application.`);
+                trackView(docId);
+                // In production, would trigger actual download
+                // window.location.href = `/api/templates/download/${doc.template}`;
+            }
+        }
+
+        function previewDocument(docId) {
+            const doc = flattenDocuments().find(d => d.id === docId);
+            if (doc) {
+                trackView(docId);
+                window.open(doc.preview, '_blank', 'width=1000,height=800');
+            }
+        }
+
+        function trackView(docId) {
+            const doc = flattenDocuments().find(d => d.id === docId);
+            if (!doc) return;
+
+            // Remove if already in list
+            recentlyViewed = recentlyViewed.filter(d => d.id !== docId);
+            // Add to front
+            recentlyViewed.unshift(doc);
+            // Keep only last 5
+            recentlyViewed = recentlyViewed.slice(0, 5);
+            localStorage.setItem('recentlyViewedDocs', JSON.stringify(recentlyViewed));
+            updateRecentlyViewed();
+        }
+
+        function updateRecentlyViewed() {
+            const section = document.getElementById('recently-viewed');
+            const itemsContainer = document.getElementById('recently-viewed-items');
+
+            if (recentlyViewed.length > 0) {
+                section.style.display = 'block';
+                itemsContainer.innerHTML = recentlyViewed.map(doc => `
+                    <span class="recently-viewed-item" onclick="previewDocument('${doc.id}')">${doc.icon} ${doc.title}</span>
+                `).join('');
+            }
+        }
+
+        function toggleFavorite(docId, element) {
+            const isFavorited = localStorage.getItem(`favorite_${docId}`) === 'true';
+            if (isFavorited) {
+                localStorage.removeItem(`favorite_${docId}`);
+                element.classList.remove('favorited');
+            } else {
+                localStorage.setItem(`favorite_${docId}`, 'true');
+                element.classList.add('favorited');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDocuments();
+            updateRecentlyViewed();
+
+            // Search on Enter
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+        });
+    </script>
+</body>
+</html>

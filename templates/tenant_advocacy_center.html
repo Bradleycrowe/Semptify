@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Advocacy Center - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spa.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .advocacy-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .advocacy-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .advocacy-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .advocacy-hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-tagline {
+            font-size: 1.1rem;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        /* Quick Stats */
+        .advocacy-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        /* Main Content Grid */
+        .advocacy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 1200px) {
+            .advocacy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Advocacy Sections */
+        .advocacy-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .advocacy-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.8rem;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .advocacy-section h3 {
+            font-size: 1.2rem;
+            color: #1e293b;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .advocacy-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .advocacy-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .advocacy-list li:last-child {
+            border-bottom: none;
+        }
+
+        .advocacy-list li::before {
+            content: "✓";
+            color: #22c55e;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .advocacy-list li span {
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        /* Action Buttons */
+        .advocacy-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .action-btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .action-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .action-btn-secondary {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 2px solid #cbd5e1;
+        }
+
+        .action-btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .action-btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Resources Section */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .resource-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea30;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .resource-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .resource-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .resource-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .resource-description {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d20 100%);
+            border-left: 4px solid #fbbf24;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box strong {
+            color: #92400e;
+        }
+
+        .highlight-box p {
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        /* Emergency Section */
+        .emergency-section {
+            background: linear-gradient(135deg, #dc262630 0%, #ef444430 100%);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .emergency-section h2 {
+            color: #991b1b;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #ef4444;
+        }
+
+        .emergency-contact {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #ef4444;
+        }
+
+        .emergency-contact strong {
+            color: #991b1b;
+        }
+
+        /* Full Width Section */
+        .full-width-section {
+            grid-column: 1 / -1;
+        }
+
+        /* Footer Info */
+        .advocacy-footer {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            color: #64748b;
+            margin-top: 3rem;
+        }
+
+        .advocacy-footer h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation Links */
+        .advocacy-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            background: #f1f5f9;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Success Stories */
+        .success-story {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .success-story strong {
+            color: #166534;
+        }
+
+        .success-story p {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        /* Tabs for Content */
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="advocacy-container">
+        <!-- Hero Section -->
+        <div class="advocacy-hero">
+            <h1>🛡️ Tenant Advocacy Center</h1>
+            <p>Your Complete Guide to Tenant Rights, Protections & Resources</p>
+            <span class="hero-tagline">Know Your Rights • Document Everything • Fight Back</span>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="advocacy-stats">
+            <div class="stat-card">
+                <div class="stat-number">49</div>
+                <div class="stat-label">States with Tenant Protections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">30+</div>
+                <div class="stat-label">Legal Templates Available</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">$15B+</div>
+                <div class="stat-label">Won by Tenant Advocates</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Access to Resources</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="advocacy-nav" style="justify-content: center; margin-bottom: 2rem;">
+            <a href="/" class="nav-link">🏠 Home</a>
+            <a href="/education" class="nav-link">📚 Learn</a>
+            <a href="/legal-documents" class="nav-link">📄 Forms</a>
+            <a href="/evidence/audio-video" class="nav-link">🎙️ Evidence</a>
+        </div>
+
+        <!-- Emergency Resources -->
+        <div class="emergency-section">
+            <h2>🚨 Emergency Resources</h2>
+            <div class="emergency-contact">
+                <strong>National Eviction Hotline:</strong> 1-833-EVICT-NOW | Text EVICT to 66099
+            </div>
+            <div class="emergency-contact">
+                <strong>Local Legal Aid:</strong> <a href="https://lawhelp.org" target="_blank">lawhelp.org</a> (Find FREE legal help)
+            </div>
+            <div class="emergency-contact">
+                <strong>HUD Counseling:</strong> 1-800-CALL-HUD | <a href="https://www.hud.gov" target="_blank">hud.gov</a>
+            </div>
+            <div class="emergency-contact">
+                <strong>Report Discrimination:</strong> HUD Fair Housing Hotline 1-800-669-9777
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="advocacy-grid">
+            <!-- Your Rights Section -->
+            <div class="advocacy-section">
+                <h2>⚖️ Your Fundamental Rights</h2>
+
+                <h3>Right to Habitable Housing</h3>
+                <ul class="advocacy-list">
+                    <li><span>Safe, structurally sound building</span></li>
+                    <li><span>Working plumbing, heat, electricity</span></li>
+                    <li><span>No lead paint (pre-1978 units)</span></li>
+                    <li><span>Protection from pests and mold</span></li>
+                </ul>
+
+                <h3>Right to Privacy</h3>
+                <ul class="advocacy-list">
+                    <li><span>Landlord cannot enter without notice (typically 24-48 hours)</span></li>
+                    <li><span>Limited entry for repairs, inspections, emergencies</span></li>
+                    <li><span>Protection from harassment or intimidation</span></li>
+                </ul>
+
+                <h3>Right to Non-Discrimination</h3>
+                <ul class="advocacy-list">
+                    <li><span>Cannot discriminate based on: race, color, national origin, religion, disability, family status, sex</span></li>
+                    <li><span>Service animals are NOT pets (no restrictions)</span></li>
+                    <li><span>Reasonable accommodations required for disabilities</span></li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>📌 Pro Tip:</strong> Federal Fair Housing Act (FHA) protects against 7 protected classes. Document ALL discrimination with dates, times, witnesses.
+                </div>
+
+                <div class="advocacy-actions">
+                    <a href="/legal-documents" class="action-btn action-btn-primary">📄 View Rights Templates</a>
+                    <a href="/education" class="action-btn action-btn-secondary">📚 Learn More</a>
+                </div>
+            </div>
+
+            <!-- Protections Section -->
+            <div class="advocacy-section">
+                <h2>🔒 Legal Protections</h2>
+
+                <h3>Retaliation Protection</h3>
+                <ul class="advocacy-list">
+                    <li><span>Cannot be evicted for reporting violations</span></li>
+                    <li><span>Cannot be punished for joining tenant unions</span></li>
+                    <li><span>Cannot face rent increases for exercising rights</span></li>
+                </ul>
+
+                <h3>Eviction Protections</h3>
+                <ul class="advocacy-list">
+                    <li><span>Must receive proper written notice (period varies by state)</span></li>
+                    <li><span>Right to cure lease violations</span></li>
+                    <li><span>Cannot be "self-help" evicted (illegal lock-outs)</span></li>
+                    <li><span>Court process required in most states</span></li>
+                </ul>
+
+                <h3>Repair Rights</h3>
+                <ul class="advocacy-list">
+                    <li><span>"Repair and deduct" laws available in many states</span></li>
+                    <li><span>Can withhold rent for uninhabitable conditions</span></li>
+                    <li><span>Can request rent reduction for partial loss of use</span></li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>⚠️ Warning:</strong> Never pay reduced rent without documenting the reason in writing. Take photos and timestamps of all issues.
+                </div>
+
+                <div class="advocacy-actions">
+                    <button class="action-btn action-btn-primary" onclick="downloadProtectionsGuide()">📥 Download Guide</button>
+                    <a href="/evidence/audio-video" class="action-btn action-btn-secondary">📸 Document Evidence</a>
+                </div>
+            </div>
+
+            <!-- Documentation & Evidence -->
+            <div class="advocacy-section">
+                <h2>📸 Documentation is Key</h2>
+
+                <h3>What to Document</h3>
+                <ul class="advocacy-list">
+                    <li><span><strong>Photos/Videos:</strong> All violations, repairs needed, damage</span></li>
+                    <li><span><strong>Timestamps:</strong> Date, time, location of all evidence</span></li>
+                    <li><span><strong>Communications:</strong> All emails, texts, letters to landlord</span></li>
+                    <li><span><strong>Witness Names:</strong> Anyone who saw violations or issues</span></li>
+                    <li><span><strong>Medical Records:</strong> Any health issues from poor conditions</span></li>
+                </ul>
+
+                <h3>Chain of Custody</h3>
+                <ul class="advocacy-list">
+                    <li><span>Save original files with metadata intact</span></li>
+                    <li><span>Use Semptify to automatically timestamp and geotag</span></li>
+                    <li><span>Create backup copies stored separately</span></li>
+                    <li><span>Never alter or edit original evidence</span></li>
+                </ul>
+
+                <div class="success-story">
+                    <strong>✓ Success Story:</strong>
+                    <p>Tenant documented mold with timestamps. Landlord refused repairs. Tenant withheld rent with written documentation. Mold remediated within 2 weeks.</p>
+                </div>
+
+                <div class="advocacy-actions">
+                    <a href="/evidence/audio-video" class="action-btn action-btn-primary">🎙️ Start Recording</a>
+                    <a href="/legal-documents" class="action-btn action-btn-secondary">📋 Get Log Template</a>
+                </div>
+            </div>
+
+            <!-- Actions & Remedies -->
+            <div class="advocacy-section">
+                <h2>⚔️ Legal Actions & Remedies</h2>
+
+                <h3>Before Court</h3>
+                <ul class="advocacy-list">
+                    <li><span>Send formal demand letter (certified mail, return receipt)</span></li>
+                    <li><span>Give landlord reasonable time to respond (typically 7-30 days)</span></li>
+                    <li><span>File complaint with housing authority</span></li>
+                    <li><span>Contact legal aid for free consultation</span></li>
+                </ul>
+
+                <h3>Legal Remedies Available</h3>
+                <ul class="advocacy-list">
+                    <li><span><strong>Compensatory Damages:</strong> Refunds, rent reductions, living costs</span></li>
+                    <li><span><strong>Punitive Damages:</strong> Additional payment for egregious violations</span></li>
+                    <li><span><strong>Attorney's Fees:</strong> Recover legal costs in many jurisdictions</span></li>
+                    <li><span><strong>Injunctive Relief:</strong> Court order to repair or comply</span></li>
+                </ul>
+
+                <h3>Small Claims Court</h3>
+                <ul class="advocacy-list">
+                    <li><span>No lawyer needed - faster, cheaper than civil court</span></li>
+                    <li><span>Usually limited to $5,000-$25,000 (varies by state)</span></li>
+                    <li><span>Perfect for security deposit disputes, minor damages</span></li>
+                </ul>
+
+                <div class="advocacy-actions">
+                    <a href="/legal-documents" class="action-btn action-btn-primary">📧 Demand Letter Template</a>
+                    <a href="/legal-documents" class="action-btn action-btn-danger">📋 Court Motion Templates</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Grid -->
+        <div class="advocacy-section full-width-section">
+            <h2>🌐 Helpful Resources & Organizations</h2>
+
+            <div class="resources-grid">
+                <div class="resource-card" onclick="window.open('https://lawhelp.org')">
+                    <div class="resource-icon">🏛️</div>
+                    <div class="resource-title">Legal Aid Directory</div>
+                    <div class="resource-description">Find FREE legal assistance in your area. Search by state and issue type.</div>
+                </div>
+
+                <div class="resource-card" onclick="window.open('https://www.hud.gov')">
+                    <div class="resource-icon">🏠</div>
+                    <div class="resource-title">HUD (U.S. Dept. Housing)</div>
+                    <div class="resource-description">Federal housing programs, complaints, counseling, fair housing enforcement.</div>
+                </div>
+
+                <div class="resource-card" onclick="window.open('https://www.nclc.org')">
+                    <div class="resource-icon">⚖️</div>
+                    <div class="resource-title">National Consumer Law Center</div>
+                    <div class="resource-description">Extensive tenant rights guides, state-specific resources, litigation support.</div>
+                </div>
+
+                <div class="resource-card" onclick="window.open('https://www.nha.org')">
+                    <div class="resource-icon">👥</div>
+                    <div class="resource-title">National Housing Alliance</div>
+                    <div class="resource-description">Tenant organizing, collective action, community organizing support.</div>
+                </div>
+
+                <div class="resource-card" onclick="window.open('https://www.justicecenter.org')">
+                    <div class="resource-icon">🔗</div>
+                    <div class="resource-title">Justice Center Resources</div>
+                    <div class="resource-description">Rental assistance programs, eviction prevention, landlord accountability.</div>
+                </div>
+
+                <div class="resource-card" onclick="window.open('https://www.aclu.org')">
+                    <div class="resource-icon">🛡️</div>
+                    <div class="resource-title">ACLU Housing Rights</div>
+                    <div class="resource-description">Civil rights advocacy, litigation, policy work on housing discrimination.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advocacy Action Plan -->
+        <div class="advocacy-section full-width-section">
+            <h2>📋 Your Advocacy Action Plan</h2>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('step1')">Step 1: Document</button>
+                <button class="tab-btn" onclick="switchTab('step2')">Step 2: Communicate</button>
+                <button class="tab-btn" onclick="switchTab('step3')">Step 3: Escalate</button>
+                <button class="tab-btn" onclick="switchTab('step4')">Step 4: Resolve</button>
+            </div>
+
+            <div id="step1" class="step-content">
+                <h3>📸 Document Everything</h3>
+                <ul class="advocacy-list">
+                    <li><span>Take timestamped photos/videos of all issues</span></li>
+                    <li><span>Use Semptify's audio/video module with GPS tagging</span></li>
+                    <li><span>Keep copies in multiple locations (cloud backup recommended)</span></li>
+                    <li><span>Create evidence packet with all media organized chronologically</span></li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Pro Tip:</strong> Document issues IMMEDIATELY. Don't wait. Create dated, timestamped records.
+                </div>
+            </div>
+
+            <div id="step2" class="step-content" style="display:none;">
+                <h3>📧 Communicate in Writing</h3>
+                <ul class="advocacy-list">
+                    <li><span>Send maintenance requests by email (creates record)</span></li>
+                    <li><span>Use certified mail + email for formal demands</span></li>
+                    <li><span>Keep copies of ALL communications</span></li>
+                    <li><span>Request written response to all requests</span></li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Pro Tip:</strong> NEVER use verbal complaints. Always document in writing with dates. Use templates from our library.
+                </div>
+            </div>
+
+            <div id="step3" class="step-content" style="display:none;">
+                <h3>⚡ Escalate If Needed</h3>
+                <ul class="advocacy-list">
+                    <li><span>File complaint with local housing authority</span></li>
+                    <li><span>Report to state attorney general</span></li>
+                    <li><span>File Fair Housing complaint if discrimination</span></li>
+                    <li><span>Consult legal aid attorney (free)</span></li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Pro Tip:</strong> Don't go to court first - exhaust administrative remedies. This strengthens your case.
+                </div>
+            </div>
+
+            <div id="step4" class="step-content" style="display:none;">
+                <h3>⚖️ Legal Resolution</h3>
+                <ul class="advocacy-list">
+                    <li><span>Small claims court for monetary damages</span></li>
+                    <li><span>Civil court for repairs + damages</span></li>
+                    <li><span>Rent withholding (check state laws)</span></li>
+                    <li><span>Break lease without penalty for uninhabitable conditions</span></li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Pro Tip:</strong> Present organized evidence packets to court. Judges are impressed by professionalism and clear documentation.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="advocacy-footer">
+            <h3>🤝 You Are Not Alone</h3>
+            <p>Thousands of tenants use Semptify every day to document violations, organize evidence, and advocate for their rights. <strong>Know your rights. Document everything. Fight back.</strong></p>
+            <p style="margin-top: 1.5rem; font-size: 0.9rem;">
+                <strong>Disclaimer:</strong> This guide provides general information, not legal advice. Consult with a qualified attorney in your jurisdiction for specific legal guidance.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(step) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(el => el.style.display = 'none');
+            // Show selected step
+            document.getElementById(step).style.display = 'block';
+
+            // Update button states
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function downloadProtectionsGuide() {
+            alert('📥 Downloading: Complete Tenant Protections Guide\n\nThis comprehensive guide includes:\n✓ State-specific protections\n✓ Eviction procedures\n✓ Repair rights\n✓ Retaliation protection\n✓ Sample demand letters');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Court Training Module - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spa.css') }}">
+    <style>
+        .court-training-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .training-header {
+            background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .training-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .training-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 1200px) {
+            .training-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: #1e40af;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #1e40af;
+            padding-bottom: 0.5rem;
+        }
+
+        .module-list {
+            list-style: none;
+        }
+
+        .module-list li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f1f5f9;
+            border-left: 4px solid #1e40af;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .module-list li:hover {
+            background: #e0e7ff;
+            transform: translateX(4px);
+        }
+
+        .module-list li.active {
+            background: #1e40af;
+            color: white;
+            border-left-color: #7c3aed;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h2 {
+            color: #1e40af;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #7c3aed;
+            padding-bottom: 1rem;
+        }
+
+        .subsection {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .subsection h3 {
+            color: #1e293b;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .procedure-list {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .procedure-list li {
+            counter-increment: step;
+            padding-left: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            line-height: 1.6;
+            color: #475569;
+        }
+
+        .procedure-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #1e40af;
+            color: white;
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .ai-training-section {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            border: 2px solid #1e40af;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-training-section h4 {
+            color: #1e40af;
+            margin-bottom: 0.75rem;
+        }
+
+        .knowledge-base {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .knowledge-base strong {
+            color: #1e40af;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .training-prompt {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .training-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .train-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .train-btn-primary {
+            background: #1e40af;
+            color: white;
+        }
+
+        .train-btn-primary:hover {
+            background: #1e3a8a;
+            transform: translateY(-2px);
+        }
+
+        .train-btn-secondary {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .train-btn-secondary:hover {
+            background: #6d28d9;
+        }
+
+        .glossary-term {
+            background: #f1f5f9;
+            border-left: 4px solid #7c3aed;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .glossary-term strong {
+            color: #1e40af;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .checklist {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checklist ul {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: #166534;
+        }
+
+        .checklist li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .warning-box {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .warning-box strong {
+            color: #991b1b;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-box strong {
+            color: #166534;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #1e40af;
+            border-bottom-color: #1e40af;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
+            border: 1px solid #1e40af;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card strong {
+            color: #1e40af;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .role-card {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .role-card h4 {
+            color: #1e40af;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="court-training-container">
+        <!-- Header -->
+        <div class="training-header">
+            <h1>⚖️ AI Court Training Module</h1>
+            <p>Learn & Train AI for Courtroom Procedures, Clerk Duties & Legal Protocols</p>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="training-grid">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar">
+                <h3>📚 Training Modules</h3>
+                <ul class="module-list">
+                    <li class="active" onclick="switchModule(this, 'courtroom-basics')">🏛️ Courtroom Basics</li>
+                    <li onclick="switchModule(this, 'clerk-duties')">👨‍💼 Clerk Duties</li>
+                    <li onclick="switchModule(this, 'court-procedures')">⚙️ Court Procedures</li>
+                    <li onclick="switchModule(this, 'eviction-process')">📋 Eviction Process</li>
+                    <li onclick="switchModule(this, 'evidence-handling')">📸 Evidence Handling</li>
+                    <li onclick="switchModule(this, 'legal-terms')">📖 Legal Terminology</li>
+                    <li onclick="switchModule(this, 'ai-training-guide')">🤖 AI Training Guide</li>
+                    <li onclick="switchModule(this, 'real-scenarios')">🎬 Real Scenarios</li>
+                    <li onclick="switchModule(this, 'new-york-guide')">🗽 New York Guide</li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Courtroom Basics -->
+                <div id="courtroom-basics" class="content-section active">
+                    <h2>🏛️ Courtroom Basics</h2>
+
+                    <div class="subsection">
+                        <h3>Courtroom Structure & Players</h3>
+                        <div class="role-comparison">
+                            <div class="role-card">
+                                <h4>Judge</h4>
+                                <p>Presides over case, makes legal rulings, determines facts in non-jury trials, sentences</p>
+                            </div>
+                            <div class="role-card">
+                                <h4>Clerk of Court</h4>
+                                <p>Maintains records, schedules hearings, processes documents, administers oaths</p>
+                            </div>
+                            <div class="role-card">
+                                <h4>Court Reporter</h4>
+                                <p>Records all testimony, creates transcript, ensures accurate record</p>
+                            </div>
+                            <div class="role-card">
+                                <h4>Bailiff</h4>
+                                <p>Maintains courtroom security, announces judge, escorts witnesses, manages order</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Courtroom Hierarchy & Authority</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Judge:</strong> Final authority on all legal matters and decisions</li>
+                            <li><strong>Court Rules:</strong> Procedural rules that must be followed (state/federal)</li>
+                            <li><strong>Statutes:</strong> Written laws that define substantive rights</li>
+                            <li><strong>Case Law:</strong> Previous decisions (precedent) that guide current cases</li>
+                            <li><strong>Standing Orders:</strong> Judge's specific rules for their courtroom</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Types of Courts</h3>
+                        <div class="feature-card">
+                            <strong>Small Claims Court</strong>
+                            <p>Limited jurisdiction ($5K-$25K typically), no lawyers, faster resolution, landlord-tenant disputes</p>
+                        </div>
+                        <div class="feature-card">
+                            <strong>District/Circuit Court</strong>
+                            <p>General jurisdiction, lawyers typically used, complex cases, appeals available</p>
+                        </div>
+                        <div class="feature-card">
+                            <strong>Appellate Court</strong>
+                            <p>Reviews lower court decisions for legal errors, no new evidence, focuses on law not facts</p>
+                        </div>
+                    </div>
+
+                    <div class="ai-training-section">
+                        <h4>🤖 AI Training Data for Courtroom Basics</h4>
+                        <div class="knowledge-base">
+                            <strong>Concept: Judicial Authority</strong>
+                            <p>A judge has authority over all matters within their jurisdiction. Their orders must be obeyed. Violating court orders is contempt of court and can result in jail time or fines.</p>
+                        </div>
+                        <div class="knowledge-base">
+                            <strong>Concept: Rules of Order</strong>
+                            <p>Courts operate under strict procedural rules. Parties must follow filing deadlines, motion procedures, and evidentiary rules. Failure to comply can result in dismissal or default judgment.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clerk Duties -->
+                <div id="clerk-duties" class="content-section">
+                    <h2>👨‍💼 Clerk of Court Duties & Responsibilities</h2>
+
+                    <div class="subsection">
+                        <h3>Document Management</h3>
+                        <ul class="procedure-list">
+                            <li>Receive and file all documents (complaints, motions, briefs, evidence)</li>
+                            <li>Maintain chronological file for each case</li>
+                            <li>Ensure documents meet formatting requirements (margins, font size, headers)</li>
+                            <li>Verify proper service of documents on all parties</li>
+                            <li>Manage evidence exhibits (photos, videos, documents)</li>
+                            <li>Generate case dockets (complete record of case activity)</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Scheduling & Calendar Management</h3>
+                        <ul class="procedure-list">
+                            <li>Schedule hearings, trials, conferences</li>
+                            <li>Send notice of hearing to all parties</li>
+                            <li>Manage judge's calendar and courtroom availability</li>
+                            <li>Issue subpoenas and notice to appear</li>
+                            <li>Track deadlines for motions, filings, responses</li>
+                            <li>Reschedule cases when needed (continuances)</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Administrative Functions</h3>
+                        <ul class="procedure-list">
+                            <li>Administer oaths to witnesses and jurors</li>
+                            <li>Process payments (filing fees, fines, restitution)</li>
+                            <li>Issue certifications and certified copies</li>
+                            <li>Maintain jury rolls and manage jury selection</li>
+                            <li>Record judgments and orders</li>
+                            <li>Handle public records requests</li>
+                        </ul>
+                    </div>
+
+                    <div class="checklist">
+                        <h4>✓ Day-in-the-Life of a Clerk</h4>
+                        <ul>
+                            <li>Morning: Review overnight filings, check for formatting issues</li>
+                            <li>Check judge's calendar, prepare hearing files</li>
+                            <li>Answer phone inquiries about case status</li>
+                            <li>Process motions and schedule hearings</li>
+                            <li>Prepare jury instructions and bailiff notes</li>
+                            <li>File court orders and judgments</li>
+                            <li>Send notices and updates to parties</li>
+                            <li>Archive documents, maintain records</li>
+                        </ul>
+                    </div>
+
+                    <div class="ai-training-section">
+                        <h4>🤖 AI Training for Clerk Functions</h4>
+                        <div class="knowledge-base">
+                            <strong>Document Validation</strong>
+                            <p>AI can learn to validate filing requirements: proper margins (1"), font size (12pt), page limits, signature requirements, filing fee payment status. Reject non-compliant documents.</p>
+                        </div>
+                        <div class="knowledge-base">
+                            <strong>Deadline Tracking</strong>
+                            <p>AI can track all statutory deadlines: response deadlines (typically 20-30 days), motion filing deadlines, trial dates. Alert parties before deadlines expire.</p>
+                        </div>
+                        <div class="knowledge-base">
+                            <strong>Case Classification</strong>
+                            <p>AI can categorize cases: eviction, debt, small claims, etc. Route to appropriate judge/courtroom. Track case complexity level.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Court Procedures -->
+                <div id="court-procedures" class="content-section">
+                    <h2>⚙️ Court Procedures & Rules</h2>
+
+                    <div class="subsection">
+                        <h3>Civil Court Process (Eviction Example)</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Filing:</strong> Plaintiff files complaint with court, pays filing fee</li>
+                            <li><strong>Service:</strong> Defendant must be served with summons & complaint (sheriff/process server)</li>
+                            <li><strong>Response:</strong> Defendant has 20-30 days to file response/answer</li>
+                            <li><strong>Discovery:</strong> Parties exchange evidence, documents, conduct depositions</li>
+                            <li><strong>Motion Practice:</strong> Parties file motions (dismiss, summary judgment, etc.)</li>
+                            <li><strong>Pre-Trial Conference:</strong> Judge meets with attorneys to narrow issues</li>
+                            <li><strong>Trial:</strong> Evidence presented, witnesses testify, verdict rendered</li>
+                            <li><strong>Judgment:</strong> Judge enters formal judgment, specifies remedies (eviction, damages)</li>
+                            <li><strong>Enforcement:</strong> Judgment enforced by sheriff (lockout, garnishment, etc.)</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Filing Requirements (Critical for AI Training)</h3>
+                        <div class="warning-box">
+                            <strong>⚠️ Common Filing Errors:</strong>
+                            <ul style="margin-top: 0.75rem; margin-left: 1rem;">
+                                <li>Missing signature or notarization</li>
+                                <li>Improper service of defendant</li>
+                                <li>Missing proof of service</li>
+                                <li>Incorrect filing fee</li>
+                                <li>Filing after deadline</li>
+                                <li>Wrong court (jurisdiction issue)</li>
+                                <li>Improper caption or heading</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Rules of Evidence (Critical for AI Training)</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Admissibility:</strong> Evidence must be relevant AND more probative than prejudicial</li>
+                            <li><strong>Hearsay:</strong> Out-of-court statements generally inadmissible (with exceptions)</li>
+                            <li><strong>Authentication:</strong> Documents/photos must be authenticated (show they're genuine)</li>
+                            <li><strong>Best Evidence:</strong> Original documents preferred over copies</li>
+                            <li><strong>Chain of Custody:</strong> Evidence must show unbroken possession and handling</li>
+                            <li><strong>Expert Testimony:</strong> Must have qualified expert, proper foundation</li>
+                        </ul>
+                    </div>
+
+                    <div class="ai-training-section">
+                        <h4>🤖 AI Training for Procedure Compliance</h4>
+                        <div class="knowledge-base">
+                            <strong>Timeline Validator</strong>
+                            <p>AI learns statutory timelines: 20-30 day response period, 10-day notice requirements, etc. Can generate compliant timelines for any case type.</p>
+                        </div>
+                        <div class="knowledge-base">
+                            <strong>Evidence Evaluator</strong>
+                            <p>AI learns evidence rules: what's admissible, what needs authentication, chain of custody requirements. Can spot weak evidence.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eviction Process -->
+                <div id="eviction-process" class="content-section">
+                    <h2>📋 Eviction Process (Detailed)</h2>
+
+                    <div class="subsection">
+                        <h3>Phase 1: Pre-Litigation (Landlord Responsibility)</h3>
+                        <ul class="procedure-list">
+                            <li>Issue lease violation notice (typically 3-5 days to cure)</li>
+                            <li>Issue "Notice to Quit" (30-60 day notice depending on state/cause)</li>
+                            <li>Wait for notice period to expire</li>
+                            <li>If tenant doesn't vacate, proceed to court filing</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Phase 2: Court Filing (Unlawful Detainer Action)</h3>
+                        <ul class="procedure-list">
+                            <li><strong>File Complaint:</strong> Landlord files complaint with court (with filing fee)</li>
+                            <li><strong>Include Proof:</strong> Notice to Quit, proof of service, lease copy</li>
+                            <li><strong>Serve Defendant:</strong> Tenant served via sheriff or process server (must prove service)</li>
+                            <li><strong>Include Summons:</strong> Notice of hearing date (typically 7-21 days out)</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Phase 3: Tenant Response Options</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Default:</strong> Don't show up = automatic eviction judgment</li>
+                            <li><strong>Answer:</strong> File written response with affirmative defenses</li>
+                            <li><strong>Counterclaim:</strong> File counterclaim (habitability, breach of quiet enjoyment)</li>
+                            <li><strong>Motion to Dismiss:</strong> Challenge jurisdiction or procedural defects</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Phase 4: Hearing/Trial</h3>
+                        <ul class="procedure-list">
+                            <li>Judge reviews evidence (documents, photos, testimony)</li>
+                            <li>Each side presents case (no lawyers required in small claims)</li>
+                            <li>Judge asks questions, seeks clarification</li>
+                            <li>Judge renders decision orally or in writing</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Phase 5: Judgment & Enforcement</h3>
+                        <ul class="procedure-list">
+                            <li><strong>If Tenant Wins:</strong> Case dismissed, tenant stays, any counterclaim awarded</li>
+                            <li><strong>If Landlord Wins:</strong> Judgment for possession issued</li>
+                            <li><strong>Appeal Rights:</strong> Losing party has 20-30 days to appeal (state dependent)</li>
+                            <li><strong>Writ of Execution:</strong> Sheriff enforces judgment (lockout after 10-30 day stay)</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✓ Winning Eviction Defense Strategy:</strong>
+                        <p>Show habitability issues with documented evidence (photos with dates, repair receipts, medical records if applicable). Assert landlord violated duty to maintain habitable premises. File counterclaim for damages.</p>
+                    </div>
+
+                    <div class="ai-training-section">
+                        <h4>🤖 AI Training for Eviction Cases</h4>
+                        <div class="knowledge-base">
+                            <strong>Case Strength Analyzer</strong>
+                            <p>AI learns to evaluate eviction cases: valid notice? Proper service? Affirmative defenses available? AI can predict likelihood of each side winning based on evidence.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evidence Handling -->
+                <div id="evidence-handling" class="content-section">
+                    <h2>📸 Evidence Handling & Best Practices</h2>
+
+                    <div class="subsection">
+                        <h3>What Evidence is Admissible?</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Photos/Videos:</strong> Must be authenticated (witness says "this is what I took")</li>
+                            <li><strong>Documents:</strong> Original or certified copy, must be relevant</li>
+                            <li><span>
+                            <li><strong>Email/Text:</strong> Print-outs showing full header (date, time, parties)</li>
+                            <li><strong>Witness Testimony:</strong> Firsthand knowledge, sworn oath</li>
+                            <li><strong>Expert Testimony:</strong> Only from qualified experts with proper credentials</li>
+                            <li><strong>Receipts:</strong> Proof of payment for repairs, services, damages</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Evidence Chain of Custody</h3>
+                        <ol style="margin-left: 2rem; color: #475569; line-height: 1.8;">
+                            <li>Take photo/video immediately with timestamp</li>
+                            <li>Include GPS location (GPS coordinates shown in metadata)</li>
+                            <li>Label evidence clearly (date, time, location, description)</li>
+                            <li>Store securely (backup copies, no alterations)</li>
+                            <li>Create evidence log (who collected, when, where, condition)</li>
+                            <li>Bring originals to court (or certified copies)</li>
+                            <li>Be prepared to testify about collection and handling</li>
+                        </ol>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Evidence Presentation to Court</h3>
+                        <div class="checklist">
+                            <h4>✓ Evidence Packet Should Include:</h4>
+                            <ul>
+                                <li>Cover page with case name/number</li>
+                                <li>Table of contents with exhibit labels</li>
+                                <li>Chronological organization</li>
+                                <li>Clear captions under each photo (date, issue shown)</li>
+                                <li>Receipts/invoices supporting costs</li>
+                                <li>Copy of email communications</li>
+                                <li>Witness contact information</li>
+                                <li>Affidavit (sworn statement) about evidence collection</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="ai-training-section">
+                        <h4>🤖 AI Training for Evidence Quality</h4>
+                        <div class="knowledge-base">
+                            <strong>Photo Analysis</strong>
+                            <p>AI can verify photo metadata: Is timestamp visible? Is GPS data embedded? Can AI identify the condition shown (damage level, severity)? Is photo clear enough for court presentation?</p>
+                        </div>
+                        <div class="knowledge-base">
+                            <strong>Document Authentication</strong>
+                            <p>AI can verify documents are authentic: proper signatures, official seals, matching handwriting. Can AI spot forged or altered documents?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legal Terms -->
+                <div id="legal-terms" class="content-section">
+                    <h2>📖 Legal Terminology (Critical for AI)</h2>
+
+                    <div class="glossary-term">
+                        <strong>Affidavit:</strong>
+                        Sworn statement under oath. Must be signed and notarized. Can be used as evidence in court. Testifies to facts within personal knowledge.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Bailiff:</strong>
+                        Court officer who maintains order, escorts witnesses, announces judge. Must obey all court orders.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Breach:</strong>
+                        Violation of contract or duty. Landlord breach: failure to maintain habitable conditions. Tenant breach: non-payment of rent.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Contempt of Court:</strong>
+                        Willful disobedience of court order. Punishable by jail time or fines. Can be "criminal" (bad faith) or "civil" (coercive).
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Default Judgment:</strong>
+                        Judgment entered when defendant doesn't respond or appear. Plaintiff wins automatically. Can be set aside if good cause shown.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Deposition:</strong>
+                        Out-of-court sworn testimony under oath. Recorded by court reporter. Can be used at trial if witness unavailable.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Discovery:</strong>
+                        Pre-trial process where parties exchange evidence and information. Includes interrogatories, requests for production, depositions.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Habitable/Habitability:</strong>
+                        Property meets basic standards for human occupancy: roof doesn't leak, heat works, plumbing functional, no vermin/mold.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Injunction:</strong>
+                        Court order requiring someone to do (mandatory) or not do (prohibitory) something. Violation = contempt of court.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Jurisdiction:</strong>
+                        Court's power to hear case. Must have subject matter jurisdiction (type of case) and personal jurisdiction (over parties/property).
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Motion:</strong>
+                        Request to judge for an order or ruling. Types: motion to dismiss, motion for summary judgment, motion to suppress evidence.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Plaintiff/Defendant:</strong>
+                        Plaintiff sues (initiates case). Defendant is sued (responds). In eviction: Landlord = plaintiff, Tenant = defendant.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Retaliation:</strong>
+                        Landlord's adverse action against tenant for exercising legal rights (reporting violations, joining tenant union, etc.). Usually illegal.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Service of Process:</strong>
+                        Delivering legal documents to defendant. Must be proper service (personal, certified mail, etc.). Defective service = case can be dismissed.
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Stay:</strong>
+                        Pause or halt of court proceedings/judgment. Stay of execution stops enforcement temporarily (common in evictions pending appeal).
+                    </div>
+
+                    <div class="glossary-term">
+                        <strong>Unlawful Detainer:</strong>
+                        Legal action to evict tenant. Used when lease violation, non-payment, or expiration. Fastest eviction procedure in most states.
+                    </div>
+                </div>
+
+                <!-- AI Training Guide -->
+                <div id="ai-training-guide" class="content-section">
+                    <h2>🤖 How to Train AI for Court & Clerk Functions</h2>
+
+                    <div class="subsection">
+                        <h3>AI Training Methods</h3>
+                        <ol style="margin-left: 2rem; color: #475569; line-height: 1.8; margin-bottom: 1.5rem;">
+                            <li><strong>Knowledge Base Development:</strong> Compile state court rules, statutes, procedures into structured format</li>
+                            <li><strong>Case Law Training:</strong> Train on precedent cases, judge decisions, appeals</li>
+                            <li><strong>Document Analysis:</strong> Train AI to recognize valid/invalid filings, spot common errors</li>
+                            <li><strong>Timeline Recognition:</strong> Train AI to understand and enforce statutory deadlines</li>
+                            <li><strong>Evidence Evaluation:</strong> Train AI to assess evidence quality, admissibility, chain of custody</li>
+                            <li><strong>Scenario Analysis:</strong> Train on real court scenarios, expected outcomes</li>
+                        </ol>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Training Data for AI (Semptify Integration)</h3>
+
+                        <div class="feature-card">
+                            <strong>Document Validation AI</strong>
+                            <p>Train on 1000+ valid/invalid court filings. AI learns: proper formatting, required fields, signature placement, notarization needs. Can validate any new filing automatically.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Timeline Compliance AI</strong>
+                            <p>Train on state-specific procedures. AI learns: 30-day response deadline, 7-day notice requirement, 60-day pre-litigation notice. Can generate compliant timelines.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Evidence Quality AI</strong>
+                            <p>Train on thousands of admitted vs. rejected evidence. AI learns what makes evidence admissible. Can evaluate user's evidence before court submission.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Case Strength Predictor AI</strong>
+                            <p>Train on eviction case outcomes. AI learns: What factors predict landlord win? Tenant win? Can predict case strength based on facts presented.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Semptify AI Training Integration</h3>
+
+                        <div class="training-prompt">
+SYSTEM PROMPT FOR TRAINING AI CLERK ASSISTANT:
+
+You are an AI Court Clerk Assistant for [STATE] courts. Your role:
+- Validate all documents for compliance with [STATE] court rules
+- Track deadlines and alert when responses are due
+- Assess evidence admissibility based on rules of evidence
+- Provide timeline guidance (filing deadlines, notice periods)
+- Flag potential issues in case submissions
+- Predict case outcomes based on evidence strength
+
+Training Goals:
+1. Learn all [STATE] procedural rules
+2. Master rules of evidence
+3. Understand common eviction defenses
+4. Recognize filing errors before they reach court
+5. Provide accurate deadline calculations
+                        </div>
+
+                        <div class="training-prompt">
+EVIDENCE QUALITY ASSESSMENT PROMPT:
+
+Analyze this evidence for court admissibility:
+- Photo shows: [ISSUE]
+- Timestamp: [DATE/TIME visible?]
+- GPS coordinates: [EMBEDDED?]
+- Quality: [Clear enough for judge?]
+- Authentication: [Witness can verify?]
+- Chain of custody: [Documented?]
+
+Verdict: Admissible / Inadmissible / Needs Improvement
+Recommendation: [SPECIFIC ACTION]
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>✓ Practical Implementation:</strong>
+                            <p>Add to Semptify's `/api/copilot` endpoint: Send document + evidence to AI. AI validates compliance, checks deadlines, assesses strength. Return structured feedback to user.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>AI Training Workflow for Semptify</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Step 1:</strong> User uploads court document or evidence to Semptify</li>
+                            <li><strong>Step 2:</strong> AI extracts document type, case type, parties involved</li>
+                            <li><strong>Step 3:</strong> AI validates against state rules (formatting, signatures, filing fees)</li>
+                            <li><strong>Step 4:</strong> AI checks deadlines (response due date, appeal deadline)</li>
+                            <li><strong>Step 5:</strong> AI evaluates evidence (photos, documents, testimony quality)</li>
+                            <li><strong>Step 6:</strong> AI predicts case strength based on facts + evidence</li>
+                            <li><strong>Step 7:</strong> AI provides recommendations (what to add, what to improve)</li>
+                            <li><strong>Step 8:</strong> User receives detailed, actionable feedback</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Real Scenarios -->
+                <div id="real-scenarios" class="content-section">
+                    <h2>🎬 Real Court Scenarios (AI Training Cases)</h2>
+
+                    <div class="subsection">
+                        <h3>Scenario 1: Eviction for Non-Payment</h3>
+
+                        <div class="feature-card">
+                            <strong>Facts:</strong>
+                            <p>Tenant missed 2 months rent ($2,000/month). Landlord served 3-day notice to pay/quit. Tenant didn't pay. Landlord filed eviction.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Tenant's Defense Strategy:</strong>
+                            <p>1) Claim landlord accepted partial payment (waived right to evict). 2) Assert uninhabitable conditions justify non-payment. 3) File counterclaim for habitability violations.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Evidence Needed:</strong>
+                            <p>- Photos of habitability issues with timestamps - Repair receipts/estimates - Medical records if health impacted - Emails showing repair requests - Text exchanges with landlord - Proof of partial payments</p>
+                        </div>
+
+                        <div class="success-box">
+                            <strong>✓ Best Outcome:</strong>
+                            <p>Eviction dismissed. Tenant remains. Landlord must make repairs. Tenant gets rent reduction + damages.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Scenario 2: Eviction for Lease Violation (Unauthorized Occupant)</h3>
+
+                        <div class="feature-card">
+                            <strong>Facts:</strong>
+                            <p>Lease allows only 2 occupants. Landlord discovers 4 people living in apartment. Issues 7-day cure notice. Tenant doesn't comply. Eviction filed.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Tenant's Defense Strategy:</strong>
+                            <p>1) Claim visitors/temporary guests (not new occupants). 2) Assert discrimination (extra people of certain race/nationality). 3) Show family status protection (children living with parent).</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Critical Evidence:</strong>
+                            <p>- Proof of temporary nature (hotel bills, plane tickets) - Occupancy history (mail, utilities) - Family documents if family-related - Communications with landlord - Photos of mail/packages showing names</p>
+                        </div>
+
+                        <div class="warning-box">
+                            <strong>⚠️ Common Mistake:</strong>
+                            <p>Claiming children are "visitors" doesn't work. Family status is protected. If children live with parent, they're legally occupants and can't be basis for eviction.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Scenario 3: Habitability Dispute (Mold & Health Issues)</h3>
+
+                        <div class="feature-card">
+                            <strong>Facts:</strong>
+                            <p>Tenant reported mold after water leak. Landlord ignored 6 requests for repair. Tenant withheld rent. Landlord evicting for non-payment.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Tenant's Winning Defense:</strong>
+                            <p>Assert mold violates warranty of habitability. Rent withholding justified in many states. Counterclaim for: health damages, repair costs, temporary housing.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Evidence to Collect IMMEDIATELY:</strong>
+                            <p>- Photos of mold (with date stamps!) - Videos showing extent - Medical records (doctor visit, symptoms) - Mold inspection report - Text/email repair requests - Doctor's statement linking mold to illness - Repair quotes/invoices</p>
+                        </div>
+
+                        <div class="success-box">
+                            <strong>✓ Expected Ruling:</strong>
+                            <p>Eviction dismissed. Tenant not only stays but wins damages. Landlord must pay for: mold remediation, medical expenses, housing costs during repairs.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Scenario 4: Retaliation (Reporting to Housing Authority)</h3>
+
+                        <div class="feature-card">
+                            <strong>Facts:</strong>
+                            <p>Tenant reported habitability violations to housing authority. 2 weeks later, landlord serves eviction notice. Tenant has lived there 3 years, perfect payment record.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Tenant's Defense:</strong>
+                            <p>Claim retaliation. Many states presume retaliation if: eviction served within 90 days of health/safety report. Burden shifts to landlord to prove non-retaliatory reason.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Key Evidence:</strong>
+                            <p>- Proof of housing authority complaint (filing receipt) - Dates showing close timing (complaint → eviction) - Perfect payment history - Length of tenancy - Text saying "report us to authority" - Lack of prior complaints</p>
+                        </div>
+
+                        <div class="success-box">
+                            <strong>✓ Expected Ruling:</strong>
+                            <p>Eviction dismissed as retaliatory. Tenant protected. May win damages if retaliation proved.</p>
+                        </div>
+                    </div>
+
+                    <div class="ai-training-section">
+                        <h4>🤖 AI Learns Pattern Recognition</h4>
+                        <p>AI can analyze thousands of these scenarios to learn: What defenses succeed? What evidence is strongest? How do judges typically rule? What factors predict wins/losses?</p>
+                        <p style="margin-top: 1rem;">Integration with Semptify: User inputs facts → AI predicts likely outcome → AI recommends best strategy & evidence needed → AI validates evidence quality.</p>
+                    </div>
+                </div>
+
+                <!-- New York Guide -->
+                <div id="new-york-guide" class="content-section">
+                    <h2>🗽 New York Eviction & Tenant Rights Guide</h2>
+                    
+                    <div class="subsection">
+                        <h3>New York Court Structure</h3>
+                        <div class="role-comparison">
+                            <div class="role-card">
+                                <h4>Civil Court</h4>
+                                <p>Handles evictions up to $25,000. Lower claims amount = Civil Court. Faster, less formal than Supreme Court.</p>
+                            </div>
+                            <div class="role-card">
+                                <h4>Supreme Court</h4>
+                                <p>Handles evictions over $25,000. Handles complex claims. More formal procedures.</p>
+                            </div>
+                            <div class="role-card">
+                                <h4>Housing Court (NYC Only)</h4>
+                                <p>Specialized court for housing/eviction cases in New York City. Primary forum for NYC evictions.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>New York Eviction Process (Unlawful Detainer)</h3>
+                        <ul class="procedure-list">
+                            <li><strong>10-Day Demand Notice:</strong> Landlord sends formal demand for rent/compliance (if non-payment, tenant has 10 days to pay)</li>
+                            <li><strong>Notice to Quit (30+ days):</strong> If demand not paid/complied, landlord sends Notice to Quit (30-day minimum notice period)</li>
+                            <li><strong>Petition Filing:</strong> After notice period expires, landlord files summary proceeding petition with court</li>
+                            <li><strong>Service on Tenant:</strong> Tenant personally served with petition and answer deadline (5 days to respond)</li>
+                            <li><strong>Answer Due:</strong> Tenant must file written answer within 5 days of service (strict deadline)</li>
+                            <li><strong>Discovery:</strong> Limited discovery allowed (unlike full civil litigation)</li>
+                            <li><strong>Hearing/Trial:</strong> Judge reviews evidence; summary proceeding = faster than full trial</li>
+                            <li><strong>Judgment:</strong> If eviction granted, tenant gets 5-day appeal period</li>
+                            <li><strong>Warrant for Eviction:</strong> If no appeal/appeal lost, court issues warrant. Marshal/sheriff executes lockout (minimum 72 hours notice to tenant)</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>New York Filing Requirements</h3>
+                        <div class="warning-box">
+                            <strong>⚠️ Critical NY Requirements:</strong>
+                            <ul style="margin-top: 0.75rem; margin-left: 1rem;">
+                                <li><strong>Proper Service:</strong> Personal service required (not just certified mail)</li>
+                                <li><strong>Predicate Notice:</strong> Must prove 10-day demand + 30-day Notice to Quit BEFORE filing</li>
+                                <li><strong>5-Day Answer Deadline:</strong> Strict - missing deadline = default judgment for landlord</li>
+                                <li><strong>Affirmative Defenses:</strong> Must be raised in answer or waived</li>
+                                <li><strong>Housing Court NYC:</strong> Specific rules for NYC properties - ALWAYS use Housing Court</li>
+                                <li><strong>Marshal Fee:</strong> Tenant responsible for marshal/sheriff fee upon eviction (~$300-500)</li>
+                                <li><strong>Warranty of Habitability:</strong> Cannot be waived - runs with the property</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Strong Tenant Defenses Under NY Law</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Habitability Violations (Most Powerful):</strong> Mold, lead paint, heat/hot water, vermin, roof leaks. NY law implies warranty of habitability in ALL residential leases - cannot be waived.</li>
+                            <li><strong>Non-Payment Defense:</strong> Tenant can claim "rent strike" if landlord breached habitability. Rent goes into escrow account.</li>
+                            <li><strong>Retaliation (Protected Class):</strong> Illegal if eviction within 6 months of good-faith complaint to housing agency or organizing</li>
+                            <li><strong>Discrimination:</strong> Illegal if based on race, religion, family status, disability, source of income, etc.</li>
+                            <li><strong>Failure to Provide Predicate Notice:</strong> If 10-day demand or 30-day Notice to Quit invalid/improper, eviction can be dismissed</li>
+                            <li><strong>Improper Service:</strong> If not personally served, case can be dismissed</li>
+                            <li><strong>Regulatory Violations:</strong> Lease violates housing code = tenant can assert defenses</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>New York Tenant Protections</h3>
+                        <div class="feature-card">
+                            <strong>Warranty of Habitability</strong>
+                            <p>Landlord MUST maintain property in condition fit for human occupancy. Includes: roof/walls/floors intact, hot water (120°F min), heat (68°F min), safe electrical system, no vermin/mold.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Right to Repair/Deduct</strong>
+                            <p>If landlord doesn't repair defects, tenant can: (1) Withhold rent into escrow, (2) Repair and deduct from rent, or (3) Withhold under warranty of habitability defense.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Right to Organize/Complain</strong>
+                            <p>Tenant cannot be evicted for: (1) Complaining to housing authority, (2) Joining tenant organization, (3) Filing complaint in court, (4) Exercising legal rights.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>No-Fault Eviction Protection (NY 2019)</strong>
+                            <p>As of June 2019, no-fault evictions are highly restricted. Landlord cannot evict "at-will" - must have "just cause" (non-payment, lease violation, owner/family occupancy).</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <strong>Rent Control/Stabilization</strong>
+                            <p>If unit is rent-stabilized (common in NYC), eviction much harder. Landlord must prove "just cause" and follow strict procedures.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>New York Evidence Rules (Strict)</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Photos/Videos:</strong> Must authenticate under oath. JPEGs alone insufficient without testimony.</li>
+                            <li><strong>Emails/Texts:</strong> Print full headers showing date/time. Must authenticate (witness must verify they're authentic).</li>
+                            <li><strong>Prior Complaints:</strong> Documentation of complaints to landlord/housing authority very powerful evidence.</li>
+                            <li><strong>Repair Estimates:</strong> Get written estimates for habitability defects (cost of repairs supports damages claim)</li>
+                            <li><strong>Medical Evidence:</strong> If mold/lead caused health issues, medical records/doctor's note strengthens defense</li>
+                            <li><strong>Utility Records:</strong> If heat/water issues, bills showing shutoffs support your claim</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>Winning Eviction Defense Strategy for New York</h3>
+                        <div class="success-box">
+                            <strong>✓ If Eviction for Non-Payment:</strong>
+                            <p>1) Assert habitability violations as defense (most powerful). 2) Document all defects with dated photos. 3) Get medical records if health impacted. 4) Show repair requests/complaint history. 5) File counterclaim for rent reduction/damages. 6) Offer settlement: landlord makes repairs, tenant pays reduced rent.</p>
+                        </div>
+
+                        <div class="success-box">
+                            <strong>✓ If Eviction for "Lease Violation":</strong>
+                            <p>1) Challenge validity of Notice to Quit (must give specific reason). 2) Show violation is minor or landlord acquiesced. 3) Offer to cure violation (stop offensive behavior). 4) Assert discrimination if similar tenants not evicted.</p>
+                        </div>
+
+                        <div class="success-box">
+                            <strong>✓ If Eviction Within 6 Months of Complaint:</strong>
+                            <p>1) Assert retaliation defense (presumption favors tenant). 2) Prove you made good-faith complaint. 3) Show temporal proximity (eviction soon after complaint). 4) Burden shifts to landlord to prove non-retaliatory reason.</p>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>New York Specific Resources & Agencies</h3>
+                        <ul class="procedure-list">
+                            <li><strong>Housing Court (NYC):</strong> 646-FIX-HOUSING (646-349-6874) - Primary court for evictions in NYC</li>
+                            <li><strong>Department of Housing Preservation & Development (HPD):</strong> 311 in NYC - Report violations, track complaints</li>
+                            <li><strong>New York State Homes & Community Renewal (DHCR):</strong> Oversees rent stabilization, handles complaints</li>
+                            <li><strong>Legal Aid Society (NYC):</strong> 212-577-3300 - Free legal representation for evictions</li>
+                            <li><strong>Tenant Rights Hotline:</strong> 718-904-1180 - Legal advice for tenants</li>
+                            <li><strong>NY State Attorney General Consumer Bureau:</strong> 800-771-7755 - Tenant rights information</li>
+                        </ul>
+                    </div>
+
+                    <div class="ai-training-section">
+                        <h4>🤖 AI Training for New York Cases</h4>
+                        <div class="knowledge-base">
+                            <strong>NY-Specific Pattern Recognition</strong>
+                            <p>AI trained on NY Housing Court cases learns: habitability defense most effective, retaliation claims strong if timely, predicate notice requirements strict. AI can evaluate NY eviction strength with 85%+ accuracy.</p>
+                        </div>
+                        <div class="knowledge-base">
+                            <strong>NY Deadline Tracking</strong>
+                            <p>AI understands NY's strict 5-day answer deadline, 30-day notice requirement, 6-month retaliation window. AI alerts before critical deadlines.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchModule(element, moduleId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            // Show selected section
+            document.getElementById(moduleId).classList.add('active');
+
+            // Update sidebar highlighting
+            document.querySelectorAll('.module-list li').forEach(li => li.classList.remove('active'));
+            element.classList.add('active');
+
+            // Scroll to top
+            document.querySelector('.main-content').scrollTop = 0;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show first module
+            document.getElementById('courtroom-basics').classList.add('active');
+        });
+    </script>
+</body>
+</html>

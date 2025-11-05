@@ -14,6 +14,7 @@ from data_flow_routes import data_flow_bp
 from ledger_tracking_routes import ledger_tracking_bp
 from ledger_admin_routes import ledger_admin_bp
 from av_routes import av_routes_bp
+from court_training_routes import court_training_bp
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
@@ -30,6 +31,7 @@ app.register_blueprint(data_flow_bp)
 app.register_blueprint(ledger_tracking_bp)
 app.register_blueprint(ledger_admin_bp)
 app.register_blueprint(av_routes_bp)
+app.register_blueprint(court_training_bp)
 
 # ============================================================================
 # Wire ALL Modules Through Calendar System (Central Hub)
@@ -178,6 +180,24 @@ def education_center():
 def audio_video_module():
     """Audio/video capture with voice-to-text and export capabilities."""
     return render_template('audio_video_module.html')
+
+# Legal Documents & Forms Library
+@app.route('/legal-documents')
+def legal_documents_library():
+    """Access all legal templates and forms with one click."""
+    return render_template('legal_documents_library.html')
+
+# Tenant Advocacy Center
+@app.route('/tenant-advocacy')
+def tenant_advocacy_center():
+    """Comprehensive tenant advocacy resources and rights guide."""
+    return render_template('tenant_advocacy_center.html')
+
+# AI Court Training Module
+@app.route('/court-training')
+def court_training_module():
+    """Learn & Train AI for courtroom procedures, clerk duties & legal protocols."""
+    return render_template('court_training_module.html')
 
 # Calendar Widgets & Components
 @app.route('/calendar-widgets')
