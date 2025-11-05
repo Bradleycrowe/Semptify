@@ -1059,9 +1059,7 @@ def _build_evidence_prompt(prompt, location, timestamp, form_type, form_data):
     ]
     return "\n".join([p for p in parts if p])
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# Route "/" handled at line 113 - renders spa.html
 
 # Minimal resource routes for evidence system tests
 @app.route("/resources/witness_statement", methods=["GET"])
