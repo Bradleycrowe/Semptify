@@ -11,18 +11,34 @@ Allows administrators to:
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from typing import Dict, Any
+import sys
+import os
 
-from ledger_config import get_ledger_config
-from ledger_tracking import (
-    get_statute_tracker,
-    get_money_ledger,
-    get_time_ledger,
-    get_service_date_ledger,
-)
-from weather_and_time import (
-    get_weather_manager,
-    get_time_sensitivity_manager,
-)
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    from ledger_config import get_ledger_config
+    from ledger_tracking import (
+        get_statute_tracker,
+        get_money_ledger,
+        get_time_ledger,
+        get_service_date_ledger,
+    )
+    from weather_and_time import (
+        get_weather_manager,
+        get_time_sensitivity_manager,
+    )
+except ImportError as e:
+    # Fallback for different import paths
+    from . import ledger_config, ledger_tracking, weather_and_time
+    get_ledger_config = ledger_config.get_ledger_config
+    get_statute_tracker = ledger_tracking.get_statute_tracker
+    get_money_ledger = ledger_tracking.get_money_ledger
+    get_time_ledger = ledger_tracking.get_time_ledger
+    get_service_date_ledger = ledger_tracking.get_service_date_ledger
+    get_weather_manager = weather_and_time.get_weather_manager
+    get_time_sensitivity_manager = weather_and_time.get_time_sensitivity_manager
 
 # This blueprint integrates with the main admin panel
 ledger_admin_bp = Blueprint("ledger_admin", __name__, url_prefix="/admin/ledger")

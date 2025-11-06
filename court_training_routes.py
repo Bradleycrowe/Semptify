@@ -10,13 +10,28 @@ Provides endpoints for:
 """
 
 from flask import Blueprint, request, jsonify, render_template
-from court_ai_trainer import (
-    CourtAITrainer,
-    CourtDocument,
-    CourtEvidence,
-    EvictionCase,
-    AITrainingPromptGenerator,
-)
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    from court_ai_trainer import (
+        CourtAITrainer,
+        CourtDocument,
+        CourtEvidence,
+        EvictionCase,
+        AITrainingPromptGenerator,
+    )
+except ImportError:
+    from . import court_ai_trainer
+    CourtAITrainer = court_ai_trainer.CourtAITrainer
+    CourtDocument = court_ai_trainer.CourtDocument
+    CourtEvidence = court_ai_trainer.CourtEvidence
+    EvictionCase = court_ai_trainer.EvictionCase
+    AITrainingPromptGenerator = court_ai_trainer.AITrainingPromptGenerator
+
 import json
 from datetime import datetime
 
@@ -35,7 +50,7 @@ trainer = CourtAITrainer(state="MN")
 def validate_document():
     """
     Validate a court document for compliance.
-    
+
     Request JSON:
     {
         "doc_type": "complaint",
@@ -50,7 +65,7 @@ def validate_document():
     """
     try:
         data = request.json
-        
+
         doc = CourtDocument(
             doc_type=data.get("doc_type"),
             case_type=data.get("case_type"),
@@ -62,14 +77,14 @@ def validate_document():
             service_documented=data.get("service_documented", False),
             has_table_of_contents=data.get("has_table_of_contents", False),
         )
-        
+
         validation = trainer.validator.validate_document(doc)
-        
+
         return jsonify({
             "status": "success",
             "validation": validation,
         }), 200
-    
+
     except Exception as e:
         return jsonify({
             "status": "error",
@@ -85,7 +100,7 @@ def validate_document():
 def assess_evidence():
     """
     Assess evidence for admissibility.
-    
+
     Request JSON:
     {
         "evidence_type": "photo",
@@ -102,7 +117,7 @@ def assess_evidence():
     """
     try:
         data = request.json
-        
+
         evidence = CourtEvidence(
             evidence_type=data.get("evidence_type"),
             description=data.get("description"),
@@ -115,14 +130,14 @@ def assess_evidence():
             is_original=data.get("is_original", False),
             quality_score=data.get("quality_score", 0.5),
         )
-        
+
         assessment = trainer.assessor.assess_evidence(evidence)
-        
+
         return jsonify({
             "status": "success",
             "assessment": assessment,
         }), 200
-    
+
     except Exception as e:
         return jsonify({
             "status": "error",
@@ -138,7 +153,7 @@ def assess_evidence():
 def predict_case_strength():
     """
     Predict eviction case strength and outcome.
-    
+
     Request JSON:
     {
         "case_id": "CASE-2025-0001",
@@ -150,7 +165,7 @@ def predict_case_strength():
     """
     try:
         data = request.json
-        
+
         case = EvictionCase(
             case_id=data.get("case_id"),
             case_type=data.get("case_type"),
@@ -158,14 +173,14 @@ def predict_case_strength():
             tenant_defenses=data.get("tenant_defenses", []),
             evidence_strength=data.get("evidence_strength", 0.5),
         )
-        
+
         prediction = trainer.predictor.predict_eviction_case(case)
-        
+
         return jsonify({
             "status": "success",
             "prediction": prediction,
         }), 200
-    
+
     except Exception as e:
         return jsonify({
             "status": "error",
@@ -181,20 +196,20 @@ def predict_case_strength():
 def generate_clerk_prompt():
     """
     Generate system prompt for training AI as court clerk.
-    
+
     Query params:
     - state: State code (default: MN)
     """
     try:
         state = request.args.get('state', 'MN')
         prompt = AITrainingPromptGenerator.generate_court_clerk_system_prompt(state=state)
-        
+
         return jsonify({
             "status": "success",
             "prompt": prompt,
             "state": state,
         }), 200
-    
+
     except Exception as e:
         return jsonify({
             "status": "error",
@@ -206,7 +221,7 @@ def generate_clerk_prompt():
 def generate_evidence_prompt():
     """
     Generate validation prompt for specific evidence.
-    
+
     Request JSON:
     {
         "evidence_type": "photo",
@@ -217,21 +232,21 @@ def generate_evidence_prompt():
     """
     try:
         data = request.json
-        
+
         evidence = CourtEvidence(
             evidence_type=data.get("evidence_type"),
             description=data.get("description"),
             collection_date=data.get("collection_date"),
             collected_by=data.get("collected_by"),
         )
-        
+
         prompt = AITrainingPromptGenerator.generate_evidence_validation_prompt(evidence)
-        
+
         return jsonify({
             "status": "success",
             "prompt": prompt,
         }), 200
-    
+
     except Exception as e:
         return jsonify({
             "status": "error",
@@ -243,7 +258,7 @@ def generate_evidence_prompt():
 def generate_case_prompt():
     """
     Generate analysis prompt for case.
-    
+
     Request JSON:
     {
         "case_id": "CASE-2025-0001",
@@ -255,7 +270,7 @@ def generate_case_prompt():
     """
     try:
         data = request.json
-        
+
         case = EvictionCase(
             case_id=data.get("case_id"),
             case_type=data.get("case_type"),
@@ -263,14 +278,14 @@ def generate_case_prompt():
             tenant_defenses=data.get("tenant_defenses", []),
             evidence_strength=data.get("evidence_strength", 0.5),
         )
-        
+
         prompt = AITrainingPromptGenerator.generate_case_analysis_prompt(case)
-        
+
         return jsonify({
             "status": "success",
             "prompt": prompt,
         }), 200
-    
+
     except Exception as e:
         return jsonify({
             "status": "error",
@@ -286,7 +301,7 @@ def generate_case_prompt():
 def analyze_submission():
     """
     Comprehensive analysis of entire court submission.
-    
+
     Request JSON:
     {
         "document": {
@@ -314,7 +329,7 @@ def analyze_submission():
     """
     try:
         data = request.json
-        
+
         # Parse document
         doc_data = data.get("document", {})
         doc = CourtDocument(
@@ -327,7 +342,7 @@ def analyze_submission():
             service_documented=doc_data.get("service_documented", False),
             has_table_of_contents=doc_data.get("has_table_of_contents", False),
         )
-        
+
         # Parse evidence list
         evidence_list = []
         for ev_data in data.get("evidence", []):
@@ -343,15 +358,15 @@ def analyze_submission():
                 quality_score=ev_data.get("quality_score", 0.5),
             )
             evidence_list.append(evidence)
-        
+
         # Analyze
         analysis = trainer.analyze_submission(doc, evidence_list)
-        
+
         return jsonify({
             "status": "success",
             "analysis": analysis,
         }), 200
-    
+
     except Exception as e:
         return jsonify({
             "status": "error",
