@@ -312,3 +312,5 @@
 {"timestamp": "2025-11-06T05:01:44.760014+00:00", "type": "user_registered", "details": {"user_id": "e3216a7c-ad16-4395-b5e1-58b7ae87da87"}}
 {"timestamp": "2025-11-06T05:01:44.865281+00:00", "type": "rate_limited", "details": {"key": "admin:127.0.0.1:/admin"}}
 {"timestamp": "2025-11-06T05:01:44.865408+00:00", "type": "admin_rate_limited", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:05:04.191961+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:05:04.243521+00:00", "type": "user_registered", "details": {"user_id": "e20d8ddb-d789-4af5-8136-79a79151c311"}}

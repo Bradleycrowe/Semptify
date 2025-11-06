@@ -12,4 +12,7 @@ security/
 logs/
 uploads/
 backups/
+data/
+copilot_sync/
+final_notices/
 *.sqlite3
