@@ -115,9 +115,13 @@ def _save_json(path: str, data: dict):
         pass
 
 def save_user_token() -> str:
-    """Create and save a new user token, returning the plaintext token."""
-    # Generate a random digits-only token
-    token = ''.join(str(secrets.randbelow(10)) for _ in range(16))
+    """Create and save a new user token, returning the plaintext token.
+    
+    Note: Uses alphanumeric tokens for better security than digits-only.
+    A 16-character alphanumeric token provides ~95 bits of entropy.
+    """
+    # Generate a random alphanumeric token (better entropy than digits-only)
+    token = secrets.token_urlsafe(16)[:16]  # URL-safe base64, truncated to 16 chars
     h = _hash_token(token)
     
     # Generate user ID

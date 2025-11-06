@@ -96,12 +96,15 @@ class Ledger:
         cutoff = datetime.now() - timedelta(days=days)
         transactions = self.get_transactions(actor_id, start_date=cutoff)
         
+        # Determine unit from first transaction or default to USD
+        unit = self.transactions[0].unit if self.transactions else "USD"
+        
         return {
             "actor_id": actor_id,
             "period_days": days,
             "transaction_count": len(transactions),
             "total": sum(t.amount for t in transactions),
-            "unit": self.transactions[0].unit if self.transactions else "USD"
+            "unit": unit
         }
 
 

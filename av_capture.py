@@ -133,10 +133,21 @@ class AVManager:
         tags: Optional[List[str]] = None
     ) -> Capture:
         """Register a new capture."""
-        # Get file size if file exists
+        # Validate file_path to prevent path traversal attacks
+        # Ensure file_path is within storage_dir
         file_size = None
-        if file_path and os.path.exists(file_path):
-            file_size = os.path.getsize(file_path)
+        if file_path:
+            try:
+                # Resolve to absolute path and check it's within storage_dir
+                abs_file_path = os.path.abspath(file_path)
+                abs_storage_dir = os.path.abspath(self.storage_dir)
+                
+                # Check if file is within storage directory
+                if abs_file_path.startswith(abs_storage_dir) and os.path.exists(abs_file_path):
+                    file_size = os.path.getsize(abs_file_path)
+            except (OSError, ValueError):
+                # If path validation fails, just skip getting file size
+                pass
         
         # Determine MIME type based on capture type
         mime_types = {

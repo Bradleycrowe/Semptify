@@ -111,8 +111,8 @@ class LedgerConfig:
             else:
                 self.config = self._get_defaults()
                 self.save()
-        except Exception as e:
-            # If loading fails, use defaults
+        except Exception:
+            # If loading fails, use defaults and continue
             self.config = self._get_defaults()
     
     def _merge_configs(self, default: Dict, override: Dict) -> Dict:

@@ -314,3 +314,6 @@
 {"timestamp": "2025-11-06T05:01:44.865408+00:00", "type": "admin_rate_limited", "details": {"path": "/admin", "ip": "127.0.0.1"}}
 {"timestamp": "2025-11-06T05:05:04.191961+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
 {"timestamp": "2025-11-06T05:05:04.243521+00:00", "type": "user_registered", "details": {"user_id": "e20d8ddb-d789-4af5-8136-79a79151c311"}}
+{"timestamp": "2025-11-06T05:08:01.462332+00:00", "type": "user_registered", "details": {"user_id": "c5e8c9d8-fc49-4d5d-b211-42ef8782d833"}}
+{"timestamp": "2025-11-06T05:08:18.880025+00:00", "type": "user_registered", "details": {"user_id": "92ecb1c4-22d0-42b1-881f-53e665e8f465"}}
+{"timestamp": "2025-11-06T05:10:10.883653+00:00", "type": "user_registered", "details": {"user_id": "f1489488-965e-4497-964e-96cbc3ea4322"}}

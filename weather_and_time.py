@@ -223,6 +223,7 @@ class TimeSensitivityManager:
             if sensitivity.exclude_weekends and current_date.weekday() >= 5:
                 continue
             
+            # Count this as a business day
             business_days_added += 1
         
         # Check for severe weather and extend if needed
