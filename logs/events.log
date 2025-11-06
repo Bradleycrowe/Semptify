@@ -298,3 +298,17 @@
 {"event": "startup", "ts": 1761088873, "id": "fcd4c59d-2378-4692-b385-7307374fc61d", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
 {"event": "startup", "ts": 1761088874, "id": "21686aca-f48c-46d9-9d95-d3f996c3e0aa", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
 {"event": "startup", "ts": 1761088875, "id": "c601821a-599b-467e-9504-719c8ed076f5", "dirs_writable": {"uploads": true, "logs": true, "copilot_sync": true, "final_notices": true, "security": true}}
+{"timestamp": "2025-11-06T05:00:41.150471+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:00:41.629004+00:00", "type": "rate_limited", "details": {"key": "admin:127.0.0.1:/admin"}}
+{"timestamp": "2025-11-06T05:00:41.629111+00:00", "type": "admin_rate_limited", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:00:41.800280+00:00", "type": "user_registered", "details": {"user_id": "6745b068-bbab-4581-9b42-23e709c1821f"}}
+{"timestamp": "2025-11-06T05:00:41.906519+00:00", "type": "rate_limited", "details": {"key": "admin:127.0.0.1:/admin"}}
+{"timestamp": "2025-11-06T05:00:41.906611+00:00", "type": "admin_rate_limited", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:01:44.132045+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:01:44.133848+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:01:44.503168+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:01:44.551426+00:00", "type": "rate_limited", "details": {"key": "admin:127.0.0.1:/admin"}}
+{"timestamp": "2025-11-06T05:01:44.551544+00:00", "type": "admin_rate_limited", "details": {"path": "/admin", "ip": "127.0.0.1"}}
+{"timestamp": "2025-11-06T05:01:44.760014+00:00", "type": "user_registered", "details": {"user_id": "e3216a7c-ad16-4395-b5e1-58b7ae87da87"}}
+{"timestamp": "2025-11-06T05:01:44.865281+00:00", "type": "rate_limited", "details": {"key": "admin:127.0.0.1:/admin"}}
+{"timestamp": "2025-11-06T05:01:44.865408+00:00", "type": "admin_rate_limited", "details": {"path": "/admin", "ip": "127.0.0.1"}}

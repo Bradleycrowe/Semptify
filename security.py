@@ -105,6 +105,41 @@ def _load_json(path: str, default=None):
         pass
     return default if default is not None else {}
 
+def _save_json(path: str, data: dict):
+    """Save JSON to file."""
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
+
+def save_user_token() -> str:
+    """Create and save a new user token, returning the plaintext token."""
+    # Generate a random digits-only token
+    token = ''.join(str(secrets.randbelow(10)) for _ in range(16))
+    h = _hash_token(token)
+    
+    # Generate user ID
+    user_id = str(uuid.uuid4())
+    
+    # Load existing users
+    users_file = get_users_file()
+    users_data = _load_json(users_file, {})
+    
+    # Add new user
+    users_data[user_id] = {
+        'hash': h,
+        'created': datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Save users
+    _save_json(users_file, users_data)
+    
+    log_event('user_registered', {'user_id': user_id})
+    
+    return token
+
 def validate_user_token(token: Optional[str]) -> Optional[str]:
     """Validate a user token and return the user ID if valid."""
     if not token:
@@ -166,6 +201,31 @@ def validate_admin_token(token: Optional[str]) -> Optional[str]:
 
     return None
 
+def has_breakglass_permission(token: Optional[str]) -> bool:
+    """Check if a token has breakglass permission."""
+    if not token:
+        return False
+    
+    admin_file = get_admin_tokens_file()
+    try:
+        adata = _load_json(admin_file, {})
+        h = _hash_token(token)
+        
+        if isinstance(adata, dict):
+            for token_id, token_info in adata.items():
+                if isinstance(token_info, dict):
+                    stored_hash = token_info.get('hash')
+                    if stored_hash == h and token_info.get('breakglass', False):
+                        return True
+        elif isinstance(adata, list):
+            for item in adata:
+                if isinstance(item, dict) and item.get('hash') == h and item.get('breakglass', False):
+                    return True
+    except Exception:
+        pass
+    
+    return False
+
 # ============================================================================
 # Rate Limiting
 # ============================================================================
@@ -201,13 +261,33 @@ def check_rate_limit(key: str) -> bool:
 
 _breakglass_used = False
 
-def is_breakglass_active() -> bool:
-    """Check if breakglass.flag file exists."""
+def is_breakglass_active(token: Optional[str] = None) -> bool:
+    """Check if breakglass flag exists AND token has breakglass permission.
+    
+    Args:
+        token: Admin token to check for breakglass permission.
+              If None, just checks if flag file exists.
+    
+    Returns:
+        True if breakglass is available for this token, False otherwise.
+    """
     sec_dir = get_security_dir()
-    return os.path.exists(os.path.join(sec_dir, "breakglass.flag"))
+    flag_exists = os.path.exists(os.path.join(sec_dir, "breakglass.flag"))
+    
+    if not flag_exists:
+        return False
+    
+    if token is None:
+        return True
+    
+    return has_breakglass_permission(token)
 
-def consume_breakglass():
-    """Remove the breakglass.flag file (one-time use)."""
+def consume_breakglass(token: Optional[str] = None):
+    """Remove the breakglass.flag file (one-time use).
+    
+    Args:
+        token: Admin token (optional, for logging purposes)
+    """
     global _breakglass_used
     if not _breakglass_used:
         sec_dir = get_security_dir()
@@ -217,7 +297,7 @@ def consume_breakglass():
                 os.remove(flag_path)
             _breakglass_used = True
             incr_metric("breakglass_used_total", 1)
-            log_event("breakglass_consumed")
+            log_event("breakglass_consumed", {"token_provided": token is not None})
         except Exception:
             pass
 
