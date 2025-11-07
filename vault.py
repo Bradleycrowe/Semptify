@@ -1,3 +1,18 @@
+"""
+Document Vault for Semptify - Tenant Document Storage
+
+SECURITY MODEL:
+- Only the document owner (user with valid user_token) can access their vault
+- Admin master key does NOT bypass vault privacy - only document owner controls access
+- User can grant temporary access to specific documents via share tokens (future feature)
+- All uploads are tied to user_id from token validation
+- Files stored by document ID, not user ID (vault/doc_<id>/filename)
+
+STORAGE:
+- Uses storage_adapter.py for R2 or local filesystem
+- Each document gets a certificate (.cert.json) with hash and timestamp
+- Supports attestations (witness signatures on documents)
+"""
 from flask import Flask, request, jsonify, send_file, abort
 from flask import Blueprint
 import os

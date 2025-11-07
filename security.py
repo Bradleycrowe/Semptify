@@ -168,14 +168,18 @@ def validate_admin_token(token: Optional[str]) -> Optional[str]:
     """Validate an admin token and return the token ID if valid.
     
     Checks in order:
-    1. MASTER_KEY environment variable (superadmin access)
+    1. MASTER_KEY environment variable (superadmin access to admin functions)
     2. ADMIN_TOKEN environment variable (legacy single admin)
     3. admin_tokens.json (multi-admin support)
+    
+    IMPORTANT: Admin tokens grant access to admin functions (settings, logs, etc.)
+    but DO NOT bypass vault privacy. Only document owners can access their vault.
     """
     if not token:
         return None
 
-    # Check MASTER_KEY first (superadmin access everywhere)
+    # Check MASTER_KEY first (superadmin access to admin functions)
+    # NOTE: Does NOT grant access to user vaults - only document owner can access
     master_key = os.getenv("MASTER_KEY")
     if master_key and token == master_key:
         log_event('master_key_used', {'ip': request.remote_addr if request else 'unknown'})
