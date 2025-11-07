@@ -8,6 +8,12 @@ SECURITY MODEL:
 - All uploads are tied to user_id from token validation
 - Files stored by document ID, not user ID (vault/doc_<id>/filename)
 
+ENCRYPTION:
+- Files encrypted at rest using AES-256-GCM
+- Encryption key derived from user token using PBKDF2
+- Without valid user token, files are unreadable
+- Hash verification on encrypted data (tamper detection)
+
 STORAGE:
 - Uses storage_adapter.py for R2 or local filesystem
 - Each document gets a certificate (.cert.json) with hash and timestamp
@@ -22,6 +28,11 @@ import uuid
 from datetime import datetime
 import time
 from werkzeug.utils import secure_filename
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
+import secrets
 
 from security import get_token_from_request, validate_user_token, log_event, _atomic_write_json
 
@@ -38,6 +49,96 @@ vault_bp = Blueprint("vault_blueprint", __name__)
 
 def _ensure_dirs(path):
     os.makedirs(path, exist_ok=True)
+
+
+def _derive_key_from_token(user_token: str, salt: bytes) -> bytes:
+    """Derive encryption key from user token using PBKDF2.
+    
+    Args:
+        user_token: User's authentication token
+        salt: Random salt (stored with encrypted file)
+    
+    Returns:
+        32-byte encryption key for AES-256
+    """
+    kdf = PBKDF2(
+        algorithm=hashes.SHA256(),
+        length=32,  # 256 bits for AES-256
+        salt=salt,
+        iterations=100000,  # Recommended minimum
+        backend=default_backend()
+    )
+    return kdf.derive(user_token.encode('utf-8'))
+
+
+def _encrypt_file(file_data: bytes, user_token: str) -> tuple[bytes, bytes, bytes]:
+    """Encrypt file data using user token.
+    
+    Args:
+        file_data: Raw file bytes
+        user_token: User's authentication token
+    
+    Returns:
+        (encrypted_data, salt, nonce) - All needed for decryption
+    """
+    # Generate random salt and nonce
+    salt = secrets.token_bytes(16)  # 128 bits
+    nonce = secrets.token_bytes(12)  # 96 bits for GCM
+    
+    # Derive key from token
+    key = _derive_key_from_token(user_token, salt)
+    
+    # Encrypt using AES-256-GCM (authenticated encryption)
+    cipher = Cipher(
+        algorithms.AES(key),
+        modes.GCM(nonce),
+        backend=default_backend()
+    )
+    encryptor = cipher.encryptor()
+    encrypted_data = encryptor.update(file_data) + encryptor.finalize()
+    
+    # GCM provides authentication tag
+    tag = encryptor.tag
+    
+    # Return encrypted data with tag appended, salt, nonce
+    return encrypted_data + tag, salt, nonce
+
+
+def _decrypt_file(encrypted_data: bytes, salt: bytes, nonce: bytes, user_token: str) -> bytes:
+    """Decrypt file data using user token.
+    
+    Args:
+        encrypted_data: Encrypted bytes (includes 16-byte auth tag at end)
+        salt: Salt used during encryption
+        nonce: Nonce used during encryption
+        user_token: User's authentication token
+    
+    Returns:
+        Decrypted file bytes
+    
+    Raises:
+        ValueError: If authentication fails (wrong token or tampered data)
+    """
+    # Extract authentication tag (last 16 bytes)
+    tag = encrypted_data[-16:]
+    ciphertext = encrypted_data[:-16]
+    
+    # Derive same key from token
+    key = _derive_key_from_token(user_token, salt)
+    
+    # Decrypt using AES-256-GCM
+    cipher = Cipher(
+        algorithms.AES(key),
+        modes.GCM(nonce, tag),
+        backend=default_backend()
+    )
+    decryptor = cipher.decryptor()
+    
+    try:
+        decrypted_data = decryptor.update(ciphertext) + decryptor.finalize()
+        return decrypted_data
+    except Exception as e:
+        raise ValueError(f"Decryption failed - wrong token or tampered data: {e}")
 
 
 def _sha256_of_file(path):
@@ -90,6 +191,40 @@ def _cert_path(user_id, filename):
         return os.path.join(user_dir, filename)
 
 
+    def _add_user_document_mapping(user_id, doc_id, filename):
+        """Track which documents belong to which user (for listing)."""
+        mapping_file = os.path.join(UPLOAD_ROOT, f"user_{user_id}_docs.json")
+        try:
+            if os.path.exists(mapping_file):
+                with open(mapping_file, 'r', encoding='utf-8') as f:
+                    mappings = json.load(f)
+            else:
+                mappings = []
+            
+            mappings.append({
+                "doc_id": doc_id,
+                "filename": filename,
+                "uploaded": datetime.utcnow().isoformat() + 'Z'
+            })
+            
+            _atomic_write_json(mapping_file, mappings)
+        except Exception as e:
+            print(f"Warning: Could not update user document mapping: {e}")
+
+
+    def _get_user_documents(user_id):
+        """Get list of documents owned by user."""
+        mapping_file = os.path.join(UPLOAD_ROOT, f"user_{user_id}_docs.json")
+        try:
+            if os.path.exists(mapping_file):
+                with open(mapping_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            return []
+        except Exception as e:
+            print(f"Warning: Could not read user document mapping: {e}")
+            return []
+
+
     @vault_bp.route('/vault/upload', methods=['POST'])
     def upload():
         token = get_token_from_request(request)
@@ -104,25 +239,59 @@ def _cert_path(user_id, filename):
         if not filename:
             return jsonify({"error": "invalid filename"}), 400
 
-        user_dir = os.path.join(UPLOAD_ROOT, uid)
-        _ensure_dirs(user_dir)
-        dest = _file_path(uid, filename)
-        f.save(dest)
-        sha = _sha256_of_file(dest)
+        # Generate unique document ID for storage (not encrypted, just reference)
+        doc_id = f"doc_{uuid.uuid4().hex[:12]}"
+        
+        # Read file data for encryption
+        file_data = f.read()
+        
+        # Encrypt file with user token
+        encrypted_data, salt, nonce = _encrypt_file(file_data, token)
+        
+        # Store by document ID with clean naming: doc_id.enc
+        doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
+        _ensure_dirs(doc_dir)
+        encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
+        
+        # Write encrypted file
+        with open(encrypted_path, 'wb') as ef:
+            ef.write(encrypted_data)
+        
+        # Hash the encrypted data (for integrity verification)
+        sha = hashlib.sha256(encrypted_data).hexdigest()
 
+        # Certificate links document ID to user, stores decryption params
         cert = {
-            "filename": filename,
-            "sha256": sha,
-            "user_id": uid,
+            "doc_id": doc_id,
+            "original_filename": filename,  # Store original name
+            "salt": salt.hex(),  # Hex encoding for JSON
+            "nonce": nonce.hex(),
+            "sha256": sha,  # Hash of encrypted data
+            "user_id": uid,  # User who owns this document
             "created": datetime.utcnow().isoformat() + 'Z',
             "request_id": str(uuid.uuid4()),
             "attestations": [],
         }
-        cert_path = _cert_path(uid, filename)
+        cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
         _atomic_write_json(cert_path, cert)
+        
+        # Also store document mapping so user can list their documents
+        _add_user_document_mapping(uid, doc_id, filename)
 
-        log_event("vault.upload", user_id=uid, doc_id=filename, extra={"sha256": sha})
-        return jsonify({"ok": True, "filename": filename, "sha256": sha}), 200
+        log_event("vault.upload", {"user_id": uid, "doc_id": doc_id, "sha256": sha})
+        return jsonify({"ok": True, "doc_id": doc_id, "filename": filename, "sha256": sha}), 200
+
+
+    @vault_bp.route('/vault/list', methods=['GET'])
+    def list_documents():
+        """List all documents owned by user (requires user token)."""
+        token = get_token_from_request(request)
+        uid = validate_user_token(token)
+        if not uid:
+            return jsonify({"error": "unauthorized"}), 401
+        
+        documents = _get_user_documents(uid)
+        return jsonify({"ok": True, "documents": documents}), 200
 
 
     @vault_bp.route('/vault', methods=['GET', 'POST'])
@@ -168,28 +337,79 @@ def _cert_path(user_id, filename):
         if not uid:
             return jsonify({"error": "unauthorized"}), 401
 
-        filename = request.args.get('filename')
-        if not filename:
-            return jsonify({"error": "filename required"}), 400
-        filename = secure_filename(filename)
-        path = _file_path(uid, filename)
-        cert_path = _cert_path(uid, filename)
-        if not os.path.exists(path) or not os.path.exists(cert_path):
+        # Require doc_id (new method only)
+        doc_id = request.args.get('doc_id')
+        if not doc_id:
+            return jsonify({"error": "doc_id required"}), 400
+        
+        # Verify user owns this document
+        user_docs = _get_user_documents(uid)
+        doc_info = next((d for d in user_docs if d['doc_id'] == doc_id), None)
+        if not doc_info:
+            return jsonify({"error": "document not found or not authorized"}), 404
+        
+        # Load certificate and encrypted file
+        doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
+        encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
+        cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
+        
+        if not os.path.exists(encrypted_path) or not os.path.exists(cert_path):
             return jsonify({"error": "not found"}), 404
 
-        cert = {}
+        # Load certificate
         try:
             with open(cert_path, 'r', encoding='utf-8') as f:
                 cert = json.load(f)
         except Exception:
             return jsonify({"error": "corrupt cert"}), 500
 
-        actual = _sha256_of_file(path)
+        # Load encrypted data
+        try:
+            with open(encrypted_path, 'rb') as f:
+                encrypted_data = f.read()
+        except Exception:
+            return jsonify({"error": "cannot read file"}), 500
+
+        # Verify integrity of encrypted data
+        actual = hashlib.sha256(encrypted_data).hexdigest()
         if actual != cert.get('sha256'):
-            log_event("vault.tamper_detected", user_id=uid, doc_id=filename, extra={"expected": cert.get('sha256'), "actual": actual})
+            log_event("vault.tamper_detected", {"user_id": uid, "doc_id": doc_id, "expected": cert.get('sha256'), "actual": actual})
             return jsonify({"error": "tamper detected"}), 409
 
-        log_event("vault.download", user_id=uid, doc_id=filename)
+        # Decrypt file using user token
+        try:
+            salt = bytes.fromhex(cert['salt'])
+            nonce = bytes.fromhex(cert['nonce'])
+            decrypted_data = _decrypt_file(encrypted_data, salt, nonce, token)
+        except ValueError as e:
+            log_event("vault.decrypt_failed", {"user_id": uid, "doc_id": doc_id, "error": str(e)})
+            return jsonify({"error": "decryption failed - wrong token or corrupted data"}), 403
+        except Exception as e:
+            log_event("vault.decrypt_error", {"user_id": uid, "doc_id": doc_id, "error": str(e)})
+            return jsonify({"error": "decryption error"}), 500
+
+        # Return decrypted file with original filename
+        original_filename = cert.get('original_filename', 'download')
+        log_event("vault.download", {"user_id": uid, "doc_id": doc_id})
+        
+        # Send file from memory (decrypted bytes)
+        from io import BytesIO
+        return send_file(
+            BytesIO(decrypted_data),
+            as_attachment=True,
+            download_name=original_filename,
+            mimetype='application/octet-stream'
+        )
+        except Exception:
+            return jsonify({"error": "corrupt cert"}), 500
+
+        # Verify document hasn't been tampered with
+        actual = _sha256_of_file(path)
+        if actual != cert.get('sha256'):
+            log_event("vault.tamper_detected", user_id=uid, doc_id=doc_id or filename, extra={"expected": cert.get('sha256'), "actual": actual})
+            return jsonify({"error": "tamper detected"}), 409
+
+        log_event("vault.download", user_id=uid, doc_id=doc_id or filename)
         return send_file(path, as_attachment=True)
 
 
