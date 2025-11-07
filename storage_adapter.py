@@ -52,9 +52,9 @@ class StorageAdapter:
     def save_file(self, relative_path, content, metadata=None):
         """
         Save file with optional metadata
-        relative_path: e.g., 'vault/user123/document.pdf'
+        relative_path: e.g., 'vault/doc_abc123/filename.pdf' or 'witness/doc_xyz789/statement.pdf'
         content: bytes or string
-        metadata: dict of metadata to attach
+        metadata: dict of metadata to attach (should include user_id, doc_id, timestamp)
         """
         if isinstance(content, str):
             content = content.encode('utf-8')

@@ -49,9 +49,6 @@ def main():
     print("Is User Token Expired?", is_token_expired(token_creation_time))
     print("Is Admin Token Expired?", is_token_expired(token_creation_time, is_admin=True))
 
-if __name__ == "__main__":
-    main()
-
 if __name__ == '__main__':
     # Read host/port from environment with sane defaults
     # Accept both custom SEMPTIFY_PORT and platform-provided PORT (Render/Heroku style)

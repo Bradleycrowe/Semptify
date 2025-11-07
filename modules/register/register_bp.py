@@ -26,8 +26,24 @@ def register():
     if not form_csrf or form_csrf != _get_or_create_csrf_token():
         return "CSRF token missing or invalid", 400
 
-    name = request.form.get('name', '').strip() or 'Anonymous'
+    # Collect full contact information
+    first_name = request.form.get('first_name', '').strip()
+    last_name = request.form.get('last_name', '').strip()
+    address = request.form.get('address', '').strip()
+    city = request.form.get('city', '').strip()
+    county = request.form.get('county', '').strip()
+    state = request.form.get('state', '').strip()
+    zip_code = request.form.get('zip_code', '').strip()
+    phone = request.form.get('phone', '').strip()  # 10 digits
     email = request.form.get('email', '').strip()
+    
+    # Validation
+    if not first_name or not last_name:
+        return "First and last name are required", 400
+    if not phone or len(phone.replace('-', '').replace(' ', '')) != 10:
+        return "Valid 10-digit phone number required", 400
+    if not email or '@' not in email:
+        return "Valid email address required", 400
 
     # Create an 8-digit numeric token for user to copy (one-time)
     token = ''.join(secrets.choice('0123456789') for _ in range(8))
@@ -52,7 +68,14 @@ def register():
             'id': secrets.token_hex(8),
             'hash': stored_hash,
             'ts': int(time.time()),
-            'name': name,
+            'first_name': first_name,
+            'last_name': last_name,
+            'address': address,
+            'city': city,
+            'county': county,
+            'state': state,
+            'zip_code': zip_code,
+            'phone': phone,
             'email': email,
             'note': 'one-time registration token'
         }

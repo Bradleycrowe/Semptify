@@ -133,12 +133,55 @@ def validate_user_token(token: Optional[str]) -> Optional[str]:
 
     return None
 
+def save_user_token() -> str:
+    """
+    Generate a new user token, save its hash to users.json, and return the plain token.
+    This token should be shown to the user ONCE for vault access.
+    """
+    import secrets
+    import json
+    from datetime import datetime
+    
+    # Generate a simple numeric token (easier to remember/type)
+    token = ''.join([str(secrets.randbelow(10)) for _ in range(16)])
+    user_id = f"user_{secrets.token_hex(8)}"
+    
+    users_file = get_users_file()
+    users_data = _load_json(users_file, {})
+    
+    # Store hash with metadata
+    users_data[user_id] = {
+        'hash': _hash_token(token),
+        'created': datetime.now().isoformat(),
+        'type': 'vault_user'
+    }
+    
+    # Save to file
+    os.makedirs(os.path.dirname(users_file), exist_ok=True)
+    with open(users_file, 'w', encoding='utf-8') as f:
+        json.dump(users_data, f, indent=2)
+    
+    log_event('user_registered', {'user_id': user_id})
+    return token
+
 def validate_admin_token(token: Optional[str]) -> Optional[str]:
-    """Validate an admin token and return the token ID if valid."""
+    """Validate an admin token and return the token ID if valid.
+    
+    Checks in order:
+    1. MASTER_KEY environment variable (superadmin access)
+    2. ADMIN_TOKEN environment variable (legacy single admin)
+    3. admin_tokens.json (multi-admin support)
+    """
     if not token:
         return None
 
-    # Check environment variable first (legacy support)
+    # Check MASTER_KEY first (superadmin access everywhere)
+    master_key = os.getenv("MASTER_KEY")
+    if master_key and token == master_key:
+        log_event('master_key_used', {'ip': request.remote_addr if request else 'unknown'})
+        return "master_admin"
+
+    # Check environment variable (legacy support)
     env_token = os.getenv("ADMIN_TOKEN")
     if env_token and token == env_token:
         return "env_admin"

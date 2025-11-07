@@ -1,6 +1,0 @@
-✅ Rights Scenario Explorer scaffolded at Semptify/modules/rights_scenario_explorer
-✅ Violation Pattern Mapper scaffolded at Semptify/modules/violation_pattern_mapper
-🕒 Deployment completed on 2025-10-27
-✅ Rights Scenario Explorer scaffolded at Semptify/modules/rights_scenario_explorer
-✅ Violation Pattern Mapper scaffolded at Semptify/modules/violation_pattern_mapper
-🕒 Deployment completed on 2025-10-27

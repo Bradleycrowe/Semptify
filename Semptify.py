@@ -89,6 +89,13 @@ try:
 except ImportError:
     pass
 
+# Calendar API - REST API for tenant calendar (court dates, rent, appointments)
+try:
+    from calendar_api import calendar_api_bp
+    app.register_blueprint(calendar_api_bp)
+except ImportError:
+    pass
+
 # ============================================================================
 
 # Middleware to track request latency

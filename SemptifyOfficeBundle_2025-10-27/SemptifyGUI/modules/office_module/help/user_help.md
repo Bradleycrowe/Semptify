@@ -1,1 +1,0 @@
-<PASTE FULL user_help.md CONTENT HERE>
