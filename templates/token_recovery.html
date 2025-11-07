@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Recovery - Veeper AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .veeper-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        input[type="text"], input[type="email"], input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .info-box {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .error-box {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+        .success-box {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2e7d32;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        .token-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="veeper-badge">🤖 Veeper AI - Local Only</span>
+        <h1>Token Recovery</h1>
+        <p class="subtitle">Recover your access token with verified phone or email</p>
+
+        <!-- Step 1: Enter phone or email -->
+        <div class="step active" id="step1">
+            <div class="info-box">
+                <strong>Privacy First:</strong> Veeper runs locally on our server. No cloud services involved.
+            </div>
+            <div class="form-group">
+                <label for="contact">Phone Number or Email</label>
+                <input type="text" id="contact" placeholder="555-123-4567 or email@example.com" autofocus>
+            </div>
+            <button class="btn" onclick="initiateRecovery()">Continue</button>
+            <div class="back-link">
+                <a href="/register">← New User? Register Here</a>
+            </div>
+        </div>
+
+        <!-- Step 2: Verify code -->
+        <div class="step" id="step2">
+            <div class="info-box" id="verificationInfo"></div>
+            <div class="form-group">
+                <label for="verificationCode">Verification Code</label>
+                <input type="text" id="verificationCode" placeholder="Enter code from phone/email">
+            </div>
+            <button class="btn" onclick="verifyCode()">Verify & Recover Token</button>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div class="step" id="step3">
+            <div class="success-box">
+                <strong>✅ Token Recovered Successfully!</strong>
+            </div>
+            <p style="margin-bottom: 10px;">Your recovered token:</p>
+            <div class="token-display" id="recoveredToken"></div>
+            <div class="info-box">
+                <strong>Important:</strong> Save this token securely. You'll need it to access your vault.
+            </div>
+            <button class="btn" onclick="goToVault()">Go to Vault</button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px;">Processing...</p>
+        </div>
+
+        <!-- Error -->
+        <div class="error-box" id="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        let recoveryId = null;
+
+        function showStep(stepNum) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + stepNum).classList.add('active');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+
+        async function initiateRecovery() {
+            const contact = document.getElementById('contact').value.trim();
+            if (!contact) {
+                showError('Please enter your phone number or email');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch('/veeper/recover/initiate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: contact.includes('@') ? null : contact,
+                        email: contact.includes('@') ? contact : null
+                    })
+                });
+
+                const data = await response.json();
+                showLoading(false);
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                recoveryId = data.recovery_id;
+                
+                // Show verification info
+                document.getElementById('verificationInfo').innerHTML = `
+                    <strong>Verification sent to ${data.masked_contact}</strong><br>
+                    Method: ${data.method}<br>
+                    Expires: ${new Date(data.expires).toLocaleString()}<br><br>
+                    <small>Dev Mode: ${data.verification_code}</small>
+                `;
+
+                showStep(2);
+            } catch (error) {
+                showLoading(false);
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        async function verifyCode() {
+            const verificationCode = document.getElementById('verificationCode').value.trim();
+            if (!verificationCode) {
+                showError('Please enter the verification code');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch('/veeper/recover/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        recovery_id: recoveryId,
+                        verification_code: verificationCode
+                    })
+                });
+
+                const data = await response.json();
+                showLoading(false);
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                // Show recovered token
+                document.getElementById('recoveredToken').textContent = data.token;
+                localStorage.setItem('recovered_token', data.token);
+                showStep(3);
+            } catch (error) {
+                showLoading(false);
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        function goToVault() {
+            const token = localStorage.getItem('recovered_token');
+            window.location.href = '/vault?user_token=' + token;
+        }
+    </script>
+</body>
+</html>

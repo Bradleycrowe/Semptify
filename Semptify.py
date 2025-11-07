@@ -96,6 +96,13 @@ try:
 except ImportError:
     pass
 
+# Veeper - Local-only AI for token recovery (phone/email verification)
+try:
+    from veeper import veeper_bp
+    app.register_blueprint(veeper_bp)
+except ImportError:
+    pass
+
 # ============================================================================
 
 # Middleware to track request latency
@@ -120,6 +127,11 @@ _has_admin_bp = _importlib_util.find_spec('admin') is not None
 @app.route("/")
 def home():
     return render_template('index.html')
+
+@app.route('/recover')
+def token_recovery():
+    """Token recovery page powered by Veeper AI"""
+    return render_template('token_recovery.html')
 
 if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
     @app.route('/register')

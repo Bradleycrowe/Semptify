@@ -36,7 +36,7 @@ def register():
     zip_code = request.form.get('zip_code', '').strip()
     phone = request.form.get('phone', '').strip()  # 10 digits
     email = request.form.get('email', '').strip()
-    
+
     # Validation
     if not first_name or not last_name:
         return "First and last name are required", 400
@@ -64,8 +64,9 @@ def register():
             # Ensure security folder exists
             os.makedirs(os.path.dirname(users_path), exist_ok=True)
 
+        user_id = secrets.token_hex(8)
         entry = {
-            'id': secrets.token_hex(8),
+            'id': user_id,
             'hash': stored_hash,
             'ts': int(time.time()),
             'first_name': first_name,
@@ -86,6 +87,16 @@ def register():
 
         with open(users_path, 'w', encoding='utf-8') as f:
             json.dump(users, f, indent=2)
+        
+        # 🤖 VEEPER: Backup token for recovery
+        try:
+            from veeper import backup_user_token
+            backup_user_token(user_id, token, phone, email)
+            current_app.logger.info(f"✅ Veeper backup created for user {user_id}")
+        except Exception as e:
+            current_app.logger.warning(f"⚠️ Veeper backup failed: {e}")
+            # Don't fail registration if backup fails
+        
     except Exception as e:
         current_app.logger.exception('Failed to save registration token')
         return "Internal server error", 500
