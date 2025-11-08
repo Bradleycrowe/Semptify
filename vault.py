@@ -30,7 +30,7 @@ import time
 from typing import Tuple
 from werkzeug.utils import secure_filename
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 import secrets
 
@@ -61,7 +61,7 @@ def _derive_key_from_token(user_token: str, salt: bytes) -> bytes:
     Returns:
         32-byte encryption key for AES-256
     """
-    kdf = PBKDF2(
+    kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,  # 256 bits for AES-256
         salt=salt,
