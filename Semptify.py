@@ -14,6 +14,15 @@ from data_flow_routes import data_flow_bp
 from ledger_tracking_routes import ledger_tracking_bp
 from ledger_admin_routes import ledger_admin_bp
 from av_routes import av_routes_bp
+from learning_engine import init_learning
+from learning_routes import learning_bp
+from journey_routes import journey_bp
+from adaptive_registration import (
+    register_user_adaptive,
+    report_issue_adaptive,
+    report_outcome_adaptive,
+    contribute_resource_adaptive
+)
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
@@ -24,12 +33,33 @@ init_ledger_calendar(data_dir=os.path.join(os.getcwd(), "data"))
 # Initialize Data Flow Engine (routes all module data through calendar)
 init_data_flow(data_dir=os.path.join(os.getcwd(), "data"))
 
+# Initialize Learning Engine (makes app learn from user behavior)
+init_learning(data_dir=os.path.join(os.getcwd(), "data"))
+
+# Note: Curiosity, Intelligence, and Jurisdiction engines initialize on first use
+
 # Register Blueprints
 app.register_blueprint(ledger_calendar_bp)
 app.register_blueprint(data_flow_bp)
 app.register_blueprint(ledger_tracking_bp)
 app.register_blueprint(ledger_admin_bp)
 app.register_blueprint(av_routes_bp)
+app.register_blueprint(learning_bp)
+app.register_blueprint(journey_bp)  # Tenant Journey with all intelligence systems
+
+# Complaint Filing System - Multi-venue complaint filing with up-to-date procedures
+try:
+    from complaint_filing_routes import complaint_filing_bp
+    app.register_blueprint(complaint_filing_bp)
+except ImportError:
+    pass
+
+# Housing Programs & Resources - Discover ALL assistance programs (federal, state, county, city, nonprofit)
+try:
+    from housing_programs_routes import housing_programs_bp
+    app.register_blueprint(housing_programs_bp)
+except ImportError:
+    pass
 
 # ============================================================================
 # Wire ALL Modules Through Calendar System (Central Hub)
@@ -134,9 +164,117 @@ def token_recovery():
     return render_template('token_recovery.html')
 
 if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
-    @app.route('/register')
+    @app.route('/register', methods=['GET'])
     def register():
         return render_template('register.html')
+
+# ============================================================================
+# ADAPTIVE REGISTRATION API (Automatically learns from user data)
+# ============================================================================
+
+@app.route('/api/register/adaptive', methods=['POST'])
+def api_register_adaptive():
+    """
+    Adaptive user registration - automatically learns location.
+
+    User provides: address (or city/state/zip) + optional rent/fee data
+    System automatically: detects location, discovers resources, learns laws
+    """
+    data = request.get_json()
+
+    if not data:
+        return {"error": "No data provided"}, 400
+
+    try:
+        # Register user and learn from their data
+        user_profile = register_user_adaptive(data)
+
+        return {
+            "success": True,
+            "user_profile": user_profile,
+            "message": f"Welcome! Discovered resources for {user_profile['location']['city']}, {user_profile['location']['state']}"
+        }, 200
+
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@app.route('/api/issue/report', methods=['POST'])
+def api_report_issue():
+    """
+    Report issue - system learns from it.
+
+    Provides applicable laws, procedures, resources for user's location.
+    """
+    data = request.get_json()
+
+    if not data or not data.get('user_id') or not data.get('location_key'):
+        return {"error": "Missing user_id or location_key"}, 400
+
+    try:
+        issue_response = report_issue_adaptive(
+            data['user_id'],
+            data['location_key'],
+            data.get('issue_data', {})
+        )
+
+        return {
+            "success": True,
+            "issue_response": issue_response
+        }, 200
+
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@app.route('/api/outcome/report', methods=['POST'])
+def api_report_outcome():
+    """
+    Report outcome - system learns procedures from real results.
+    """
+    data = request.get_json()
+
+    if not data or not data.get('location_key'):
+        return {"error": "Missing location_key"}, 400
+
+    try:
+        report_outcome_adaptive(
+            data['location_key'],
+            data.get('outcome_data', {})
+        )
+
+        return {
+            "success": True,
+            "message": "Thanks for sharing! This will help others in your area."
+        }, 200
+
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@app.route('/api/resource/contribute', methods=['POST'])
+def api_contribute_resource():
+    """
+    Contribute resource - helps other users in same area.
+    """
+    data = request.get_json()
+
+    if not data or not data.get('location_key'):
+        return {"error": "Missing location_key"}, 400
+
+    try:
+        contribute_resource_adaptive(
+            data['location_key'],
+            data.get('resource_data', {})
+        )
+
+        return {
+            "success": True,
+            "message": "Resource added - thank you for helping others!"
+        }, 200
+
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 if not _has_vault_bp:
     @app.route('/vault')
@@ -1275,7 +1413,8 @@ def _compat_pre_requests():
                                     break
                             except Exception:
                                 continue
-                    uid = found
+                    if found:
+                        uid = found
             except Exception:
                 pass
         if not uid:
