@@ -49,6 +49,7 @@
     "qt-tools.enable": false,
     // Disable automatic Python file task detection (prevents /usr/local/bin/python errors on Windows)
     "python.terminal.activateEnvironment": true,
+    "task.autoDetect": "off",
     "files.exclude": {
         "**/__pycache__": true,
         "**/*.pyc": true
