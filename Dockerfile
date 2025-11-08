@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile
+# Multi-stage Dockerfile - Cache buster: 2025-11-08
 FROM python:3.11-slim AS builder
 ARG GIT_SHA="dev"
 ARG BUILD_TIME="unknown"
