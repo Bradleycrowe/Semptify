@@ -105,6 +105,14 @@ def _load_json(path: str, default=None):
         pass
     return default if default is not None else {}
 
+def get_token_from_request(request) -> Optional[str]:
+    """Extract user token from request (header, args, or form)."""
+    return (
+        request.headers.get('X-User-Token') or
+        request.args.get('user_token') or
+        request.form.get('user_token')
+    )
+
 def validate_user_token(token: Optional[str]) -> Optional[str]:
     """Validate a user token and return the user ID if valid."""
     if not token:
