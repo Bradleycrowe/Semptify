@@ -1,8 +1,12 @@
-# Multi-stage Dockerfile - Cache buster: 2025-11-08
+# Multi-stage Dockerfile - FORCE REBUILD: 2025-11-08-v2
 FROM python:3.11-slim AS builder
 ARG GIT_SHA="dev"
 ARG BUILD_TIME="unknown"
+ARG CACHE_BUST="2025-11-08-v2"
 WORKDIR /app
+
+# Verify Python version
+RUN python --version && python --version | grep "3.11" || (echo "ERROR: Wrong Python version!" && exit 1)
 
 # Install build/test dependencies and app requirements (cached separately from source)
 COPY requirements.txt ./
@@ -19,8 +23,10 @@ COPY . /app
 FROM python:3.11-slim AS runtime
 ARG GIT_SHA="dev"
 ARG BUILD_TIME="unknown"
+ARG CACHE_BUST="2025-11-08-v2"
 ENV GIT_SHA=${GIT_SHA} \
-	BUILD_TIME=${BUILD_TIME}
+	BUILD_TIME=${BUILD_TIME} \
+	CACHE_BUST=${CACHE_BUST}
 WORKDIR /app
 
 # Copy pre-installed dependencies from builder to avoid re-install (smaller & faster)
