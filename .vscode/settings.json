@@ -46,5 +46,11 @@
     "markdown.validate.enabled": false,
     // Disable Qt/QML extensions (not needed for Flask web app)
     "qmlls.enabled": false,
-    "qt-tools.enable": false
+    "qt-tools.enable": false,
+    // Disable automatic Python file task detection (prevents /usr/local/bin/python errors on Windows)
+    "python.terminal.activateEnvironment": true,
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true
+    }
 }
