@@ -42,6 +42,9 @@
     // Pin the workspace Python interpreter to the project venv (Python 3.11 for Qt5 compatibility)
     "python.defaultInterpreterPath": "${workspaceFolder}\\.venv311\\Scripts\\python.exe",
     "python.pythonPath": "${workspaceFolder}\\.venv311\\Scripts\\python.exe",
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.terminal.focusAfterLaunch": false,
+    "python.terminal.launchArgs": [],
     "chat.todoListTool.writeOnly": true,
     "markdown.validate.enabled": false,
     // Disable Qt/QML extensions (not needed for Flask web app)
@@ -50,6 +53,16 @@
     // Disable automatic Python file task detection (prevents /usr/local/bin/python errors on Windows)
     "python.terminal.activateEnvironment": true,
     "task.autoDetect": "off",
+    "python.experiments.enabled": false,
+    "python.experiments.optInto": [],
+    "python.experiments.optOutFrom": ["All", "pythonTerminalEnvVarActivation"],
+    // Disable Python debugger auto-attach and task discovery
+    "python.terminal.executeInFileDir": false,
+    "python.createEnvironment.trigger": "off",
+    "python.analysis.autoImportCompletions": false,
+    "files.associations": {
+        "*.py": "python"
+    },
     "files.exclude": {
         "**/__pycache__": true,
         "**/*.pyc": true

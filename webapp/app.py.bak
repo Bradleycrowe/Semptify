@@ -9,7 +9,13 @@ Usage (PowerShell):
 
 The app is configured to look for templates/static in the repo
 relative locations.
+
+NOTE: This file should NOT be auto-executed by IDE task detection.
+Use the main Semptify.py or run_prod.py instead for the full app.
 """
+# VS Code: Do not auto-detect this file as a runnable task
+# This is a minimal placeholder for tools expecting webapp/app.py
+
 from flask import Flask, render_template
 
 app = Flask(__name__, static_folder='../static', template_folder='../templates')
