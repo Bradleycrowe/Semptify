@@ -102,3 +102,7 @@ brads_books/
 brads_books/
 *.pdf
 *.docx
+ollama.zip
+OllamaSetup.exe
+*.exe
+*.zip
