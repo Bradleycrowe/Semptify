@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Complaint - All Available Venues</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .tagline {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .step.active .step-circle {
+            background: #667eea;
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.8em;
+            color: #718096;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .venue-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .venue-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .venue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .venue-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .effectiveness-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .effectiveness-high {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .effectiveness-medium {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+
+        .venue-details {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .venue-contact {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .timeline {
+            background: #edf2f7;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .timeline-step {
+            margin-bottom: 10px;
+        }
+
+        .timeline-step strong {
+            color: #2d3748;
+        }
+
+        .success-probability {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .success-probability h3 {
+            margin-bottom: 10px;
+        }
+
+        .success-percentage {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border-left: 4px solid #3182ce;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 File Complaint - All Available Venues</h1>
+        <p class="tagline">We'll identify EVERY place you can file and help you maximize impact</p>
+
+        <div class="step-indicator">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Issue</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Location</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Details</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Strategy</div>
+            </div>
+        </div>
+
+        <!-- STEP 1: Issue Type -->
+        <div class="form-section active" data-section="1">
+            <div class="form-group">
+                <label>What type of issue are you facing?</label>
+                <select id="issueType" required>
+                    <option value="">Select issue type...</option>
+                    <optgroup label="Discrimination">
+                        <option value="discrimination_disability">Disability Discrimination</option>
+                        <option value="discrimination_race">Race Discrimination</option>
+                        <option value="discrimination_familial">Familial Status Discrimination</option>
+                        <option value="discrimination_sex">Sex/Gender Discrimination</option>
+                        <option value="discrimination_national_origin">National Origin Discrimination</option>
+                        <option value="discrimination_religion">Religious Discrimination</option>
+                        <option value="reasonable_accommodation_denied">Reasonable Accommodation Denied</option>
+                        <option value="service_animal_denied">Service Animal Denied</option>
+                    </optgroup>
+                    <optgroup label="Habitability & Safety">
+                        <option value="no_heat">No Heat/Heating Issues</option>
+                        <option value="no_water">No Water/Plumbing Issues</option>
+                        <option value="mold">Mold/Moisture Problems</option>
+                        <option value="pest_infestation">Pest Infestation</option>
+                        <option value="electrical_hazard">Electrical Hazards</option>
+                        <option value="structural_issues">Structural Problems</option>
+                        <option value="lead_paint">Lead Paint Hazard</option>
+                        <option value="health_hazard">Other Health/Safety Hazard</option>
+                    </optgroup>
+                    <optgroup label="Section 8 / Housing Assistance">
+                        <option value="section8_voucher_discrimination">Section 8 Discrimination</option>
+                        <option value="section8_pha_issues">PHA Issues</option>
+                        <option value="section8_payment_issues">Payment Issues</option>
+                    </optgroup>
+                    <optgroup label="Eviction & Legal">
+                        <option value="illegal_eviction">Illegal Eviction</option>
+                        <option value="eviction_retaliation">Retaliatory Eviction</option>
+                        <option value="improper_notice">Improper Notice</option>
+                    </optgroup>
+                    <optgroup label="Financial">
+                        <option value="security_deposit_violations">Security Deposit Violations</option>
+                        <option value="illegal_fees">Illegal Fees</option>
+                        <option value="rent_overcharge">Rent Overcharge</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>How urgent is this issue?</label>
+                <select id="urgency" required>
+                    <option value="normal">Normal - Can wait a few days</option>
+                    <option value="urgent">Urgent - Need response this week</option>
+                    <option value="emergency">EMERGENCY - Immediate danger (no heat in winter, no water, etc.)</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="nextStep()">Next: Location →</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Location -->
+        <div class="form-section" data-section="2">
+            <div class="form-group">
+                <label>City</label>
+                <input type="text" id="city" placeholder="e.g., Eagan" required>
+            </div>
+
+            <div class="form-group">
+                <label>County</label>
+                <input type="text" id="county" placeholder="e.g., Dakota County" required>
+            </div>
+
+            <div class="form-group">
+                <label>State</label>
+                <input type="text" id="state" placeholder="e.g., Minnesota" required>
+            </div>
+
+            <div class="form-group">
+                <label>ZIP Code</label>
+                <input type="text" id="zip" placeholder="e.g., 55122" required>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="prevStep()">← Back</button>
+                <button type="button" class="btn-primary" onclick="nextStep()">Next: Details →</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Additional Details -->
+        <div class="form-section" data-section="3">
+            <div class="form-group">
+                <label>Do you have Section 8 or other housing assistance?</label>
+                <select id="hasSection8">
+                    <option value="no">No</option>
+                    <option value="yes">Yes - Section 8 voucher</option>
+                    <option value="other">Yes - Other assistance</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Do you have a documented disability?</label>
+                <select id="hasDisability">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                    <option value="prefer_not">Prefer not to say</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Brief description of the issue (optional but helpful)</label>
+                <textarea id="issueDescription" placeholder="e.g., Landlord refuses to fix broken heater. It's been 2 weeks with no heat in winter."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="prevStep()">← Back</button>
+                <button type="button" class="btn-primary" onclick="generateStrategy()">Find All Filing Venues →</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Results -->
+        <div class="form-section" data-section="4">
+            <div id="loadingSection" class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your situation and identifying all filing venues...</p>
+            </div>
+
+            <div id="resultsSection" style="display: none;">
+                <!-- Results populated by JavaScript -->
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="startOver()">← Start Over</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let strategyData = null;
+
+        function nextStep() {
+            // Validate current step
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            currentStep++;
+            updateStepDisplay();
+        }
+
+        function prevStep() {
+            currentStep--;
+            updateStepDisplay();
+        }
+
+        function updateStepDisplay() {
+            // Update step indicators
+            document.querySelectorAll('.step').forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                step.classList.remove('active', 'completed');
+                if (stepNum === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+
+            // Update form sections
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${currentStep}"]`).classList.add('active');
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const issueType = document.getElementById('issueType').value;
+                const urgency = document.getElementById('urgency').value;
+                if (!issueType || !urgency) {
+                    alert('Please fill in all required fields');
+                    return false;
+                }
+            } else if (step === 2) {
+                const city = document.getElementById('city').value;
+                const state = document.getElementById('state').value;
+                if (!city || !state) {
+                    alert('Please fill in at least city and state');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        async function generateStrategy() {
+            currentStep = 4;
+            updateStepDisplay();
+
+            // Show loading
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+
+            // Collect form data
+            const data = {
+                issue_type: document.getElementById('issueType').value,
+                location: {
+                    city: document.getElementById('city').value,
+                    county: document.getElementById('county').value,
+                    state: document.getElementById('state').value,
+                    zip: document.getElementById('zip').value
+                },
+                user_situation: {
+                    has_section8: document.getElementById('hasSection8').value === 'yes',
+                    has_disability: document.getElementById('hasDisability').value === 'yes',
+                    description: document.getElementById('issueDescription').value
+                },
+                urgency: document.getElementById('urgency').value
+            };
+
+            try {
+                const response = await fetch('/api/complaint/identify-venues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    strategyData = result.strategy;
+                    displayStrategy(result.strategy);
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
+
+        function displayStrategy(strategy) {
+            document.getElementById('loadingSection').style.display = 'none';
+
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.style.display = 'block';
+
+            let html = `
+                <h2>🎯 Your Complete Filing Strategy</h2>
+                <p style="color: #718096; margin-bottom: 20px;">${strategy.strategy_overview}</p>
+
+                <div class="success-probability">
+                    <h3>Success Probability</h3>
+                    <div class="success-percentage">${strategy.success_probability}</div>
+                    <p style="margin-top: 10px;">${strategy.verified_by}</p>
+                </div>
+            `;
+
+            // Immediate actions
+            if (strategy.immediate_actions && strategy.immediate_actions.length > 0) {
+                html += '<h3 style="margin-top: 30px; color: #2d3748;">🚨 IMMEDIATE ACTION (Do This First)</h3>';
+                strategy.immediate_actions.forEach(action => {
+                    html += generateVenueCard(action);
+                });
+            }
+
+            // Simultaneous filings
+            if (strategy.simultaneous_filings && strategy.simultaneous_filings.length > 0) {
+                html += '<h3 style="margin-top: 30px; color: #2d3748;">📋 File Simultaneously (Maximum Pressure)</h3>';
+                html += '<div class="alert alert-info">Filing with multiple venues simultaneously increases pressure and likelihood of resolution.</div>';
+                strategy.simultaneous_filings.forEach(action => {
+                    html += generateVenueCard(action);
+                });
+            }
+
+            // Timeline
+            if (strategy.timeline) {
+                html += '<h3 style="margin-top: 30px; color: #2d3748;">📅 Expected Timeline</h3>';
+                html += '<div class="timeline">';
+                for (const [period, action] of Object.entries(strategy.timeline)) {
+                    html += `<div class="timeline-step"><strong>${period}:</strong> ${action}</div>`;
+                }
+                html += '</div>';
+            }
+
+            // Escalation path
+            if (strategy.escalation_path && strategy.escalation_path.length > 0) {
+                html += '<h3 style="margin-top: 30px; color: #2d3748;">⚡ Escalation Path (If Needed)</h3>';
+                html += '<div class="timeline">';
+                strategy.escalation_path.forEach(step => {
+                    html += `
+                        <div class="timeline-step">
+                            <strong>Step ${step.step}:</strong> ${step.action}<br>
+                            <small style="color: #718096;">Trigger: ${step.trigger}</small><br>
+                            <small style="color: #718096;">Why: ${step.why}</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            resultsSection.innerHTML = html;
+        }
+
+        function generateVenueCard(action) {
+            const venue = action.venue;
+            const venueData = venue.venue_data;
+            const effectiveness = venue.effectiveness || 0.5;
+            const effectivenessClass = effectiveness >= 0.75 ? 'effectiveness-high' : 'effectiveness-medium';
+            const effectivenessLabel = effectiveness >= 0.75 ? 'HIGH SUCCESS' : 'GOOD SUCCESS';
+
+            let html = `
+                <div class="venue-card">
+                    <div class="venue-header">
+                        <div class="venue-name">${venueData.name}</div>
+                        <div class="effectiveness-badge ${effectivenessClass}">${effectivenessLabel} (${Math.round(effectiveness * 100)}%)</div>
+                    </div>
+                    <div class="venue-details">
+                        <p><strong>Why file here:</strong> ${action.why}</p>
+                        <p><strong>Expected timeline:</strong> ${action.timeline}</p>
+            `;
+
+            if (venueData.contact) {
+                html += '<div class="venue-contact">';
+                if (venueData.contact.phone) {
+                    html += `<div class="contact-item">📞 ${venueData.contact.phone}</div>`;
+                }
+                if (venueData.contact.website) {
+                    html += `<div class="contact-item">🌐 <a href="${venueData.contact.website}" target="_blank">File Online</a></div>`;
+                }
+                html += '</div>';
+            }
+
+            html += '</div></div>';
+            return html;
+        }
+
+        function startOver() {
+            currentStep = 1;
+            updateStepDisplay();
+            document.getElementById('issueType').value = '';
+            document.getElementById('urgency').value = 'normal';
+        }
+    </script>
+</body>
+</html>

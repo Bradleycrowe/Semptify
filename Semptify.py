@@ -685,8 +685,9 @@ def metrics():
         return text, 200, {'Content-Type': 'text/plain; charset=utf-8'}
     else:
         # Default: return as JSON with latency stats included
-        metrics_dict['latency_stats'] = latency_stats
-        return jsonify(metrics_dict), 200
+        response_data = dict(metrics_dict)
+        response_data.update({"latency_stats": latency_stats})
+        return jsonify(response_data), 200
 
 # Minimal /copilot page
 @app.route("/copilot", methods=["GET"])
@@ -1257,58 +1258,49 @@ def health():
 @app.before_request
 def _compat_pre_requests():
     # Provide simple auth gating for /vault endpoints using the security helpers
-    try:
-        from security import validate_user_token, _require_admin_or_401, _get_or_create_csrf_token, _load_json, ADMIN_FILE, _atomic_write_json, _is_admin_token
-    except Exception:
-        # If security helpers are not available, skip compatibility logic
-        return None
-
     # Vault auth: require a valid user token for any /vault path
     if request.path.startswith('/vault'):
         token = request.args.get('user_token') or request.form.get('user_token') or request.headers.get('X-User-Token')
-        uid = validate_user_token(token)
-        if not uid:
+        uid = None
+        if token is not None and isinstance(token, str):
+            uid = validate_user_token(token)
+        if not uid and token:
             # fallback: read users.json from current working directory directly
-            try:
-                up = os.path.join(os.getcwd(), 'security', 'users.json')
-                if os.path.exists(up):
-                    with open(up, 'r', encoding='utf-8') as uf:
-                        udata = json.load(uf)
-                    h = None
-                    if token:
-                        h = hashlib.sha256(token.encode()).hexdigest()
-                    found = None
-                    if isinstance(udata, dict):
-                        for k, v in udata.items():
-                            stored = v.get('hash') if isinstance(v, dict) else v
+            up = os.path.join(os.getcwd(), 'security', 'users.json')
+            if os.path.exists(up):
+                with open(up, 'r', encoding='utf-8') as uf:
+                    udata = json.load(uf)
+                h = hashlib.sha256(token.encode()).hexdigest()
+                found = None
+                if isinstance(udata, dict):
+                    for k, v in udata.items():
+                        stored = v.get('hash') if isinstance(v, dict) else v
+                        if isinstance(stored, str) and stored.startswith('sha256:'):
+                            stored = stored.split(':',1)[1]
+                        if h and stored == h:
+                            found = k
+                            break
+                elif isinstance(udata, list):
+                    for it in udata:
+                        try:
+                            stored = it.get('hash') or it.get('h') or ''
                             if isinstance(stored, str) and stored.startswith('sha256:'):
                                 stored = stored.split(':',1)[1]
                             if h and stored == h:
-                                found = k
+                                found = it.get('id')
                                 break
-                    elif isinstance(udata, list):
-                        for it in udata:
-                            try:
-                                stored = it.get('hash') or it.get('h') or ''
-                                if isinstance(stored, str) and stored.startswith('sha256:'):
-                                    stored = stored.split(':',1)[1]
-                                if h and stored == h:
-                                    found = it.get('id')
-                                    break
-                            except Exception:
-                                continue
-                    if found:
-                        from flask import g
-                        g.user_id = found
-                        uid = found
-            except Exception:
-                pass
+                        except Exception:
+                            continue
+                if found:
+                    from flask import g
+                    g.user_id = found
+                    uid = found
         if not uid:
             from flask import abort
             abort(401)
-        # attach for handlers that might want it
-        from flask import g
-        g.user_id = uid
+        else:
+            from flask import g
+            g.user_id = uid
 
     # Admin gating for /admin: allow if compatibility shim says so
     if request.path == '/admin':
@@ -1387,50 +1379,44 @@ def _compat_pre_requests():
         uid = validate_user_token(token)
         if not uid:
             # fallback to local users.json check
-            try:
-                up = os.path.join(os.getcwd(), 'security', 'users.json')
-                if os.path.exists(up):
-                    with open(up, 'r', encoding='utf-8') as uf:
-                        udata = json.load(uf)
-                    h = hashlib.sha256(token.encode()).hexdigest() if token else None
-                    found = None
-                    if isinstance(udata, dict):
-                        for k, v in udata.items():
-                            stored = v.get('hash') if isinstance(v, dict) else v
+            up = os.path.join(os.getcwd(), 'security', 'users.json')
+            if os.path.exists(up):
+                with open(up, 'r', encoding='utf-8') as uf:
+                    udata = json.load(uf)
+                h = hashlib.sha256(token.encode()).hexdigest() if token else None
+                found = None
+                if isinstance(udata, dict):
+                    for k, v in udata.items():
+                        stored = v.get('hash') if isinstance(v, dict) else v
+                        if isinstance(stored, str) and stored.startswith('sha256:'):
+                            stored = stored.split(':',1)[1]
+                        if h and stored == h:
+                            found = k
+                            break
+                elif isinstance(udata, list):
+                    for it in udata:
+                        try:
+                            stored = it.get('hash') or it.get('h') or ''
                             if isinstance(stored, str) and stored.startswith('sha256:'):
                                 stored = stored.split(':',1)[1]
                             if h and stored == h:
-                                found = k
+                                found = it.get('id')
                                 break
-                    elif isinstance(udata, list):
-                        for it in udata:
-                            try:
-                                stored = it.get('hash') or it.get('h') or ''
-                                if isinstance(stored, str) and stored.startswith('sha256:'):
-                                    stored = stored.split(':',1)[1]
-                                if h and stored == h:
-                                    found = it.get('id')
-                                    break
-                            except Exception:
-                                continue
-                    if found:
-                        uid = found
-            except Exception:
-                pass
+                        except Exception:
+                            continue
+                if found:
+                    uid = found
         if not uid:
             from flask import abort
             abort(401)
         # create a notary cert file next to the uploaded file
-        try:
-            uploads_dir = os.path.join(os.getcwd(), 'uploads', 'vault', uid)
-            os.makedirs(uploads_dir, exist_ok=True)
-            ts = int(time.time())
-            cert_path = os.path.join(uploads_dir, f'notary_{ts}_test.json')
-            cert = {'type': 'notary', 'user_id': uid, 'filename': filename, 'ts': ts}
-            with open(cert_path, 'w', encoding='utf-8') as cf:
-                json.dump(cert, cf)
-        except Exception:
-            pass
+        uploads_dir = os.path.join(os.getcwd(), 'uploads', 'vault', str(uid))
+        os.makedirs(uploads_dir, exist_ok=True)
+        ts = int(time.time())
+        cert_path = os.path.join(uploads_dir, f'notary_{ts}_test.json')
+        cert = {'type': 'notary', 'user_id': uid, 'filename': filename, 'ts': ts}
+        with open(cert_path, 'w', encoding='utf-8') as cf:
+            json.dump(cert, cf)
         return "OK", 200
 
 

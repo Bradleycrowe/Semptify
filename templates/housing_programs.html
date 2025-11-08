@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Housing Programs & Resources - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .emergency-banner {
+            background: #ff4444;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        .emergency-banner.show {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .emergency-banner h2 {
+            margin-bottom: 10px;
+        }
+
+        .emergency-banner .phone {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .wizard-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .step-indicator {
+            display: flex;
+            background: #f5f7fa;
+            padding: 20px;
+            justify-content: space-between;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            color: #666;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .step.active .step-number {
+            background: #667eea;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .step.active .step-label {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .wizard-content {
+            padding: 40px;
+        }
+
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .category-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .category-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .category-card.selected {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .category-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .category-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .urgency-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .urgency-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .urgency-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .urgency-option.selected {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .urgency-option.emergency {
+            border-color: #ff4444;
+        }
+
+        .urgency-option.emergency.selected {
+            background: #fff5f5;
+            border-color: #ff4444;
+        }
+
+        .wizard-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-emergency {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-emergency:hover {
+            background: #ee3333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .results-header h2 {
+            margin-bottom: 10px;
+        }
+
+        .program-section {
+            margin-bottom: 30px;
+        }
+
+        .program-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .program-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .program-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .program-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .program-title {
+            flex: 1;
+        }
+
+        .program-title h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .program-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f7fafc;
+            border-radius: 12px;
+            font-size: 0.85em;
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .program-level {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .level-federal {
+            background: #c3dafe;
+            color: #2c5282;
+        }
+
+        .level-state {
+            background: #d4f4dd;
+            color: #22543d;
+        }
+
+        .level-county {
+            background: #fef5e7;
+            color: #975a16;
+        }
+
+        .level-city {
+            background: #fce4ec;
+            color: #b83280;
+        }
+
+        .level-nonprofit {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        .program-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .program-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .program-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .first-steps {
+            background: #fff9db;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .first-steps h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .first-steps ol {
+            margin-left: 20px;
+        }
+
+        .first-steps li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .eligibility-box {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .eligibility-box h3 {
+            color: #22543d;
+            margin-bottom: 15px;
+        }
+
+        .eligibility-programs {
+            list-style: none;
+        }
+
+        .eligibility-programs li {
+            padding: 8px 0;
+            border-bottom: 1px solid #d4f4dd;
+        }
+
+        .eligibility-programs li:before {
+            content: "✓ ";
+            color: #48bb78;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .urgency-selector {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .step-label {
+                font-size: 0.75em;
+            }
+
+            .wizard-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Housing Programs & Resources</h1>
+            <p>Find ALL available assistance programs in your area</p>
+        </div>
+
+        <div class="emergency-banner" id="emergencyBanner">
+            <h2>🚨 NEED HELP RIGHT NOW?</h2>
+            <div class="phone">Call or Text: 211</div>
+            <p>United Way 211 connects you to emergency resources 24/7. They can help with rent, utilities, food, shelter, and more.</p>
+        </div>
+
+        <div class="wizard-container">
+            <div class="step-indicator">
+                <div class="step active" id="stepIndicator1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Location</div>
+                </div>
+                <div class="step" id="stepIndicator2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">What You Need</div>
+                </div>
+                <div class="step" id="stepIndicator3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Your Situation</div>
+                </div>
+                <div class="step" id="stepIndicator4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Results</div>
+                </div>
+            </div>
+
+            <div class="wizard-content">
+                <!-- Step 1: Location -->
+                <div class="wizard-step active" id="step1">
+                    <h2>Where do you live?</h2>
+                    <p style="color: #666; margin-bottom: 30px;">We'll find programs available in your area</p>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="city" placeholder="Minneapolis">
+                        </div>
+                        <div class="form-group">
+                            <label>County</label>
+                            <input type="text" id="county" placeholder="Hennepin">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>State *</label>
+                            <input type="text" id="state" placeholder="MN" maxlength="2" style="text-transform: uppercase;" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ZIP Code</label>
+                            <input type="text" id="zip" placeholder="55401" maxlength="5">
+                        </div>
+                    </div>
+
+                    <div class="wizard-buttons">
+                        <div></div>
+                        <button class="btn btn-primary" onclick="nextStep(1)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Categories -->
+                <div class="wizard-step" id="step2">
+                    <h2>What do you need help with?</h2>
+                    <p style="color: #666; margin-bottom: 30px;">Select all that apply - we'll find programs for everything you check</p>
+
+                    <div class="category-grid" id="categoryGrid">
+                        <!-- Categories will be loaded here -->
+                    </div>
+
+                    <div class="wizard-buttons">
+                        <button class="btn btn-secondary" onclick="previousStep(2)">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep(2)">Next →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Situation Details -->
+                <div class="wizard-step" id="step3">
+                    <h2>Tell us about your situation</h2>
+                    <p style="color: #666; margin-bottom: 30px;">This helps us find the best programs and check eligibility</p>
+
+                    <div class="form-group">
+                        <label>How urgent is your need?</label>
+                        <div class="urgency-selector">
+                            <div class="urgency-option" onclick="selectUrgency('routine')">
+                                <div style="font-size: 2em;">📅</div>
+                                <div style="font-weight: 600;">Routine</div>
+                                <div style="font-size: 0.85em; color: #666;">Planning ahead</div>
+                            </div>
+                            <div class="urgency-option" onclick="selectUrgency('soon')">
+                                <div style="font-size: 2em;">⏰</div>
+                                <div style="font-weight: 600;">Soon</div>
+                                <div style="font-size: 0.85em; color: #666;">Within 30 days</div>
+                            </div>
+                            <div class="urgency-option" onclick="selectUrgency('urgent')">
+                                <div style="font-size: 2em;">⚠️</div>
+                                <div style="font-weight: 600;">Urgent</div>
+                                <div style="font-size: 0.85em; color: #666;">Within 7 days</div>
+                            </div>
+                            <div class="urgency-option emergency" onclick="selectUrgency('emergency')">
+                                <div style="font-size: 2em;">🚨</div>
+                                <div style="font-weight: 600;">Emergency</div>
+                                <div style="font-size: 0.85em; color: #666;">Right now</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Household Size (Optional)</label>
+                            <input type="number" id="householdSize" placeholder="3" min="1">
+                            <small style="color: #666;">How many people live with you?</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Annual Income (Optional)</label>
+                            <input type="number" id="annualIncome" placeholder="28000" min="0">
+                            <small style="color: #666;">Total household income per year</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Special Circumstances (Check all that apply)</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" value="veteran" class="special-need">
+                                <span>🎖️ Veteran</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" value="disability" class="special-need">
+                                <span>♿ Disability</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" value="senior" class="special-need">
+                                <span>👴 Senior (65+)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" value="homeless" class="special-need">
+                                <span>🏚️ Homeless/At Risk</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="forLandlord">
+                            <span>I'm a landlord looking for landlord programs</span>
+                        </label>
+                    </div>
+
+                    <div class="wizard-buttons">
+                        <button class="btn btn-secondary" onclick="previousStep(3)">← Back</button>
+                        <button class="btn btn-primary" onclick="searchPrograms()">Find Programs 🔍</button>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <h3>Searching for programs...</h3>
+                    <p>Checking federal, state, county, city, and nonprofit resources in your area</p>
+                </div>
+
+                <!-- Results -->
+                <div class="results" id="results">
+                    <div class="results-header">
+                        <h2>✅ We Found Programs For You!</h2>
+                        <p id="resultsSubheader">Programs available in your area</p>
+                    </div>
+
+                    <div id="firstSteps"></div>
+                    <div id="eligibilityGuidance"></div>
+                    <div id="emergencyContacts"></div>
+                    
+                    <div id="federalPrograms"></div>
+                    <div id="statePrograms"></div>
+                    <div id="countyPrograms"></div>
+                    <div id="cityPrograms"></div>
+                    <div id="nonprofitResources"></div>
+
+                    <div class="wizard-buttons">
+                        <button class="btn btn-secondary" onclick="resetWizard()">← Start New Search</button>
+                        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedCategories = [];
+        let selectedUrgency = 'routine';
+        let searchResults = null;
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/programs/all-categories');
+                const data = await response.json();
+                
+                const grid = document.getElementById('categoryGrid');
+                grid.innerHTML = '';
+                
+                data.categories.forEach(cat => {
+                    const card = document.createElement('div');
+                    card.className = 'category-card';
+                    card.onclick = () => toggleCategory(cat.id, card);
+                    card.innerHTML = `
+                        <div class="category-icon">${cat.icon}</div>
+                        <div class="category-name">${cat.name}</div>
+                        <div class="category-desc">${cat.description}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        function toggleCategory(categoryId, element) {
+            if (selectedCategories.includes(categoryId)) {
+                selectedCategories = selectedCategories.filter(c => c !== categoryId);
+                element.classList.remove('selected');
+            } else {
+                selectedCategories.push(categoryId);
+                element.classList.add('selected');
+            }
+        }
+
+        function selectUrgency(urgency) {
+            selectedUrgency = urgency;
+            
+            // Update UI
+            document.querySelectorAll('.urgency-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Show/hide emergency banner
+            if (urgency === 'emergency') {
+                document.getElementById('emergencyBanner').classList.add('show');
+            } else {
+                document.getElementById('emergencyBanner').classList.remove('show');
+            }
+        }
+
+        function nextStep(step) {
+            // Validation
+            if (step === 1) {
+                const state = document.getElementById('state').value.trim();
+                if (!state) {
+                    alert('Please enter your state');
+                    return;
+                }
+            }
+            
+            // Update step
+            document.getElementById(`step${step}`).classList.remove('active');
+            document.getElementById(`step${step + 1}`).classList.add('active');
+            
+            // Update indicators
+            document.getElementById(`stepIndicator${step}`).classList.remove('active');
+            document.getElementById(`stepIndicator${step}`).classList.add('completed');
+            document.getElementById(`stepIndicator${step + 1}`).classList.add('active');
+            
+            currentStep = step + 1;
+        }
+
+        function previousStep(step) {
+            document.getElementById(`step${step}`).classList.remove('active');
+            document.getElementById(`step${step - 1}`).classList.add('active');
+            
+            document.getElementById(`stepIndicator${step}`).classList.remove('active');
+            document.getElementById(`stepIndicator${step - 1}`).classList.remove('completed');
+            document.getElementById(`stepIndicator${step - 1}`).classList.add('active');
+            
+            currentStep = step - 1;
+        }
+
+        async function searchPrograms() {
+            // Gather data
+            const location = {
+                city: document.getElementById('city').value.trim(),
+                county: document.getElementById('county').value.trim(),
+                state: document.getElementById('state').value.trim().toUpperCase(),
+                zip: document.getElementById('zip').value.trim()
+            };
+            
+            const householdSize = document.getElementById('householdSize').value;
+            const annualIncome = document.getElementById('annualIncome').value;
+            
+            const specialNeeds = Array.from(document.querySelectorAll('.special-need:checked'))
+                .map(cb => cb.value);
+            
+            const forLandlord = document.getElementById('forLandlord').checked;
+            
+            // Show loading
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('loading').classList.add('show');
+            
+            try {
+                const response = await fetch('/api/programs/search', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        location,
+                        categories: selectedCategories.length > 0 ? selectedCategories : null,
+                        urgency: selectedUrgency,
+                        household_size: householdSize ? parseInt(householdSize) : null,
+                        annual_income: annualIncome ? parseFloat(annualIncome) : null,
+                        special_needs: specialNeeds.length > 0 ? specialNeeds : null,
+                        for_landlord: forLandlord
+                    })
+                });
+                
+                searchResults = await response.json();
+                displayResults(searchResults);
+                
+                // Update step indicators
+                document.getElementById('stepIndicator3').classList.remove('active');
+                document.getElementById('stepIndicator3').classList.add('completed');
+                document.getElementById('stepIndicator4').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error searching programs:', error);
+                alert('Error searching programs. Please try again.');
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('step3').classList.add('active');
+            }
+        }
+
+        function displayResults(data) {
+            // Hide loading, show results
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('results').classList.add('show');
+            
+            // Update header
+            const total = 
+                (data.federal_programs?.length || 0) +
+                (data.state_programs?.length || 0) +
+                (data.county_programs?.length || 0) +
+                (data.city_programs?.length || 0) +
+                (data.nonprofit_resources?.length || 0);
+            
+            document.getElementById('resultsSubheader').textContent = 
+                `${total} programs and resources found in ${data.location.city || data.location.county || data.location.state}`;
+            
+            // First steps
+            if (data.recommended_first_steps?.length > 0) {
+                const firstStepsDiv = document.getElementById('firstSteps');
+                firstStepsDiv.innerHTML = `
+                    <div class="first-steps">
+                        <h3>📋 Recommended First Steps</h3>
+                        <ol>
+                            ${data.recommended_first_steps.map(step => `
+                                <li>
+                                    <strong>${step.action}</strong>
+                                    ${step.description ? `<br><em>${step.description}</em>` : ''}
+                                    ${step.why ? `<br>💡 <em>Why: ${step.why}</em>` : ''}
+                                </li>
+                            `).join('')}
+                        </ol>
+                    </div>
+                `;
+            }
+            
+            // Eligibility guidance
+            if (data.eligibility_guidance?.likely_eligible_programs?.length > 0) {
+                const eligDiv = document.getElementById('eligibilityGuidance');
+                eligDiv.innerHTML = `
+                    <div class="eligibility-box">
+                        <h3>✅ Programs You Likely Qualify For</h3>
+                        <p>Based on your income (${data.eligibility_guidance.percent_of_poverty}% of poverty line):</p>
+                        <ul class="eligibility-programs">
+                            ${data.eligibility_guidance.likely_eligible_programs.map(prog => 
+                                `<li>${prog}</li>`
+                            ).join('')}
+                        </ul>
+                        <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                            ${data.eligibility_guidance.note}
+                        </p>
+                    </div>
+                `;
+            }
+            
+            // Emergency contacts
+            if (data.emergency_contacts?.length > 0) {
+                const emergDiv = document.getElementById('emergencyContacts');
+                emergDiv.innerHTML = `
+                    <div class="emergency-banner show" style="animation: none;">
+                        <h2>🚨 Emergency Contacts</h2>
+                        ${data.emergency_contacts.map(contact => `
+                            <div style="margin: 15px 0;">
+                                <strong>${contact.name}</strong><br>
+                                Phone: <span style="font-size: 1.5em; font-weight: bold;">${contact.phone}</span><br>
+                                ${contact.description}<br>
+                                <em>${contact.services}</em>
+                            </div>
+                        `).join('<hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.3);">')}
+                    </div>
+                `;
+            }
+            
+            // Program sections
+            displayProgramSection('federalPrograms', 'Federal Programs', data.federal_programs, '🇺🇸');
+            displayProgramSection('statePrograms', 'State Programs', data.state_programs, '🏛️');
+            displayProgramSection('countyPrograms', 'County Programs', data.county_programs, '🏢');
+            displayProgramSection('cityPrograms', 'City Programs', data.city_programs, '🏙️');
+            displayProgramSection('nonprofitResources', 'Nonprofit Resources', data.nonprofit_resources, '❤️');
+        }
+
+        function displayProgramSection(elementId, title, programs, icon) {
+            const div = document.getElementById(elementId);
+            
+            if (!programs || programs.length === 0) {
+                div.innerHTML = '';
+                return;
+            }
+            
+            div.innerHTML = `
+                <div class="program-section">
+                    <h3>${icon} ${title} (${programs.length})</h3>
+                    ${programs.map(prog => createProgramCard(prog)).join('')}
+                </div>
+            `;
+        }
+
+        function createProgramCard(prog) {
+            const level = prog.level || 'federal';
+            const levelClass = `level-${level}`;
+            
+            return `
+                <div class="program-card">
+                    <div class="program-header">
+                        <div class="program-title">
+                            <h4>${prog.name}</h4>
+                            ${prog.category ? `<span class="program-category">${prog.category.replace('_', ' ')}</span>` : ''}
+                        </div>
+                        <div class="program-level ${levelClass}">${level.toUpperCase()}</div>
+                    </div>
+                    
+                    <div class="program-description">
+                        ${prog.description || prog.services?.join(', ') || ''}
+                    </div>
+                    
+                    ${prog.eligibility ? `
+                        <div class="program-details">
+                            ${prog.eligibility.income_limit ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">Income Limit</div>
+                                    <div class="detail-value">${prog.eligibility.income_limit}</div>
+                                </div>
+                            ` : ''}
+                            ${prog.processing_time ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">Processing Time</div>
+                                    <div class="detail-value">${prog.processing_time}</div>
+                                </div>
+                            ` : ''}
+                            ${prog.benefits ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">Benefits</div>
+                                    <div class="detail-value">${prog.benefits}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    ${prog.contact ? `
+                        <div class="program-details">
+                            ${prog.contact.phone ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">Phone</div>
+                                    <div class="detail-value">${prog.contact.phone}</div>
+                                </div>
+                            ` : ''}
+                            ${prog.contact.website ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">Website</div>
+                                    <div class="detail-value">
+                                        <a href="${prog.contact.website}" target="_blank">Visit Site →</a>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    ${prog.lookup ? `
+                        <div style="background: #fff9db; padding: 12px; border-radius: 8px; margin-top: 10px;">
+                            <strong>How to Find:</strong> ${prog.lookup}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="program-actions">
+                        ${prog.id ? `
+                            <button class="btn btn-primary btn-small" onclick="viewApplicationGuide('${prog.id}')">
+                                📋 Application Guide
+                            </button>
+                        ` : ''}
+                        ${prog.contact?.website ? `
+                            <button class="btn btn-secondary btn-small" onclick="window.open('${prog.contact.website}', '_blank')">
+                                🔗 Visit Website
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function viewApplicationGuide(programId) {
+            const location = searchResults.location;
+            const params = new URLSearchParams({
+                state: location.state,
+                ...(location.city && { city: location.city }),
+                ...(location.county && { county: location.county }),
+                ...(location.zip && { zip: location.zip })
+            });
+            
+            try {
+                const response = await fetch(`/api/programs/guide/${programId}?${params}`);
+                const guide = await response.json();
+                
+                // Display guide in a modal or new section
+                alert(`Application Guide for ${guide.program}\n\nSteps: ${guide.steps?.length || 0}\nProcessing Time: ${guide.timeline}\n\nSee console for full details.`);
+                console.log('Application Guide:', guide);
+                
+            } catch (error) {
+                console.error('Error loading guide:', error);
+                alert('Error loading application guide');
+            }
+        }
+
+        function resetWizard() {
+            // Reset to step 1
+            document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+            
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            document.getElementById('stepIndicator1').classList.add('active');
+            
+            document.getElementById('results').classList.remove('show');
+            
+            // Reset selections
+            selectedCategories = [];
+            selectedUrgency = 'routine';
+            
+            // Clear forms
+            document.getElementById('city').value = '';
+            document.getElementById('county').value = '';
+            document.getElementById('state').value = '';
+            document.getElementById('zip').value = '';
+            document.getElementById('householdSize').value = '';
+            document.getElementById('annualIncome').value = '';
+            document.getElementById('forLandlord').checked = false;
+            
+            document.querySelectorAll('.special-need').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.category-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.urgency-option').forEach(opt => opt.classList.remove('selected'));
+            
+            currentStep = 1;
+        }
+
+        // Initialize
+        loadCategories();
+    </script>
+</body>
+</html>

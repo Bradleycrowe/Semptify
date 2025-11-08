@@ -92,3 +92,13 @@ docker-compose.override.yml
 .DS_Store
 .env.production.local
 
+
+# Brad's local files - do not commit
+brads_books/
+*.pdf
+*.docx
+
+# Brad's local files - do not commit
+brads_books/
+*.pdf
+*.docx

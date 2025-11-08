@@ -20,7 +20,7 @@ def _get_calendar_file(user_id=None):
     else:
         # Global calendar (admin use)
         path = os.path.join(current_app.root_path, 'uploads', 'calendars', 'global.json')
-    
+
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
 
@@ -47,7 +47,7 @@ def _save_calendar(data, user_id=None):
 @calendar_api_bp.route('/events', methods=['GET'])
 def get_events():
     """Get all calendar events for user
-    
+
     Query params:
     - start_date: ISO format (YYYY-MM-DD)
     - end_date: ISO format (YYYY-MM-DD)
@@ -57,31 +57,31 @@ def get_events():
     user_id = _require_user_or_401()
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
+
     calendar_data = _load_calendar(user_id)
     events = calendar_data.get('events', [])
-    
+
     # Filter by date range if provided
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     event_type = request.args.get('type')
-    
+
     filtered = events
-    
+
     if start_date:
         filtered = [e for e in filtered if e.get('date', '') >= start_date]
     if end_date:
         filtered = [e for e in filtered if e.get('date', '') <= end_date]
     if event_type:
         filtered = [e for e in filtered if e.get('type') == event_type]
-    
+
     return jsonify({'events': filtered, 'count': len(filtered)})
 
 
 @calendar_api_bp.route('/events', methods=['POST'])
 def create_event():
     """Create a new calendar event
-    
+
     JSON body:
     {
         "title": "Court Hearing",
@@ -96,17 +96,17 @@ def create_event():
     user_id = _require_user_or_401()
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
+
     data = request.get_json()
     if not data:
         return jsonify({'error': 'JSON body required'}), 400
-    
+
     # Validate required fields
     required = ['title', 'date', 'type']
     for field in required:
         if field not in data:
             return jsonify({'error': f'Missing required field: {field}'}), 400
-    
+
     # Create event
     event = {
         'id': secrets.token_hex(8),
@@ -121,11 +121,11 @@ def create_event():
         'user_id': user_id,
         'status': 'active'
     }
-    
+
     calendar_data = _load_calendar(user_id)
     calendar_data['events'].append(event)
     _save_calendar(calendar_data, user_id)
-    
+
     return jsonify({'event': event, 'message': 'Event created'}), 201
 
 
@@ -135,14 +135,14 @@ def get_event(event_id):
     user_id = _require_user_or_401()
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
+
     calendar_data = _load_calendar(user_id)
     events = calendar_data.get('events', [])
-    
+
     event = next((e for e in events if e.get('id') == event_id), None)
     if not event:
         return jsonify({'error': 'Event not found'}), 404
-    
+
     return jsonify({'event': event})
 
 
@@ -152,14 +152,14 @@ def update_event(event_id):
     user_id = _require_user_or_401()
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
+
     data = request.get_json()
     if not data:
         return jsonify({'error': 'JSON body required'}), 400
-    
+
     calendar_data = _load_calendar(user_id)
     events = calendar_data.get('events', [])
-    
+
     # Find and update event
     for i, event in enumerate(events):
         if event.get('id') == event_id:
@@ -179,7 +179,7 @@ def update_event(event_id):
             calendar_data['events'] = events
             _save_calendar(calendar_data, user_id)
             return jsonify({'event': event, 'message': 'Event updated'})
-    
+
     return jsonify({'error': 'Event not found'}), 404
 
 
@@ -189,39 +189,39 @@ def delete_event(event_id):
     user_id = _require_user_or_401()
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
+
     calendar_data = _load_calendar(user_id)
     events = calendar_data.get('events', [])
-    
+
     # Remove event
     new_events = [e for e in events if e.get('id') != event_id]
     if len(new_events) == len(events):
         return jsonify({'error': 'Event not found'}), 404
-    
+
     calendar_data['events'] = new_events
     _save_calendar(calendar_data, user_id)
-    
+
     return jsonify({'message': 'Event deleted'}), 200
 
 
 @calendar_api_bp.route('/upcoming', methods=['GET'])
 def get_upcoming():
     """Get upcoming events in next N days
-    
+
     Query params:
     - days: number of days ahead to look (default 30)
     """
     user_id = _require_user_or_401()
     if not user_id:
         return jsonify({'error': 'Authentication required'}), 401
-    
+
     days = int(request.args.get('days', 30))
     today = datetime.now().date()
     end_date = today + timedelta(days=days)
-    
+
     calendar_data = _load_calendar(user_id)
     events = calendar_data.get('events', [])
-    
+
     # Filter to upcoming events
     upcoming = []
     for event in events:
@@ -234,10 +234,10 @@ def get_upcoming():
                 upcoming.append(event)
         except ValueError:
             continue
-    
+
     # Sort by date
     upcoming.sort(key=lambda x: x.get('date', ''))
-    
+
     return jsonify({'events': upcoming, 'count': len(upcoming)})
 
 
@@ -284,10 +284,10 @@ def admin_get_all_events():
     """Admin: Get events for all users"""
     if not _require_admin_or_401():
         return jsonify({'error': 'Admin access required'}), 401
-    
+
     calendar_dir = os.path.join(current_app.root_path, 'uploads', 'calendars')
     all_events = []
-    
+
     if os.path.exists(calendar_dir):
         for filename in os.listdir(calendar_dir):
             if filename.endswith('.json'):
@@ -301,5 +301,5 @@ def admin_get_all_events():
                         all_events.extend(events)
                 except Exception:
                     continue
-    
+
     return jsonify({'events': all_events, 'count': len(all_events)})

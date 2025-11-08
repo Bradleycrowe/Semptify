@@ -43,5 +43,8 @@
     "python.defaultInterpreterPath": "${workspaceFolder}\\.venv311\\Scripts\\python.exe",
     "python.pythonPath": "${workspaceFolder}\\.venv311\\Scripts\\python.exe",
     "chat.todoListTool.writeOnly": true,
-    "markdown.validate.enabled": false
+    "markdown.validate.enabled": false,
+    // Disable Qt/QML extensions (not needed for Flask web app)
+    "qmlls.enabled": false,
+    "qt-tools.enable": false
 }

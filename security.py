@@ -141,37 +141,37 @@ def save_user_token() -> str:
     import secrets
     import json
     from datetime import datetime
-    
+
     # Generate a simple numeric token (easier to remember/type)
     token = ''.join([str(secrets.randbelow(10)) for _ in range(16)])
     user_id = f"user_{secrets.token_hex(8)}"
-    
+
     users_file = get_users_file()
     users_data = _load_json(users_file, {})
-    
+
     # Store hash with metadata
     users_data[user_id] = {
         'hash': _hash_token(token),
         'created': datetime.now().isoformat(),
         'type': 'vault_user'
     }
-    
+
     # Save to file
     os.makedirs(os.path.dirname(users_file), exist_ok=True)
     with open(users_file, 'w', encoding='utf-8') as f:
         json.dump(users_data, f, indent=2)
-    
+
     log_event('user_registered', {'user_id': user_id})
     return token
 
 def validate_admin_token(token: Optional[str]) -> Optional[str]:
     """Validate an admin token and return the token ID if valid.
-    
+
     Checks in order:
     1. MASTER_KEY environment variable (superadmin access to admin functions)
     2. ADMIN_TOKEN environment variable (legacy single admin)
     3. admin_tokens.json (multi-admin support)
-    
+
     IMPORTANT: Admin tokens grant access to admin functions (settings, logs, etc.)
     but DO NOT bypass vault privacy. Only document owners can access their vault.
     """
@@ -184,6 +184,25 @@ def validate_admin_token(token: Optional[str]) -> Optional[str]:
     if master_key and token == master_key:
         log_event('master_key_used', {'ip': request.remote_addr if request else 'unknown'})
         return "master_admin"
+
+    # Check breakglass (emergency one-time access)
+    if is_breakglass_active():
+        # Check if token has breakglass permission
+        admin_file = get_admin_tokens_file()
+        try:
+            adata = _load_json(admin_file, {})
+            h = _hash_token(token)
+            if isinstance(adata, dict):
+                for token_id, token_info in adata.items():
+                    if isinstance(token_info, dict):
+                        stored_hash = token_info.get('hash')
+                        has_breakglass = token_info.get('breakglass', False)
+                        if stored_hash == h and has_breakglass:
+                            consume_breakglass()  # One-time use
+                            log_event('breakglass_used', {'token_id': token_id, 'ip': request.remote_addr if request else 'unknown'})
+                            return f"breakglass_{token_id}"
+        except Exception:
+            pass
 
     # Check environment variable (legacy support)
     env_token = os.getenv("ADMIN_TOKEN")

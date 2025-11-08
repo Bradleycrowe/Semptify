@@ -87,7 +87,7 @@ def register():
 
         with open(users_path, 'w', encoding='utf-8') as f:
             json.dump(users, f, indent=2)
-        
+
         # 🤖 VEEPER: Backup token for recovery
         try:
             from veeper import backup_user_token
@@ -96,7 +96,7 @@ def register():
         except Exception as e:
             current_app.logger.warning(f"⚠️ Veeper backup failed: {e}")
             # Don't fail registration if backup fails
-        
+
     except Exception as e:
         current_app.logger.exception('Failed to save registration token')
         return "Internal server error", 500
