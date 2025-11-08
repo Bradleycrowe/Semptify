@@ -27,11 +27,11 @@ import json
 import uuid
 from datetime import datetime
 import time
+from typing import Tuple
 from werkzeug.utils import secure_filename
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
 import secrets
 
 from security import get_token_from_request, validate_user_token, log_event, _atomic_write_json
@@ -53,11 +53,11 @@ def _ensure_dirs(path):
 
 def _derive_key_from_token(user_token: str, salt: bytes) -> bytes:
     """Derive encryption key from user token using PBKDF2.
-    
+
     Args:
         user_token: User's authentication token
         salt: Random salt (stored with encrypted file)
-    
+
     Returns:
         32-byte encryption key for AES-256
     """
@@ -65,75 +65,72 @@ def _derive_key_from_token(user_token: str, salt: bytes) -> bytes:
         algorithm=hashes.SHA256(),
         length=32,  # 256 bits for AES-256
         salt=salt,
-        iterations=100000,  # Recommended minimum
-        backend=default_backend()
+        iterations=100000  # Recommended minimum
     )
     return kdf.derive(user_token.encode('utf-8'))
 
 
-def _encrypt_file(file_data: bytes, user_token: str) -> tuple[bytes, bytes, bytes]:
+def _encrypt_file(file_data: bytes, user_token: str) -> Tuple[bytes, bytes, bytes]:
     """Encrypt file data using user token.
-    
+
     Args:
         file_data: Raw file bytes
         user_token: User's authentication token
-    
+
     Returns:
         (encrypted_data, salt, nonce) - All needed for decryption
     """
     # Generate random salt and nonce
     salt = secrets.token_bytes(16)  # 128 bits
     nonce = secrets.token_bytes(12)  # 96 bits for GCM
-    
+
     # Derive key from token
     key = _derive_key_from_token(user_token, salt)
-    
+
     # Encrypt using AES-256-GCM (authenticated encryption)
     cipher = Cipher(
         algorithms.AES(key),
-        modes.GCM(nonce),
-        backend=default_backend()
+        modes.GCM(nonce)
     )
     encryptor = cipher.encryptor()
     encrypted_data = encryptor.update(file_data) + encryptor.finalize()
-    
+
     # GCM provides authentication tag
     tag = encryptor.tag
-    
+
     # Return encrypted data with tag appended, salt, nonce
     return encrypted_data + tag, salt, nonce
 
 
 def _decrypt_file(encrypted_data: bytes, salt: bytes, nonce: bytes, user_token: str) -> bytes:
     """Decrypt file data using user token.
-    
+
     Args:
         encrypted_data: Encrypted bytes (includes 16-byte auth tag at end)
         salt: Salt used during encryption
         nonce: Nonce used during encryption
         user_token: User's authentication token
-    
+
     Returns:
         Decrypted file bytes
-    
+
     Raises:
         ValueError: If authentication fails (wrong token or tampered data)
     """
     # Extract authentication tag (last 16 bytes)
     tag = encrypted_data[-16:]
     ciphertext = encrypted_data[:-16]
-    
+
     # Derive same key from token
     key = _derive_key_from_token(user_token, salt)
-    
+
     # Decrypt using AES-256-GCM
     cipher = Cipher(
         algorithms.AES(key),
-        modes.GCM(nonce, tag),
-        backend=default_backend()
+        modes.GCM(nonce, tag)
     )
     decryptor = cipher.decryptor()
-    
+
     try:
         decrypted_data = decryptor.update(ciphertext) + decryptor.finalize()
         return decrypted_data
@@ -200,13 +197,13 @@ def _cert_path(user_id, filename):
                     mappings = json.load(f)
             else:
                 mappings = []
-            
+
             mappings.append({
                 "doc_id": doc_id,
                 "filename": filename,
                 "uploaded": datetime.utcnow().isoformat() + 'Z'
             })
-            
+
             _atomic_write_json(mapping_file, mappings)
         except Exception as e:
             print(f"Warning: Could not update user document mapping: {e}")
@@ -241,22 +238,22 @@ def _cert_path(user_id, filename):
 
         # Generate unique document ID for storage (not encrypted, just reference)
         doc_id = f"doc_{uuid.uuid4().hex[:12]}"
-        
+
         # Read file data for encryption
         file_data = f.read()
-        
+
         # Encrypt file with user token
         encrypted_data, salt, nonce = _encrypt_file(file_data, token)
-        
+
         # Store by document ID with clean naming: doc_id.enc
         doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
         _ensure_dirs(doc_dir)
         encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
-        
+
         # Write encrypted file
         with open(encrypted_path, 'wb') as ef:
             ef.write(encrypted_data)
-        
+
         # Hash the encrypted data (for integrity verification)
         sha = hashlib.sha256(encrypted_data).hexdigest()
 
@@ -274,7 +271,7 @@ def _cert_path(user_id, filename):
         }
         cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
         _atomic_write_json(cert_path, cert)
-        
+
         # Also store document mapping so user can list their documents
         _add_user_document_mapping(uid, doc_id, filename)
 
@@ -289,7 +286,7 @@ def _cert_path(user_id, filename):
         uid = validate_user_token(token)
         if not uid:
             return jsonify({"error": "unauthorized"}), 401
-        
+
         documents = _get_user_documents(uid)
         return jsonify({"ok": True, "documents": documents}), 200
 
@@ -341,18 +338,18 @@ def _cert_path(user_id, filename):
         doc_id = request.args.get('doc_id')
         if not doc_id:
             return jsonify({"error": "doc_id required"}), 400
-        
+
         # Verify user owns this document
         user_docs = _get_user_documents(uid)
         doc_info = next((d for d in user_docs if d['doc_id'] == doc_id), None)
         if not doc_info:
             return jsonify({"error": "document not found or not authorized"}), 404
-        
+
         # Load certificate and encrypted file
         doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
         encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
         cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
-        
+
         if not os.path.exists(encrypted_path) or not os.path.exists(cert_path):
             return jsonify({"error": "not found"}), 404
 
@@ -391,7 +388,7 @@ def _cert_path(user_id, filename):
         # Return decrypted file with original filename
         original_filename = cert.get('original_filename', 'download')
         log_event("vault.download", {"user_id": uid, "doc_id": doc_id})
-        
+
         # Send file from memory (decrypted bytes)
         from io import BytesIO
         return send_file(
@@ -400,17 +397,6 @@ def _cert_path(user_id, filename):
             download_name=original_filename,
             mimetype='application/octet-stream'
         )
-        except Exception:
-            return jsonify({"error": "corrupt cert"}), 500
-
-        # Verify document hasn't been tampered with
-        actual = _sha256_of_file(path)
-        if actual != cert.get('sha256'):
-            log_event("vault.tamper_detected", user_id=uid, doc_id=doc_id or filename, extra={"expected": cert.get('sha256'), "actual": actual})
-            return jsonify({"error": "tamper detected"}), 409
-
-        log_event("vault.download", user_id=uid, doc_id=doc_id or filename)
-        return send_file(path, as_attachment=True)
 
 
     @vault_bp.route('/vault/attest', methods=['POST'])
