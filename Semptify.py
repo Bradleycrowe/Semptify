@@ -3,10 +3,16 @@ import json
 import time
 import uuid
 import secrets
-from flask import Flask, render_template, request, jsonify, redirect, url_for, g
+from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session
 from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency
 import hashlib
 import requests
+from user_database import (
+    create_pending_user, verify_code, get_pending_user, get_user,
+    resend_verification_code, mask_contact, update_user_login, log_user_interaction,
+    check_existing_user, generate_verification_code, hash_code
+)
+from user_database import _get_db as get_user_db
 from ledger_calendar import init_ledger_calendar
 from ledger_calendar_routes import ledger_calendar_bp
 from data_flow_engine import init_data_flow
@@ -112,12 +118,12 @@ try:
 except ImportError:
     pass
 
-# User Registration - issue one-time user tokens and store hashed entries
-try:
-    from modules.register.register_bp import register_bp
-    app.register_blueprint(register_bp)
-except ImportError:
-    pass
+# User Registration - DISABLED (using simple built-in registration instead)
+# try:
+#     from modules.register.register_bp import register_bp
+#     app.register_blueprint(register_bp)
+# except ImportError:
+#     pass
 
 # Calendar API - REST API for tenant calendar (court dates, rent, appointments)
 try:
@@ -156,7 +162,8 @@ _has_admin_bp = _importlib_util.find_spec('admin') is not None
 # Core Pages
 @app.route("/")
 def home():
-    return render_template('index.html')
+    """Simple, clean landing page - Renter's Sidekick"""
+    return render_template('index_simple.html')
 
 @app.route('/recover')
 def token_recovery():
@@ -164,9 +171,286 @@ def token_recovery():
     return render_template('token_recovery.html')
 
 if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
-    @app.route('/register', methods=['GET'])
+    @app.route('/register', methods=['GET', 'POST'])
     def register():
-        return render_template('register.html')
+        """User registration with verification"""
+        if request.method == 'POST':
+            try:
+                # Get all form fields
+                form_data = {
+                    'first_name': request.form.get('first_name'),
+                    'last_name': request.form.get('last_name'),
+                    'email': request.form.get('email'),
+                    'phone': request.form.get('phone'),
+                    'address': request.form.get('address'),
+                    'city': request.form.get('city'),
+                    'county': request.form.get('county'),
+                    'state': request.form.get('state'),
+                    'zip': request.form.get('zip'),
+                }
+
+                verification_method = request.form.get('verify_method')
+
+                # Validate all fields
+                if not all(form_data.values()) or not verification_method:
+                    return render_template('register_simple.html',
+                                         csrf_token=_get_or_create_csrf_token(),
+                                         error="All fields are required")
+
+                # Check if email or phone already registered
+                if check_existing_user(form_data['email'], form_data['phone']):
+                    return render_template('register_simple.html',
+                                         csrf_token=_get_or_create_csrf_token(),
+                                         error="Email or phone already registered. Please sign in.",
+                                         show_signin=True)
+
+                # Create pending user and generate code
+                user_id, code = create_pending_user(form_data, verification_method)
+
+                # TODO: Send verification code via SMS/email based on method
+                # For now, just log it (will implement sending next)
+                print(f"Verification code for {user_id}: {code}")
+                log_event("user_registration_started", {
+                    "user_id": user_id,
+                    "method": verification_method,
+                    "email": form_data['email']
+                })
+
+                # Redirect to verification page
+                return redirect(url_for('verify', user_id=user_id))
+
+            except Exception as e:
+                log_event("user_registration_error", {"error": str(e)})
+                return render_template('register_simple.html',
+                                     csrf_token=_get_or_create_csrf_token(),
+                                     error=str(e))
+
+        return render_template('register_simple.html',
+                             csrf_token=_get_or_create_csrf_token())
+
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    """User sign-in with verification code"""
+    if request.method == 'POST':
+        try:
+            contact = request.form.get('contact')
+
+            if not contact:
+                return render_template('signin_simple.html',
+                                     csrf_token=_get_or_create_csrf_token(),
+                                     error="Please enter your email or phone number")
+
+            # Look up user by email or phone
+            conn = get_user_db()
+            cursor = conn.cursor()
+
+            # Check if contact looks like email or phone
+            if '@' in contact:
+                cursor.execute('SELECT * FROM users WHERE email = ?', (contact,))
+            else:
+                # Clean phone number (remove spaces, dashes, etc)
+                clean_phone = ''.join(c for c in contact if c.isdigit())
+                cursor.execute('SELECT * FROM users WHERE phone LIKE ?', (f'%{clean_phone}%',))
+
+            user = cursor.fetchone()
+            conn.close()
+
+            if not user:
+                return render_template('signin_simple.html',
+                                     csrf_token=_get_or_create_csrf_token(),
+                                     error="Account not found. Please check your email/phone or register.")
+
+            # Generate new verification code and create temporary signin session
+            code = generate_verification_code()
+            user_id = user['user_id']
+
+            # Store signin attempt (reuse pending_users table with special flag)
+            conn = get_user_db()
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT OR REPLACE INTO pending_users (
+                    user_id, first_name, last_name, email, phone,
+                    address, city, county, state, zip,
+                    verification_method, code_hash, created_at, expires_at, attempts
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'signin', ?, ?, ?, 0)
+            ''', (
+                user_id,
+                user['first_name'], user['last_name'], user['email'], user['phone'],
+                user['address'], user['city'], user['county'], user['state'], user['zip'],
+                hash_code(code),
+                datetime.now().isoformat(),
+                (datetime.now() + timedelta(minutes=10)).isoformat()
+            ))
+            conn.commit()
+            conn.close()
+
+            # TODO: Send verification code via SMS/email
+            print(f"Sign-in verification code for {user_id}: {code}")
+            log_event("user_signin_started", {
+                "user_id": user_id,
+                "contact": contact
+            })
+
+            return redirect(url_for('verify', user_id=user_id))
+
+        except Exception as e:
+            log_event("user_signin_error", {"error": str(e)})
+            return render_template('signin_simple.html',
+                                 csrf_token=_get_or_create_csrf_token(),
+                                 error=str(e))
+
+    return render_template('signin_simple.html',
+                         csrf_token=_get_or_create_csrf_token())
+
+@app.route('/dashboard')
+def dashboard():
+    """User dashboard after registration"""
+    # TODO: Get user from session
+    return render_template('dashboard_simple.html', user_name="User")
+
+@app.route('/verify')
+def verify():
+    """Verification code entry page"""
+    user_id = request.args.get('user_id')
+
+    if not user_id:
+        return redirect(url_for('register'))
+
+    # Get pending user data
+    user_data = get_pending_user(user_id)
+    if not user_data:
+        return render_template('register_simple.html',
+                             csrf_token=_get_or_create_csrf_token(),
+                             error="Verification session expired. Please register again.")
+
+    # Determine contact info to display
+    method = user_data['verification_method']
+    if method == 'sms' or method == 'both':
+        contact = mask_contact(user_data['phone'], 'phone')
+        method_display = "phone" if method == 'sms' else "phone and email"
+    else:
+        contact = mask_contact(user_data['email'], 'email')
+        method_display = "email"
+
+    return render_template('verify_code.html',
+                         method=method_display,
+                         masked_contact=contact,
+                         user_id=user_id,
+                         csrf_token=_get_or_create_csrf_token())
+
+@app.route('/verify', methods=['POST'])
+def verify_post():
+    """Process verification code"""
+    user_id = request.form.get('user_id')
+    code = request.form.get('full_code')
+
+    # Debug logging
+    print(f"DEBUG: Attempting verification - user_id={user_id}, code={code}")
+
+    if not user_id or not code:
+        print("DEBUG: Missing user_id or code")
+        return redirect(url_for('register'))
+
+    # Get user data BEFORE verification (it will be moved to users table)
+    user_data = get_pending_user(user_id)
+    print(f"DEBUG: User data found: {user_data is not None}")
+
+    # Verify the code
+    success, error = verify_code(user_id, code)
+    print(f"DEBUG: Verification result - success={success}, error={error}")
+
+    if success:
+        # Code verified - log user in and redirect to dashboard
+        log_event("user_verified", {
+            "user_id": user_id,
+            "email": user_data['email'] if user_data else None
+        })
+
+        # Set session
+        session['user_id'] = user_id
+        session['verified'] = True
+
+        return redirect(url_for('dashboard'))
+    else:
+        # Show error on verification page
+        user_data = get_pending_user(user_id)
+        if not user_data:
+            return redirect(url_for('register'))
+
+        method = user_data['verification_method']
+        if method == 'sms' or method == 'both':
+            contact = mask_contact(user_data['phone'], 'phone')
+            method_display = "phone" if method == 'sms' else "phone and email"
+        else:
+            contact = mask_contact(user_data['email'], 'email')
+            method_display = "email"
+
+        return render_template('verify_code.html',
+                             method=method_display,
+                             masked_contact=contact,
+                             user_id=user_id,
+                             error=error,
+                             csrf_token=_get_or_create_csrf_token())
+
+@app.route('/resend-code', methods=['POST'])
+def resend_code():
+    """Resend verification code"""
+    user_id = request.form.get('user_id')
+
+    if not user_id:
+        return redirect(url_for('register'))
+
+    success, code, error = resend_verification_code(user_id)
+
+    if success:
+        # TODO: Send new code via SMS/email
+        print(f"Resent verification code for {user_id}: {code}")
+        log_event("verification_code_resent", {"user_id": user_id})
+
+        # Show success message on verify page
+        user_data = get_pending_user(user_id)
+        method = user_data['verification_method']
+        if method == 'sms' or method == 'both':
+            contact = mask_contact(user_data['phone'], 'phone')
+            method_display = "phone" if method == 'sms' else "phone and email"
+        else:
+            contact = mask_contact(user_data['email'], 'email')
+            method_display = "email"
+
+        return render_template('verify_code.html',
+                             method=method_display,
+                             masked_contact=contact,
+                             user_id=user_id,
+                             success="New code sent!",
+                             csrf_token=_get_or_create_csrf_token())
+    else:
+        return redirect(url_for('register'))
+
+@app.route('/verify-demo')
+def verify_demo():
+    """Demo verification page"""
+    return render_template('verify_code.html',
+                          method="email",
+                          masked_contact="j***@example.com",
+                          user_id="demo123",
+                          csrf_token=_get_or_create_csrf_token())
+
+# Color scheme preview routes
+@app.route('/register-navy')
+def register_navy():
+    return render_template('register_option1_navy.html')
+
+@app.route('/register-forest')
+def register_forest():
+    return render_template('register_option2_forest.html')
+
+@app.route('/register-burgundy')
+def register_burgundy():
+    return render_template('register_option3_burgundy.html')
+
+@app.route('/register-slate')
+def register_slate():
+    return render_template('register_option4_slate.html')
 
 # ============================================================================
 # ADAPTIVE REGISTRATION API (Automatically learns from user data)
@@ -328,9 +612,9 @@ def calendar_widgets():
 # NEW: User Dashboard & Main Pages (Added for UI Completion)
 # ============================================================================
 
-@app.route('/dashboard')
-def dashboard():
-    """Main user dashboard with quick access to all features."""
+@app.route('/dashboard-old')
+def dashboard_old():
+    """OLD dashboard - kept for reference, use /dashboard instead."""
     return render_template('dashboard.html',
                          evidence_count=0,
                          timeline_count=0,

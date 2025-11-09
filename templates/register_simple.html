@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #2c3e50 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: white;
+            border-radius: 2px;
+            padding: 40px 70px 50px 70px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            border-top: 3px solid #c9a961;
+        }
+
+        .logo {
+            font-size: 38px;
+            font-weight: 300;
+            color: #1a2332;
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 20px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 4px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .tagline {
+            font-size: 13px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 2px;
+            transition: all 0.3s;
+            background: #fafafa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #c9a961;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+        }
+
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(135deg, #1a2332 0%, #34495e 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(201, 169, 97, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-button:hover:before {
+            left: 100%;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .back-link:hover {
+            color: #34495e;
+            text-decoration: underline;
+        }
+
+        .helper-text {
+            font-size: 10px;
+            color: #95a5a6;
+            margin-top: 4px;
+            font-style: italic;
+        }        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Semptify</div>
+        <h1>New User Registration</h1>
+        <p class="tagline">Tenants organizer and rights informer.</p>
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+            {% if show_signin %}
+            <br><br>
+            <a href="/signin" style="color: #c33; text-decoration: underline; font-weight: 600;">Go to Sign In</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/register">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" placeholder="John" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" placeholder="Doe" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Street Address</label>
+                <input type="text" id="address" name="address" placeholder="123 Main Street, Apt 4B" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" placeholder="Minneapolis" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="county">County</label>
+                    <input type="text" id="county" name="county" placeholder="Hennepin" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <input type="text" id="state" name="state" placeholder="MN" maxlength="2" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="zip">ZIP Code</label>
+                    <input type="text" id="zip" name="zip" placeholder="55401" maxlength="10" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="(612) 555-1234" required>
+                <div class="helper-text">We can send verification codes via text</div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
+                <div class="helper-text">We can send verification codes via email</div>
+            </div>
+
+            <div class="form-group">
+                <label for="verify_method">Verification Method</label>
+                <select id="verify_method" name="verify_method" required>
+                    <option value="">-- How should we verify you? --</option>
+                    <option value="sms">Text Message (SMS)</option>
+                    <option value="email">Email</option>
+                    <option value="both">Send Both</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-button">Create Account</button>
+        </form>
+
+        <a href="/" class="back-link">← Back to home</a>
+    </div>
+</body>
+</html>

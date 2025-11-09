@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Account - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            border-radius: 4px;
+            padding: 50px 45px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .instruction {
+            font-size: 15px;
+            color: #718096;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .sent-to {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 3px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .code-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .code-digit {
+            width: 50px;
+            height: 60px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            border: 2px solid #cbd5e0;
+            border-radius: 4px;
+            background: #f7fafc;
+            transition: border-color 0.2s;
+        }
+
+        .code-digit:focus {
+            outline: none;
+            border-color: #4a5568;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+        }
+
+        .verify-button {
+            width: 100%;
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin-bottom: 15px;
+        }
+
+        .verify-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .verify-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .resend-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .resend-text {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .resend-button {
+            background: none;
+            border: none;
+            color: #4a5568;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .resend-button:hover {
+            color: #2d3748;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+    <script>
+        function handleCodeInput(input, index) {
+            const value = input.value;
+            if (value.length === 1 && index < 5) {
+                const nextInput = document.getElementById(`digit${index + 1}`);
+                if (nextInput) nextInput.focus();
+            }
+
+            // Enable/disable verify button
+            const allFilled = Array.from(document.querySelectorAll('.code-digit'))
+                .every(inp => inp.value.length === 1);
+            document.getElementById('verifyBtn').disabled = !allFilled;
+        }
+
+        function handleBackspace(e, index) {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                const prevInput = document.getElementById(`digit${index - 1}`);
+                if (prevInput) {
+                    prevInput.focus();
+                    prevInput.select();
+                }
+            }
+        }
+
+        function submitCode() {
+            const code = Array.from(document.querySelectorAll('.code-digit'))
+                .map(inp => inp.value)
+                .join('');
+            document.getElementById('full_code').value = code;
+            document.getElementById('verifyForm').submit();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Semptify</div>
+        <h1>Verify Your Account</h1>
+        <p class="instruction">
+            We've sent a 6-digit verification code to your {{ method }}.
+        </p>
+
+        <div class="sent-to">
+            {{ masked_contact }}
+        </div>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        {% if success %}
+        <div class="success">{{ success }}</div>
+        {% endif %}
+
+        <form id="verifyForm" method="POST" action="/verify">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="full_code" id="full_code">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+
+            <div class="code-input-group">
+                <input type="text" class="code-digit" id="digit0" maxlength="1" pattern="[0-9]"
+                       oninput="handleCodeInput(this, 0)" onkeydown="handleBackspace(event, 0)" autofocus>
+                <input type="text" class="code-digit" id="digit1" maxlength="1" pattern="[0-9]"
+                       oninput="handleCodeInput(this, 1)" onkeydown="handleBackspace(event, 1)">
+                <input type="text" class="code-digit" id="digit2" maxlength="1" pattern="[0-9]"
+                       oninput="handleCodeInput(this, 2)" onkeydown="handleBackspace(event, 2)">
+                <input type="text" class="code-digit" id="digit3" maxlength="1" pattern="[0-9]"
+                       oninput="handleCodeInput(this, 3)" onkeydown="handleBackspace(event, 3)">
+                <input type="text" class="code-digit" id="digit4" maxlength="1" pattern="[0-9]"
+                       oninput="handleCodeInput(this, 4)" onkeydown="handleBackspace(event, 4)">
+                <input type="text" class="code-digit" id="digit5" maxlength="1" pattern="[0-9]"
+                       oninput="handleCodeInput(this, 5)" onkeydown="handleBackspace(event, 5)">
+            </div>
+
+            <button type="button" class="verify-button" id="verifyBtn" disabled onclick="submitCode()">
+                Verify Account
+            </button>
+        </form>
+
+        <div class="resend-section">
+            <p class="resend-text">Didn't receive the code?</p>
+            <form method="POST" action="/resend-code" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="user_id" value="{{ user_id }}">
+                <button type="submit" class="resend-button">Resend Code</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

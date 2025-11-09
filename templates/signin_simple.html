@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #2c3e50 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            border-radius: 2px;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            border-top: 3px solid #c9a961;
+        }
+
+        .logo {
+            font-size: 38px;
+            font-weight: 300;
+            color: #1a2332;
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 20px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 4px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .tagline {
+            font-size: 13px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #c9a961;
+            box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #c9a961;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #b8975a;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .back-link:hover {
+            color: #34495e;
+            text-decoration: underline;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .info {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            color: #1565c0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Semptify</div>
+        <h1>Welcome Back</h1>
+        <p class="tagline">Sign in to continue</p>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <div class="info">
+            Enter your email or phone number to sign in. We'll send you a verification code.
+        </div>
+
+        <form method="POST" action="/signin">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="form-group">
+                <label for="contact">Email or Phone</label>
+                <input type="text" id="contact" name="contact" placeholder="email@example.com or 612-555-1234" required>
+            </div>
+
+            <button type="submit">Send Verification Code</button>
+        </form>
+
+        <a href="/register" class="back-link">Don't have an account? Register here</a>
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+</body>
+</html>
