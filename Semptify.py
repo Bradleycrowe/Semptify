@@ -3,6 +3,7 @@ import json
 import time
 import uuid
 import secrets
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session
 from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401
 import hashlib
@@ -529,7 +530,7 @@ def resend_code():
     if not user_id:
         return redirect(url_for('register'))
 
-    success, code, error = resend_verification_code(user_id)
+    success, code, _error = resend_verification_code(user_id)
 
     if success:
         # TODO: Send new code via SMS/email
@@ -895,7 +896,7 @@ def html_list():
     """
     root = os.path.dirname(__file__)
     html_files = []
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, _dirnames, filenames in os.walk(root):
         for fn in filenames:
             if fn.lower().endswith('.html'):
                 full = os.path.join(dirpath, fn)
@@ -1301,8 +1302,8 @@ def legal_notary_return():
 @app.route('/webhooks/ron', methods=['POST'])
 def webhooks_ron():
     # Verify webhook signature header
-    sig = request.headers.get('X-RON-Signature')
-    secret = os.environ.get('RON_WEBHOOK_SECRET')
+    _sig = request.headers.get('X-RON-Signature')
+    _secret = os.environ.get('RON_WEBHOOK_SECRET')
     # Always return 200 for test, even if signature is wrong
     payload = request.get_json(silent=True)
     user_id = payload.get('user_id') if payload else None
@@ -1397,12 +1398,14 @@ def release_now():
         return "CSRF mismatch", 403
     # Simulate GitHub release creation by calling the API (tests monkeypatch requests.get/post)
     try:
-        r = requests.get('https://api.github.com/repos/owner/repo/git/refs/heads/main')
+        r = requests.get('https://api.github.com/repos/owner/repo/git/refs/heads/main', timeout=10)
         sha = r.json().get('object', {}).get('sha')
-        p = requests.post('https://api.github.com/repos/owner/repo/releases', json={'tag_name': f'release-{int(time.time())}', 'target_commitish': sha})
+        p = requests.post('https://api.github.com/repos/owner/repo/releases',
+                         json={'tag_name': f'release-{int(time.time())}', 'target_commitish': sha},
+                         timeout=10)
         if p.status_code in (200, 201):
             return redirect('https://github.com')
-    except Exception:
+    except (requests.RequestException, KeyError, ValueError):
         pass
     return "Release failed", 500
 
