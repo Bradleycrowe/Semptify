@@ -148,7 +148,7 @@ Initiated pytest on all test files:
 
 **What would you like me to do?**
 
-A) Continue fixing tests and deploy  
-B) Deploy now despite test issues  
-C) Run diagnostics first  
+A) Continue fixing tests and deploy
+B) Deploy now despite test issues
+C) Run diagnostics first
 D) Something else?
