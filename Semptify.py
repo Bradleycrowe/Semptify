@@ -1717,8 +1717,7 @@ def _compat_pre_requests():
 
     # Admin gating for /admin: allow if compatibility shim says so
     if request.path == '/admin':
-        ok = _require_admin_or_401()
-        if not ok:
+        if not _require_admin_or_401():
             from flask import abort
             abort(401)
 
