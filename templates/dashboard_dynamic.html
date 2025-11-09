@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .stage-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .dashboard-container {
+            padding: 30px;
+        }
+        
+        .component-full-width {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .component-full-width:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .component-full-width h2 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .component-content {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        /* Rights Box Styling */
+        .rights-box {
+            border-left-color: #10b981;
+        }
+        
+        .rights-box h2::before {
+            content: "⚖️";
+            font-size: 24px;
+        }
+        
+        .right-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #10b981;
+        }
+        
+        .right-item h4 {
+            color: #10b981;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .right-item p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        
+        .right-item small {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        /* Information Box Styling */
+        .information-box {
+            border-left-color: #f59e0b;
+        }
+        
+        .information-box h2::before {
+            content: "ℹ️";
+            font-size: 24px;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .info-item.severity-critical {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .info-item.severity-critical h4 {
+            color: #dc2626;
+        }
+        
+        .info-item.severity-warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .info-item.severity-warning h4 {
+            color: #d97706;
+        }
+        
+        .info-item.guidance {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .info-item.guidance h4 {
+            color: #1d4ed8;
+        }
+        
+        .info-item h4 {
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .info-item p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Input Box Styling */
+        .input-box {
+            border-left-color: #667eea;
+        }
+        
+        .input-box h2::before {
+            content: "📝";
+            font-size: 24px;
+        }
+        
+        .component-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-group.checkbox {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group.checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .form-group.checkbox label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* Next Steps Box Styling */
+        .next-steps-box {
+            border-left-color: #8b5cf6;
+        }
+        
+        .next-steps-box h2::before {
+            content: "🎯";
+            font-size: 24px;
+        }
+        
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .step-item {
+            display: flex;
+            gap: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #8b5cf6;
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .step-content h4 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .step-content p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        /* Timeline Box Styling */
+        .timeline-box {
+            border-left-color: #ec4899;
+        }
+        
+        .timeline-box h2::before {
+            content: "📅";
+            font-size: 24px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #ec4899, #667eea);
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -16px;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #ec4899;
+        }
+        
+        .timeline-item.first .timeline-marker {
+            border-color: #10b981;
+        }
+        
+        .timeline-date {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        
+        .timeline-content h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+        
+        .timeline-content p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .timeline-amount {
+            font-weight: 600;
+            color: #10b981;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading::after {
+            content: "⏳";
+            display: block;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        /* Error State */
+        .error {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .error strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .component-full-width {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .step-item {
+                flex-direction: column;
+            }
+            
+            .step-number {
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Your Personalized Dashboard</h1>
+            <p>Based on your situation and location</p>
+            <div class="stage-badge" id="stage-badge">Loading...</div>
+        </div>
+        
+        <div class="dashboard-container" id="dashboard-content">
+            <div class="loading">Loading your dashboard...</div>
+        </div>
+        
+        <div class="footer">
+            <p>💡 Your dashboard updates based on your location and situation. | 
+            <a href="/vault">Document Storage</a> | 
+            <a href="/resources">Resources</a> | 
+            <a href="/">Home</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Fetch and render dashboard on load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/api/dashboard');
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/signin';
+                        return;
+                    }
+                    throw new Error('Failed to load dashboard');
+                }
+                
+                const data = await response.json();
+                renderDashboard(data);
+            } catch (error) {
+                console.error('Dashboard error:', error);
+                document.getElementById('dashboard-content').innerHTML = `
+                    <div class="error">
+                        <strong>Unable to load dashboard</strong>
+                        <p>${error.message}</p>
+                        <p><a href="/">Return to home</a></p>
+                    </div>
+                `;
+            }
+        });
+        
+        function renderDashboard(data) {
+            // Update stage badge
+            const stageBadge = document.getElementById('stage-badge');
+            const stageNames = {
+                'SEARCHING': '🔍 Searching',
+                'HAVING_TROUBLE': '⚠️ Having Trouble',
+                'CONFLICT': '🤝 In Conflict',
+                'LEGAL': '⚖️ Legal Action'
+            };
+            stageBadge.textContent = stageNames[data.stage] || data.stage;
+            
+            // Render dashboard components
+            const container = document.getElementById('dashboard-content');
+            const dashboard = data.dashboard;
+            
+            let html = '';
+            
+            // Sort components by row
+            const componentsByRow = {};
+            dashboard.components.forEach(item => {
+                if (!componentsByRow[item.row]) {
+                    componentsByRow[item.row] = [];
+                }
+                componentsByRow[item.row].push(item.component);
+            });
+            
+            // Render in row order
+            [1, 2, 3, 4, 5].forEach(row => {
+                if (componentsByRow[row]) {
+                    componentsByRow[row].forEach(component => {
+                        html += component.html;
+                    });
+                }
+            });
+            
+            container.innerHTML = html;
+            
+            // Attach form handlers
+            attachFormHandlers();
+        }
+        
+        function attachFormHandlers() {
+            // Handle form submissions
+            const forms = document.querySelectorAll('.component-form');
+            forms.forEach(form => {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData);
+                    
+                    try {
+                        const response = await fetch('/api/dashboard/update', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        if (response.ok) {
+                            // Reload dashboard
+                            location.reload();
+                        } else {
+                            alert('Failed to update. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Form submission error:', error);
+                        alert('Error updating. Please try again.');
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

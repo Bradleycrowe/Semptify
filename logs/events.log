@@ -347,3 +347,18 @@
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762290826.6993442}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762314688.37655}
 {"event": "admin_access", "payload": {"ip": "10.0.0.183", "path": "/admin"}, "ts": 1762314972.1226923}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe@hotmail.com", "method": "email", "user_id": "FPaIaML_x8gm8Um8qmmhiQ"}, "ts": 1762661634.687891}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe@hotmail.com", "method": "both", "user_id": "LxNqmhG5f9Fr9TBdFbc1JA"}, "ts": 1762663311.8642676}
+{"event": "user_verified", "payload": {"email": null, "user_id": "LxNqmhG5f9Fr9TBdFbc1JA"}, "ts": 1762663452.8065755}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe45@gmail.com", "method": "sms", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762663672.2245967}
+{"event": "user_verified", "payload": {"email": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762663722.2274196}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe45@gmail.com", "method": "email", "user_id": "9k25-UsFravVRcKLafHRBA"}, "ts": 1762663977.6786625}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe45@mail.com", "method": "both", "user_id": "w5Kz6DkAvHO_FSyyQPSvrA"}, "ts": 1762665000.180255}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe45@ail.com", "method": "both", "user_id": "9xy5ET_fqdEPiyfzF5vUvg"}, "ts": 1762665257.3528755}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe@hotmail.com", "method": "sms", "user_id": "x09zNRoe1AkY_9GB0TY5hg"}, "ts": 1762665369.8680193}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe@hotmail.com", "method": "sms", "user_id": "dD6-FcVct3oswM6jL14zlQ"}, "ts": 1762665450.5559788}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe@hotmail.com", "method": "sms", "user_id": "mj7kO96MgaISVTEN8wANxQ"}, "ts": 1762665643.71377}
+{"event": "verification_code_resent", "payload": {"user_id": "mj7kO96MgaISVTEN8wANxQ"}, "ts": 1762665739.3865187}
+{"event": "verification_code_resent", "payload": {"user_id": "mj7kO96MgaISVTEN8wANxQ"}, "ts": 1762665739.9315972}
+{"event": "user_registration_started", "payload": {"email": "bradcrowe@hail.com", "method": "sms", "user_id": "Qc5eefcxlz4hEFl7BFZpXw"}, "ts": 1762665821.2551227}
+{"event": "user_verified", "payload": {"email": "bradcrowe@hail.com", "user_id": "Qc5eefcxlz4hEFl7BFZpXw"}, "ts": 1762665846.292576}

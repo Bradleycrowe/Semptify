@@ -1,0 +1,8 @@
+tree 3ed626e0058e5797622a6372a4628c3ce415ff7c
+parent 4661f7b69c6820baec707acb09e2e7f35c121596
+author copilot-swe-agent[bot] <198982749+Copilot@users.noreply.github.com> 1759372219 +0000
+committer copilot-swe-agent[bot] <198982749+Copilot@users.noreply.github.com> 1759372219 +0000
+
+docs: Add comprehensive usage guide for full_setup.ps1
+
+Co-authored-by: Bradleycrowe <24385635+Bradleycrowe@users.noreply.github.com>

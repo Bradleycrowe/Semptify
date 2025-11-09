@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preliminary Learning Module - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .card-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px 5px 5px 0;
+        }
+
+        .badge.warning {
+            background: #f59e0b;
+        }
+
+        .badge.critical {
+            background: #ef4444;
+        }
+
+        .list-item {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            color: #555;
+        }
+
+        .list-item:before {
+            content: "✓";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            margin-right: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .fact-check-result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: #f0f5ff;
+        }
+
+        .fact-check-result.verified {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .fact-check-result.unverified {
+            border-color: #f59e0b;
+            background: #fffbf0;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            padding: 15px 0 15px 40px;
+            position: relative;
+            color: #555;
+        }
+
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+
+        .timeline-item:not(:last-child):after {
+            content: "";
+            position: absolute;
+            left: 15px;
+            top: 20px;
+            width: 2px;
+            height: calc(100% + 15px);
+            background: #ddd;
+        }
+
+        .footer {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            margin-top: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .resource-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .resource-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .resource-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 3px 3px 3px 0;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Preliminary Learning Module</h1>
+            <p>Comprehensive information about rental procedures, legal processes, court filings, and more. Fact-checked knowledge available anytime.</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('procedures')">Procedures</button>
+            <button class="tab-btn" onclick="switchTab('forms')">Forms</button>
+            <button class="tab-btn" onclick="switchTab('fact-check')">Fact Check</button>
+            <button class="tab-btn" onclick="switchTab('quick-ref')">Quick Reference</button>
+            <button class="tab-btn" onclick="switchTab('agencies')">Agencies</button>
+            <button class="tab-btn" onclick="switchTab('resources')">Resources</button>
+        </div>
+
+        <!-- PROCEDURES TAB -->
+        <div id="procedures" class="content-section active">
+            <div class="search-box">
+                <input type="text" id="procedure-search" placeholder="Search procedures..." onkeyup="filterProcedures()">
+                <div class="button-group">
+                    <select id="procedure-category" onchange="loadProcedures()">
+                        <option value="">Select Category...</option>
+                        <option value="rental_procedures">Rental Procedures</option>
+                        <option value="legal_procedures">Legal Procedures</option>
+                        <option value="court_procedures">Court Procedures</option>
+                        <option value="complaint_filing">Complaint Filing</option>
+                        <option value="funding_sources">Funding Sources</option>
+                        <option value="governing_agencies">Governing Agencies</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadProcedures()">Load</button>
+                </div>
+            </div>
+            <div id="procedures-content" class="section-grid"></div>
+        </div>
+
+        <!-- FORMS TAB -->
+        <div id="forms" class="content-section">
+            <div class="search-box">
+                <select id="forms-category" onchange="loadForms()">
+                    <option value="">Select Category...</option>
+                    <option value="rental_procedures">Rental Procedures</option>
+                    <option value="legal_procedures">Legal Procedures</option>
+                    <option value="court_procedures">Court Procedures</option>
+                    <option value="complaint_filing">Complaint Filing</option>
+                </select>
+                <select id="forms-subcategory" onchange="loadForms()" style="margin-left: 10px;">
+                    <option value="">Select Procedure...</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadForms()" style="margin-left: 10px;">Load Forms</button>
+            </div>
+            <div id="forms-content" class="section-grid"></div>
+        </div>
+
+        <!-- FACT-CHECK TAB -->
+        <div id="fact-check" class="content-section">
+            <div class="search-box">
+                <h3 style="margin-bottom: 15px;">Fact Check a Claim</h3>
+                <textarea id="fact-claim" placeholder="Enter a claim to fact-check..." style="width: 100%; height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+                <select id="fact-category" onchange="updateFactSubcategories()" style="width: 100%; margin-top: 10px; padding: 10px; border: 2px solid #ddd; border-radius: 8px;">
+                    <option value="">Select Category...</option>
+                    <option value="rental_procedures">Rental Procedures</option>
+                    <option value="legal_procedures">Legal Procedures</option>
+                    <option value="court_procedures">Court Procedures</option>
+                    <option value="complaint_filing">Complaint Filing</option>
+                    <option value="fact_check_topics">Fact Check Topics</option>
+                </select>
+                <select id="fact-subcategory" style="width: 100%; margin-top: 10px; padding: 10px; border: 2px solid #ddd; border-radius: 8px;">
+                    <option value="">Optional: Select Procedure...</option>
+                </select>
+                <button class="btn btn-primary" onclick="factCheckClaim()" style="margin-top: 10px;">Check Fact</button>
+            </div>
+            <div id="fact-check-content"></div>
+        </div>
+
+        <!-- QUICK REFERENCE TAB -->
+        <div id="quick-ref" class="content-section">
+            <div class="search-box">
+                <input type="text" id="quick-ref-search" placeholder="Search topic (e.g., lease, repair, eviction)..." style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+                <button class="btn btn-primary" onclick="getQuickReference()" style="margin-top: 10px;">Get Reference</button>
+            </div>
+            <div id="quick-ref-content"></div>
+        </div>
+
+        <!-- AGENCIES TAB -->
+        <div id="agencies" class="content-section">
+            <div class="search-box">
+                <select id="issue-type" onchange="loadAgencies()">
+                    <option value="">Select Issue Type...</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="habitability">Habitability</option>
+                    <option value="discrimination">Discrimination</option>
+                    <option value="retaliation">Retaliation</option>
+                    <option value="eviction">Eviction</option>
+                    <option value="fraud">Fraud</option>
+                    <option value="illegal_fee">Illegal Fee</option>
+                    <option value="repair">Repair</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadAgencies()" style="margin-left: 10px;">Load Agencies</button>
+            </div>
+            <div id="agencies-content" class="section-grid"></div>
+        </div>
+
+        <!-- RESOURCES TAB -->
+        <div id="resources" class="content-section">
+            <div id="resources-content" class="section-grid"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>💡 This learning module is available anytime to acquire and verify information about Semptify procedures, forms, and requirements.</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/learning';
+
+        function switchTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load content if first time
+            if (tabName === 'procedures' && !document.getElementById('procedures-content').innerHTML) {
+                loadProcedures();
+            } else if (tabName === 'resources' && !document.getElementById('resources-content').innerHTML) {
+                loadResources();
+            }
+        }
+
+        async function loadProcedures() {
+            const category = document.getElementById('procedure-category').value;
+            if (!category) {
+                alert('Please select a category');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/procedures?category=${category}`);
+                const data = await response.json();
+
+                let html = '';
+                if (data.error) {
+                    html = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    for (const [key, value] of Object.entries(data.data)) {
+                        html += `
+                            <div class="card">
+                                <h3>${value.title || key}</h3>
+                                <div class="card-content">
+                                    ${value.steps ? `<p><strong>Steps:</strong> ${value.steps.length}</p>` : ''}
+                                    ${value.timeline_days ? `<p><strong>Timeline:</strong> ${value.timeline_days} days</p>` : ''}
+                                    ${value.forms_required ? `<p><strong>Forms:</strong> ${value.forms_required.length}</p>` : ''}
+                                    <button class="btn btn-primary" onclick="showDetails('${category}', '${key}')">View Details</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                document.getElementById('procedures-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading procedures:', error);
+                alert('Error loading procedures');
+            }
+        }
+
+        async function loadForms() {
+            const category = document.getElementById('forms-category').value;
+            const subcategory = document.getElementById('forms-subcategory').value;
+
+            if (!category) {
+                alert('Please select a category');
+                return;
+            }
+
+            try {
+                const url = subcategory 
+                    ? `${API_BASE}/forms?category=${category}&subcategory=${subcategory}`
+                    : `${API_BASE}/forms?category=${category}`;
+                    
+                const response = await fetch(url);
+                const data = await response.json();
+
+                let html = '';
+                if (data.forms.length === 0) {
+                    html = '<p>No forms found</p>';
+                } else {
+                    html = '<div class="card" style="grid-column: 1/-1;"><h3>Required Forms</h3>';
+                    data.forms.forEach((form, index) => {
+                        html += `<div class="list-item">${form}</div>`;
+                    });
+                    html += '</div>';
+                }
+                document.getElementById('forms-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading forms:', error);
+            }
+        }
+
+        async function factCheckClaim() {
+            const claim = document.getElementById('fact-claim').value;
+            const category = document.getElementById('fact-category').value;
+            const subcategory = document.getElementById('fact-subcategory').value;
+
+            if (!claim || !category) {
+                alert('Please enter a claim and select a category');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/fact-check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        claim,
+                        category,
+                        subcategory: subcategory || null
+                    })
+                });
+
+                const data = await response.json();
+                const result = data.result;
+
+                let html = `<div class="fact-check-result ${result.status.toLowerCase()}">
+                    <h4>Fact Check Result</h4>
+                    <p><strong>Status:</strong> ${result.status}</p>
+                    <p><strong>Details:</strong> ${result.details}</p>
+                    <p><strong>Category:</strong> ${result.category}</p>
+                </div>`;
+
+                document.getElementById('fact-check-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error fact-checking:', error);
+            }
+        }
+
+        async function getQuickReference() {
+            const topic = document.getElementById('quick-ref-search').value;
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/quick-reference?topic=${topic}`);
+                const data = await response.json();
+                const ref = data.reference;
+
+                let html = `
+                    <div class="card" style="grid-column: 1/-1;">
+                        <h3>${ref.topic}</h3>
+                        <p style="margin-bottom: 15px;"><strong>${ref.summary}</strong></p>
+                        
+                        <h4 style="color: #667eea; margin-top: 20px;">Timeline</h4>
+                        <p>${ref.timeline}</p>
+                        
+                        <h4 style="color: #667eea; margin-top: 20px;">Key Points</h4>
+                        ${ref.key_points.map(point => `<div class="list-item">${point}</div>`).join('')}
+                        
+                        <h4 style="color: #667eea; margin-top: 20px;">Required Forms</h4>
+                        ${ref.forms.map(form => `<div class="list-item">${form}</div>`).join('')}
+                        
+                        <h4 style="color: #667eea; margin-top: 20px;">Common Mistakes</h4>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                            ${ref.common_mistakes.map(mistake => `<div class="list-item">${mistake}</div>`).join('')}
+                        </div>
+                        
+                        <h4 style="color: #667eea; margin-top: 20px;">Next Steps</h4>
+                        <div class="timeline">
+                            ${ref.next_steps.map(step => `<div class="timeline-item">${step}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('quick-ref-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error getting quick reference:', error);
+            }
+        }
+
+        async function loadAgencies() {
+            const issueType = document.getElementById('issue-type').value;
+            if (!issueType) {
+                alert('Please select an issue type');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/agencies?issue_type=${issueType}`);
+                const data = await response.json();
+
+                let html = '';
+                if (data.agencies.length === 0) {
+                    html = '<p>No agencies found for this issue</p>';
+                } else {
+                    data.agencies.forEach(agency => {
+                        html += `
+                            <div class="card">
+                                <h3>${agency.name}</h3>
+                                <div class="info-row">
+                                    <span class="info-label">Authority:</span>
+                                    <span class="info-value">${agency.authority}</span>
+                                </div>
+                                <div style="margin: 15px 0;">
+                                    <strong>Handles:</strong>
+                                    ${agency.handles.map(h => `<div class="list-item">${h}</div>`).join('')}
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Filing Deadline:</span>
+                                    <span class="info-value">${agency.filing_deadline || 'N/A'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Cost:</span>
+                                    <span class="info-value">${agency.free ? '✓ Free' : 'Varies'}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                document.getElementById('agencies-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading agencies:', error);
+            }
+        }
+
+        async function loadResources() {
+            try {
+                const response = await fetch(`${API_BASE}/resources`);
+                const data = await response.json();
+                const resources = data.resources;
+
+                let html = `
+                    <div class="card" style="grid-column: 1/-1;">
+                        <h3>📚 Available Learning Resources</h3>
+                        <h4 style="color: #667eea; margin-top: 15px;">Categories</h4>
+                        <div>
+                            ${resources.categories.map(cat => `<span class="badge">${cat}</span>`).join('')}
+                        </div>
+                        <div class="info-row" style="margin-top: 20px;">
+                            <span class="info-label">Total Topics:</span>
+                            <span class="info-value">${resources.total_topics}</span>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('resources-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading resources:', error);
+            }
+        }
+
+        async function showDetails(category, subcategory) {
+            try {
+                const response = await fetch(`${API_BASE}/procedures?category=${category}&subcategory=${subcategory}`);
+                const data = await response.json();
+                const proc = data.data;
+
+                let html = `
+                    <h2>${proc.title}</h2>
+                    ${proc.steps ? `
+                        <h4>Steps</h4>
+                        <div class="timeline">
+                            ${proc.steps.map(step => `<div class="timeline-item">${step}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${proc.forms_required ? `
+                        <h4>Required Forms</h4>
+                        ${proc.forms_required.map(form => `<div class="list-item">${form}</div>`).join('')}
+                    ` : ''}
+                    ${proc.timeline_days ? `<p><strong>Timeline:</strong> ${proc.timeline_days} days</p>` : ''}
+                    ${proc.common_issues ? `
+                        <h4>Common Issues</h4>
+                        ${proc.common_issues.map(issue => `<div class="list-item">${issue}</div>`).join('')}
+                    ` : ''}
+                `;
+
+                document.getElementById('modal-body').innerHTML = html;
+                document.getElementById('modal').classList.add('active');
+            } catch (error) {
+                console.error('Error loading details:', error);
+            }
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'modal') {
+                document.getElementById('modal').classList.remove('active');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadResources();
+        });
+    </script>
+</body>
+</html>

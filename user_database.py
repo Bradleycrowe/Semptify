@@ -63,6 +63,19 @@ def init_database():
             login_count INTEGER DEFAULT 0
         )
     ''')
+    
+    # Add dashboard columns if they don't exist (migration for learning dashboard)
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [column[1] for column in cursor.fetchall()]
+    
+    if 'location' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN location TEXT DEFAULT 'MN'")
+    if 'issue_type' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN issue_type TEXT DEFAULT 'rent'")
+    if 'stage' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN stage TEXT DEFAULT 'SEARCHING'")
+    if 'created_at' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN created_at TEXT")
 
     # User learning profile table (for adaptive learning system)
     cursor.execute('''

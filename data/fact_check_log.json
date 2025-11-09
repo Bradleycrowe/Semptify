@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "claim": "Landlord cannot enter apartment without notice",
+      "timestamp": "2025-11-09T15:22:08.618002",
+      "category": "legal_procedures",
+      "subcategory": "maintenance_rights",
+      "status": "INSUFFICIENT_DATA",
+      "details": "Claim not found in current knowledge base",
+      "sources": []
+    }
+  ],
+  "statistics": {
+    "total_checks": 1,
+    "total_verified": 0,
+    "last_update": "2025-11-09T15:22:08.618002"
+  }
+}

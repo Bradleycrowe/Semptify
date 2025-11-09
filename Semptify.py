@@ -4,7 +4,7 @@ import time
 import uuid
 import secrets
 from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session
-from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency
+from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401
 import hashlib
 import requests
 from user_database import (
@@ -13,6 +13,8 @@ from user_database import (
     check_existing_user, generate_verification_code, hash_code
 )
 from user_database import _get_db as get_user_db
+from learning_adapter import generate_dashboard_for_user, LearningAdapter
+from preliminary_learning_routes import learning_module_bp
 from ledger_calendar import init_ledger_calendar
 from ledger_calendar_routes import ledger_calendar_bp
 from data_flow_engine import init_data_flow
@@ -29,6 +31,12 @@ from adaptive_registration import (
     report_outcome_adaptive,
     contribute_resource_adaptive
 )
+# Route Discovery & Dynamic Data Source Integration
+try:
+    from route_discovery_routes import route_discovery_bp, init_route_discovery_api
+except ImportError:
+    route_discovery_bp = None
+    init_route_discovery_api = None
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
@@ -42,6 +50,10 @@ init_data_flow(data_dir=os.path.join(os.getcwd(), "data"))
 # Initialize Learning Engine (makes app learn from user behavior)
 init_learning(data_dir=os.path.join(os.getcwd(), "data"))
 
+# Initialize Route Discovery & Dynamic Data Source System
+if init_route_discovery_api:
+    init_route_discovery_api(app, data_dir=os.path.join(os.getcwd(), "data"))
+
 # Note: Curiosity, Intelligence, and Jurisdiction engines initialize on first use
 
 # Register Blueprints
@@ -51,7 +63,12 @@ app.register_blueprint(ledger_tracking_bp)
 app.register_blueprint(ledger_admin_bp)
 app.register_blueprint(av_routes_bp)
 app.register_blueprint(learning_bp)
+app.register_blueprint(learning_module_bp)  # Preliminary Learning Module - Info acquisition & fact-checking
 app.register_blueprint(journey_bp)  # Tenant Journey with all intelligence systems
+
+# Route Discovery & Dynamic Data Source System
+if route_discovery_bp:
+    app.register_blueprint(route_discovery_bp)
 
 # Complaint Filing System - Multi-venue complaint filing with up-to-date procedures
 try:
@@ -228,6 +245,11 @@ if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
         return render_template('register_simple.html',
                              csrf_token=_get_or_create_csrf_token())
 
+@app.route('/dashboard-grid')
+def dashboard_grid():
+    """Grid layout template for dashboard customization"""
+    return render_template('dashboard_grid.html')
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     """User sign-in with verification code"""
@@ -304,9 +326,116 @@ def signin():
 
 @app.route('/dashboard')
 def dashboard():
-    """User dashboard after registration"""
-    # TODO: Get user from session
-    return render_template('dashboard_simple.html', user_name="User")
+    """User dashboard - dynamic, personalized based on learning engine"""
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return redirect(url_for('register'))
+
+    # Check if user is verified
+    if not session.get('verified'):
+        return redirect(url_for('register'))
+
+    return render_template('dashboard_dynamic.html')
+
+@app.route('/api/dashboard')
+def api_dashboard():
+    """API endpoint for dashboard data - returns personalized components"""
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    # Check if user is verified
+    if not session.get('verified'):
+        return jsonify({"error": "User not verified"}), 401
+
+    # Get user data from database
+    db = get_user_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+    user_row = cursor.fetchone()
+    db.close()
+
+    if not user_row:
+        return jsonify({"error": "User not found"}), 404
+
+    # Convert database row to dictionary
+    user_data = {
+        "user_id": user_id,
+        "email": user_row[1],
+        "phone": user_row[2],
+        "location": user_row[3] or "MN",  # State/city
+        "issue_type": user_row[4] or "rent",  # Main issue
+        "stage": user_row[5] or "SEARCHING",  # Current stage
+        "history": []  # TODO: Load from user_interactions table
+    }
+
+    try:
+        # Generate dashboard using learning adapter
+        dashboard_json = generate_dashboard_for_user(user_id, user_data)
+
+        log_event("dashboard_accessed", {
+            "user_id": user_id,
+            "stage": user_data["stage"],
+            "issue_type": user_data["issue_type"]
+        })
+
+        return jsonify(dashboard_json)
+    except Exception as e:
+        log_event("dashboard_error", {
+            "user_id": user_id,
+            "error": str(e)
+        })
+        return jsonify({"error": "Failed to generate dashboard"}), 500
+
+@app.route('/api/dashboard/update', methods=['POST'])
+def api_dashboard_update():
+    """API endpoint to update user dashboard input"""
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    try:
+        data = request.get_json()
+
+        # Log user interaction
+        log_user_interaction(
+            user_id,
+            "dashboard_update",
+            data
+        )
+
+        # Update user stage/issue based on input if provided
+        if "current_status" in data:
+            stage_map = {
+                "Searching": "SEARCHING",
+                "Just moved in": "SEARCHING",
+                "Having issues": "HAVING_TROUBLE",
+                "In conflict": "CONFLICT",
+                "Legal action": "LEGAL"
+            }
+            new_stage = stage_map.get(data["current_status"], "SEARCHING")
+
+            db = get_user_db()
+            cursor = db.cursor()
+            cursor.execute("UPDATE users SET stage = ? WHERE user_id = ?", (new_stage, user_id))
+            db.commit()
+            db.close()
+
+        log_event("dashboard_updated", {
+            "user_id": user_id,
+            "fields": list(data.keys())
+        })
+
+        return jsonify({"success": True, "message": "Dashboard updated"})
+    except Exception as e:
+        log_event("dashboard_update_error", {
+            "user_id": user_id,
+            "error": str(e)
+        })
+        return jsonify({"error": "Failed to update dashboard"}), 500
 
 @app.route('/verify')
 def verify():
@@ -1736,6 +1865,24 @@ if 'vault_blueprint.vault' not in app.view_functions:
                 return notary()
             except Exception:
                 return "Virtual Notary", 200
+
+
+# ============================================================================
+# PRELIMINARY LEARNING MODULE - UI ROUTE
+# ============================================================================
+
+@app.route('/learning')
+def preliminary_learning_ui():
+    """
+    Displays the preliminary learning module UI.
+    Users can access procedures, forms, fact-checking, and quick references.
+    Can be run anytime to acquire information.
+    """
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('register'))
+
+    return render_template('preliminary_learning.html')
 
 
 if __name__ == "__main__":
