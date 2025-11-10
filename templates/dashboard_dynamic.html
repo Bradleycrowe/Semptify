@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semptify - Protect Yourself</title>
+    <title>Semptify</title>
     <style>
         * {
             margin: 0;
@@ -22,15 +22,9 @@
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px 15px;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             flex-shrink: 0;
-        }
-        
-        .header h1 {
-            font-size: 22px;
-            font-weight: 600;
         }
         
         .main-content {
@@ -39,63 +33,17 @@
             flex-direction: column;
         }
         
-        .action-row {
-            min-height: calc((100vh - 60px - 60px) / 6);
+        .row {
+            flex: 1;
+            min-height: calc((100vh - 120px) / 6);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px 15px;
-            border-bottom: 2px solid #e0e0e0;
             background: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .action-row:active {
-            background: #f0f0f0;
-            transform: scale(0.98);
-        }
-        
-        .action-content {
-            width: 100%;
-            text-align: center;
-        }
-        
-        .action-icon {
-            font-size: 56px;
-            margin-bottom: 12px;
-        }
-        
-        .action-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 6px;
-        }
-        
-        .action-subtitle {
-            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+            padding: 20px;
+            font-size: 18px;
             color: #666;
-            line-height: 1.4;
-        }
-        
-        .alert-badge {
-            display: inline-block;
-            background: #ff4444;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 8px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
         }
         
         .footer {
@@ -103,101 +51,29 @@
             color: white;
             padding: 15px;
             text-align: center;
-            font-size: 13px;
             flex-shrink: 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
-        
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-            margin-bottom: 12px;
-            border-radius: 6px;
-            border-left: 3px solid #10b981;
-        }
-        
-        .right-item h4 {
-            color: #10b981;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-        
-        .right-item p {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-        
-        .right-item small {
-            color: #999;
-            font-size: 12px;
-        }
-        
-        /* Information Box Styling */
-        .information-box {
-            border-left-color: #f59e0b;
-        }
-        
-        .information-box h2::before {
-            content: "ℹ️";
-            font-size: 24px;
-        }
-        
-        .info-item {
-            background: white;
-            padding: 15px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            border-left: 3px solid #f59e0b;
-        }
-        
-        .info-item.severity-critical {
-            border-left-color: #ef4444;
-            background: #fef2f2;
-        }
-        
-        .info-item.severity-critical h4 {
-            color: #dc2626;
-        }
-        
-        .info-item.severity-warning {
-            border-left-color: #f59e0b;
-            background: #fffbeb;
-        }
-        
-        .info-item.severity-warning h4 {
-            color: #d97706;
-        }
-        
-        .info-item.guidance {
-            border-left-color: #3b82f6;
-            background: #eff6ff;
-        }
-        
-        .info-item.guidance h4 {
-            color: #1d4ed8;
-        }
-        
-        .info-item h4 {
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-        
-        .info-item p {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* Input Box Styling */
-        .input-box {
-            border-left-color: #667eea;
-        }
-        
-        .input-box h2::before {
-            content: "📝";
-            font-size: 24px;
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Semptify</h1>
+    </div>
+    
+    <div class="main-content">
+        <div class="row">Row 1</div>
+        <div class="row">Row 2</div>
+        <div class="row">Row 3</div>
+        <div class="row">Row 4</div>
+        <div class="row">Row 5</div>
+        <div class="row">Row 6</div>
+    </div>
+    
+    <div class="footer">
+        Footer
+    </div>
+</body>
+</html>
         }
         
         .component-form {
