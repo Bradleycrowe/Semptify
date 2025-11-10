@@ -253,13 +253,17 @@ def dashboard_grid():
 
 @app.route('/test-login')
 def test_login():
-    """Quick login for testing - bypasses verification in dev mode"""
-    if os.environ.get('SECURITY_MODE') == 'enforced':
-        return "Test login disabled in production", 403
+    """Quick login for testing - works in open mode"""
+    # In open mode, allow test login
+    security_mode = os.environ.get('SECURITY_MODE', 'open')
+    
+    if security_mode == 'enforced':
+        return jsonify({"error": "Test login disabled in enforced mode"}), 403
     
     # Log in as test user
     session['user_id'] = 'test_user_001'
     session['verified'] = True
+    session['user_name'] = 'Test User'
     
     log_event("test_login", {"user_id": "test_user_001", "ip": request.remote_addr})
     
