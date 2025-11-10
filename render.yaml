@@ -26,7 +26,7 @@ services:
       - key: ADMIN_TOKEN
         sync: false
       - key: SECURITY_MODE
-        value: enforced
+        value: open
       - key: FORCE_HTTPS
         value: "1"
       - key: HSTS_MAX_AGE
