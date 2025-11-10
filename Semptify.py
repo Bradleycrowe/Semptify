@@ -150,6 +150,30 @@ try:
 except ImportError:
     pass
 
+# Calendar Timeline - New timeline view with rent ledger integration
+try:
+    from calendar_timeline_routes import calendar_bp
+    app.register_blueprint(calendar_bp)
+    print("✅ Calendar timeline routes registered")
+except ImportError as e:
+    print(f"⚠️ Calendar timeline not available: {e}")
+
+# Learning Dashboard API - Mobile-first intelligent assistant
+try:
+    from learning_dashboard_api import learning_dashboard_bp
+    app.register_blueprint(learning_dashboard_bp)
+    print("✅ Learning dashboard API registered")
+except ImportError as e:
+    print(f"⚠️ Learning dashboard API not available: {e}")
+
+# Dashboard API - Dynamic cell-based dashboard
+try:
+    from dashboard_api_routes import dashboard_api_bp
+    app.register_blueprint(dashboard_api_bp)
+    print("✅ Dashboard API registered")
+except ImportError as e:
+    print(f"⚠️ Dashboard API not available: {e}")
+
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
     from veeper import veeper_bp
@@ -256,17 +280,17 @@ def test_login():
     """Quick login for testing - works in open mode"""
     # In open mode, allow test login
     security_mode = os.environ.get('SECURITY_MODE', 'open')
-    
+
     if security_mode == 'enforced':
         return jsonify({"error": "Test login disabled in enforced mode"}), 403
-    
+
     # Log in as test user
     session['user_id'] = 'test_user_001'
     session['verified'] = True
     session['user_name'] = 'Test User'
-    
+
     log_event("test_login", {"user_id": "test_user_001", "ip": request.remote_addr})
-    
+
     return redirect(url_for('dashboard'))
 
 @app.route('/signin', methods=['GET', 'POST'])
@@ -755,6 +779,16 @@ def ledger_calendar_dashboard():
 def calendar_widgets():
     """Display all calendar widgets, forms, and interactive components."""
     return render_template('calendar_widgets.html')
+
+@app.route('/calendar-timeline')
+def calendar_timeline_ui():
+    """Display interactive calendar timeline with rent ledger."""
+    return render_template('calendar_timeline.html')
+
+@app.route('/learning-dashboard')
+def learning_dashboard_ui():
+    """Mobile-first learning dashboard - your intelligent assistant."""
+    return render_template('learning_dashboard.html')
 
 # ============================================================================
 # NEW: User Dashboard & Main Pages (Added for UI Completion)
