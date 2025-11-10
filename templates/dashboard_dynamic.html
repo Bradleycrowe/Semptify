@@ -43,8 +43,12 @@
             align-items: center;
             justify-content: center;
             background: white;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 2px solid #333;
             padding: 20px;
+        }
+
+        .cell:last-child {
+            border-bottom: none;
         }
 
         .footer {
@@ -62,11 +66,22 @@
     </div>
 
     <div class="main-content">
+        <!-- Cell A: SITUATION - Facts & Statistics from learning module analysis -->
         <div class="cell" id="cell-a"></div>
+
+        <!-- Cell B: IMPACT & ACTION - How Cell A affects user + positive actions (smart module reasoning) -->
         <div class="cell" id="cell-b"></div>
+
+        <!-- Cell C: Interactive questions/user input -->
         <div class="cell" id="cell-c"></div>
+
+        <!-- Cell D: Additional context -->
         <div class="cell" id="cell-d"></div>
+
+        <!-- Cell E: Actions/next steps -->
         <div class="cell" id="cell-e"></div>
+
+        <!-- Cell F: Resources/help -->
         <div class="cell" id="cell-f"></div>
     </div>
 
