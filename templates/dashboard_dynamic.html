@@ -73,16 +73,16 @@
     <div class="footer">
         Footer
     </div>
-    
+
     <script>
         // Load dashboard content dynamically
         const userId = '{{ user_id }}' || 'demo_user';
-        
+
         async function loadDashboard() {
             try {
                 const response = await fetch(`/api/dashboard/layout/${userId}`);
                 const layout = await response.json();
-                
+
                 // Load each cell
                 for (const [cell, widget] of Object.entries(layout)) {
                     const cellEl = document.getElementById(`cell-${cell}`);
@@ -94,7 +94,7 @@
                 console.error('Error loading dashboard:', error);
             }
         }
-        
+
         function renderWidget(widget) {
             // Basic widget rendering - will expand this
             return `
@@ -104,7 +104,7 @@
                 </div>
             `;
         }
-        
+
         // Load on page load
         loadDashboard();
     </script>
