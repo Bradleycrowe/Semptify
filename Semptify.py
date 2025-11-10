@@ -251,6 +251,20 @@ def dashboard_grid():
     """Grid layout template for dashboard customization"""
     return render_template('dashboard_grid.html')
 
+@app.route('/test-login')
+def test_login():
+    """Quick login for testing - bypasses verification in dev mode"""
+    if os.environ.get('SECURITY_MODE') == 'enforced':
+        return "Test login disabled in production", 403
+    
+    # Log in as test user
+    session['user_id'] = 'test_user_001'
+    session['verified'] = True
+    
+    log_event("test_login", {"user_id": "test_user_001", "ip": request.remote_addr})
+    
+    return redirect(url_for('dashboard'))
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     """User sign-in with verification code"""
