@@ -85,6 +85,14 @@ try:
 except ImportError:
     pass
 
+# Onboarding Flow - Collect essential user info to activate reasoning engine
+try:
+    from onboarding_routes import onboarding_bp
+    app.register_blueprint(onboarding_bp)
+    print("✅ Onboarding flow registered")
+except ImportError as e:
+    print(f"⚠️ Onboarding not available: {e}")
+
 # ============================================================================
 # Wire ALL Modules Through Calendar System (Central Hub)
 # ============================================================================
@@ -269,6 +277,36 @@ if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
 
         return render_template('register_simple.html',
                              csrf_token=_get_or_create_csrf_token())
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login for returning users"""
+    if request.method == 'POST':
+        email_or_phone = request.form.get('email')
+        
+        if not email_or_phone:
+            return render_template('login.html',
+                                 csrf_token=_get_or_create_csrf_token(),
+                                 error="Please enter your email or phone")
+        
+        # Check if user exists
+        user = check_existing_user(email_or_phone)
+        if not user:
+            return render_template('login.html',
+                                 csrf_token=_get_or_create_csrf_token(),
+                                 error="Account not found. Please register first.")
+        
+        # Generate verification code
+        code = generate_verification_code()
+        
+        # Store in pending_users for verification
+        user_id = user['user_id']
+        # TODO: Send code via SMS/email
+        
+        # For now, redirect to verify
+        return redirect(url_for('verify', user_id=user_id))
+    
+    return render_template('login.html', csrf_token=_get_or_create_csrf_token())
 
 @app.route('/dashboard-grid')
 def dashboard_grid():
