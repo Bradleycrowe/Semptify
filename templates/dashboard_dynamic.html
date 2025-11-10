@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Dashboard - Semptify</title>
+    <title>Semptify - Protect Yourself</title>
     <style>
         * {
             margin: 0;
@@ -12,92 +12,107 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
             min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 20px 15px;
             text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
         
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .stage-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        
-        .dashboard-container {
-            padding: 30px;
-        }
-        
-        .component-full-width {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-        }
-        
-        .component-full-width:hover {
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-            transform: translateY(-2px);
-        }
-        
-        .component-full-width h2 {
-            color: #333;
             font-size: 22px;
-            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .action-row {
+            min-height: calc((100vh - 60px - 60px) / 6);
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        
-        .component-content {
-            color: #555;
-            line-height: 1.6;
-        }
-        
-        /* Rights Box Styling */
-        .rights-box {
-            border-left-color: #10b981;
-        }
-        
-        .rights-box h2::before {
-            content: "⚖️";
-            font-size: 24px;
-        }
-        
-        .right-item {
+            justify-content: center;
+            padding: 20px 15px;
+            border-bottom: 2px solid #e0e0e0;
             background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .action-row:active {
+            background: #f0f0f0;
+            transform: scale(0.98);
+        }
+        
+        .action-content {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .action-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+        
+        .action-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .action-subtitle {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .alert-badge {
+            display: inline-block;
+            background: #ff4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
             padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
             margin-bottom: 12px;
             border-radius: 6px;
             border-left: 3px solid #10b981;
@@ -479,126 +494,94 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Your Personalized Dashboard</h1>
-            <p>Based on your situation and location</p>
-            <div class="stage-badge" id="stage-badge">Loading...</div>
-        </div>
+    <div class="header">
+        <h1>🛡️ Semptify - Protect Yourself</h1>
+    </div>
+    
+    <div class="main-content">
+        <!-- Row 1: Document Everything -->
+        <a href="/vault" class="action-row">
+            <div class="action-content">
+                <div class="action-icon">📸</div>
+                <div class="action-title">Document Everything</div>
+                <div class="action-subtitle">Photos, videos, texts, emails - save all evidence NOW</div>
+            </div>
+        </a>
         
-        <div class="dashboard-container" id="dashboard-content">
-            <div class="loading">Loading your dashboard...</div>
-        </div>
+        <!-- Row 2: Know Your Deadlines -->
+        <a href="/calendar-timeline" class="action-row">
+            <div class="action-content">
+                <div class="action-icon">⏰</div>
+                <div class="action-title">
+                    Know Your Deadlines
+                    <span class="alert-badge" id="deadlineCount">!</span>
+                </div>
+                <div class="action-subtitle">Missing a deadline can cost you your case</div>
+            </div>
+        </a>
         
-        <div class="footer">
-            <p>💡 Your dashboard updates based on your location and situation. | 
-            <a href="/vault">Document Storage</a> | 
-            <a href="/resources">Resources</a> | 
-            <a href="/">Home</a></p>
-        </div>
+        <!-- Row 3: File the Right Forms -->
+        <a href="/complaint-filing" class="action-row">
+            <div class="action-content">
+                <div class="action-icon">📋</div>
+                <div class="action-title">File the Right Forms</div>
+                <div class="action-subtitle">Court documents, complaints, and responses</div>
+            </div>
+        </a>
+        
+        <!-- Row 4: Track Rent Payments -->
+        <a href="/rent-ledger" class="action-row">
+            <div class="action-content">
+                <div class="action-icon">💰</div>
+                <div class="action-title">Track Rent Payments</div>
+                <div class="action-subtitle">Proof of payment protects you from false claims</div>
+            </div>
+        </a>
+        
+        <!-- Row 5: Know Your Rights -->
+        <a href="/knowledge-base" class="action-row">
+            <div class="action-content">
+                <div class="action-icon">📚</div>
+                <div class="action-title">Know Your Rights</div>
+                <div class="action-subtitle">Laws, statutes, and tenant protections in your area</div>
+            </div>
+        </a>
+        
+        <!-- Row 6: Get Help Now -->
+        <a href="/copilot" class="action-row">
+            <div class="action-content">
+                <div class="action-icon">💬</div>
+                <div class="action-title">Get Help Now</div>
+                <div class="action-subtitle">Ask questions and get immediate guidance</div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="footer">
+        <strong>Remember:</strong> Landlords count on tenants not knowing their rights. Don't let them win.
     </div>
     
     <script>
-        // Fetch and render dashboard on load
-        document.addEventListener('DOMContentLoaded', async function() {
+        // Load urgent deadline count
+        async function loadUrgentDeadlines() {
             try {
-                const response = await fetch('/api/dashboard');
-                
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/signin';
-                        return;
+                const resp = await fetch('/api/calendar/events');
+                const data = await resp.json();
+                if (data.events && data.events.length > 0) {
+                    const urgentCount = data.events.filter(e => {
+                        const daysUntil = Math.floor((new Date(e.date) - new Date()) / (1000 * 60 * 60 * 24));
+                        return daysUntil <= 7;
+                    }).length;
+                    if (urgentCount > 0) {
+                        document.getElementById('deadlineCount').textContent = urgentCount;
                     }
-                    throw new Error('Failed to load dashboard');
                 }
-                
-                const data = await response.json();
-                renderDashboard(data);
             } catch (error) {
-                console.error('Dashboard error:', error);
-                document.getElementById('dashboard-content').innerHTML = `
-                    <div class="error">
-                        <strong>Unable to load dashboard</strong>
-                        <p>${error.message}</p>
-                        <p><a href="/">Return to home</a></p>
-                    </div>
-                `;
+                console.error('Error loading deadlines:', error);
             }
-        });
-        
-        function renderDashboard(data) {
-            // Update stage badge
-            const stageBadge = document.getElementById('stage-badge');
-            const stageNames = {
-                'SEARCHING': '🔍 Searching',
-                'HAVING_TROUBLE': '⚠️ Having Trouble',
-                'CONFLICT': '🤝 In Conflict',
-                'LEGAL': '⚖️ Legal Action'
-            };
-            stageBadge.textContent = stageNames[data.stage] || data.stage;
-            
-            // Render dashboard components
-            const container = document.getElementById('dashboard-content');
-            const dashboard = data.dashboard;
-            
-            let html = '';
-            
-            // Sort components by row
-            const componentsByRow = {};
-            dashboard.components.forEach(item => {
-                if (!componentsByRow[item.row]) {
-                    componentsByRow[item.row] = [];
-                }
-                componentsByRow[item.row].push(item.component);
-            });
-            
-            // Render in row order
-            [1, 2, 3, 4, 5].forEach(row => {
-                if (componentsByRow[row]) {
-                    componentsByRow[row].forEach(component => {
-                        html += component.html;
-                    });
-                }
-            });
-            
-            container.innerHTML = html;
-            
-            // Attach form handlers
-            attachFormHandlers();
         }
         
-        function attachFormHandlers() {
-            // Handle form submissions
-            const forms = document.querySelectorAll('.component-form');
-            forms.forEach(form => {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(form);
-                    const data = Object.fromEntries(formData);
-                    
-                    try {
-                        const response = await fetch('/api/dashboard/update', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(data)
-                        });
-                        
-                        if (response.ok) {
-                            // Reload dashboard
-                            location.reload();
-                        } else {
-                            alert('Failed to update. Please try again.');
-                        }
-                    } catch (error) {
-                        console.error('Form submission error:', error);
-                        alert('Error updating. Please try again.');
-                    }
-                });
-            });
-        }
+        loadUrgentDeadlines();
     </script>
 </body>
 </html>
