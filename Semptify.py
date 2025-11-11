@@ -6,6 +6,7 @@ import secrets
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session
 from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401, _atomic_write_json
+from prime_learning_engine import create_seed_data
 import hashlib
 import requests
 from user_database import (
@@ -1070,9 +1071,21 @@ def admin():
 
     # Return expected HTML for enforced mode
     if _is_enforced():
-        return f'<form><input type="hidden" name="csrf_token" value="{csrf_token}"></form><h2>Admin ENFORCED</h2>SECURITY MODE: ENFORCED', 200
+        return (
+            f'<form method="POST" action="/admin/prime_learning">'
+            f'<input type="hidden" name="csrf_token" value="{csrf_token}">' 
+            f'<input type="hidden" name="confirm_prime" value="yes">'
+            f'<button type="submit">Prime Learning Engine</button>'
+            f'</form>'
+            '<h2>Admin ENFORCED</h2>SECURITY MODE: ENFORCED', 200)
     # Return expected HTML for open mode
-    return f'<form><input type="hidden" name="csrf_token" value="{csrf_token}"></form><h2>Admin</h2>SECURITY MODE: OPEN', 200
+    return (
+        f'<form method="POST" action="/admin/prime_learning">'
+        f'<input type="hidden" name="csrf_token" value="{csrf_token}">' 
+        f'<input type="hidden" name="confirm_prime" value="yes">'
+        f'<button type="submit">Prime Learning Engine</button>'
+        f'</form>'
+        '<h2>Admin</h2>SECURITY MODE: OPEN', 200)
 
 @app.route("/admin/status", methods=["GET"])
 def admin_status():
@@ -1084,6 +1097,73 @@ def admin_status():
         tokens = _load_json(ADMIN_FILE).get('tokens', []) if ADMIN_FILE else []
         return jsonify({"security_mode": "enforced", "status": "ok", "metrics": {"requests_total": 123, "errors_total": 0}, "tokens": tokens}), 200
     return json.dumps({"status": "open", "security_mode": "open"}), 200, {"Content-Type": "application/json"}
+
+@app.route("/admin/prime_learning", methods=["POST"])
+def admin_prime_learning():
+    """Admin action: prime the learning engine with seed data.
+
+    Security model:
+    - In enforced mode, requires a valid admin token and CSRF token.
+    - In open mode, allows without token (still rate limited and logged).
+    - Always rate limited by IP.
+    """
+    # AuthN
+    if _is_enforced():
+        if not _require_admin_or_401():
+            return "Unauthorized", 401
+        # CSRF check for state-changing POSTs
+        form_csrf = request.form.get('csrf_token')
+        if not form_csrf or form_csrf != _get_or_create_csrf_token():
+            incr_metric('errors_total', 1)
+            log_event('csrf_failed', {'path': request.path, 'ip': request.remote_addr or 'unknown'})
+            return jsonify({'error': 'csrf_failed'}), 400
+    else:
+        # Open mode: allow but still log and continue
+        pass
+
+    # Rate limit (post-auth)
+    ip = request.remote_addr or 'unknown'
+    rate_key = f"admin:{ip}:{request.path}"
+    if not check_rate_limit(rate_key):
+        log_event("admin_rate_limited", {"path": request.path, "ip": ip})
+        incr_metric("rate_limited_total")
+        return jsonify({'error': 'rate_limited'}), int(os.environ.get('ADMIN_RATE_STATUS', '429'))
+
+    # Explicit confirmation required
+    confirm = request.form.get('confirm_prime') or request.json.get('confirm_prime') if request.is_json else None
+    if str(confirm).lower() != 'yes':
+        return jsonify({'error': 'confirm_prime_required'}), 400
+
+    try:
+        # Build seed data and metadata
+        seed = create_seed_data()
+        seed["_metadata"] = {
+            "primed_at": datetime.now().isoformat(),
+            "version": "1.0",
+            "source": "admin_prime",
+            "description": "Primed via /admin/prime_learning",
+            "total_sequences": len(seed.get("sequences", {})),
+            "total_users": len(seed.get("user_habits", {})),
+            "total_success_data_points": sum(v.get('attempts', 0) for v in seed.get('success_rates', {}).values()),
+        }
+
+        # Write atomically
+        patterns_path = os.path.join('data', 'learning_patterns.json')
+        os.makedirs(os.path.dirname(patterns_path), exist_ok=True)
+        _atomic_write_json(patterns_path, seed)
+
+        incr_metric('admin_actions_total', 1)
+        log_event('admin_prime_learning', {'ip': ip, 'path': request.path})
+
+        return jsonify({
+            'status': 'ok',
+            'message': 'Learning engine primed successfully',
+            'stats': seed.get('_metadata', {})
+        }), 200
+    except Exception as e:
+        incr_metric('errors_total', 1)
+        log_event('admin_prime_learning_failed', {'error': str(e)})
+        return jsonify({'error': 'prime_failed', 'details': str(e)}), 500
 
 @app.route("/metrics", methods=["GET"])
 def metrics():
