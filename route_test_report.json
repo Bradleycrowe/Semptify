@@ -1,0 +1,207 @@
+{
+  "base_url": "http://localhost:5000",
+  "total_tested": 51,
+  "working_routes": 33,
+  "broken_routes": 0,
+  "routes_with_errors": 18,
+  "all_tested_urls": [
+    "http://localhost:5000/office",
+    "http://localhost:5000/learning-dashboard",
+    "http://localhost:5000/evidence/gallery",
+    "http://localhost:5000/calendar-timeline",
+    "http://localhost:5000/resources/move_checklist",
+    "http://localhost:5000/tools/statute-calculator",
+    "http://localhost:5000/settings",
+    "http://localhost:5000/tools/court-packet",
+    "http://localhost:5000/login",
+    "http://localhost:5000/get-started",
+    "http://localhost:5000/recover",
+    "http://localhost:5000/vault/download",
+    "http://localhost:5000/how-it-works",
+    "http://localhost:5000/health",
+    "http://localhost:5000/resources",
+    "http://localhost:5000/timeline",
+    "http://localhost:5000/dashboard-grid",
+    "http://localhost:5000/calendar-timeline-horizontal",
+    "http://localhost:5000/certified_post",
+    "http://localhost:5000/metrics",
+    "http://localhost:5000/know-your-rights",
+    "http://localhost:5000/timeline-ruler",
+    "http://localhost:5000/terms",
+    "http://localhost:5000/vault/upload",
+    "http://localhost:5000/faq",
+    "http://localhost:5000/dashboard",
+    "http://localhost:5000/register",
+    "http://localhost:5000/resources/service_animal",
+    "http://localhost:5000/signin",
+    "http://localhost:5000/timeline-simple",
+    "http://localhost:5000/tools",
+    "http://localhost:5000/readyz",
+    "http://localhost:5000/notary",
+    "http://localhost:5000/calendar-widgets",
+    "http://localhost:5000/privacy",
+    "http://localhost:5000/ledger-calendar",
+    "http://localhost:5000/tools/complaint-generator",
+    "http://localhost:5000/",
+    "http://localhost:5000/tools/rights-explorer",
+    "http://localhost:5000/features",
+    "http://localhost:5000/vault",
+    "http://localhost:5000/resources/filing_packet",
+    "http://localhost:5000/healthz",
+    "http://localhost:5000/verify",
+    "http://localhost:5000/court_clerk",
+    "http://localhost:5000/admin",
+    "http://localhost:5000/resources/witness_statement",
+    "http://localhost:5000/library",
+    "http://localhost:5000",
+    "http://localhost:5000/about",
+    "http://localhost:5000/help"
+  ],
+  "broken_details": [],
+  "error_details": [
+    {
+      "url": "http://localhost:5000/calendar-widgets",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/library",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/tools",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/tools/complaint-generator",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/tools/statute-calculator",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/tools/court-packet",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/tools/rights-explorer",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/know-your-rights",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/evidence/gallery",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/settings",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/help",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/about",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/privacy",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/terms",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/faq",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/how-it-works",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/features",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    },
+    {
+      "url": "http://localhost:5000/get-started",
+      "status_code": 503,
+      "success": false,
+      "redirect": null,
+      "content_type": "text/html; charset=utf-8",
+      "content": null
+    }
+  ]
+}

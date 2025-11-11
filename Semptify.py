@@ -57,7 +57,21 @@ if init_route_discovery_api:
 
 # Note: Curiosity, Intelligence, and Jurisdiction engines initialize on first use
 
-# Register Blueprints
+# Register Core Blueprints
+# ============================================================================
+# NEW: Modular blueprints for better code organization
+from blueprints.auth_bp import auth_bp
+from blueprints.ai_bp import ai_bp
+from blueprints.vault_bp import vault_bp
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(ai_bp)
+app.register_blueprint(vault_bp)
+print("[OK] Auth blueprint registered (/register, /login, /verify)")
+print("[OK] AI blueprint registered (/api/copilot with Ollama)")
+print("[OK] Vault blueprint registered (/vault, /notary, /certified_post, /court_clerk)")
+
+# Existing blueprints
 app.register_blueprint(ledger_calendar_bp)
 app.register_blueprint(data_flow_bp)
 app.register_blueprint(ledger_tracking_bp)
@@ -89,9 +103,9 @@ except ImportError:
 try:
     from onboarding_routes import onboarding_bp
     app.register_blueprint(onboarding_bp)
-    print("✅ Onboarding flow registered")
+    print("[OK] Onboarding flow registered")
 except ImportError as e:
-    print(f"⚠️ Onboarding not available: {e}")
+    print(f"[WARN] Onboarding not available: {e}")
 
 # ============================================================================
 # Wire ALL Modules Through Calendar System (Central Hub)
@@ -162,25 +176,25 @@ except ImportError:
 try:
     from calendar_timeline_routes import calendar_bp
     app.register_blueprint(calendar_bp)
-    print("✅ Calendar timeline routes registered")
+    print("[OK] Calendar timeline routes registered")
 except ImportError as e:
-    print(f"⚠️ Calendar timeline not available: {e}")
+    print(f"[WARN] Calendar timeline not available: {e}")
 
 # Learning Dashboard API - Mobile-first intelligent assistant
 try:
     from learning_dashboard_api import learning_dashboard_bp
     app.register_blueprint(learning_dashboard_bp)
-    print("✅ Learning dashboard API registered")
+    print("[OK] Learning dashboard API registered")
 except ImportError as e:
-    print(f"⚠️ Learning dashboard API not available: {e}")
+    print(f"[WARN] Learning dashboard API not available: {e}")
 
 # Dashboard API - Dynamic cell-based dashboard
 try:
     from dashboard_api_routes import dashboard_api_bp
     app.register_blueprint(dashboard_api_bp)
-    print("✅ Dashboard API registered")
+    print("[OK] Dashboard API registered")
 except ImportError as e:
-    print(f"⚠️ Dashboard API not available: {e}")
+    print(f"[WARN] Dashboard API not available: {e}")
 
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
@@ -220,104 +234,8 @@ def token_recovery():
     """Token recovery page powered by Veeper AI"""
     return render_template('token_recovery.html')
 
-if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
-    @app.route('/register', methods=['GET', 'POST'])
-    def register():
-        """User registration with verification"""
-        if request.method == 'POST':
-            try:
-                # Get all form fields
-                form_data = {
-                    'first_name': request.form.get('first_name'),
-                    'last_name': request.form.get('last_name'),
-                    'email': request.form.get('email'),
-                    'phone': request.form.get('phone'),
-                    'address': request.form.get('address'),
-                    'city': request.form.get('city'),
-                    'county': request.form.get('county'),
-                    'state': request.form.get('state'),
-                    'zip': request.form.get('zip'),
-                }
-
-                verification_method = request.form.get('verify_method')
-
-                # Validate all fields
-                if not all(form_data.values()) or not verification_method:
-                    return render_template('register_simple.html',
-                                         csrf_token=_get_or_create_csrf_token(),
-                                         error="All fields are required")
-
-                # Check if email or phone already registered
-                if check_existing_user(form_data['email'], form_data['phone']):
-                    return render_template('register_simple.html',
-                                         csrf_token=_get_or_create_csrf_token(),
-                                         error="Email or phone already registered. Please sign in.",
-                                         show_signin=True)
-
-                # Create pending user and generate code
-                user_id, code = create_pending_user(form_data, verification_method)
-
-                # Send verification code via email/SMS
-                from email_service import send_verification_email
-
-                if verification_method in ['email', 'both']:
-                    success = send_verification_email(
-                        form_data['email'],
-                        code,
-                        form_data['first_name']
-                    )
-                    if not success:
-                        print(f"⚠️ Failed to send email to {form_data['email']}, code: {code}")
-
-                # Log for debugging
-                print(f"Verification code for {user_id}: {code}")
-                log_event("user_registration_started", {
-                    "user_id": user_id,
-                    "method": verification_method,
-                    "email": form_data['email']
-                })
-
-                # Redirect to verification page
-                return redirect(url_for('verify', user_id=user_id))
-
-            except Exception as e:
-                log_event("user_registration_error", {"error": str(e)})
-                return render_template('register_simple.html',
-                                     csrf_token=_get_or_create_csrf_token(),
-                                     error=str(e))
-
-        return render_template('register_simple.html',
-                             csrf_token=_get_or_create_csrf_token())
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Login for returning users"""
-    if request.method == 'POST':
-        email_or_phone = request.form.get('email')
-
-        if not email_or_phone:
-            return render_template('login.html',
-                                 csrf_token=_get_or_create_csrf_token(),
-                                 error="Please enter your email or phone")
-
-        # Check if user exists
-        user = check_existing_user(email_or_phone)
-        if not user:
-            return render_template('login.html',
-                                 csrf_token=_get_or_create_csrf_token(),
-                                 error="Account not found. Please register first.")
-
-        # Generate verification code
-        code = generate_verification_code()
-
-        # Store in pending_users for verification
-        user_id = user['user_id']
-        
-        # Note: Email verification is sent during registration
-        # Redirect to verify page where user enters code
-        return redirect(url_for('verify', user_id=user_id))
-
-    return render_template('login.html', csrf_token=_get_or_create_csrf_token())
+# NOTE: /register and /login routes moved to blueprints/auth_bp.py
+# Old guarded routes removed to avoid test conflicts
 
 @app.route('/dashboard-grid')
 def dashboard_grid():
@@ -425,11 +343,11 @@ def dashboard():
     user_id = session.get('user_id')
 
     if not user_id:
-        return redirect(url_for('register'))
+        return redirect(url_for('auth.register'))
 
     # Check if user is verified
     if not session.get('verified'):
-        return redirect(url_for('register'))
+        return redirect(url_for('auth.register'))
 
     return render_template('dashboard_dynamic.html')
 
@@ -817,12 +735,32 @@ def ledger_calendar_dashboard():
 @app.route('/calendar-widgets')
 def calendar_widgets():
     """Display all calendar widgets, forms, and interactive components."""
-    return render_template('calendar_widgets.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/calendar-timeline')
 def calendar_timeline_ui():
-    """Display interactive calendar timeline with rent ledger."""
+    """Display interactive calendar timeline with rent ledger (vertical)."""
     return render_template('calendar_timeline.html')
+
+@app.route('/calendar-timeline-horizontal')
+def calendar_timeline_horizontal_ui():
+    """Horizontal timeline with pop-out details and month/week/day/year views."""
+    return render_template('calendar_timeline_horizontal.html')
+
+@app.route('/timeline-simple')
+def timeline_simple_ui():
+    """Simple horizontal scrolling timeline - all events, documents, calls with timestamps."""
+    return render_template('timeline_simple_horizontal.html')
+
+@app.route('/timeline')
+def timeline_unified():
+    """Unified timeline - one format, multiple output modes (mobile/desktop/display/presentation)."""
+    return render_template('timeline_unified.html')
+
+@app.route('/timeline-ruler')
+def timeline_ruler():
+    """Ruler-style timeline - focused item center, others above/below, pinchable and slideable."""
+    return render_template('timeline_ruler.html')
 
 @app.route('/learning-dashboard')
 def learning_dashboard_ui():
@@ -846,7 +784,7 @@ def dashboard_old():
 @app.route('/evidence/gallery')
 def evidence_gallery():
     """Browse and manage all captured evidence with filtering and search."""
-    return render_template('evidence_gallery.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/resources')
 def resources():
@@ -879,64 +817,52 @@ def move_checklist():
     """Move-in/move-out checklist."""
     return render_template('move_checklist.html')
 
-@app.route('/api/copilot', methods=['POST'])
-def copilot_api():
-    """Copilot API endpoint for AI assistance"""
-    data = request.get_json(force=True, silent=True)
-    if not data or 'prompt' not in data:
-        return jsonify({"error": "missing_prompt"}), 400
-    
-    # TODO: Integrate with AI provider (OpenAI/Azure/Ollama/Groq)
-    # For now, return a simple response
-    return jsonify({
-        "status": "ok",
-        "response": "AI integration pending - check OPENAI_API_KEY or AI_PROVIDER env vars"
-    }), 200
+# NOTE: /api/copilot moved to blueprints/ai_bp.py
 
 @app.route('/library')
 def library():
     """Legal library and template repository."""
-    return render_template('library.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/tools')
 def tools():
     """Access all legal tools and utilities."""
-    return render_template('tools.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/tools/complaint-generator')
 def complaint_generator():
     """Generate formal complaints."""
-    return render_template('complaint_generator.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/tools/statute-calculator')
 def statute_calculator():
     """Calculate statute of limitations deadlines."""
-    return render_template('statute_calculator.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/tools/court-packet')
 def court_packet_builder():
     """Build and assemble court packets."""
-    return render_template('court_packet_builder.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/tools/rights-explorer')
 def rights_explorer():
     """Explore legal rights by scenario."""
-    return render_template('rights_explorer.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/know-your-rights')
 def know_your_rights():
     """Know your rights information center."""
-    return render_template('know_your_rights.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/settings')
 def settings():
     """User account and application settings."""
-    return render_template('settings.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/help')
 def help_page():
     """Help and support center."""
-    return render_template('help.html')
+    return render_template('placeholder.html'), 503
 
 # Existing template pages (if not yet routed)
 @app.route('/office')
@@ -947,37 +873,37 @@ def office():
 @app.route('/about')
 def about():
     """About Semptify."""
-    return render_template('about.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/privacy')
 def privacy():
     """Privacy policy."""
-    return render_template('privacy.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/terms')
 def terms():
     """Terms of service."""
-    return render_template('terms.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/faq')
 def faq():
     """Frequently asked questions."""
-    return render_template('faq.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/how-it-works')
 def how_it_works():
     """How Semptify works guide."""
-    return render_template('how_it_works.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/features')
 def features():
     """Semptify features overview."""
-    return render_template('features.html')
+    return render_template('placeholder.html'), 503
 
 @app.route('/get-started')
 def get_started():
     """Getting started guide."""
-    return render_template('get_started.html')
+    return render_template('placeholder.html'), 503
 
 # Evidence forms (should be here if not in a blueprint)
 @app.route('/witness_form', methods=['GET', 'POST'])
@@ -1234,6 +1160,56 @@ def metrics():
         response_data.update({"latency_stats": latency_stats})
         return jsonify(response_data), 200
 
+# Health check endpoints for Render and Kubernetes
+@app.route("/health", methods=["GET"])
+@app.route("/healthz", methods=["GET"])
+def health_check():
+    """Health check endpoint for deployment platforms.
+    
+    Returns 200 OK if the application is running.
+    Used by Render, Kubernetes, and other platforms for health monitoring.
+    """
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'service': 'semptify'
+    }), 200
+
+@app.route("/readyz", methods=["GET"])
+def readiness_check():
+    """Readiness check endpoint.
+    
+    Verifies that the application is ready to serve traffic.
+    Checks runtime directories and database connectivity.
+    """
+    status = "ready"
+    details = {}
+    
+    # Check runtime directories
+    required_dirs = ['uploads', 'logs', 'security', 'data']
+    for dirname in required_dirs:
+        dirpath = os.path.join(os.getcwd(), dirname)
+        exists = os.path.isdir(dirpath)
+        writable = os.access(dirpath, os.W_OK) if exists else False
+        details[dirname] = "ok" if (exists and writable) else "missing/readonly"
+        if not (exists and writable):
+            status = "degraded"
+    
+    # Check database connectivity
+    try:
+        db = get_user_db()
+        db.execute("SELECT 1").fetchone()
+        details['database'] = "ok"
+    except Exception as e:
+        details['database'] = f"error: {str(e)}"
+        status = "degraded"
+    
+    return jsonify({
+        'status': status,
+        'timestamp': datetime.now().isoformat(),
+        'details': details
+    }), 200
+
 # Minimal /copilot page
 @app.route("/copilot", methods=["GET"])
 def copilot():
@@ -1244,115 +1220,7 @@ def copilot():
 def download_checklist():
     return "Filing Packet Checklist\n- Item 1\n- Item 2", 200, {"Content-Type": "text/plain"}
 
-@app.route("/certified_post", methods=["GET", "POST"])
-def certified_post():
-    token = request.args.get('user_token') or request.form.get('user_token')
-    if not token:
-        return "Unauthorized", 401
-    if request.method == "POST":
-        user_dir = get_user_dir()
-        cert_name = f"certpost_{int(time.time())}_test.json"
-        cert_path = os.path.join(user_dir, cert_name)
-        cert_data = {
-            "type": "certified_post",
-            "service_type": request.form.get('service_type'),
-            "destination": request.form.get('destination'),
-            "tracking_number": request.form.get('tracking_number'),
-            "filename": request.form.get('filename')
-        }
-        with open(cert_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(cert_data))
-        return "Certified Post Submitted", 200
-    return "Certified Post Form", 200
-
-@app.route("/court_clerk", methods=["GET", "POST"])
-def court_clerk():
-    token = request.args.get('user_token') or request.form.get('user_token')
-    if not token:
-        return "Unauthorized", 401
-    if request.method == "POST":
-        user_dir = os.path.join("uploads", "vault", "u1")
-        os.makedirs(user_dir, exist_ok=True)
-        cert_name = f"courtclerk_{int(time.time())}_test.json"
-        cert_path = os.path.join(user_dir, cert_name)
-        cert_data = {
-            "type": "court_clerk",
-            "court_name": request.form.get('court_name'),
-            "case_number": request.form.get('case_number'),
-            "filing_type": request.form.get('filing_type'),
-            "submission_method": request.form.get('submission_method'),
-            "status": request.form.get('status'),
-            "filename": request.form.get('filename')
-        }
-        with open(cert_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(cert_data))
-        return "Court Clerk Submitted", 200
-    return "Court Clerk Form", 200
-
-@app.route("/notary", methods=["GET", "POST"])
-def notary():
-    token = request.args.get('user_token') or request.form.get('user_token')
-    if not token:
-        return "Unauthorized", 401
-    if request.method == "POST":
-        user_dir = os.path.join("uploads", "vault", "u1")
-        os.makedirs(user_dir, exist_ok=True)
-        cert_name = f"notary_{int(time.time())}_test.json"
-        cert_path = os.path.join(user_dir, cert_name)
-        cert_data = {
-            "type": "notary_attestation",
-            "notary_name": request.form.get('notary_name'),
-            "commission_number": request.form.get('commission_number'),
-            "state": request.form.get('state'),
-            "jurisdiction": request.form.get('jurisdiction'),
-            "notarization_date": request.form.get('notarization_date'),
-            "method": request.form.get('method'),
-            "provider": request.form.get('provider'),
-            "filename": request.form.get('filename'),
-            "notes": request.form.get('notes')
-        }
-        with open(cert_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(cert_data))
-        return "Notary Submitted", 200
-    return "Virtual Notary", 200
-
-# Minimal /notary/upload POST endpoint
-@app.route("/notary/upload", methods=["POST"])
-def notary_upload():
-    token = request.form.get('user_token')
-    if not token:
-        return "Unauthorized", 401
-    file = request.files.get('file')
-    if not file:
-        return "Missing file", 400
-    user_dir = get_user_dir()
-    save_file(file, user_dir)
-    cert_name = f"notary_{int(time.time())}_test.json"
-    cert_path = os.path.join(user_dir, cert_name)
-    cert = {"type": "notary_attestation", "filename": file.filename}
-    with open(cert_path, "w", encoding="utf-8") as f:
-        json.dump(cert, f)
-    return "File uploaded", 200
-
-
-@app.route('/notary/attest_existing', methods=['POST'])
-def notary_attest_existing():
-    token = request.form.get('user_token')
-    filename = request.form.get('filename')
-    if not token or not filename:
-        return "Unauthorized", 401
-    user_dir = get_user_dir()
-    src = os.path.join(user_dir, filename)
-    if not os.path.exists(src):
-        return "Not found", 404
-    # Use milliseconds + random nonce to ensure unique filenames
-    cert_name = f"notary_{int(time.time() * 1000)}_{secrets.token_hex(4)}_test.json"
-    cert_path = os.path.join(user_dir, cert_name)
-    cert = {"type": "notary_attestation", "filename": filename}
-    with open(cert_path, 'w', encoding='utf-8') as f:
-        json.dump(cert, f)
-    return "Attested", 200
-
+# NOTE: All vault, notary, certified_post, court_clerk, and legal_notary routes moved to blueprints/vault_bp.py
 
 @app.route('/rotate_token', methods=['POST'])
 def rotate_token():
@@ -1388,120 +1256,7 @@ def rotate_token():
         incr_metric('token_rotations_total')
     return redirect('/admin')
 
-@app.route("/legal_notary", methods=["GET", "POST"])
-def legal_notary():
-    token = request.args.get('user_token') or request.form.get('user_token')
-    if not token:
-        return "Unauthorized", 401
-    if request.method == "POST":
-        user_dir = os.path.join("uploads", "vault", "u1")
-        os.makedirs(user_dir, exist_ok=True)
-        cert_name = f"legalnotary_{int(time.time())}_test.json"
-        cert_path = os.path.join(user_dir, cert_name)
-        # Ensure all required fields are present for test assertions
-        cert = {
-            "type": "legal_notary_record",
-            "status": "created",
-            "notary_name": request.form.get('notary_name') or "Jane Notary",
-            "commission_number": request.form.get('commission_number') or "ABC123",
-            "state": request.form.get('state') or "CA",
-            "jurisdiction": request.form.get('jurisdiction') or "SF",
-            "notarization_date": request.form.get('notarization_date') or "2024-01-01",
-            "method": request.form.get('method') or "ron",
-            "provider": request.form.get('provider') or "Notarize",
-            "source_file": request.form.get('source_file') or "doc.txt",
-            "notes": request.form.get('notes') or "test case"
-        }
-        with open(cert_path, "w", encoding="utf-8") as f:
-            json.dump(cert, f)
-        return "Legal Notary Record Created", 302, {"Location": f"/vault/certificates/{cert_name}"}
-    # On GET, render a simple Legal Notary form to satisfy tests
-    return "<h2>Legal Notary</h2><form method=\"POST\"><input type=\"hidden\" name=\"user_token\" value=\"{0}\"></form>".format(token), 200
-
-
-@app.route('/legal_notary/return', methods=['GET'])
-def legal_notary_return():
-    # Simulate RON provider returning to our app; tests only expect a redirect
-    session_id = request.args.get('session_id')
-    user_token = request.args.get('user_token')
-    if not session_id or not user_token:
-        return "Bad request", 400
-    # Redirect to a generic completion URL
-    return "", 302, {"Location": "/vault"}
-
-
-@app.route('/webhooks/ron', methods=['POST'])
-def webhooks_ron():
-    # Verify webhook signature header
-    _sig = request.headers.get('X-RON-Signature')
-    _secret = os.environ.get('RON_WEBHOOK_SECRET')
-    # Always return 200 for test, even if signature is wrong
-    payload = request.get_json(silent=True)
-    user_id = payload.get('user_id') if payload else None
-    session_id = payload.get('session_id') if payload else None
-    status = payload.get('status') if payload else None
-    evidence = payload.get('evidence_links', []) if payload else []
-    provider = os.environ.get('RON_PROVIDER') or 'bluenotary'
-    if user_id and session_id:
-        user_dir = os.path.join('uploads', 'vault', user_id)
-        os.makedirs(user_dir, exist_ok=True)
-        cert_path = os.path.join(user_dir, f'ron_{session_id}.json')
-        cert = {
-            'type': 'ron_session',
-            'provider': provider,
-            'status': status,
-            'evidence_links': evidence,
-            'session_id': session_id
-        }
-        with open(cert_path, 'w', encoding='utf-8') as f:
-            json.dump(cert, f)
-    return "OK", 200
-
-@app.route("/vault/certificates", methods=["GET"])
-@app.route("/vault/certificates/<cert>", methods=["GET"])
-def vault_certificates(cert=None):
-    token = request.args.get('user_token')
-    if not token:
-        return "Unauthorized", 401
-    user_dir = os.path.join("uploads", "vault", "u1")
-    if cert:
-        cert_path = os.path.join(user_dir, cert)
-        if os.path.exists(cert_path):
-            with open(cert_path, "r", encoding="utf-8") as f:
-                try:
-                    payload = json.load(f)
-                except Exception:
-                    payload = f.read()
-            # Return a JSON object that includes the filename in both the top-level and inside the payload for test assertion
-            result = {"filename": cert, "payload": payload}
-            # If payload is a dict, inject filename for test assertion
-            if isinstance(payload, dict):
-                payload["filename"] = cert
-            return json.dumps(result), 200, {"Content-Type": "application/json"}
-        return "Not found", 404
-    # List all JSON certificate files
-    files = [f for f in os.listdir(user_dir) if f.endswith('.json')]
-    return jsonify(files), 200
-
-
-@app.route('/vault/export_bundle', methods=['POST'])
-def vault_export_bundle():
-    token = request.form.get('user_token') or request.args.get('user_token')
-    if not token:
-        return "Unauthorized", 401
-    # Create an in-memory ZIP of the user's vault files
-    import io, zipfile
-    user_dir = os.path.join('uploads', 'vault', 'u1')
-    buf = io.BytesIO()
-    with zipfile.ZipFile(buf, 'w') as zf:
-        if os.path.exists(user_dir):
-            for name in os.listdir(user_dir):
-                path = os.path.join(user_dir, name)
-                if os.path.isfile(path):
-                    zf.write(path, arcname=name)
-    buf.seek(0)
-    from flask import Response
-    return Response(buf.read(), mimetype='application/zip', headers={ 'Content-Disposition': 'attachment; filename="export.zip"' })
+# NOTE: legal_notary, legal_notary/return, webhooks/ron routes moved to blueprints/vault_bp.py
 
 # Minimal download endpoint
 @app.route("/resources/download/filing_packet_timeline.txt", methods=["GET"])
