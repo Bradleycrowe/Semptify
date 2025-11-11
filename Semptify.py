@@ -5,7 +5,7 @@ import uuid
 import secrets
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session
-from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401
+from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401, _atomic_write_json
 import hashlib
 import requests
 from user_database import (

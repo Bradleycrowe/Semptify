@@ -105,6 +105,27 @@ def _load_json(path: str, default=None):
         pass
     return default if default is not None else {}
 
+def _atomic_write_json(path: str, data: Any):
+    """Atomically write JSON data to a file."""
+    import tempfile
+    dir_path = os.path.dirname(path)
+    os.makedirs(dir_path, exist_ok=True)
+    
+    # Write to temp file first
+    fd, temp_path = tempfile.mkstemp(dir=dir_path, suffix='.json.tmp')
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+        # Atomic rename
+        os.replace(temp_path, path)
+    except Exception:
+        # Clean up temp file on error
+        try:
+            os.remove(temp_path)
+        except Exception:
+            pass
+        raise
+
 def get_token_from_request(request) -> Optional[str]:
     """Extract user token from request (header, args, or form)."""
     return (
