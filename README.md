@@ -61,6 +61,27 @@ Write-Host "Review this file for missing items, notes, TODOs, and instructions."
 
 Small Flask-based GUI for tenant-justice automation. This repository includes a development server, a production runner (`run_prod.py` using waitress), Docker support, tests, and CI workflows.
 
+## 📁 Documentation Structure (Organized)
+
+Related markdown files have been relocated under `docs/` for easier navigation:
+
+- `docs/calendar/` – Calendar logic, components, delivery guides
+- `docs/adaptive/` – Adaptive intensity, learning, system summaries
+- `docs/deployment/` – Deployment checklists, CI/CD, environment setup
+- `docs/render/` – Render-specific deployment and verification guides
+- `docs/route-discovery/` – Route discovery architecture, manifests, summaries
+- `docs/gui/` – GUI implementation strategy, device detection, verification
+- `docs/security/` – Security policy and operational security references
+
+If you had bookmarks to the previous root-level `CALENDAR_*.md`, `ADAPTIVE_*.md`, `DEPLOYMENT_*.md`, `RENDER_*.md`, `ROUTE_DISCOVERY_*.md`, `GUI_*.md`, or `SECURITY*.md` files, update them to point to the new folder paths.
+
+Planned next steps:
+- Consolidate architecture docs into `docs/architecture/`
+- Introduce `docs/guides/` for quick start workflow guides
+- Generate an index file (`docs/INDEX.md`) linking all major topic areas
+
+Feel free to request additional categorization if a topic feels scattered.
+
 Getting started (development)
 
 ```powershell
