@@ -98,15 +98,16 @@ class JurisdictionEngine:
         """
         applicable = []
 
-        # Extract location info
+        # Normalize and extract location info (support both user_location and legacy args)
+        zip_code: Optional[str] = None
         if user_location:
-            city = user_location.get("city")
-            county = user_location.get("county")
-            state = user_location.get("state")
+            city = user_location.get("city", city)
+            county = user_location.get("county", county)
+            state = user_location.get("state", state)
             zip_code = user_location.get("zip")
 
-        # If we don't know about this location yet, discover it!
-        location_key = f"{city}_{state}_{zip_code}"
+        # Build a safe key for adaptive discovery (avoid None in f-strings)
+        location_key = f"{(city or '').strip()}_{(state or '').strip()}_{(zip_code or '').strip()}"
         if location_key not in self.location_intel.locations:
             print(f"🔍 New location detected: {city}, {state} - discovering resources...")
             location_data = self.location_intel.discover_resources({
@@ -141,19 +142,19 @@ class JurisdictionEngine:
                 issue_category in ["all", law.get("category")]
             ):
                 applicable.append(LegalAuthority(
-                    level="federal",
-                    jurisdiction="USA",
+                    level="state",
+                    jurisdiction=(state or law.get("jurisdiction") or "").title() or "State",
                     statute=law.get("statute"),
                     title=key,
                     requirement=law.get("requirement"),
                     deadline=law.get("deadline"),
                     penalty=law.get("penalty"),
                     category=law.get("category"),
-                    protective_level=law.get("protective_level", 5)
+                    protective_level=law.get("protective_level", 4)
                 ))
 
-        # State laws
-        for key, law in self.laws.get(state, {}).items():
+        # State laws (from static database)
+        for key, law in self.laws.get((state or "").lower(), {}).items():
             if law.get("category") == issue_category or issue_category in ["all", law.get("category")]:
                 applicable.append(LegalAuthority(
                     level="state",
@@ -168,7 +169,7 @@ class JurisdictionEngine:
                 ))
 
         # County laws
-        county_key = county.lower().replace(" ", "_")
+        county_key = (county or "").lower().replace(" ", "_")
         for key, law in self.laws.get(county_key, {}).items():
             if law.get("category") == issue_category:
                 applicable.append(LegalAuthority(
@@ -184,7 +185,7 @@ class JurisdictionEngine:
                 ))
 
         # City laws
-        city_key = city.lower().replace(" ", "_")
+        city_key = (city or "").lower().replace(" ", "_")
         for key, law in self.laws.get(city_key, {}).items():
             if law.get("category") == issue_category:
                 applicable.append(LegalAuthority(
