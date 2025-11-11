@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Your Learning Dashboard - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        /* Mobile-first container */
+        .container {
+            max-width: 100%;
+            padding: 0;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        /* Header with intensity indicator */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .header-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        /* Intensity Badge */
+        .intensity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            font-size: 0.875rem;
+            margin-top: 10px;
+        }
+        
+        .intensity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Quick Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Main Content */
+        .content {
+            padding: 15px;
+        }
+        
+        /* Card Style */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #667eea;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        /* Suggested Actions */
+        .action-list {
+            list-style: none;
+        }
+        
+        .action-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .action-item:active {
+            transform: scale(0.98);
+            background: #e9ecef;
+        }
+        
+        .action-number {
+            width: 28px;
+            height: 28px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        
+        .action-text {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .action-confidence {
+            font-size: 0.75rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* Progress Bar */
+        .progress-section {
+            margin-bottom: 20px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Learning Insights */
+        .insight {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe6f0 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .insight-icon {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+        
+        .insight-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            z-index: 1000;
+        }
+        
+        .fab:active {
+            transform: scale(0.9);
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            color: #999;
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-item-icon {
+            font-size: 1.5rem;
+        }
+        
+        /* Feedback Widget */
+        .feedback-popup {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 280px;
+            display: none;
+            z-index: 1001;
+        }
+        
+        .feedback-popup.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .feedback-question {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .feedback-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .feedback-btn:active {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Padding for bottom nav */
+        .content-with-nav {
+            padding-bottom: 80px;
+        }
+        
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Collapsible Section */
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.open {
+            max-height: 1000px;
+        }
+        
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Welcome back! 👋</h1>
+            <div class="header-subtitle">Your personalized tenant assistance</div>
+            <div class="intensity-badge">
+                <div class="intensity-dot" id="intensityDot"></div>
+                <span id="intensityText">Loading...</span>
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="statActions">-</div>
+                <div class="stat-label">Actions Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statProgress">-</div>
+                <div class="stat-label">Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statDeadlines">-</div>
+                <div class="stat-label">Deadlines</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statStreak">-</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content content-with-nav">
+            <!-- Progress Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div>
+                        <div class="card-title">Your Journey</div>
+                        <div class="card-subtitle" id="journeyStage">Loading...</div>
+                    </div>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-label">
+                        <span>Case Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- What the App Learned -->
+            <div class="card">
+                <div class="card-header collapsible-header" onclick="toggleCollapse('learningInsights')">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="card-icon">🧠</div>
+                        <div class="card-title">What I Learned About You</div>
+                    </div>
+                    <span id="learningToggle">▼</span>
+                </div>
+                <div class="collapsible-content" id="learningInsights">
+                    <div id="insightsList">
+                        <!-- Insights loaded via JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Suggested Next Steps -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🎯</div>
+                    <div>
+                        <div class="card-title">Recommended for You</div>
+                        <div class="card-subtitle">Based on your situation</div>
+                    </div>
+                </div>
+                <ul class="action-list" id="actionsList">
+                    <!-- Actions loaded via JS -->
+                </ul>
+            </div>
+            
+            <!-- Curiosity Engine: What App is Learning -->
+            <div class="card">
+                <div class="card-header collapsible-header" onclick="toggleCollapse('curiositySection')">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="card-icon">🔍</div>
+                        <div class="card-title">Currently Researching</div>
+                    </div>
+                    <span id="curiosityToggle">▼</span>
+                </div>
+                <div class="collapsible-content" id="curiositySection">
+                    <div id="curiosityQuestions">
+                        <!-- Curiosity questions loaded via JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Access Cards -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px;">
+                <a href="/calendar-timeline" class="card" style="text-decoration: none; color: inherit; padding: 15px; margin: 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">📅</div>
+                        <div style="font-size: 0.875rem; font-weight: 600;">Calendar</div>
+                    </div>
+                </a>
+                <a href="/vault" class="card" style="text-decoration: none; color: inherit; padding: 15px; margin: 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">🗂️</div>
+                        <div style="font-size: 0.875rem; font-weight: 600;">Documents</div>
+                    </div>
+                </a>
+                <a href="/copilot" class="card" style="text-decoration: none; color: inherit; padding: 15px; margin: 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">💬</div>
+                        <div style="font-size: 0.875rem; font-weight: 600;">AI Assistant</div>
+                    </div>
+                </a>
+                <a href="/journey" class="card" style="text-decoration: none; color: inherit; padding: 15px; margin: 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 8px;">🗺️</div>
+                        <div style="font-size: 0.875rem; font-weight: 600;">Journey</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Floating Action Button -->
+        <button class="fab" onclick="showFeedbackPopup()">💬</button>
+        
+        <!-- Feedback Popup -->
+        <div class="feedback-popup" id="feedbackPopup">
+            <div class="feedback-question">Did today's suggestions help you?</div>
+            <div class="feedback-buttons">
+                <button class="feedback-btn" onclick="submitFeedback('yes')">👍 Yes</button>
+                <button class="feedback-btn" onclick="submitFeedback('no')">👎 No</button>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="/dashboard" class="nav-item active">
+                <div class="nav-item-icon">🏠</div>
+                <div>Home</div>
+            </a>
+            <a href="/learning" class="nav-item">
+                <div class="nav-item-icon">📚</div>
+                <div>Learn</div>
+            </a>
+            <a href="/calendar-timeline" class="nav-item">
+                <div class="nav-item-icon">📅</div>
+                <div>Timeline</div>
+            </a>
+            <a href="/profile" class="nav-item">
+                <div class="nav-item-icon">👤</div>
+                <div>Profile</div>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Load learning profile
+                const response = await fetch('/api/learning/dashboard');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateDashboard(data);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showDemo();
+            }
+        }
+        
+        function updateDashboard(data) {
+            // Update intensity
+            updateIntensity(data.intensity);
+            
+            // Update stats
+            document.getElementById('statActions').textContent = data.stats.actions_today || 0;
+            document.getElementById('statProgress').textContent = (data.stats.progress || 0) + '%';
+            document.getElementById('statDeadlines').textContent = data.stats.deadlines || 0;
+            document.getElementById('statStreak').textContent = data.stats.streak || 0;
+            
+            // Update journey
+            document.getElementById('journeyStage').textContent = data.journey.stage || 'Getting Started';
+            document.getElementById('progressPercent').textContent = (data.journey.progress || 0) + '%';
+            document.getElementById('progressFill').style.width = (data.journey.progress || 0) + '%';
+            
+            // Update insights
+            updateInsights(data.insights || []);
+            
+            // Update actions
+            updateActions(data.actions || []);
+            
+            // Update curiosity
+            updateCuriosity(data.curiosity || []);
+        }
+        
+        function updateIntensity(intensity) {
+            const dot = document.getElementById('intensityDot');
+            const text = document.getElementById('intensityText');
+            
+            const intensityMap = {
+                'positive': { color: '#10b981', text: '✨ Everything Looking Good' },
+                'collaborative': { color: '#3b82f6', text: '🤝 Working Together' },
+                'assertive': { color: '#f59e0b', text: '📋 Documenting Issues' },
+                'escalated': { color: '#ef4444', text: '⚠️ Escalated Response' },
+                'maximum': { color: '#dc2626', text: '🚨 Maximum Urgency' }
+            };
+            
+            const config = intensityMap[intensity.level] || intensityMap['collaborative'];
+            dot.style.background = config.color;
+            text.textContent = config.text;
+        }
+        
+        function updateInsights(insights) {
+            const container = document.getElementById('insightsList');
+            
+            if (insights.length === 0) {
+                container.innerHTML = '<div class="insight"><div class="insight-text">I\'m learning about your situation. Check back soon!</div></div>';
+                return;
+            }
+            
+            container.innerHTML = insights.map(insight => `
+                <div class="insight">
+                    <div class="insight-icon">${insight.icon || '💡'}</div>
+                    <div class="insight-text">${insight.text}</div>
+                </div>
+            `).join('');
+        }
+        
+        function updateActions(actions) {
+            const container = document.getElementById('actionsList');
+            
+            if (actions.length === 0) {
+                container.innerHTML = '<li class="action-item"><div class="action-text">All caught up! Check back later for new suggestions.</div></li>';
+                return;
+            }
+            
+            container.innerHTML = actions.map((action, index) => `
+                <li class="action-item" onclick="performAction('${action.id}')">
+                    <div class="action-number">${index + 1}</div>
+                    <div class="action-text">${action.text}</div>
+                    ${action.confidence ? `<div class="action-confidence">${action.confidence}%</div>` : ''}
+                </li>
+            `).join('');
+        }
+        
+        function updateCuriosity(questions) {
+            const container = document.getElementById('curiosityQuestions');
+            
+            if (questions.length === 0) {
+                container.innerHTML = '<div class="insight"><div class="insight-text">No active research questions right now.</div></div>';
+                return;
+            }
+            
+            container.innerHTML = questions.map(q => `
+                <div class="insight">
+                    <div class="insight-icon">❓</div>
+                    <div class="insight-text"><strong>Researching:</strong> ${q.question}</div>
+                </div>
+            `).join('');
+        }
+        
+        async function performAction(actionId) {
+            try {
+                // Log the action
+                await fetch('/api/learning/action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action_id: actionId })
+                });
+                
+                // Navigate or show modal based on action
+                // For now, just reload
+                showFeedbackPopup();
+            } catch (error) {
+                console.error('Error performing action:', error);
+            }
+        }
+        
+        function toggleCollapse(id) {
+            const content = document.getElementById(id);
+            const toggle = document.getElementById(id.replace('Section', 'Toggle').replace('Insights', 'Toggle'));
+            
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '▲' : '▼';
+        }
+        
+        function showFeedbackPopup() {
+            const popup = document.getElementById('feedbackPopup');
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 5000);
+        }
+        
+        async function submitFeedback(response) {
+            try {
+                await fetch('/api/learning/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ helpful: response === 'yes' })
+                });
+                
+                document.getElementById('feedbackPopup').classList.remove('show');
+                
+                // Show thank you message
+                alert(response === 'yes' ? '🎉 Great! Glad to help!' : '📝 Thanks for feedback. We\'ll improve!');
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+            }
+        }
+        
+        function showDemo() {
+            // Demo data for testing
+            updateDashboard({
+                intensity: { level: 'collaborative' },
+                stats: { actions_today: 3, progress: 45, deadlines: 2, streak: 7 },
+                journey: { stage: 'Documenting Issues', progress: 45 },
+                insights: [
+                    { icon: '🏠', text: 'You usually take action in the evening. Setting reminders for 6pm.' },
+                    { icon: '📝', text: 'You prefer step-by-step guidance over long explanations.' },
+                    { icon: '⏰', text: 'You respond well to urgent deadlines. We\'ll highlight critical dates.' }
+                ],
+                actions: [
+                    { id: 'upload_lease', text: 'Upload your lease agreement', confidence: 95 },
+                    { id: 'document_issue', text: 'Document the maintenance issue with photos', confidence: 88 },
+                    { id: 'check_deadline', text: 'Review your response deadline (3 days left)', confidence: 100 }
+                ],
+                curiosity: [
+                    { question: 'Why do users with landlord disputes succeed 15% more when they document issues immediately?' }
+                ]
+            });
+        }
+        
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            
+            // Show feedback after 30 seconds
+            setTimeout(showFeedbackPopup, 30000);
+        });
+        
+        // Install as PWA prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Could show install button here
+        });
+    </script>
+</body>
+</html>

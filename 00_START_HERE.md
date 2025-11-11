@@ -1,3 +1,28 @@
+# 📦 START HERE - Semptify Quick Reference
+
+## ⚡ BEFORE YOU START ANY WORK - CHECK THESE:
+
+### ☑️ 1. Does it already exist?
+Search files first: Look in `SYSTEM_ARCHITECTURE.md` for existing modules
+
+### ☑️ 2. What database do we use?
+**ANSWER: SQLite in `security/users.db`**  
+❌ NO JSON files for data storage  
+✅ Add tables to `user_database.py`
+
+### ☑️ 3. Read these files:
+- **`SYSTEM_ARCHITECTURE.md`** ← Full system documentation (NEW - READ THIS!)
+- **`.github/copilot-instructions.md`** ← Project conventions
+- **`user_database.py`** ← Database schema
+
+### 🚨 EXISTING SYSTEMS (don't recreate):
+- **Delivery:** `app-backend/delivery_api.py` (needs SQLite backend)
+- **Calendar:** `calendar_api.py` (old), `calendar_timeline.py` (new, needs SQLite)
+- **OCR:** `ocr_service.py` (complete)
+- **User Auth:** `user_database.py` (SQLite)
+
+---
+
 # 📦 Complete Production Startup System - Final Summary
 
 ## ✅ What Was Created

@@ -362,3 +362,9 @@
 {"event": "verification_code_resent", "payload": {"user_id": "mj7kO96MgaISVTEN8wANxQ"}, "ts": 1762665739.9315972}
 {"event": "user_registration_started", "payload": {"email": "bradcrowe@hail.com", "method": "sms", "user_id": "Qc5eefcxlz4hEFl7BFZpXw"}, "ts": 1762665821.2551227}
 {"event": "user_verified", "payload": {"email": "bradcrowe@hail.com", "user_id": "Qc5eefcxlz4hEFl7BFZpXw"}, "ts": 1762665846.292576}
+{"event": "user_registration_started", "payload": {"email": "test.4c18e6eb@example.com", "method": "email", "user_id": "bTCHINo-1OeuPMsOvVBLaw"}, "ts": 1762837108.690602}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762837685.230063}
+{"event": "user_registration_started", "payload": {"email": "test.1d5dea3d@example.com", "method": "email", "user_id": "HafpEXicute3gDrnR53w3w"}, "ts": 1762837685.4899662}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762837694.2683623}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762837694.2777991}
+{"event": "user_registration_started", "payload": {"email": "test.e83bb945@example.com", "method": "email", "user_id": "v2sHD7ELqzfKxpLwt38-Bg"}, "ts": 1762837711.5128896}

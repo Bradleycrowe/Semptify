@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.2s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .progress {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .progress-dot {
+            flex: 1;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+        }
+        
+        .progress-dot.active {
+            background: #667eea;
+        }
+        
+        .error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Semptify</h1>
+        <p class="subtitle">Let's gather a few details so we can help you better.</p>
+        
+        <div class="progress">
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+        
+        <form id="onboardingForm">
+            <!-- Step 1: Location -->
+            <div class="step active" id="step1">
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="city" required placeholder="e.g., Minneapolis">
+                </div>
+                
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" name="state" required placeholder="e.g., Minnesota">
+                </div>
+                
+                <div class="form-group">
+                    <label>ZIP Code</label>
+                    <input type="text" name="zip" required placeholder="e.g., 55401">
+                </div>
+                
+                <button type="button" class="btn" onclick="nextStep(2)">Continue</button>
+                <button type="button" class="btn btn-secondary" onclick="skipOnboarding()">Skip for Now</button>
+            </div>
+            
+            <!-- Step 2: Issue Type -->
+            <div class="step" id="step2">
+                <div class="form-group">
+                    <label>What brings you to Semptify?</label>
+                    <select name="issue_type" required>
+                        <option value="">Select an issue...</option>
+                        <option value="eviction">Eviction or eviction notice</option>
+                        <option value="repair">Repair issues / habitability</option>
+                        <option value="harassment">Landlord harassment</option>
+                        <option value="rent">Rent increase or payment dispute</option>
+                        <option value="lease">Lease violation or termination</option>
+                        <option value="security_deposit">Security deposit dispute</option>
+                        <option value="discrimination">Discrimination</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>How urgent is your situation?</label>
+                    <select name="urgency" required>
+                        <option value="">Select urgency...</option>
+                        <option value="immediate">Immediate (happening now)</option>
+                        <option value="days">Within days</option>
+                        <option value="weeks">Within weeks</option>
+                        <option value="planning">Just planning ahead</option>
+                    </select>
+                </div>
+                
+                <button type="button" class="btn" onclick="nextStep(3)">Continue</button>
+                <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Back</button>
+            </div>
+            
+            <!-- Step 3: Court Date -->
+            <div class="step" id="step3">
+                <div class="form-group">
+                    <label>Do you have a court date?</label>
+                    <select name="has_court_date" onchange="toggleCourtDate()" required>
+                        <option value="">Select...</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="court_date_field" style="display:none;">
+                    <label>When is your court date?</label>
+                    <input type="date" name="court_date">
+                </div>
+                
+                <div class="form-group">
+                    <label>Anything else we should know? (optional)</label>
+                    <textarea name="notes" rows="3" placeholder="Any additional details..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn">Get Started</button>
+                <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Back</button>
+            </div>
+        </form>
+        
+        <div id="loading" style="display:none; text-align:center; padding:20px;">
+            <p>Setting up your personalized dashboard...</p>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        
+        function nextStep(step) {
+            // Validate current step
+            const currentStepEl = document.getElementById(`step${currentStep}`);
+            const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value) {
+                    valid = false;
+                    input.style.borderColor = '#ef4444';
+                } else {
+                    input.style.borderColor = '#e0e0e0';
+                }
+            });
+            
+            if (!valid) return;
+            
+            // Move to next step
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            // Update progress
+            document.querySelectorAll('.progress-dot')[step - 1].classList.add('active');
+            
+            currentStep = step;
+        }
+        
+        function prevStep(step) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.add('active');
+            currentStep = step;
+        }
+        
+        function toggleCourtDate() {
+            const hasCourtDate = document.querySelector('select[name="has_court_date"]').value;
+            const courtDateField = document.getElementById('court_date_field');
+            courtDateField.style.display = hasCourtDate === 'yes' ? 'block' : 'none';
+        }
+        
+        function skipOnboarding() {
+            if (confirm('Skip setup? You can add details later from settings.')) {
+                fetch('/api/onboarding/skip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect;
+                    }
+                });
+            }
+        }
+        
+        document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+                location: {
+                    city: formData.get('city'),
+                    state: formData.get('state'),
+                    zip: formData.get('zip')
+                },
+                issue_type: formData.get('issue_type'),
+                urgency: formData.get('urgency'),
+                has_court_date: formData.get('has_court_date') === 'yes',
+                court_date: formData.get('court_date'),
+                notes: formData.get('notes')
+            };
+            
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            fetch('/api/onboarding/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    window.location.href = result.redirect;
+                } else {
+                    alert('Error: ' + result.error);
+                    document.querySelector('.container').style.display = 'block';
+                    document.getElementById('loading').style.display = 'none';
+                }
+            })
+            .catch(err => {
+                alert('Error submitting form');
+                console.error(err);
+                document.querySelector('.container').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

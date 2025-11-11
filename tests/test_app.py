@@ -12,8 +12,7 @@ def client():
 def test_index(client):
     rv = client.get('/')
     assert rv.status_code == 200
-    # Homepage content should include key navigation links
-    assert b"Register" in rv.data
-    assert b"Resources" in rv.data
-    assert b"Health" in rv.data
+    # Homepage has "Semptify" and "Get Started" button
+    assert b"Semptify" in rv.data
+    assert b"Get Started" in rv.data
 

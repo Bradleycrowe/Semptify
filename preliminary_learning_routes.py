@@ -252,7 +252,7 @@ def get_all_resources():
     """
     if not _require_user_or_401():
         abort(401)
-    
+
     incr_metric("learning_requests_total")
 
     resources = module.get_all_resources()
@@ -323,7 +323,7 @@ def fact_check_batch():
     """
     if not _require_user_or_401():
         abort(401)
-    
+
     incr_metric("learning_requests_total")
 
     data = request.get_json() or {}
@@ -369,7 +369,7 @@ def update_knowledge():
     """
     if not _require_user_or_401():
         abort(401)
-    
+
     # Check if admin (can add check here)
     incr_metric("learning_updates_total")
 
