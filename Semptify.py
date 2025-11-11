@@ -350,6 +350,15 @@ def dashboard():
     if not session.get('verified'):
         return redirect(url_for('auth.register'))
 
+    # Check if this is their first login (show welcome dashboard)
+    try:
+        from user_database import get_user_by_id
+        user = get_user_by_id(user_id)
+        if user and user.get('login_count', 0) <= 1:
+            return render_template('dashboard_welcome.html')
+    except Exception:
+        pass
+
     return render_template('dashboard_dynamic.html')
 
 @app.route('/api/dashboard')

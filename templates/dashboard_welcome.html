@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .welcome-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .welcome-hero h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    .welcome-hero .motto {
+        font-size: 1.3rem;
+        font-weight: 600;
+        opacity: 0.95;
+        margin: 1rem 0;
+    }
+    .onboarding-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    .step-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+        position: relative;
+    }
+    .step-card:hover {
+        border-color: #667eea;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+    }
+    .step-number {
+        position: absolute;
+        top: -15px;
+        left: 20px;
+        background: #667eea;
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    .step-card h3 {
+        color: #667eea;
+        margin: 1rem 0 0.5rem 0;
+    }
+    .step-card p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    .step-card .btn {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .step-card .btn:hover {
+        background: #764ba2;
+        transform: scale(1.05);
+    }
+    .quick-tips {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 2rem 0;
+    }
+    .quick-tips h3 {
+        color: #856404;
+        margin-bottom: 1rem;
+    }
+    .quick-tips ul {
+        margin-left: 1.5rem;
+        color: #666;
+        line-height: 1.8;
+    }
+</style>
+
+<div class="welcome-hero">
+    <h1>🎉 Welcome to Semptify, {{ session.get('user_name', 'Friend') }}!</h1>
+    <p class="motto">📝 Document everything!</p>
+    <p>Your secure evidence vault is ready. Let's get you started.</p>
+</div>
+
+<div class="onboarding-steps">
+    <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>📦 Visit Your Vault</h3>
+        <p>Upload your first document, photo, or video. Each file gets a tamper-proof timestamp and hash.</p>
+        <a href="{{ url_for('vault_blueprint.vault') }}" class="btn">Open Vault →</a>
+    </div>
+
+    <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>✍️ Create Evidence</h3>
+        <p>Use our guided forms to document witness statements, incidents, or complaints.</p>
+        <a href="{{ url_for('witness_statement') }}" class="btn">Start Here →</a>
+    </div>
+
+    <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>📅 Build Timeline</h3>
+        <p>Track events chronologically to show patterns and build a stronger case.</p>
+        <a href="{{ url_for('calendar_timeline_bp.timeline') }}" class="btn">Add Events →</a>
+    </div>
+</div>
+
+<div class="quick-tips">
+    <h3>💡 Pro Tips for Success</h3>
+    <ul>
+        <li><strong>Document immediately:</strong> Upload evidence as soon as possible for authentic timestamps</li>
+        <li><strong>Be detailed:</strong> More context = stronger case. Use notes and descriptions.</li>
+        <li><strong>Stay organized:</strong> Tag and date everything; you can search and filter later</li>
+        <li><strong>Keep originals:</strong> Never delete source files; upload copies to Semptify</li>
+        <li><strong>Backup regularly:</strong> Download your vault periodically for offline security</li>
+    </ul>
+</div>
+
+<section style="background: #e7f3ff; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+    <h3 style="color: #0066cc; margin-bottom: 1rem;">🔐 Your Data is Safe</h3>
+    <p style="color: #333; line-height: 1.6;">
+        • All uploads are encrypted in transit<br>
+        • SHA-256 hashes prove file integrity<br>
+        • Timestamps are server-verified<br>
+        • R2 cloud backup (if enabled) ensures persistence<br>
+        • You control your data—download or delete anytime
+    </p>
+</section>
+
+<div style="text-align: center; margin: 3rem 0;">
+    <h3 style="color: #667eea; margin-bottom: 1rem;">Need Help?</h3>
+    <p style="color: #666; margin-bottom: 1rem;">Check out these resources:</p>
+    <a href="{{ url_for('resources') }}" style="margin: 0.5rem; padding: 0.7rem 1.5rem; background: #667eea; color: white; text-decoration: none; border-radius: 50px; display: inline-block;">📚 Resources</a>
+    <a href="{{ url_for('housing_programs_bp.programs') }}" style="margin: 0.5rem; padding: 0.7rem 1.5rem; background: #2ecc71; color: white; text-decoration: none; border-radius: 50px; display: inline-block;">🏠 Housing Programs</a>
+</div>
+
+{% endblock %}

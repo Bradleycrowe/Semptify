@@ -445,19 +445,24 @@ def log_user_interaction(user_id: str, interaction_type: str, module_name: str =
     conn.close()
 
 def mask_contact(contact: str, method: str) -> str:
-    """Mask email or phone for display"""
-    if method == 'email' or '@' in contact:
-        parts = contact.split('@')
-        if len(parts) == 2:
-            username = parts[0]
-            domain = parts[1]
-            masked = username[0] + '***' if len(username) > 1 else '***'
-            return f"{masked}@{domain}"
-    else:  # phone
-        # Keep last 4 digits
-        if len(contact) >= 4:
-            return '***-***-' + contact[-4:]
+    """Mask email or phone for display on verification page."""
+    if method == 'email' and '@' in contact:
+        local, domain = contact.split('@')
+        return f"{local[:2]}***@{domain}"
+    elif method == 'phone' and len(contact) >= 4:
+        return f"***{contact[-4:]}"
     return '***'
+
+
+def get_user_by_id(user_id: str):
+    """Retrieve user record by user_id."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE user_id = ?', (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
 
 # Initialize database on import
 init_database()
