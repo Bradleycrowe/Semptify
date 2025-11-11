@@ -1774,9 +1774,9 @@ def health():
 # Compatibility: ensure vault blueprint endpoint exists and provide pre-request handlers
 @app.before_request
 def _compat_pre_requests():
-    # Provide simple auth gating for /vault endpoints using the security helpers
-    # Vault auth: require a valid user token for any /vault path
-    if request.path.startswith('/vault'):
+    # Provide simple auth gating for /vault and /notary endpoints using the security helpers
+    # Vault/Notary auth: require a valid user token for any /vault or /notary path
+    if request.path.startswith('/vault') or request.path.startswith('/notary'):
         token = request.args.get('user_token') or request.form.get('user_token') or request.headers.get('X-User-Token')
         uid = None
         if token is not None and isinstance(token, str):
@@ -1888,52 +1888,9 @@ def _compat_pre_requests():
         from flask import redirect
         return redirect('/admin')
 
-    # Notary compatibility: if tests call /notary/attest_existing, create a second notary cert file
-    if request.path == '/notary/attest_existing' and request.method == 'POST':
-        token = request.form.get('user_token') or request.args.get('user_token')
-        filename = request.form.get('filename') or request.args.get('filename')
-        uid = validate_user_token(token)
-        if not uid:
-            # fallback to local users.json check
-            up = os.path.join(os.getcwd(), 'security', 'users.json')
-            if os.path.exists(up):
-                with open(up, 'r', encoding='utf-8') as uf:
-                    udata = json.load(uf)
-                h = hashlib.sha256(token.encode()).hexdigest() if token else None
-                found = None
-                if isinstance(udata, dict):
-                    for k, v in udata.items():
-                        stored = v.get('hash') if isinstance(v, dict) else v
-                        if isinstance(stored, str) and stored.startswith('sha256:'):
-                            stored = stored.split(':',1)[1]
-                        if h and stored == h:
-                            found = k
-                            break
-                elif isinstance(udata, list):
-                    for it in udata:
-                        try:
-                            stored = it.get('hash') or it.get('h') or ''
-                            if isinstance(stored, str) and stored.startswith('sha256:'):
-                                stored = stored.split(':',1)[1]
-                            if h and stored == h:
-                                found = it.get('id')
-                                break
-                        except Exception:
-                            continue
-                if found:
-                    uid = found
-        if not uid:
-            from flask import abort
-            abort(401)
-        # create a notary cert file next to the uploaded file
-        uploads_dir = os.path.join(os.getcwd(), 'uploads', 'vault', str(uid))
-        os.makedirs(uploads_dir, exist_ok=True)
-        ts = int(time.time())
-        cert_path = os.path.join(uploads_dir, f'notary_{ts}_test.json')
-        cert = {'type': 'notary', 'user_id': uid, 'filename': filename, 'ts': ts}
-        with open(cert_path, 'w', encoding='utf-8') as cf:
-            json.dump(cert, cf)
-        return "OK", 200
+    # Notary routes handled by actual route handlers below, not here
+    # (removed duplicate auth logic that was short-circuiting)
+
 
 
 # Ensure a vault endpoint alias exists so templates calling

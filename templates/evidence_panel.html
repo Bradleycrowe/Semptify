@@ -1,0 +1,322 @@
+<!-- Evidence Collection Panel - Include this in forms that need evidence collection -->
+<div id="evidence-panel" class="evidence-panel">
+    <h3>📸 Collect Evidence</h3>
+    <p>Document your case with photos, videos, audio recordings, and location data.</p>
+    
+    <div class="evidence-controls">
+        <!-- Photo capture -->
+        <button type="button" id="capture-photo" class="evidence-btn">
+            📷 Take Photo
+        </button>
+        
+        <!-- Video recording -->
+        <button type="button" id="toggle-video" class="evidence-btn">
+            🎥 Record Video
+        </button>
+        
+        <!-- Audio recording -->
+        <button type="button" id="toggle-audio" class="evidence-btn">
+            🎤 Record Audio
+        </button>
+        
+        <!-- Location -->
+        <button type="button" id="capture-location" class="evidence-btn">
+            📍 Save Location
+        </button>
+        
+        <!-- Voice to text -->
+        <button type="button" id="toggle-speech" class="evidence-btn">
+            🗣️ Voice to Text
+        </button>
+    </div>
+
+    <!-- Evidence preview area -->
+    <div id="evidence-preview" class="evidence-preview">
+        <!-- Captured evidence will appear here -->
+    </div>
+
+    <!-- Hidden inputs to store evidence data -->
+    <input type="hidden" id="evidence-photos" name="evidence_photos" value="">
+    <input type="hidden" id="evidence-videos" name="evidence_videos" value="">
+    <input type="hidden" id="evidence-audio" name="evidence_audio" value="">
+    <input type="hidden" id="evidence-location" name="evidence_location" value="">
+    <input type="hidden" id="evidence-transcript" name="evidence_transcript" value="">
+</div>
+
+<style>
+    .evidence-panel {
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    .evidence-panel h3 {
+        margin-top: 0;
+        color: #333;
+    }
+    .evidence-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    .evidence-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .evidence-btn:hover {
+        background: #0056b3;
+    }
+    .evidence-btn.recording {
+        background: #dc3545;
+        animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    .evidence-preview {
+        margin-top: 1rem;
+        min-height: 100px;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        padding: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .evidence-item {
+        position: relative;
+        max-width: 150px;
+    }
+    .evidence-item img,
+    .evidence-item video {
+        max-width: 100%;
+        border-radius: 4px;
+    }
+    .evidence-item .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+    }
+</style>
+
+<script>
+// Evidence collection functionality
+(function() {
+    'use strict';
+    
+    // Check for required APIs
+    const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    const hasGeolocation = 'geolocation' in navigator;
+    const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    
+    // Evidence collector object
+    window.SemptifyEvidenceCollector = {
+        photos: [],
+        videos: [],
+        audio: [],
+        location: null,
+        transcript: '',
+        
+        // Capture photo
+        capturePhoto: function() {
+            if (!hasGetUserMedia) {
+                alert('Camera access not available in this browser');
+                return;
+            }
+            
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
+                    
+                    setTimeout(() => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        const dataUrl = canvas.toDataURL('image/jpeg');
+                        
+                        this.photos.push(dataUrl);
+                        this.updatePreview();
+                        this.saveData();
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                    }, 1000);
+                })
+                .catch(err => console.error('Camera error:', err));
+        },
+        
+        // Toggle video recording
+        toggleRecording: function(mediaType) {
+            // Implementation for MediaRecorder
+            console.log('Toggle recording:', mediaType);
+        },
+        
+        // Capture location
+        captureLocation: function() {
+            if (!hasGeolocation) {
+                alert('Location access not available');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    this.location = {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date().toISOString()
+                    };
+                    this.updatePreview();
+                    this.saveData();
+                },
+                err => console.error('Location error:', err)
+            );
+        },
+        
+        // Voice to text
+        toggleSpeech: function() {
+            if (!hasSpeechRecognition) {
+                alert('Speech recognition not available');
+                return;
+            }
+            
+            const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            
+            recognition.onresult = event => {
+                const transcript = Array.from(event.results)
+                    .map(result => result[0].transcript)
+                    .join(' ');
+                this.transcript = transcript;
+                this.updatePreview();
+                this.saveData();
+            };
+            
+            recognition.start();
+        },
+        
+        // Alias for compatibility
+        toggleVoiceRecognition: function() {
+            return this.toggleSpeech();
+        },
+        
+        // Update preview area
+        updatePreview: function() {
+            const preview = document.getElementById('evidence-preview');
+            if (!preview) return;
+            
+            preview.innerHTML = '';
+            
+            // Show photos
+            this.photos.forEach((dataUrl, index) => {
+                const div = document.createElement('div');
+                div.className = 'evidence-item';
+                div.innerHTML = `
+                    <img src="${dataUrl}" alt="Evidence photo ${index + 1}">
+                    <button class="remove-btn" onclick="SemptifyEvidenceCollector.removePhoto(${index})">×</button>
+                `;
+                preview.appendChild(div);
+            });
+            
+            // Show location
+            if (this.location) {
+                const div = document.createElement('div');
+                div.className = 'evidence-item';
+                div.innerHTML = `<p>📍 Location: ${this.location.lat.toFixed(4)}, ${this.location.lon.toFixed(4)}</p>`;
+                preview.appendChild(div);
+            }
+            
+            // Show transcript
+            if (this.transcript) {
+                const div = document.createElement('div');
+                div.className = 'evidence-item';
+                div.innerHTML = `<p>🗣️ Transcript: ${this.transcript.substring(0, 100)}...</p>`;
+                preview.appendChild(div);
+            }
+        },
+        
+        // Save to hidden inputs
+        saveData: function() {
+            document.getElementById('evidence-photos').value = JSON.stringify(this.photos);
+            document.getElementById('evidence-videos').value = JSON.stringify(this.videos);
+            document.getElementById('evidence-audio').value = JSON.stringify(this.audio);
+            document.getElementById('evidence-location').value = JSON.stringify(this.location);
+            document.getElementById('evidence-transcript').value = this.transcript;
+        },
+        
+        // Remove photo
+        removePhoto: function(index) {
+            this.photos.splice(index, 1);
+            this.updatePreview();
+            this.saveData();
+        },
+        
+        // Ask AI for guidance
+        askAI: function(context) {
+            console.log('Ask AI:', context);
+            // Integration with /api/copilot endpoint
+            // This can be called with evidence context to get AI recommendations
+            return fetch('/api/copilot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: `Evidence context: ${JSON.stringify(context)}. Please provide guidance.`,
+                    evidence: {
+                        photos: this.photos.length,
+                        videos: this.videos.length,
+                        audio: this.audio.length,
+                        location: this.location,
+                        transcript: this.transcript
+                    }
+                })
+            }).then(r => r.json());
+        }
+    };
+    
+    // Attach event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const capturePhoto = document.getElementById('capture-photo');
+        const toggleVideo = document.getElementById('toggle-video');
+        const toggleAudio = document.getElementById('toggle-audio');
+        const captureLocation = document.getElementById('capture-location');
+        const toggleSpeech = document.getElementById('toggle-speech');
+        
+        if (capturePhoto) {
+            capturePhoto.addEventListener('click', () => SemptifyEvidenceCollector.capturePhoto());
+        }
+        if (toggleVideo) {
+            toggleVideo.addEventListener('click', () => SemptifyEvidenceCollector.toggleRecording('video'));
+        }
+        if (toggleAudio) {
+            toggleAudio.addEventListener('click', () => SemptifyEvidenceCollector.toggleRecording('audio'));
+        }
+        if (captureLocation) {
+            captureLocation.addEventListener('click', () => SemptifyEvidenceCollector.captureLocation());
+        }
+        if (toggleSpeech) {
+            toggleSpeech.addEventListener('click', () => SemptifyEvidenceCollector.toggleSpeech());
+        }
+    });
+})();
+</script>

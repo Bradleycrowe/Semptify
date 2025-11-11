@@ -39,9 +39,9 @@ def test_valid_csrf_allows_release_tag(monkeypatch):
             self.text = text
         def json(self):
             return self._json
-    def fake_get(url, headers=None):
+    def fake_get(url, headers=None, timeout=None):
         return DummyResp(200, {'object': {'sha': 'abc123'}})
-    def fake_post(url, headers=None, json=None):
+    def fake_post(url, headers=None, json=None, timeout=None):
         return DummyResp(201, {})
     monkeypatch.setattr('requests.get', fake_get)
     monkeypatch.setattr('requests.post', fake_post)
