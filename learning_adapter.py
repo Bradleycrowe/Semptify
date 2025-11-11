@@ -9,6 +9,7 @@ from dashboard_components import (
 )
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
+from reasoning_engine import get_reasoning_engine
 
 
 class LearningAdapter:
@@ -95,6 +96,22 @@ class LearningAdapter:
         self.issue_type = user_data.get("issue_type", "rent")
         self.stage = user_data.get("stage", self.STAGE_SEARCHING)
         self.history = user_data.get("history", [])
+        
+        # NEW: Get reasoning engine analysis
+        self.reasoning_engine = get_reasoning_engine()
+        self.reasoning_analysis = None
+        try:
+            self.reasoning_analysis = self.reasoning_engine.analyze_situation(
+                self.user_id,
+                context={
+                    "location": self.location,
+                    "issue_type": self.issue_type,
+                    "stage": self.stage
+                }
+            )
+        except Exception as e:
+            print(f"Reasoning engine error: {e}")
+            self.reasoning_analysis = None
 
     def build_dashboard(self) -> DashboardBuilder:
         """Generate complete dashboard with all 5 rows populated"""
@@ -123,10 +140,24 @@ class LearningAdapter:
         return builder
 
     def _build_rights_component(self) -> RightsComponent:
-        """Build Row 1: Legal rights specific to location and issue"""
+        """Build Row 1: Legal rights specific to location and issue - ENHANCED WITH REASONING ENGINE"""
         component = RightsComponent()
         component.jurisdiction = self.location
         component.issue_type = self.ISSUE_TYPES.get(self.issue_type, self.issue_type)
+
+        # NEW: Add reasoning engine rights/facts first
+        if self.reasoning_analysis:
+            situation = self.reasoning_analysis.get("situation", {})
+            
+            # Add rights from reasoning engine
+            your_rights = situation.get("your_rights", [])
+            for right in your_rights[:3]:  # Top 3 rights
+                if isinstance(right, dict):
+                    component.add_right(
+                        title=right.get("title", "Your Right"),
+                        description=right.get("description", ""),
+                        source=right.get("source", "Legal Research")
+                    )
 
         # Get jurisdiction-specific rights
         # Extract state from location (e.g., "Minneapolis, MN" -> "MN")
@@ -160,10 +191,39 @@ class LearningAdapter:
         return component
 
     def _build_information_component(self) -> InformationComponent:
-        """Build Row 2: Smart guidance and warnings"""
+        """Build Row 2: Smart guidance and warnings - ENHANCED WITH REASONING ENGINE"""
         component = InformationComponent()
 
-        # Stage-specific guidance
+        # NEW: Use reasoning engine analysis if available
+        if self.reasoning_analysis:
+            analysis = self.reasoning_analysis.get("analysis", {})
+            
+            # Add impact statement as primary guidance
+            impact = analysis.get("impact_statement")
+            if impact:
+                severity_map = {
+                    "high": "critical",
+                    "medium-high": "warning",
+                    "medium": "info",
+                    "low": "info"
+                }
+                component.add_warning(
+                    title=f"SITUATION ANALYSIS - {analysis.get('urgency', 'Review').upper()}",
+                    description=impact,
+                    severity=severity_map.get(analysis.get("severity", "medium"), "info")
+                )
+            
+            # Add facts from reasoning engine
+            situation = self.reasoning_analysis.get("situation", {})
+            facts = situation.get("facts", [])
+            if facts:
+                for fact in facts[:2]:  # Show top 2 facts
+                    component.add_guidance(
+                        title="Important Information",
+                        description=fact
+                    )
+
+        # Stage-specific guidance (keep original logic as fallback)
         if self.stage == self.STAGE_SEARCHING:
             component.add_guidance(
                 title="Take Your Time",
@@ -323,12 +383,29 @@ class LearningAdapter:
         return component
 
     def _build_next_steps_component(self) -> NextStepsComponent:
-        """Build Row 4: Action recommendations"""
+        """Build Row 4: Action recommendations - ENHANCED WITH REASONING ENGINE"""
         component = NextStepsComponent()
 
         step_num = 1
 
-        # Stage-specific next steps
+        # NEW: Use reasoning engine actions if available
+        if self.reasoning_analysis:
+            actions = self.reasoning_analysis.get("actions", [])
+            for action in actions[:5]:  # Top 5 priority actions
+                component.add_step(
+                    action.get("priority", step_num),
+                    action.get("action", "Action"),
+                    action.get("why", ""),
+                    action_url=action.get("link", ""),
+                    action_text=action.get("how", "")
+                )
+                step_num += 1
+            
+            # If reasoning engine provided actions, return here (don't add legacy actions)
+            if actions:
+                return component
+
+        # Fallback: Stage-specific next steps (original logic)
         if self.stage == self.STAGE_SEARCHING:
             component.add_step(
                 step_num, "Review Lease Carefully",
