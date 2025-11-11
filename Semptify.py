@@ -355,7 +355,10 @@ def dashboard():
         from user_database import get_user_by_id
         user = get_user_by_id(user_id)
         if user and user.get('login_count', 0) <= 1:
-            return render_template('dashboard_welcome.html')
+            # Get smart suggestions for new user
+            from smart_suggestions import get_dashboard_suggestions
+            suggestions = get_dashboard_suggestions(user_id, context={'situation': 'first_visit'})
+            return render_template('dashboard_welcome.html', smart_suggestions=suggestions)
     except Exception:
         pass
 

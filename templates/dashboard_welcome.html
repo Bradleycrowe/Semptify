@@ -101,6 +101,31 @@
     <p>Your secure evidence vault is ready. Let's get you started.</p>
 </div>
 
+{% if smart_suggestions %}
+<section style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+    <h3 style="color: #856404; margin-bottom: 1rem;">💡 Smart Suggestions Just For You</h3>
+    <div style="display: grid; gap: 1rem;">
+        {% for suggestion in smart_suggestions[:3] %}
+        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #f0e9d2;">
+            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">{{ suggestion.icon }}</span>
+                <div style="flex: 1;">
+                    <strong style="color: #667eea;">{{ suggestion.title }}</strong>
+                    <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">{{ suggestion.description }}</p>
+                    {% if suggestion.tip %}
+                    <p style="margin: 0.25rem 0; color: #28a745; font-size: 0.85rem;">{{ suggestion.tip }}</p>
+                    {% endif %}
+                    {% if suggestion.success_rate %}
+                    <small style="color: #999;">✓ {{ suggestion.success_rate }}% success rate</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
 <div class="onboarding-steps">
     <div class="step-card">
         <div class="step-number">1</div>
