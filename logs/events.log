@@ -372,3 +372,11 @@
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838056.3354754}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838138.360408}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838138.3645496}
+{"event": "user_registration_started", "payload": {"email": "test.b38e13bb@example.com", "method": "email", "user_id": "y9C5F5UvHKBkB6joAxXHLw"}, "ts": 1762838294.513367}
+{"event": "user_registration_started", "payload": {"email": "test.8b903c63@example.com", "method": "email", "user_id": "FPOB_8QpqIWt_jtwG2QpxQ"}, "ts": 1762838302.2354014}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838327.065596}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838327.065596}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838682.1383274}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838682.142391}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838692.746281}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762838692.7567346}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Animal - Semptify</title>
+    <script src="{{ url_for('static', filename='js/evidence-system.js') }}"></script>
+</head>
+<body>
+    <h1>🐕 Service Animal Accommodation</h1>
+    {% include 'evidence_panel.html' %}
+    <p><a href="/resources">&larr; Back to Resources</a></p>
+    <script>
+        const voiceCommands = { 'start recording': () => {}, 'ask ai': () => SemptifyEvidenceCollector?.askAI('service animal') };
+    </script>
+</body>
+</html>

@@ -863,6 +863,32 @@ def resources():
     """Resources and learning center."""
     return render_template('resources.html')
 
+@app.route('/resources/witness_statement')
+def witness_statement():
+    """Witness statement form with evidence collection."""
+    return render_template('witness_statement.html')
+
+@app.route('/resources/witness_statement_save', methods=['POST'])
+def witness_statement_save():
+    """Save witness statement with evidence."""
+    # TODO: Implement save logic
+    return jsonify({'status': 'saved'}), 200
+
+@app.route('/resources/filing_packet')
+def filing_packet():
+    """Filing packet checklist with evidence."""
+    return render_template('filing_packet.html')
+
+@app.route('/resources/service_animal')
+def service_animal():
+    """Service animal accommodation form."""
+    return render_template('service_animal.html')
+
+@app.route('/resources/move_checklist')
+def move_checklist():
+    """Move-in/move-out checklist."""
+    return render_template('move_checklist.html')
+
 @app.route('/library')
 def library():
     """Legal library and template repository."""
@@ -1730,46 +1756,6 @@ def _build_evidence_prompt(prompt, location, timestamp, form_type, form_data):
     return "\n".join([p for p in parts if p])
 
 # Route "/" handled at line 113 - renders spa.html
-
-# Minimal resource routes for evidence system tests
-@app.route("/resources/witness_statement", methods=["GET"])
-def witness_statement():
-    # Render the evidence collection panel template so tests see the expected structure and labels
-    try:
-        return render_template('evidence_panel.html'), 200
-    except Exception:
-        # Fallback minimal HTML if template not available
-        return "<div id='evidence-panel'>Evidence Collection System<br><button id='start-recording'>Start Recording</button><button id='voice-commands'>Voice Commands</button><button id='ask-ai'>Ask AI</button></div><script src='/static/js/evidence-collector.js'></script><script src='/static/js/evidence-system.js'></script>", 200
-
-@app.route("/resources/filing_packet", methods=["GET"])
-def filing_packet():
-    return "<div>Evidence Collection System</div><script src='/static/js/evidence-collector.js'></script>", 200
-
-@app.route("/resources/service_animal", methods=["GET"])
-def service_animal():
-    return "<div>Evidence Collection System</div><script src='/static/js/evidence-collector.js'></script>", 200
-
-@app.route("/resources/move_checklist", methods=["GET"])
-def move_checklist():
-    return "<div>Evidence Collection System</div><script src='/static/js/evidence-collector.js'></script>", 200
-
-@app.route("/resources/witness_statement_save", methods=["POST"])
-def witness_statement_save():
-    # Simulate auth failure for test
-    return "Unauthorized", 401
-
-@app.route("/api/copilot", methods=["POST"])
-def copilot_api():
-    data = request.get_json(force=True, silent=True)
-    if not data or 'prompt' not in data:
-        return {"error": "missing_prompt"}, 400
-    return {"status": "ok"}
-
-# Minimal /health endpoint
-@app.route("/health")
-def health():
-    return {"status":"ok"}
-
 
 # Compatibility: ensure vault blueprint endpoint exists and provide pre-request handlers
 @app.before_request
