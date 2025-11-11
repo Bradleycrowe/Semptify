@@ -1,6 +1,13 @@
 """
-User registration and verification system for Semptify
-Stores users in JSON format with verification codes
+DEPRECATED: JSON-based user registration and verification (pending_users.json, users.json).
+
+This module has been superseded by SQLite-backed `user_database.py` that manages both
+pending users and verified users atomically. It remains in the repo for historical
+reference and to ease migrations/tests that import it, but new code must use
+`user_database` exclusively.
+
+Note: Functions here are still callable and used by some older scripts, but the active
+Flask auth blueprint has been fully migrated to `user_database`.
 """
 import json
 import os

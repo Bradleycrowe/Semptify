@@ -218,9 +218,24 @@ def verify_code(user_id: str, code: str) -> Tuple[bool, Optional[str]]:
         conn.close()
         return False, f"Invalid code. {remaining} attempts remaining."
 
-    # Code is valid - activate user
+    # Code is valid - activate user OR treat as login if already exists
     try:
-        # Create verified user record
+        # Check if user already exists (login flow)
+        cursor.execute('SELECT user_id FROM users WHERE user_id = ?', (user_id,))
+        existing = cursor.fetchone()
+
+        if existing:
+            # Existing verified user: update login stats and remove pending
+            cursor.execute(
+                'UPDATE users SET last_login = ?, login_count = login_count + 1 WHERE user_id = ?',
+                (datetime.now().isoformat(), user_id)
+            )
+            cursor.execute('DELETE FROM pending_users WHERE user_id = ?', (user_id,))
+            conn.commit()
+            conn.close()
+            return True, None
+
+        # New user: insert record
         cursor.execute('''
             INSERT INTO users (
                 user_id, first_name, last_name, email, phone,
@@ -351,6 +366,60 @@ def resend_verification_code(user_id: str) -> Tuple[bool, Optional[str], Optiona
     conn.close()
 
     return True, code, None
+
+def create_login_pending_entry(user: Dict[str, Any]) -> Tuple[str, str]:
+    """Create or replace a pending verification entry for an existing user.
+
+    Used by the returning user login flow to issue a fresh code while keeping
+    the same user_id. This avoids duplicate user creation during verify.
+    """
+    conn = _get_db()
+    cursor = conn.cursor()
+
+    user_id = user['user_id']
+    code = generate_verification_code()
+
+    cursor.execute('''
+        INSERT INTO pending_users (
+            user_id, first_name, last_name, email, phone,
+            address, city, county, state, zip,
+            verification_method, code_hash, created_at, expires_at, attempts
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'email', ?, ?, ?, 0)
+        ON CONFLICT(user_id) DO UPDATE SET
+            first_name=excluded.first_name,
+            last_name=excluded.last_name,
+            email=excluded.email,
+            phone=excluded.phone,
+            address=excluded.address,
+            city=excluded.city,
+            county=excluded.county,
+            state=excluded.state,
+            zip=excluded.zip,
+            verification_method='email',
+            code_hash=excluded.code_hash,
+            created_at=excluded.created_at,
+            expires_at=excluded.expires_at,
+            attempts=0
+    ''', (
+        user_id,
+        user.get('first_name'),
+        user.get('last_name'),
+        user.get('email'),
+        user.get('phone'),
+        user.get('address'),
+        user.get('city'),
+        user.get('county'),
+        user.get('state'),
+        user.get('zip'),
+        hash_code(code),
+        datetime.now().isoformat(),
+        (datetime.now() + timedelta(minutes=10)).isoformat()
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return user_id, code
 
 def log_user_interaction(user_id: str, interaction_type: str, module_name: str = None,
                         duration_seconds: int = None, success: bool = None, metadata: str = None):
