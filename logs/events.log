@@ -388,3 +388,6 @@
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762839634.3974621}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762840329.229454}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762840329.233713}
+{"event": "user_registration_started", "payload": {"email": "test.057172bd@example.com", "method": "email", "user_id": "K8i3aA75ZiDDcev8_42oCQ"}, "ts": 1762840669.3765256}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762840677.5368407}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762840677.5466185}

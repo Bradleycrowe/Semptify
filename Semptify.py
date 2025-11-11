@@ -312,9 +312,9 @@ def login():
 
         # Store in pending_users for verification
         user_id = user['user_id']
-        # TODO: Send code via SMS/email
-
-        # For now, redirect to verify
+        
+        # Note: Email verification is sent during registration
+        # Redirect to verify page where user enters code
         return redirect(url_for('verify', user_id=user_id))
 
     return render_template('login.html', csrf_token=_get_or_create_csrf_token())
@@ -398,7 +398,10 @@ def signin():
             conn.commit()
             conn.close()
 
-            # TODO: Send verification code via SMS/email
+            # Send verification code via email
+            from email_service import send_verification_email
+            send_verification_email(contact, code, user_id)
+            
             print(f"Sign-in verification code for {user_id}: {code}")
             log_event("user_signin_started", {
                 "user_id": user_id,
@@ -544,17 +547,11 @@ def verify():
                              csrf_token=_get_or_create_csrf_token(),
                              error="Verification session expired. Please register again.")
 
-    # Determine contact info to display
-    method = user_data['verification_method']
-    if method == 'sms' or method == 'both':
-        contact = mask_contact(user_data['phone'], 'phone')
-        method_display = "phone" if method == 'sms' else "phone and email"
-    else:
-        contact = mask_contact(user_data['email'], 'email')
-        method_display = "email"
+    # Display email contact (SMS no longer supported)
+    contact = mask_contact(user_data['email'], 'email')
 
     return render_template('verify_code.html',
-                         method=method_display,
+                         method="email",
                          masked_contact=contact,
                          user_id=user_id,
                          csrf_token=_get_or_create_csrf_token())
@@ -598,16 +595,11 @@ def verify_post():
         if not user_data:
             return redirect(url_for('register'))
 
-        method = user_data['verification_method']
-        if method == 'sms' or method == 'both':
-            contact = mask_contact(user_data['phone'], 'phone')
-            method_display = "phone" if method == 'sms' else "phone and email"
-        else:
-            contact = mask_contact(user_data['email'], 'email')
-            method_display = "email"
+        # Display email contact (SMS no longer supported)
+        contact = mask_contact(user_data['email'], 'email')
 
         return render_template('verify_code.html',
-                             method=method_display,
+                             method="email",
                              masked_contact=contact,
                              user_id=user_id,
                              error=error,
@@ -624,22 +616,20 @@ def resend_code():
     success, code, _error = resend_verification_code(user_id)
 
     if success:
-        # TODO: Send new code via SMS/email
+        # Send new verification code via email
+        user_data = get_pending_user(user_id)
+        from email_service import send_verification_email
+        send_verification_email(user_data['email'], code, user_data['first_name'])
+        
         print(f"Resent verification code for {user_id}: {code}")
         log_event("verification_code_resent", {"user_id": user_id})
 
         # Show success message on verify page
-        user_data = get_pending_user(user_id)
-        method = user_data['verification_method']
-        if method == 'sms' or method == 'both':
-            contact = mask_contact(user_data['phone'], 'phone')
-            method_display = "phone" if method == 'sms' else "phone and email"
-        else:
-            contact = mask_contact(user_data['email'], 'email')
-            method_display = "email"
+        method = user_data.get('verification_method', 'email')
+        contact = mask_contact(user_data['email'], 'email')
 
         return render_template('verify_code.html',
-                             method=method_display,
+                             method="email",
                              masked_contact=contact,
                              user_id=user_id,
                              success="New code sent!",
