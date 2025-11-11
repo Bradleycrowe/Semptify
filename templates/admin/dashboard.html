@@ -1,1 +1,29 @@
-{% extends "base.html" %}{% block content %}<h2>Admin Dashboard</h2><form method="POST" action="{{ url_for("admin.release_now") }}"><input type="hidden" name="csrf_token" value="{{ csrf_token if csrf_token is defined else "" }}"><label>Type "yes" to confirm:</label><input name="confirm_release"/><button type="submit">Release</button></form>{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<p style="margin:0 0 0.5rem 0;color:#555;">Motto: <strong>Document everything!</strong></p>
+
+<section>
+	<h3>Controls</h3>
+	<form method="POST" action="{{ url_for('admin.release_now') }}">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token if csrf_token is defined else '' }}">
+		<label>Type "yes" to confirm release:</label>
+		<input name="confirm_release"/>
+		<button type="submit">Release</button>
+	</form>
+</section>
+
+{% if panels %}
+<section style="margin-top:1rem;">
+	<h3>Admin Panels</h3>
+	<ul>
+		{% for p in panels %}
+			<li>
+				<a href="{{ p.path }}">{{ p.name }}</a>
+				<small style="color:#666;">— {{ p.desc }}</small>
+			</li>
+		{% endfor %}
+	</ul>
+</section>
+{% endif %}
+{% endblock %}

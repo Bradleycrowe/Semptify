@@ -269,6 +269,9 @@ def verify_code(user_id: str, code: str) -> Tuple[bool, Optional[str]]:
         conn.commit()
         conn.close()
 
+        # Sync to R2 after successful verification
+        _sync_to_r2_if_enabled()
+        
         return True, None
 
     except sqlite3.IntegrityError as e:
@@ -458,3 +461,20 @@ def mask_contact(contact: str, method: str) -> str:
 
 # Initialize database on import
 init_database()
+
+# Initialize R2 persistence (if configured)
+try:
+    from r2_database_adapter import init_r2_database, sync_database_to_r2
+    _r2_adapter = init_r2_database()
+    
+    # Helper to sync after critical operations
+    def _sync_to_r2_if_enabled():
+        """Sync database to R2 after writes (non-blocking)."""
+        try:
+            sync_database_to_r2()
+        except Exception:
+            pass  # Don't fail operations if R2 sync fails
+            
+except ImportError:
+    def _sync_to_r2_if_enabled():
+        pass  # R2 adapter not available

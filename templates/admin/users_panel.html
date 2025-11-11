@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Users Panel</h2>
+<p>Motto: <strong>Document everything!</strong></p>
+<p>Total users: {{ total }}</p>
+<table border="1" cellpadding="4" cellspacing="0">
+  <tr><th>ID</th><th>Email</th><th>Name</th><th>Verified At</th><th>Login Count</th></tr>
+  {% for u in users %}
+  <tr>
+    <td>{{ u.user_id }}</td>
+    <td>{{ u.email }}</td>
+    <td>{{ u.first_name }} {{ u.last_name }}</td>
+    <td>{{ u.verified_at }}</td>
+    <td>{{ u.login_count }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p><a href="{{ url_for('admin.users_panel_export') }}">Export JSON</a></p>
+<p><a href="/admin">Back to Admin</a></p>
+{% endblock %}

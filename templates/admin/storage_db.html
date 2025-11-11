@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Storage / Database</h2>
+<p>Motto: <strong>Document everything!</strong></p>
+<p>SQLite file size: {{ db_size }} bytes</p>
+<p>R2 Enabled: {{ 'Yes' if r2_enabled else 'No' }} {% if r2_enabled %}(Bucket: {{ r2_bucket }}){% endif %}</p>
+<form method="POST" action="{{ url_for('admin.storage_db_sync') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <button type="submit">Sync to R2</button>
+</form>
+<p><a href="{{ url_for('admin.storage_db_download') }}">Download users.db</a></p>
+<p><a href="/admin">Back to Admin</a></p>
+{% endblock %}

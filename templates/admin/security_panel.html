@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Security Panel</h2>
+<p>Motto: <strong>Document everything!</strong></p>
+<p>Security Mode: <strong>{{ mode }}</strong></p>
+<p>Breakglass Active: <strong>{{ 'Yes' if breakglass else 'No' }}</strong></p>
+<p>This page will later show token rotation history, rate limit stats, and CSRF status.</p>
+<p><a href="/admin">Back to Admin</a></p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Email Panel</h2>
+<p>Motto: <strong>Document everything!</strong></p>
+<p>Active provider: <strong>{{ provider }}</strong></p>
+<form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Send test email to:</label>
+  <input type="email" name="email" placeholder="you@example.com" required>
+  <button type="submit">Send Test</button>
+</form>
+{% if sent is not none %}
+  <p>Test email send result: {{ 'Success' if sent else 'Failed' }}</p>
+{% endif %}
+<p><a href="/admin">Back to Admin</a></p>
+{% endblock %}
