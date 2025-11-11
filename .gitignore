@@ -39,6 +39,10 @@ uploads/
 backups/
 *.sqlite3
 
+# Runtime data files
+data/route_catalog.json
+data/route_integration_log.json
+
 # Large binary files (Ollama, installers, etc.)
 *.zip
 *.exe
