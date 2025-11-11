@@ -257,8 +257,19 @@ if not any(r.rule == '/register' for r in app.url_map.iter_rules()):
                 # Create pending user and generate code
                 user_id, code = create_pending_user(form_data, verification_method)
 
-                # TODO: Send verification code via SMS/email based on method
-                # For now, just log it (will implement sending next)
+                # Send verification code via email/SMS
+                from email_service import send_verification_email
+
+                if verification_method in ['email', 'both']:
+                    success = send_verification_email(
+                        form_data['email'],
+                        code,
+                        form_data['first_name']
+                    )
+                    if not success:
+                        print(f"⚠️ Failed to send email to {form_data['email']}, code: {code}")
+
+                # Log for debugging
                 print(f"Verification code for {user_id}: {code}")
                 log_event("user_registration_started", {
                     "user_id": user_id,
@@ -283,29 +294,29 @@ def login():
     """Login for returning users"""
     if request.method == 'POST':
         email_or_phone = request.form.get('email')
-        
+
         if not email_or_phone:
             return render_template('login.html',
                                  csrf_token=_get_or_create_csrf_token(),
                                  error="Please enter your email or phone")
-        
+
         # Check if user exists
         user = check_existing_user(email_or_phone)
         if not user:
             return render_template('login.html',
                                  csrf_token=_get_or_create_csrf_token(),
                                  error="Account not found. Please register first.")
-        
+
         # Generate verification code
         code = generate_verification_code()
-        
+
         # Store in pending_users for verification
         user_id = user['user_id']
         # TODO: Send code via SMS/email
-        
+
         # For now, redirect to verify
         return redirect(url_for('verify', user_id=user_id))
-    
+
     return render_template('login.html', csrf_token=_get_or_create_csrf_token())
 
 @app.route('/dashboard-grid')

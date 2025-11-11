@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def send_verification_email(to_email, verification_code, user_name=None):
     """
     Send verification code via email.
-    
+
     Priority order:
     1. Resend API (if RESEND_API_KEY set) - 3000/month FREE
     2. Gmail SMTP (if GMAIL_ADDRESS set)
@@ -31,18 +31,18 @@ def send_verification_email(to_email, verification_code, user_name=None):
     Returns:
         bool: True if sent successfully, False otherwise
     """
-    
+
     # Try Resend first (best option)
     resend_key = os.environ.get('RESEND_API_KEY')
     if resend_key:
         return _send_via_resend(to_email, verification_code, user_name, resend_key)
-    
+
     # Fall back to Gmail
     gmail_address = os.environ.get('GMAIL_ADDRESS')
     gmail_password = os.environ.get('GMAIL_APP_PASSWORD')
     if gmail_address and gmail_password:
         return _send_via_gmail(to_email, verification_code, user_name, gmail_address, gmail_password)
-    
+
     # Dev mode - just log
     print(f"[DEV MODE] Verification email to {to_email}: {verification_code}")
     logger.warning("No email service configured - running in dev mode")
@@ -52,7 +52,7 @@ def send_verification_email(to_email, verification_code, user_name=None):
 def _send_via_resend(to_email, verification_code, user_name, api_key):
     """Send email using Resend API (3000 free/month)"""
     greeting = f"Hello {user_name}" if user_name else "Welcome"
-    
+
     try:
         response = requests.post(
             'https://api.resend.com/emails',
@@ -81,14 +81,14 @@ def _send_via_resend(to_email, verification_code, user_name, api_key):
                 '''
             }
         )
-        
+
         if response.status_code == 200:
             logger.info(f"Verification email sent via Resend to {to_email}")
             return True
         else:
             logger.error(f"Resend API error: {response.status_code} - {response.text}")
             return False
-            
+
     except Exception as e:
         logger.error(f"Failed to send email via Resend: {e}")
         return False
