@@ -889,6 +889,20 @@ def move_checklist():
     """Move-in/move-out checklist."""
     return render_template('move_checklist.html')
 
+@app.route('/api/copilot', methods=['POST'])
+def copilot_api():
+    """Copilot API endpoint for AI assistance"""
+    data = request.get_json(force=True, silent=True)
+    if not data or 'prompt' not in data:
+        return jsonify({"error": "missing_prompt"}), 400
+    
+    # TODO: Integrate with AI provider (OpenAI/Azure/Ollama/Groq)
+    # For now, return a simple response
+    return jsonify({
+        "status": "ok",
+        "response": "AI integration pending - check OPENAI_API_KEY or AI_PROVIDER env vars"
+    }), 200
+
 @app.route('/library')
 def library():
     """Legal library and template repository."""
