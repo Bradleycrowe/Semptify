@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Timeline Ruler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+        
+        .timeline-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: white;
+        }
+        
+        /* Ruler track - horizontal scrollable */
+        .ruler-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 120px;
+            transform: translateY(-50%);
+            overflow-x: auto;
+            overflow-y: hidden;
+            cursor: grab;
+            touch-action: pan-x pinch-zoom;
+        }
+        
+        .ruler-track:active {
+            cursor: grabbing;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .ruler-track::-webkit-scrollbar {
+            height: 0;
+        }
+        
+        /* Ruler content - wide canvas */
+        .ruler-content {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            min-width: max-content;
+            padding: 0 50vw; /* Center padding */
+        }
+        
+        /* Main ruler line (middle) */
+        .ruler-line {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: #3b82f6;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        /* Ruler marks (day/week/month) */
+        .ruler-marks {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            display: flex;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+        
+        .ruler-mark {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Day marks (short) */
+        .ruler-mark.day {
+            width: 60px;
+        }
+        
+        .ruler-mark.day .tick {
+            width: 1px;
+            height: 10px;
+            background: #cbd5e1;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .ruler-mark.day .label {
+            font-size: 9px;
+            color: #94a3b8;
+            margin-top: 20px;
+            position: absolute;
+            white-space: nowrap;
+        }
+        
+        /* Week marks (2x day height) */
+        .ruler-mark.week {
+            width: 60px;
+        }
+        
+        .ruler-mark.week .tick {
+            width: 1px;
+            height: 20px;
+            background: #64748b;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .ruler-mark.week .label {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 25px;
+            font-weight: 500;
+            position: absolute;
+            white-space: nowrap;
+        }
+        
+        /* Month marks (1.5x week height, 2x thickness) */
+        .ruler-mark.month {
+            width: 60px;
+        }
+        
+        .ruler-mark.month .tick {
+            width: 2px;
+            height: 30px;
+            background: #3b82f6;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .ruler-mark.month .label {
+            font-size: 11px;
+            color: #1e293b;
+            margin-top: 30px;
+            font-weight: 600;
+            position: absolute;
+            white-space: nowrap;
+        }
+        
+        /* Event items */
+        .event-items {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .event-item {
+            position: absolute;
+            width: 200px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        /* Focused item (center, on the line) */
+        .event-item.focused {
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            width: 280px;
+        }
+        
+        /* Items above the line */
+        .event-item.above {
+            bottom: 60%;
+            opacity: 0.7;
+            transform: scale(0.85);
+        }
+        
+        /* Items below the line */
+        .event-item.below {
+            top: 60%;
+            opacity: 0.7;
+            transform: scale(0.85);
+        }
+        
+        .event-item:hover {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+        
+        /* Event card */
+        .event-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+        
+        .event-item.focused .event-card {
+            padding: 16px 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        
+        .event-card h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+        
+        .event-item.focused .event-card h4 {
+            font-size: 15px;
+        }
+        
+        .event-card .event-date {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .event-card .event-amount {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .event-item.focused .event-card .event-amount {
+            font-size: 16px;
+        }
+        
+        /* Event dot on ruler */
+        .event-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        .event-item.focused .event-dot {
+            width: 16px;
+            height: 16px;
+            border-width: 3px;
+        }
+        
+        /* Event type colors */
+        .event-rent { border-left-color: #3b82f6; }
+        .event-rent .event-dot { background: #3b82f6; }
+        
+        .event-document { border-left-color: #10b981; }
+        .event-document .event-dot { background: #10b981; }
+        
+        .event-call { border-left-color: #06b6d4; }
+        .event-call .event-dot { background: #06b6d4; }
+        
+        .event-notice { border-left-color: #8b5cf6; }
+        .event-notice .event-dot { background: #8b5cf6; }
+        
+        .event-deadline { border-left-color: #f59e0b; }
+        .event-deadline .event-dot { background: #f59e0b; }
+        
+        .event-court { border-left-color: #ef4444; }
+        .event-court .event-dot { background: #ef4444; }
+        
+        /* Center indicator (current view) */
+        .center-indicator {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            bottom: 0;
+            width: 2px;
+            background: rgba(239, 68, 68, 0.3);
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* Zoom level indicator */
+        .zoom-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 200;
+            display: none; /* Hidden */
+        }
+        
+        /* Zoom controls (+/-) */
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none; /* Hidden */
+            gap: 10px;
+            z-index: 200;
+        }
+        
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background: #3b82f6;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Instructions overlay */
+        .instructions {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 200;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-align: center;
+            display: none; /* Hidden */
+        }
+        
+        .instructions .hint {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .instructions .controls {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="timeline-container">
+    <!-- Instructions overlay -->
+    <div class="instructions" id="instructions">
+        <div class="hint">📅 Swipe left/right • Pinch to zoom • Tap event to focus</div>
+        <div class="controls">+/− buttons to zoom • View type shows at bottom left</div>
+    </div>
+    
+    <div class="ruler-track" id="rulerTrack">
+        <!-- Center indicator -->
+        <div class="center-indicator"></div>
+        
+        <div class="ruler-content" id="rulerContent">
+            <!-- Ruler line -->
+            <div class="ruler-line"></div>
+            
+            <!-- Ruler marks (days/weeks/months) -->
+            <div class="ruler-marks" id="rulerMarks"></div>
+            
+            <!-- Event items -->
+            <div class="event-items" id="eventItems"></div>
+        </div>
+    </div>
+</div>
+
+<div class="zoom-indicator" id="zoomIndicator">Day View</div>
+
+<div class="zoom-controls">
+    <button class="zoom-btn" id="zoomOut">−</button>
+    <button class="zoom-btn" id="zoomIn">+</button>
+</div>
+
+<script>
+// Sample events data
+const events = [
+    { date: '2025-11-01', type: 'rent', title: 'November Rent', amount: '$1,200', icon: '💵' },
+    { date: '2025-10-15', type: 'document', title: 'Lease Signed', icon: '📄' },
+    { date: '2025-11-05', type: 'call', title: 'Landlord Call', icon: '📞' },
+    { date: '2025-10-20', type: 'notice', title: '30-Day Notice', icon: '✉️' },
+    { date: '2025-11-12', type: 'deadline', title: 'Response Due', icon: '⏰' },
+    { date: '2025-11-15', type: 'court', title: 'Court Hearing', icon: '⚖️' },
+    { date: '2025-11-08', type: 'document', title: 'Evidence Packet', icon: '📄' },
+    { date: '2025-12-01', type: 'rent', title: 'December Rent', amount: '$1,200', icon: '💵' },
+    { date: '2025-11-10', type: 'call', title: 'Attorney Consult', icon: '📞' }
+];
+
+// Sort events by date
+const sortedEvents = events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+// Zoom state
+let currentZoom = 1; // 1 = day view, 2 = week view, 3 = month view
+const PIXELS_PER_DAY = 60;
+
+// Generate ruler marks and events
+function renderRuler() {
+    const marksContainer = document.getElementById('rulerMarks');
+    const itemsContainer = document.getElementById('eventItems');
+    
+    marksContainer.innerHTML = '';
+    itemsContainer.innerHTML = '';
+    
+    // Calculate date range
+    const startDate = new Date(sortedEvents[0].date);
+    startDate.setDate(startDate.getDate() - 7); // Add padding
+    const endDate = new Date(sortedEvents[sortedEvents.length - 1].date);
+    endDate.setDate(endDate.getDate() + 7); // Add padding
+    
+    // Generate marks based on zoom
+    const pixelsPerDay = PIXELS_PER_DAY * currentZoom;
+    let currentDate = new Date(startDate);
+    let position = 0;
+    
+    while (currentDate <= endDate) {
+        const isMonthStart = currentDate.getDate() === 1;
+        const isWeekStart = currentDate.getDay() === 0; // Sunday
+        
+        let markType = 'day';
+        if (isMonthStart) markType = 'month';
+        else if (isWeekStart) markType = 'week';
+        
+        const mark = document.createElement('div');
+        mark.className = `ruler-mark ${markType}`;
+        mark.style.left = `${position}px`;
+        
+        let labelText = '';
+        if (markType === 'month') {
+            labelText = currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        } else if (markType === 'week') {
+            labelText = currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        } else if (currentZoom > 1.5) {
+            labelText = currentDate.getDate();
+        }
+        
+        mark.innerHTML = `
+            <div class="tick"></div>
+            ${labelText ? `<div class="label">${labelText}</div>` : ''}
+        `;
+        
+        marksContainer.appendChild(mark);
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+        position += pixelsPerDay;
+    }
+    
+    // Render events
+    sortedEvents.forEach((event, index) => {
+        const eventDate = new Date(event.date);
+        const daysSinceStart = Math.floor((eventDate - startDate) / (1000 * 60 * 60 * 24));
+        const eventPosition = daysSinceStart * pixelsPerDay;
+        
+        const item = document.createElement('div');
+        item.className = `event-item event-${event.type}`;
+        item.style.left = `${eventPosition}px`;
+        item.dataset.position = eventPosition;
+        item.dataset.index = index;
+        
+        // Alternate above/below (except focused)
+        if (index % 2 === 0) {
+            item.classList.add('above');
+        } else {
+            item.classList.add('below');
+        }
+        
+        item.innerHTML = `
+            <div class="event-card">
+                <h4>${event.icon} ${event.title}</h4>
+                <div class="event-date">${new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                ${event.amount ? `<div class="event-amount">${event.amount}</div>` : ''}
+            </div>
+            <div class="event-dot"></div>
+        `;
+        
+        item.addEventListener('click', () => focusEvent(item));
+        itemsContainer.appendChild(item);
+    });
+    
+    updateFocusedItem();
+}
+
+// Update which item is focused (center of screen)
+function updateFocusedItem() {
+    const track = document.getElementById('rulerTrack');
+    const centerPosition = track.scrollLeft + (track.clientWidth / 2);
+    
+    const items = document.querySelectorAll('.event-item');
+    let closestItem = null;
+    let closestDistance = Infinity;
+    
+    items.forEach(item => {
+        const itemPosition = parseFloat(item.dataset.position);
+        const distance = Math.abs(centerPosition - itemPosition);
+        
+        item.classList.remove('focused');
+        
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestItem = item;
+        }
+    });
+    
+    if (closestItem) {
+        closestItem.classList.add('focused');
+        closestItem.classList.remove('above', 'below');
+    }
+}
+
+// Focus on specific event
+function focusEvent(item) {
+    const track = document.getElementById('rulerTrack');
+    const itemPosition = parseFloat(item.dataset.position);
+    const scrollTo = itemPosition - (track.clientWidth / 2);
+    
+    track.scrollTo({
+        left: scrollTo,
+        behavior: 'smooth'
+    });
+}
+
+// Touch/mouse controls
+const track = document.getElementById('rulerTrack');
+let isDown = false;
+let startX;
+let scrollLeft;
+let lastDistance = 0;
+
+// Mouse drag
+track.addEventListener('mousedown', (e) => {
+    isDown = true;
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+});
+
+track.addEventListener('mouseleave', () => { isDown = false; });
+track.addEventListener('mouseup', () => { isDown = false; });
+
+track.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    const walk = (x - startX) * 2;
+    track.scrollLeft = scrollLeft - walk;
+});
+
+// Touch controls
+track.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].pageX;
+    scrollLeft = track.scrollLeft;
+    lastDistance = 0;
+});
+
+track.addEventListener('touchmove', (e) => {
+    // Pinch to zoom
+    if (e.touches.length === 2) {
+        const distance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+        );
+        
+        if (lastDistance > 0) {
+            if (distance > lastDistance && currentZoom < 3) {
+                currentZoom += 0.1;
+                renderRuler();
+                updateZoomIndicator();
+            } else if (distance < lastDistance && currentZoom > 0.5) {
+                currentZoom -= 0.1;
+                renderRuler();
+                updateZoomIndicator();
+            }
+        }
+        lastDistance = distance;
+    } else {
+        // Single finger swipe
+        const x = e.touches[0].pageX;
+        const walk = (startX - x) * 1.5;
+        track.scrollLeft = scrollLeft + walk;
+    }
+});
+
+track.addEventListener('touchend', () => {
+    lastDistance = 0;
+});
+
+// Update focused item on scroll
+track.addEventListener('scroll', updateFocusedItem);
+
+// Update zoom indicator
+function updateZoomIndicator() {
+    const indicator = document.getElementById('zoomIndicator');
+    if (currentZoom < 0.8) {
+        indicator.textContent = 'Month View';
+    } else if (currentZoom < 1.5) {
+        indicator.textContent = 'Week View';
+    } else {
+        indicator.textContent = 'Day View';
+    }
+}
+
+// Zoom button controls
+document.getElementById('zoomIn').addEventListener('click', () => {
+    if (currentZoom < 3) {
+        currentZoom += 0.2;
+        renderRuler();
+        updateZoomIndicator();
+    }
+});
+
+document.getElementById('zoomOut').addEventListener('click', () => {
+    if (currentZoom > 0.5) {
+        currentZoom -= 0.2;
+        renderRuler();
+        updateZoomIndicator();
+    }
+});
+
+// Hide instructions after 5 seconds
+setTimeout(() => {
+    const instructions = document.getElementById('instructions');
+    if (instructions) {
+        instructions.style.transition = 'opacity 0.5s';
+        instructions.style.opacity = '0';
+        setTimeout(() => instructions.style.display = 'none', 500);
+    }
+}, 5000);
+
+// Initial render
+renderRuler();
+updateZoomIndicator();
+
+// Center on today on load
+setTimeout(() => {
+    const today = new Date();
+    const startDate = new Date(sortedEvents[0].date);
+    startDate.setDate(startDate.getDate() - 7);
+    const daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+    const todayPosition = daysSinceStart * PIXELS_PER_DAY * currentZoom;
+    
+    track.scrollLeft = todayPosition - (track.clientWidth / 2);
+}, 100);
+</script>
+
+</body>
+</html>

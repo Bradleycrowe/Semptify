@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Timeline - Rent Ledger & Events</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            padding: 20px;
+        }
+        
+        .timeline-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        /* Header with view controls */
+        .timeline-header {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .view-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .view-btn {
+            padding: 8px 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .view-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.6);
+        }
+        
+        .view-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+        
+        .nav-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-btn {
+            width: 36px;
+            height: 36px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Horizontal timeline area */
+        .timeline-scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 30px 0;
+        }
+        
+        .timeline-track {
+            display: flex;
+            position: relative;
+            min-width: 100%;
+            padding: 0 30px;
+        }
+        
+        /* Timeline axis */
+        .timeline-axis {
+            position: absolute;
+            top: 50%;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 50%, #e2e8f0 100%);
+            transform: translateY(-50%);
+        }
+        
+        /* Date markers on axis */
+        .date-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 3px solid #94a3b8;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .date-label {
+            position: absolute;
+            top: calc(50% + 20px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #64748b;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+        
+        /* Event items on timeline */
+        .timeline-events {
+            display: flex;
+            gap: 40px;
+            position: relative;
+            padding: 0 30px;
+            min-height: 200px;
+        }
+        
+        .event-item {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+        
+        .event-item:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Event card on timeline */
+        .event-card {
+            width: 180px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        /* Connector line from card to axis */
+        .event-connector {
+            position: absolute;
+            left: 50%;
+            width: 2px;
+            background: inherit;
+            z-index: -1;
+        }
+        
+        .event-item:nth-child(odd) .event-card {
+            margin-bottom: 80px;
+        }
+        
+        .event-item:nth-child(odd) .event-connector {
+            top: 100%;
+            height: 80px;
+        }
+        
+        .event-item:nth-child(even) .event-card {
+            margin-top: 80px;
+        }
+        
+        .event-item:nth-child(even) .event-connector {
+            bottom: 100%;
+            height: 80px;
+        }
+        
+        .event-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .event-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+        
+        .event-date {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .event-amount {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        
+        .event-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+        
+        /* Event type colors */
+        .event-rent {
+            border-color: #3b82f6;
+        }
+        .event-rent .event-connector { background: #3b82f6; }
+        .event-rent .event-amount { color: #3b82f6; }
+        
+        .event-court {
+            border-color: #ef4444;
+        }
+        .event-court .event-connector { background: #ef4444; }
+        
+        .event-deadline {
+            border-color: #f59e0b;
+        }
+        .event-deadline .event-connector { background: #f59e0b; }
+        
+        .event-notice {
+            border-color: #8b5cf6;
+        }
+        .event-notice .event-connector { background: #8b5cf6; }
+        
+        .event-maintenance {
+            border-color: #06b6d4;
+        }
+        .event-maintenance .event-connector { background: #06b6d4; }
+        
+        /* Status badges */
+        .status-upcoming { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-missed { background: #fee2e2; color: #991b1b; }
+        
+        /* Pop-out detail panel (modal overlay) */
+        .detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .detail-overlay.active {
+            display: flex;
+        }
+        
+        .detail-panel {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .detail-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .detail-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .detail-date {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .detail-body {
+            padding: 30px;
+        }
+        
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        
+        .detail-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        .detail-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        
+        .detail-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Summary cards above timeline */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px 30px;
+            background: #f8fafc;
+        }
+        
+        /* Hide ledger summary on mobile - only show in full calendar view */
+        @media (max-width: 768px) {
+            .summary-cards {
+                display: none;
+            }
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .summary-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .card-rent { border-left-color: #3b82f6; }
+        .card-rent .summary-value { color: #3b82f6; }
+        
+        .card-court { border-left-color: #ef4444; }
+        .card-court .summary-value { color: #ef4444; }
+        
+        .card-total { border-left-color: #10b981; }
+        .card-total .summary-value { color: #10b981; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .event-card {
+                width: 150px;
+                padding: 12px;
+            }
+            
+            .detail-panel {
+                width: 95%;
+                max-height: 90vh;
+            }
+            
+            /* Smaller view controls on mobile */
+            .view-btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+            
+            .nav-btn {
+                width: 32px;
+                height: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timeline-container">
+        <!-- Header with controls -->
+        <div class="timeline-header">
+            <div class="timeline-title">📅 Rent Ledger & Events Timeline</div>
+            <div class="view-controls">
+                <button class="view-btn active" data-view="month">Month</button>
+                <button class="view-btn" data-view="week">Week</button>
+                <button class="view-btn" data-view="day">Day</button>
+                <button class="view-btn" data-view="year">Year</button>
+                <div class="nav-controls">
+                    <button class="nav-btn" id="prevBtn">◀</button>
+                    <button class="nav-btn" id="todayBtn">●</button>
+                    <button class="nav-btn" id="nextBtn">▶</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary cards -->
+        <div class="summary-cards">
+            <div class="summary-card card-rent">
+                <div class="summary-label">Total Rent Due</div>
+                <div class="summary-value">$3,600</div>
+            </div>
+            <div class="summary-card card-total">
+                <div class="summary-label">Paid This Month</div>
+                <div class="summary-value">$1,200</div>
+            </div>
+            <div class="summary-card card-court">
+                <div class="summary-label">Upcoming Court</div>
+                <div class="summary-value">2 Dates</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Active Notices</div>
+                <div class="summary-value">3</div>
+            </div>
+        </div>
+        
+        <!-- Horizontal timeline -->
+        <div class="timeline-scroll-wrapper">
+            <div class="timeline-track">
+                <div class="timeline-axis"></div>
+                
+                <div class="timeline-events" id="timelineEvents">
+                    <!-- Events will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pop-out detail panel -->
+    <div class="detail-overlay" id="detailOverlay">
+        <div class="detail-panel">
+            <button class="close-btn" id="closeDetailBtn">×</button>
+            <div class="detail-header">
+                <div class="detail-icon" id="detailIcon"></div>
+                <div class="detail-title" id="detailTitle"></div>
+                <div class="detail-date" id="detailDate"></div>
+            </div>
+            <div class="detail-body">
+                <div class="detail-section">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" id="detailStatus"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value" id="detailDescription"></div>
+                </div>
+                <div class="detail-section" id="detailAmountSection" style="display: none;">
+                    <div class="detail-label">Amount</div>
+                    <div class="detail-amount" id="detailAmount"></div>
+                </div>
+                <div class="detail-section" id="detailMetaSection" style="display: none;">
+                    <div class="detail-label">Additional Details</div>
+                    <div class="detail-value" id="detailMeta"></div>
+                </div>
+                <div class="detail-actions">
+                    <button class="btn btn-primary">Mark as Complete</button>
+                    <button class="btn btn-secondary">Edit Event</button>
+                    <button class="btn btn-secondary" id="closeDetailBtn2">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample event data
+        const sampleEvents = [
+            {
+                id: 1,
+                type: 'rent',
+                icon: '💵',
+                title: 'November Rent',
+                date: '2025-11-01',
+                amount: 1200,
+                status: 'completed',
+                description: 'Monthly rent payment for November 2025. Paid via check #4523.',
+                metadata: 'Check #4523 | Landlord: ABC Properties'
+            },
+            {
+                id: 2,
+                type: 'court',
+                icon: '⚖️',
+                title: 'Eviction Hearing',
+                date: '2025-11-15',
+                status: 'upcoming',
+                description: 'Court appearance for eviction proceedings. Bring all rent receipts and lease documents.',
+                metadata: 'Case #CV-2025-12345 | Courtroom 4B | Judge Thompson'
+            },
+            {
+                id: 3,
+                type: 'deadline',
+                icon: '⏰',
+                title: 'Response Due',
+                date: '2025-11-12',
+                status: 'upcoming',
+                description: 'Deadline to file response to eviction notice. Must be submitted before 4 PM.',
+                metadata: 'File at: Hennepin County Courthouse'
+            },
+            {
+                id: 4,
+                type: 'notice',
+                icon: '📄',
+                title: '30-Day Notice',
+                date: '2025-10-15',
+                status: 'completed',
+                description: 'Received 30-day notice to vacate. Notice was posted on door and mailed.',
+                metadata: 'Notice #2025-1015 | Tracking: USPS 9400123456789'
+            },
+            {
+                id: 5,
+                type: 'rent',
+                icon: '💵',
+                title: 'December Rent',
+                date: '2025-12-01',
+                amount: 1200,
+                status: 'upcoming',
+                description: 'Monthly rent payment for December 2025.',
+                metadata: 'Due date: 1st | Grace period: 5 days'
+            },
+            {
+                id: 6,
+                type: 'maintenance',
+                icon: '🔧',
+                title: 'Inspection',
+                date: '2025-11-20',
+                status: 'upcoming',
+                description: 'Property inspection scheduled. Landlord will inspect unit for damages.',
+                metadata: 'Time: 2:00 PM | Inspector: John Smith'
+            }
+        ];
+
+        // Render events on timeline
+        function renderTimeline(events) {
+            const container = document.getElementById('timelineEvents');
+            container.innerHTML = '';
+            
+            events.forEach((event, index) => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `event-item event-${event.type}`;
+                eventDiv.innerHTML = `
+                    <div class="event-card">
+                        <div class="event-connector"></div>
+                        <div class="event-icon">${event.icon}</div>
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-date">${formatDate(event.date)}</div>
+                        ${event.amount ? `<div class="event-amount">$${event.amount.toLocaleString()}</div>` : ''}
+                        <div class="event-status status-${event.status}">${event.status}</div>
+                    </div>
+                `;
+                
+                eventDiv.addEventListener('click', () => showDetail(event));
+                container.appendChild(eventDiv);
+            });
+        }
+
+        // Show detail pop-out
+        function showDetail(event) {
+            document.getElementById('detailIcon').textContent = event.icon;
+            document.getElementById('detailTitle').textContent = event.title;
+            document.getElementById('detailDate').textContent = formatDate(event.date, true);
+            document.getElementById('detailStatus').innerHTML = `<span class="event-status status-${event.status}">${event.status}</span>`;
+            document.getElementById('detailDescription').textContent = event.description;
+            
+            if (event.amount) {
+                document.getElementById('detailAmountSection').style.display = 'block';
+                document.getElementById('detailAmount').textContent = `$${event.amount.toLocaleString()}`;
+            } else {
+                document.getElementById('detailAmountSection').style.display = 'none';
+            }
+            
+            if (event.metadata) {
+                document.getElementById('detailMetaSection').style.display = 'block';
+                document.getElementById('detailMeta').textContent = event.metadata;
+            } else {
+                document.getElementById('detailMetaSection').style.display = 'none';
+            }
+            
+            document.getElementById('detailOverlay').classList.add('active');
+        }
+
+        // Close detail panel
+        function closeDetail() {
+            document.getElementById('detailOverlay').classList.remove('active');
+        }
+
+        // Format date
+        function formatDate(dateStr, long = false) {
+            const date = new Date(dateStr);
+            if (long) {
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // View switching
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                const view = e.target.dataset.view;
+                console.log(`Switched to ${view} view`);
+                // Here you would filter/adjust events based on view
+            });
+        });
+
+        // Navigation
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            console.log('Previous period');
+            // Implement period navigation
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            console.log('Next period');
+            // Implement period navigation
+        });
+
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            console.log('Jump to today');
+            // Implement jump to current date
+        });
+
+        // Close detail panel handlers
+        document.getElementById('closeDetailBtn').addEventListener('click', closeDetail);
+        document.getElementById('closeDetailBtn2').addEventListener('click', closeDetail);
+        document.getElementById('detailOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeDetail();
+        });
+
+        // Initialize
+        renderTimeline(sampleEvents);
+    </script>
+</body>
+</html>

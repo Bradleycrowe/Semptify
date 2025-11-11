@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Timeline - Unified</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+        
+        /* Base timeline container - adapts to mode */
+        .timeline-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: white;
+        }
+        
+        /* Scrollable timeline track */
+        .timeline-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 400px;
+            white-space: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 50px;
+            cursor: grab;
+            touch-action: pan-x;
+        }
+        
+        .timeline-track:active {
+            cursor: grabbing;
+        }
+        
+        /* Main timeline axis (horizontal line) */
+        .timeline-axis {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e5e7eb 0%, #3b82f6 50%, #e5e7eb 100%);
+            transform: translateY(-50%);
+        }
+        
+        /* Timeline content container */
+        .timeline-content {
+            position: relative;
+            height: 100%;
+            display: inline-flex;
+            align-items: center;
+            gap: 80px;
+            padding: 0 20px;
+        }
+        
+        /* Event markers */
+        .event-marker {
+            position: relative;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 200px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .event-marker:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Event positioned above timeline */
+        .event-marker.above {
+            margin-top: -180px;
+        }
+        
+        /* Event positioned below timeline */
+        .event-marker.below {
+            margin-top: 20px;
+        }
+        
+        /* Event dot on timeline */
+        .event-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .event-marker.above .event-dot {
+            top: calc(100% + 180px);
+        }
+        
+        .event-marker.below .event-dot {
+            top: -20px;
+        }
+        
+        /* Event card */
+        .event-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 200px;
+            max-width: 250px;
+            border-left: 4px solid;
+        }
+        
+        .event-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+        
+        .event-card .event-date {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .event-card .event-amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .event-card .event-desc {
+            font-size: 13px;
+            color: #4b5563;
+            margin-top: 4px;
+        }
+        
+        /* Event type colors */
+        .event-rent { background: #eff6ff; border-left-color: #3b82f6; }
+        .event-rent .event-dot { background: #3b82f6; }
+        
+        .event-document { background: #f0fdf4; border-left-color: #10b981; }
+        .event-document .event-dot { background: #10b981; }
+        
+        .event-call { background: #ecfeff; border-left-color: #06b6d4; }
+        .event-call .event-dot { background: #06b6d4; }
+        
+        .event-notice { background: #faf5ff; border-left-color: #8b5cf6; }
+        .event-notice .event-dot { background: #8b5cf6; }
+        
+        .event-deadline { background: #fffbeb; border-left-color: #f59e0b; }
+        .event-deadline .event-dot { background: #f59e0b; }
+        
+        .event-court { background: #fef2f2; border-left-color: #ef4444; }
+        .event-court .event-dot { background: #ef4444; }
+        
+        /* Current time indicator */
+        .now-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ef4444;
+            z-index: 5;
+        }
+        
+        .now-indicator::before {
+            content: 'NOW';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        /* Zoom controls */
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background: #3b82f6;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Detail modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #9ca3af;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: #1f2937;
+        }
+        
+        /* MODE-SPECIFIC STYLES */
+        
+        /* MOBILE MODE (< 768px) */
+        @media (max-width: 768px) {
+            .timeline-track {
+                height: 300px;
+            }
+            
+            .event-card {
+                min-width: 160px;
+                max-width: 180px;
+                padding: 12px;
+            }
+            
+            .event-card h4 {
+                font-size: 13px;
+            }
+            
+            .event-card .event-date {
+                font-size: 11px;
+            }
+            
+            .zoom-controls {
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .zoom-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+        
+        /* DESKTOP MODE (768px - 1920px) */
+        @media (min-width: 768px) and (max-width: 1920px) {
+            .timeline-track {
+                height: 450px;
+            }
+            
+            .timeline-content {
+                gap: 100px;
+            }
+        }
+        
+        /* DISPLAY/TV MODE (> 1920px) */
+        @media (min-width: 1921px) {
+            body {
+                background: #000;
+            }
+            
+            .timeline-container {
+                background: #111;
+            }
+            
+            .timeline-track {
+                height: 600px;
+            }
+            
+            .timeline-content {
+                gap: 150px;
+            }
+            
+            .event-card {
+                min-width: 280px;
+                max-width: 320px;
+                padding: 24px;
+                background: rgba(255,255,255,0.95);
+            }
+            
+            .event-card h4 {
+                font-size: 18px;
+            }
+            
+            .event-card .event-date {
+                font-size: 14px;
+            }
+            
+            .event-card .event-amount {
+                font-size: 20px;
+            }
+            
+            .zoom-controls {
+                bottom: 40px;
+                right: 40px;
+            }
+            
+            .zoom-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 32px;
+            }
+            
+            /* Larger dots for TV */
+            .event-dot {
+                width: 28px;
+                height: 28px;
+            }
+        }
+        
+        /* PRESENTATION MODE (URL param ?mode=presentation) */
+        body.presentation-mode {
+            background: #1a1a2e;
+        }
+        
+        body.presentation-mode .timeline-container {
+            background: #16213e;
+        }
+        
+        body.presentation-mode .event-card {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            color: white;
+            border-left-width: 6px;
+        }
+        
+        body.presentation-mode .event-card h4,
+        body.presentation-mode .event-card .event-amount {
+            color: white;
+        }
+        
+        body.presentation-mode .event-card .event-date,
+        body.presentation-mode .event-card .event-desc {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        body.presentation-mode .zoom-btn {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(59,130,246,0.5);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="timeline-container">
+    <div class="timeline-track" id="timelineTrack">
+        <div class="timeline-axis"></div>
+        <div class="timeline-content" id="timelineContent">
+            <!-- Events inserted by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="zoom-controls">
+        <button class="zoom-btn" id="zoomOut">−</button>
+        <button class="zoom-btn" id="zoomIn">+</button>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal" id="detailModal">
+    <div class="modal-content">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+// Sample events data (replace with backend data)
+const events = [
+    { date: '2025-11-01', type: 'rent', title: 'November Rent', amount: '$1,200', desc: 'Monthly rent payment due', icon: '💵' },
+    { date: '2025-10-15', type: 'document', title: 'Lease Signed', desc: 'Original lease agreement', icon: '📄' },
+    { date: '2025-11-05', type: 'call', title: 'Landlord Call', desc: 'Discussed maintenance issue', icon: '📞' },
+    { date: '2025-10-20', type: 'notice', title: '30-Day Notice', desc: 'Notice received from landlord', icon: '✉️' },
+    { date: '2025-11-12', type: 'deadline', title: 'Response Due', desc: 'Deadline to respond to notice', icon: '⏰' },
+    { date: '2025-11-15', type: 'court', title: 'Court Hearing', desc: 'Eviction hearing scheduled', icon: '⚖️' },
+    { date: '2025-11-08', type: 'document', title: 'Evidence Packet', desc: 'Submitted to court', icon: '📄' },
+    { date: '2025-12-01', type: 'rent', title: 'December Rent', amount: '$1,200', desc: 'Monthly rent payment due', icon: '💵' },
+    { date: '2025-11-10', type: 'call', title: 'Attorney Consult', desc: 'Free legal consultation', icon: '📞' }
+];
+
+// Sort events by date
+const sortedEvents = events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+// Zoom state
+let currentZoom = 1;
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 3;
+
+// Detect presentation mode from URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('mode') === 'presentation') {
+    document.body.classList.add('presentation-mode');
+}
+
+// Render timeline
+function renderTimeline() {
+    const content = document.getElementById('timelineContent');
+    content.innerHTML = '';
+    
+    const startDate = new Date(sortedEvents[0].date);
+    const endDate = new Date(sortedEvents[sortedEvents.length - 1].date);
+    const today = new Date();
+    
+    sortedEvents.forEach((event, index) => {
+        const marker = document.createElement('div');
+        marker.className = `event-marker ${index % 2 === 0 ? 'above' : 'below'} event-${event.type}`;
+        marker.style.marginLeft = `${index * 80 * currentZoom}px`;
+        
+        marker.innerHTML = `
+            <div class="event-card">
+                <h4>${event.icon} ${event.title}</h4>
+                <div class="event-date">${new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                ${event.amount ? `<div class="event-amount">${event.amount}</div>` : ''}
+                <div class="event-desc">${event.desc}</div>
+            </div>
+            <div class="event-dot"></div>
+        `;
+        
+        marker.addEventListener('click', () => showDetail(event));
+        content.appendChild(marker);
+        
+        // Add NOW indicator if today is in range
+        const eventDate = new Date(event.date);
+        if (index === 0 && today >= startDate && today <= endDate) {
+            const daysFromStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+            const nowPosition = (daysFromStart / totalDays) * content.scrollWidth;
+            
+            const nowLine = document.createElement('div');
+            nowLine.className = 'now-indicator';
+            nowLine.style.left = `${nowPosition}px`;
+            content.appendChild(nowLine);
+        }
+    });
+}
+
+// Show event detail modal
+function showDetail(event) {
+    const modal = document.getElementById('detailModal');
+    const body = document.getElementById('modalBody');
+    
+    body.innerHTML = `
+        <h2>${event.icon} ${event.title}</h2>
+        <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        ${event.amount ? `<p><strong>Amount:</strong> ${event.amount}</p>` : ''}
+        <p><strong>Description:</strong> ${event.desc}</p>
+        <p><strong>Type:</strong> ${event.type.charAt(0).toUpperCase() + event.type.slice(1)}</p>
+    `;
+    
+    modal.classList.add('active');
+}
+
+// Close modal
+document.getElementById('modalClose').addEventListener('click', () => {
+    document.getElementById('detailModal').classList.remove('active');
+});
+
+document.getElementById('detailModal').addEventListener('click', (e) => {
+    if (e.target.id === 'detailModal') {
+        document.getElementById('detailModal').classList.remove('active');
+    }
+});
+
+// Zoom controls
+document.getElementById('zoomIn').addEventListener('click', () => {
+    if (currentZoom < MAX_ZOOM) {
+        currentZoom += 0.2;
+        renderTimeline();
+    }
+});
+
+document.getElementById('zoomOut').addEventListener('click', () => {
+    if (currentZoom > MIN_ZOOM) {
+        currentZoom -= 0.2;
+        renderTimeline();
+    }
+});
+
+// Touch controls
+const track = document.getElementById('timelineTrack');
+let isDown = false;
+let startX;
+let scrollLeft;
+let lastDistance = 0;
+
+// Mouse drag
+track.addEventListener('mousedown', (e) => {
+    isDown = true;
+    track.style.cursor = 'grabbing';
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+});
+
+track.addEventListener('mouseleave', () => {
+    isDown = false;
+    track.style.cursor = 'grab';
+});
+
+track.addEventListener('mouseup', () => {
+    isDown = false;
+    track.style.cursor = 'grab';
+});
+
+track.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    const walk = (x - startX) * 2;
+    track.scrollLeft = scrollLeft - walk;
+});
+
+// Touch swipe
+track.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+    lastDistance = 0;
+});
+
+track.addEventListener('touchmove', (e) => {
+    // Pinch to zoom (two fingers)
+    if (e.touches.length === 2) {
+        const distance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+        );
+        
+        if (lastDistance > 0) {
+            if (distance > lastDistance && currentZoom < MAX_ZOOM) {
+                currentZoom += 0.05;
+                renderTimeline();
+            } else if (distance < lastDistance && currentZoom > MIN_ZOOM) {
+                currentZoom -= 0.05;
+                renderTimeline();
+            }
+        }
+        lastDistance = distance;
+    } else {
+        // Single finger swipe
+        const x = e.touches[0].pageX - track.offsetLeft;
+        const walk = (x - startX) * 2;
+        track.scrollLeft = scrollLeft - walk;
+    }
+});
+
+track.addEventListener('touchend', () => {
+    lastDistance = 0;
+});
+
+// Initial render
+renderTimeline();
+</script>
+
+</body>
+</html>

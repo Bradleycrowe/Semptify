@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Timeline - Events & Documents</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+        
+        /* Simple horizontal timeline container */
+        .timeline-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: white;
+        }
+        
+        /* Scrollable timeline track */
+        .timeline-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 400px;
+            white-space: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 50px;
+            cursor: grab;
+            touch-action: pan-x;
+        }
+        
+        .timeline-track:active {
+            cursor: grabbing;
+        }
+        
+        /* Main timeline axis (horizontal line) */
+        .timeline-axis {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e2e8f0, #3b82f6, #e2e8f0);
+            transform: translateY(-50%);
+        }
+        
+        /* Timeline content wrapper */
+        .timeline-content {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            min-width: 100%;
+            height: 100%;
+        }
+        
+        /* Individual event markers */
+        .event-marker {
+            position: relative;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 40px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .event-marker:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Event dot on timeline */
+        .event-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+            position: relative;
+        }
+        
+        /* Event card above/below timeline */
+        .event-card {
+            position: absolute;
+            width: 200px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 2px solid;
+            text-align: center;
+            pointer-events: none;
+        }
+        
+        .event-marker:nth-child(odd) .event-card {
+            bottom: 30px;
+        }
+        
+        .event-marker:nth-child(even) .event-card {
+            top: 30px;
+        }
+        
+        .event-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .event-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .event-date {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .event-amount {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        
+        /* Event type colors */
+        .event-rent { border-color: #3b82f6; }
+        .event-rent .event-dot { background: #3b82f6; }
+        .event-rent .event-amount { color: #3b82f6; }
+        
+        .event-court { border-color: #ef4444; }
+        .event-court .event-dot { background: #ef4444; }
+        
+        .event-deadline { border-color: #f59e0b; }
+        .event-deadline .event-dot { background: #f59e0b; }
+        
+        .event-notice { border-color: #8b5cf6; }
+        .event-notice .event-dot { background: #8b5cf6; }
+        
+        .event-document { border-color: #10b981; }
+        .event-document .event-dot { background: #10b981; }
+        
+        .event-call { border-color: #06b6d4; }
+        .event-call .event-dot { background: #06b6d4; }
+        
+        /* Date labels on timeline */
+        .date-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        /* Zoom controls */
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .zoom-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: #3b82f6;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background: #2563eb;
+            transform: scale(1.1);
+        }
+        
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Detail modal */
+        .detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .detail-modal.active {
+            display: flex;
+        }
+        
+        .detail-panel {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .detail-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .detail-body {
+            padding: 30px;
+        }
+        
+        .detail-section {
+            margin-bottom: 20px;
+        }
+        
+        .detail-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            color: #1e293b;
+        }
+        
+        /* Current time indicator */
+        .current-time {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ef4444;
+            z-index: 5;
+        }
+        
+        .current-time::before {
+            content: 'NOW';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="timeline-container">
+        <div class="timeline-track" id="timelineTrack">
+            <div class="timeline-axis"></div>
+            <div class="timeline-content" id="timelineContent">
+                <!-- Events will be inserted here by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+            <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+        </div>
+    </div>
+    
+    <!-- Detail modal -->
+    <div class="detail-modal" id="detailModal">
+        <div class="detail-panel">
+            <div class="detail-header">
+                <button class="close-btn" id="closeBtn">×</button>
+                <div class="event-icon" id="modalIcon"></div>
+                <h2 id="modalTitle"></h2>
+                <p id="modalDate"></p>
+            </div>
+            <div class="detail-body">
+                <div class="detail-section">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value" id="modalDescription"></div>
+                </div>
+                <div class="detail-section" id="modalAmountSection" style="display: none;">
+                    <div class="detail-label">Amount</div>
+                    <div class="detail-value" id="modalAmount"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Details</div>
+                    <div class="detail-value" id="modalDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample events with timestamps
+        const events = [
+            { id: 1, type: 'rent', icon: '💵', title: 'November Rent', date: '2025-11-01', amount: 1200, description: 'Monthly rent payment', details: 'Check #4523' },
+            { id: 2, type: 'document', icon: '📄', title: 'Lease Signed', date: '2025-10-15', description: 'Lease agreement executed', details: 'Term: 12 months' },
+            { id: 3, type: 'call', icon: '📞', title: 'Landlord Call', date: '2025-11-05', description: 'Discussed maintenance issue', details: 'Duration: 15 min' },
+            { id: 4, type: 'notice', icon: '✉️', title: '30-Day Notice', date: '2025-10-20', description: 'Notice to vacate received', details: 'Certified mail' },
+            { id: 5, type: 'deadline', icon: '⏰', title: 'Response Due', date: '2025-11-12', description: 'Deadline to file response', details: 'Court filing' },
+            { id: 6, type: 'court', icon: '⚖️', title: 'Court Hearing', date: '2025-11-15', description: 'Eviction hearing scheduled', details: 'Courtroom 4B, 9 AM' },
+            { id: 7, type: 'document', icon: '📋', title: 'Evidence Packet', date: '2025-11-08', description: 'Compiled evidence documents', details: '12 pages' },
+            { id: 8, type: 'rent', icon: '💵', title: 'December Rent', date: '2025-12-01', amount: 1200, description: 'Monthly rent payment', details: 'Auto-pay' },
+            { id: 9, type: 'call', icon: '📞', title: 'Attorney Consult', date: '2025-11-10', description: 'Legal consultation call', details: 'Duration: 30 min' },
+        ];
+        
+        let currentZoom = 1;
+        const MIN_ZOOM = 0.5;
+        const MAX_ZOOM = 3;
+        
+        // Render timeline
+        function renderTimeline() {
+            const container = document.getElementById('timelineContent');
+            container.innerHTML = '';
+            
+            // Sort events by date
+            const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            sortedEvents.forEach((event, index) => {
+                const marker = document.createElement('div');
+                marker.className = `event-marker event-${event.type}`;
+                marker.style.marginLeft = `${index * 80 * currentZoom}px`;
+                
+                marker.innerHTML = `
+                    <div class="event-card">
+                        <div class="event-icon">${event.icon}</div>
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-date">${formatDate(event.date)}</div>
+                        ${event.amount ? `<div class="event-amount">$${event.amount.toLocaleString()}</div>` : ''}
+                        <div class="date-label">${formatShortDate(event.date)}</div>
+                    </div>
+                    <div class="event-dot"></div>
+                `;
+                
+                marker.addEventListener('click', () => showDetail(event));
+                container.appendChild(marker);
+            });
+            
+            // Add current time indicator
+            const now = new Date();
+            const firstDate = new Date(sortedEvents[0].date);
+            const lastDate = new Date(sortedEvents[sortedEvents.length - 1].date);
+            
+            if (now >= firstDate && now <= lastDate) {
+                const totalDays = (lastDate - firstDate) / (1000 * 60 * 60 * 24);
+                const daysPassed = (now - firstDate) / (1000 * 60 * 60 * 24);
+                const position = (daysPassed / totalDays) * container.offsetWidth;
+                
+                const indicator = document.createElement('div');
+                indicator.className = 'current-time';
+                indicator.style.left = `${position}px`;
+                container.appendChild(indicator);
+            }
+        }
+        
+        // Show detail modal
+        function showDetail(event) {
+            document.getElementById('modalIcon').textContent = event.icon;
+            document.getElementById('modalTitle').textContent = event.title;
+            document.getElementById('modalDate').textContent = formatDate(event.date, true);
+            document.getElementById('modalDescription').textContent = event.description;
+            document.getElementById('modalDetails').textContent = event.details;
+            
+            if (event.amount) {
+                document.getElementById('modalAmountSection').style.display = 'block';
+                document.getElementById('modalAmount').textContent = `$${event.amount.toLocaleString()}`;
+            } else {
+                document.getElementById('modalAmountSection').style.display = 'none';
+            }
+            
+            document.getElementById('detailModal').classList.add('active');
+        }
+        
+        // Format dates
+        function formatDate(dateStr, long = false) {
+            const date = new Date(dateStr);
+            if (long) {
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function formatShortDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                year: '2-digit'
+            });
+        }
+        
+        // Zoom controls
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            if (currentZoom < MAX_ZOOM) {
+                currentZoom += 0.2;
+                renderTimeline();
+            }
+        });
+        
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            if (currentZoom > MIN_ZOOM) {
+                currentZoom -= 0.2;
+                renderTimeline();
+            }
+        });
+        
+        // Close modal
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            document.getElementById('detailModal').classList.remove('active');
+        });
+        
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('detailModal').classList.remove('active');
+            }
+        });
+        
+        // Touch/mouse drag to scroll
+        const track = document.getElementById('timelineTrack');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        
+        track.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - track.offsetLeft;
+            scrollLeft = track.scrollLeft;
+        });
+        
+        track.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+        
+        track.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+        
+        track.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - track.offsetLeft;
+            const walk = (x - startX) * 2;
+            track.scrollLeft = scrollLeft - walk;
+        });
+        
+        // Touch pinch zoom
+        let lastDistance = 0;
+        track.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const distance = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+                
+                if (lastDistance > 0) {
+                    if (distance > lastDistance && currentZoom < MAX_ZOOM) {
+                        currentZoom += 0.05;
+                        renderTimeline();
+                    } else if (distance < lastDistance && currentZoom > MIN_ZOOM) {
+                        currentZoom -= 0.05;
+                        renderTimeline();
+                    }
+                }
+                lastDistance = distance;
+            }
+        });
+        
+        track.addEventListener('touchend', () => {
+            lastDistance = 0;
+        });
+        
+        // Initialize
+        renderTimeline();
+    </script>
+</body>
+</html>
