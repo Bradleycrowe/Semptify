@@ -4,7 +4,7 @@ import time
 import uuid
 import secrets
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session, send_file
 from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401, _atomic_write_json
 from prime_learning_engine import create_seed_data
 import hashlib
@@ -1072,20 +1072,28 @@ def admin():
     # Return expected HTML for enforced mode
     if _is_enforced():
         return (
-            f'<form method="POST" action="/admin/prime_learning">'
+            '<h2>Admin ENFORCED</h2>SECURITY MODE: ENFORCED'
+            f'<div style="margin:12px 0">'
+            f'  <a href="/admin/learning{f"?token={token}" if token else ""}">Go to Learning Control Panel</a>'
+            f'</div>'
+            f'<form method="POST" action="/admin/prime_learning{f"?token={token}" if token else ""}">'
             f'<input type="hidden" name="csrf_token" value="{csrf_token}">' 
             f'<input type="hidden" name="confirm_prime" value="yes">'
             f'<button type="submit">Prime Learning Engine</button>'
             f'</form>'
-            '<h2>Admin ENFORCED</h2>SECURITY MODE: ENFORCED', 200)
+            , 200)
     # Return expected HTML for open mode
     return (
+        '<h2>Admin</h2>SECURITY MODE: OPEN'
+        f'<div style="margin:12px 0">'
+        f'  <a href="/admin/learning">Go to Learning Control Panel</a>'
+        f'</div>'
         f'<form method="POST" action="/admin/prime_learning">'
         f'<input type="hidden" name="csrf_token" value="{csrf_token}">' 
         f'<input type="hidden" name="confirm_prime" value="yes">'
         f'<button type="submit">Prime Learning Engine</button>'
         f'</form>'
-        '<h2>Admin</h2>SECURITY MODE: OPEN', 200)
+        , 200)
 
 @app.route("/admin/status", methods=["GET"])
 def admin_status():
@@ -1164,6 +1172,129 @@ def admin_prime_learning():
         incr_metric('errors_total', 1)
         log_event('admin_prime_learning_failed', {'error': str(e)})
         return jsonify({'error': 'prime_failed', 'details': str(e)}), 500
+
+@app.route("/admin/learning", methods=["GET"])
+def admin_learning_page():
+    """Learning Engine control panel with instructions and status.
+
+    - Enforced: requires admin token
+    - Open: accessible without token (still logged/rate limited)
+    """
+    token = request.args.get('token') or request.headers.get('X-Admin-Token')
+    if _is_enforced():
+        if not validate_admin_token(token):
+            return "Unauthorized", 401
+
+    # Rate limit AFTER auth
+    ip = request.remote_addr or 'unknown'
+    rate_key = f"admin:{ip}:{request.path}"
+    if not check_rate_limit(rate_key):
+        log_event("admin_rate_limited", {"path": request.path, "ip": ip})
+        incr_metric("rate_limited_total")
+        return jsonify({'error': 'rate_limited'}), int(os.environ.get('ADMIN_RATE_STATUS', '429'))
+
+    csrf_token = _get_or_create_csrf_token()
+    # Load stats from file if present
+    stats = {
+        'exists': False,
+        'total_sequences': 0,
+        'total_users': 0,
+        'total_success_data_points': 0,
+        'primed_at': None,
+        'version': None,
+        'source': None,
+    }
+    try:
+        patterns_path = os.path.join('data', 'learning_patterns.json')
+        if os.path.exists(patterns_path):
+            with open(patterns_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            meta = data.get('_metadata', {})
+            stats.update({
+                'exists': True,
+                'total_sequences': len(data.get('sequences', {})),
+                'total_users': len(data.get('user_habits', {})),
+                'total_success_data_points': sum(v.get('attempts', 0) for v in data.get('success_rates', {}).values()),
+                'primed_at': meta.get('primed_at'),
+                'version': meta.get('version'),
+                'source': meta.get('source'),
+            })
+    except Exception:
+        pass
+
+    return render_template('admin_learning.html',
+                           csrf_token=csrf_token,
+                           stats=stats,
+                           security_mode='enforced' if _is_enforced() else 'open')
+
+@app.route("/admin/learning/reset", methods=["POST"])
+def admin_learning_reset():
+    """Reset learning patterns to an empty baseline."""
+    if _is_enforced():
+        if not _require_admin_or_401():
+            return "Unauthorized", 401
+        form_csrf = request.form.get('csrf_token')
+        if not form_csrf or form_csrf != _get_or_create_csrf_token():
+            incr_metric('errors_total', 1)
+            log_event('csrf_failed', {'path': request.path, 'ip': request.remote_addr or 'unknown'})
+            return jsonify({'error': 'csrf_failed'}), 400
+
+    # Rate limit
+    ip = request.remote_addr or 'unknown'
+    rate_key = f"admin:{ip}:{request.path}"
+    if not check_rate_limit(rate_key):
+        log_event("admin_rate_limited", {"path": request.path, "ip": ip})
+        incr_metric("rate_limited_total")
+        return jsonify({'error': 'rate_limited'}), int(os.environ.get('ADMIN_RATE_STATUS', '429'))
+
+    if (request.form.get('confirm_reset') or '').lower() != 'yes':
+        return jsonify({'error': 'confirm_reset_required'}), 400
+
+    baseline = {
+        "user_habits": {},
+        "sequences": {},
+        "time_patterns": {},
+        "success_rates": {},
+        "suggestions": {},
+        "_metadata": {
+            "primed_at": None,
+            "version": "baseline",
+            "source": "reset",
+            "description": "Reset to empty baseline via admin panel"
+        }
+    }
+    try:
+        patterns_path = os.path.join('data', 'learning_patterns.json')
+        os.makedirs(os.path.dirname(patterns_path), exist_ok=True)
+        _atomic_write_json(patterns_path, baseline)
+        incr_metric('admin_actions_total', 1)
+        log_event('admin_learning_reset', {'ip': ip})
+        return jsonify({'status': 'ok', 'message': 'Learning patterns reset to baseline'}), 200
+    except Exception as e:
+        incr_metric('errors_total', 1)
+        log_event('admin_learning_reset_failed', {'error': str(e)})
+        return jsonify({'error': 'reset_failed', 'details': str(e)}), 500
+
+@app.route("/admin/learning/download", methods=["GET"])
+def admin_learning_download():
+    """Download the current learning_patterns.json file."""
+    token = request.args.get('token') or request.headers.get('X-Admin-Token')
+    if _is_enforced():
+        if not validate_admin_token(token):
+            return "Unauthorized", 401
+
+    # Rate limit
+    ip = request.remote_addr or 'unknown'
+    rate_key = f"admin:{ip}:{request.path}"
+    if not check_rate_limit(rate_key):
+        log_event("admin_rate_limited", {"path": request.path, "ip": ip})
+        incr_metric("rate_limited_total")
+        return jsonify({'error': 'rate_limited'}), int(os.environ.get('ADMIN_RATE_STATUS', '429'))
+
+    patterns_path = os.path.join('data', 'learning_patterns.json')
+    if not os.path.exists(patterns_path):
+        return jsonify({'error': 'not_found'}), 404
+    return send_file(patterns_path, as_attachment=True, download_name='learning_patterns.json', mimetype='application/json')
 
 @app.route("/metrics", methods=["GET"])
 def metrics():

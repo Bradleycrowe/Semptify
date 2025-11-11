@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Learning Control Panel{% endblock %}
+{% block content %}
+<div class="container" style="max-width:960px;margin:30px auto;font-family:system-ui,Arial,sans-serif;">
+  <h1 style="margin-bottom:4px;">🧠 Learning Engine Control Panel</h1>
+  <p style="color:#555;margin-top:0;">Operational dashboard for Semptify's lightweight behavioral learning system.</p>
+
+  <div style="background:#f1f5f9;border:1px solid #e2e8f0;padding:16px;border-radius:8px;margin-bottom:24px;">
+    <h2 style="margin-top:0;font-size:1.1rem;">Status</h2>
+    {% if stats.exists %}
+      <ul style="list-style:disc;margin-left:20px;">
+        <li><strong>Primed:</strong> {{ stats.primed_at or 'Unknown' }}</li>
+        <li><strong>Sequences:</strong> {{ stats.total_sequences }}</li>
+        <li><strong>Simulated Users:</strong> {{ stats.total_users }}</li>
+        <li><strong>Success Data Points:</strong> {{ stats.total_success_data_points }}</li>
+        <li><strong>Source:</strong> {{ stats.source or 'n/a' }}</li>
+        <li><strong>Version:</strong> {{ stats.version or 'n/a' }}</li>
+      </ul>
+    {% else %}
+      <p style="margin:0;color:#b45309;">No learning data present yet (baseline / cold start).</p>
+    {% endif %}
+  </div>
+
+  <div style="display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:32px;">
+    <div style="background:#ffffff;border:1px solid #e2e8f0;padding:16px;border-radius:8px;">
+      <h3 style="margin-top:0;font-size:1rem;">Prime / Re-Prime</h3>
+      <p style="font-size:0.9rem;line-height:1.4;">Loads curated tenant success patterns so suggestions are intelligent from day one.</p>
+      <form method="POST" action="/admin/prime_learning{% if security_mode=='enforced' %}?token={{ request.args.token }}{% endif %}" style="margin-top:8px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <input type="hidden" name="confirm_prime" value="yes" />
+        <button type="submit" style="background:#2563eb;color:#fff;border:0;padding:8px 14px;border-radius:4px;cursor:pointer;">Prime Engine</button>
+      </form>
+    </div>
+    <div style="background:#ffffff;border:1px solid #e2e8f0;padding:16px;border-radius:8px;">
+      <h3 style="margin-top:0;font-size:1rem;">Reset</h3>
+      <p style="font-size:0.9rem;line-height:1.4;">Clears all learned patterns. Use before importing external training or for compliance.</p>
+      <form method="POST" action="/admin/learning/reset{% if security_mode=='enforced' %}?token={{ request.args.token }}{% endif %}" style="margin-top:8px;" onsubmit="return confirm('Reset learning patterns to empty baseline?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <input type="hidden" name="confirm_reset" value="yes" />
+        <button type="submit" style="background:#dc2626;color:#fff;border:0;padding:8px 14px;border-radius:4px;cursor:pointer;">Reset to Baseline</button>
+      </form>
+    </div>
+    <div style="background:#ffffff;border:1px solid #e2e8f0;padding:16px;border-radius:8px;">
+      <h3 style="margin-top:0;font-size:1rem;">Download</h3>
+      <p style="font-size:0.9rem;line-height:1.4;">Export current learning_patterns.json for backup, audit, or migration.</p>
+      <a href="/admin/learning/download{% if security_mode=='enforced' %}?token={{ request.args.token }}{% endif %}" style="display:inline-block;margin-top:8px;background:#059669;color:#fff;padding:8px 14px;border-radius:4px;text-decoration:none;">Download JSON</a>
+    </div>
+    <div style="background:#ffffff;border:1px solid #e2e8f0;padding:16px;border-radius:8px;">
+      <h3 style="margin-top:0;font-size:1rem;">Operational Notes</h3>
+      <ul style="font-size:0.85rem;line-height:1.4;margin:0 0 0 18px;padding:0;">
+        <li>All writes are atomic to avoid corruption.</li>
+        <li>Priming is idempotent; re-prime overwrites patterns.</li>
+        <li>Reset sets empty baseline with metadata version=baseline.</li>
+        <li>Download is safe read-only; rate limited like other admin ops.</li>
+        <li>CSRF enforced only in SECURITY_MODE=enforced.</li>
+        <li>Suggestions are deterministic; no external AI calls.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:16px;border-radius:8px;">
+    <h2 style="margin-top:0;font-size:1.05rem;">Operations Manual</h2>
+    <ol style="font-size:0.9rem;line-height:1.5;margin-left:20px;">
+      <li><strong>Prime:</strong> Use immediately after deploy so users get smart suggestions (no cold start).</li>
+      <li><strong>Monitor:</strong> Periodically export and inspect success distribution for drift.</li>
+      <li><strong>Reset (if needed):</strong> Before introducing a new schema or privacy-clearing event.</li>
+      <li><strong>Backup:</strong> Download JSON before major model changes.</li>
+      <li><strong>Audit:</strong> The _metadata section records origin, timestamp, and data scale.</li>
+    </ol>
+    <p style="font-size:0.8rem;color:#475569;margin-top:12px;">Need advanced adaptive learning? Add transformations and confidence curves inside learning_engine.py (extensible minimal core).</p>
+  </div>
+
+  <p style="margin-top:32px;font-size:0.85rem;"><a href="/admin{% if security_mode=='enforced' and request.args.token %}?token={{ request.args.token }}{% endif %}">← Back to Admin Home</a></p>
+</div>
+{% endblock %}
