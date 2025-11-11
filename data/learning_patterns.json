@@ -1,0 +1,198 @@
+{
+  "user_habits": {
+    "success_user_001": {
+      "upload_lease": 3,
+      "document_evidence": 5,
+      "file_complaint": 2,
+      "track_case": 4,
+      "view_legal_resources": 3
+    },
+    "success_user_002": {
+      "view_housing_codes": 4,
+      "request_inspection": 2,
+      "upload_photos": 6,
+      "file_hud_complaint": 1
+    },
+    "success_user_003": {
+      "view_eviction_info": 5,
+      "download_forms": 4,
+      "upload_lease": 2,
+      "file_complaint": 2,
+      "find_legal_aid": 3
+    },
+    "success_user_004": {
+      "view_rent_withhold_info": 3,
+      "send_notice_landlord": 2,
+      "file_escrow": 1,
+      "upload_photos": 4
+    },
+    "success_user_005": {
+      "view_discrimination_info": 4,
+      "document_incident": 5,
+      "file_hud_complaint": 2,
+      "find_legal_aid": 2
+    }
+  },
+  "sequences": {
+    "view_eviction_info->download_forms": 15,
+    "download_forms->upload_lease": 12,
+    "upload_lease->document_evidence": 10,
+    "document_evidence->file_complaint": 8,
+    "file_complaint->track_case": 8,
+    "view_rent_withhold_info->upload_photos": 10,
+    "upload_photos->send_notice_landlord": 9,
+    "send_notice_landlord->file_escrow": 7,
+    "view_housing_codes->request_inspection": 12,
+    "request_inspection->upload_photos": 10,
+    "upload_photos->track_complaint": 8,
+    "view_legal_resources->find_legal_aid": 15,
+    "find_legal_aid->schedule_consultation": 10,
+    "schedule_consultation->prepare_documents": 8,
+    "view_discrimination_info->document_incident": 12,
+    "document_incident->file_hud_complaint": 9,
+    "file_hud_complaint->upload_evidence": 8,
+    "upload_lease->upload_receipts": 10,
+    "upload_receipts->upload_correspondence": 8,
+    "upload_correspondence->organize_timeline": 7,
+    "view_court_procedures->download_forms": 14,
+    "download_forms->fill_forms_online": 11,
+    "fill_forms_online->file_electronically": 9,
+    "file_electronically->pay_filing_fee": 8,
+    "pay_filing_fee->schedule_hearing": 7,
+    "view_emergency_resources->call_hotline": 10,
+    "call_hotline->emergency_shelter": 5,
+    "emergency_shelter->apply_assistance": 8
+  },
+  "time_patterns": {
+    "18": {
+      "view_eviction_info": 20,
+      "view_legal_resources": 15,
+      "upload_lease": 12
+    },
+    "19": {
+      "document_evidence": 18,
+      "upload_photos": 16,
+      "fill_forms_online": 14
+    },
+    "20": {
+      "file_complaint": 12,
+      "view_housing_codes": 10,
+      "organize_timeline": 8
+    },
+    "21": {
+      "track_case": 10,
+      "view_discrimination_info": 8,
+      "prepare_documents": 6
+    },
+    "12": {
+      "view_eviction_info": 10,
+      "find_legal_aid": 8,
+      "call_hotline": 6
+    },
+    "13": {
+      "view_legal_resources": 8,
+      "view_rent_withhold_info": 6
+    },
+    "9": {
+      "download_forms": 12,
+      "upload_lease": 10,
+      "schedule_consultation": 8
+    },
+    "10": {
+      "fill_forms_online": 14,
+      "organize_timeline": 10,
+      "document_evidence": 8
+    },
+    "11": {
+      "file_electronically": 10,
+      "upload_correspondence": 8
+    }
+  },
+  "success_rates": {
+    "upload_lease": {
+      "attempts": 50,
+      "successes": 48
+    },
+    "document_evidence": {
+      "attempts": 45,
+      "successes": 43
+    },
+    "view_legal_resources": {
+      "attempts": 60,
+      "successes": 58
+    },
+    "find_legal_aid": {
+      "attempts": 40,
+      "successes": 38
+    },
+    "upload_photos": {
+      "attempts": 52,
+      "successes": 50
+    },
+    "file_complaint": {
+      "attempts": 30,
+      "successes": 25
+    },
+    "request_inspection": {
+      "attempts": 35,
+      "successes": 28
+    },
+    "send_notice_landlord": {
+      "attempts": 40,
+      "successes": 32
+    },
+    "file_hud_complaint": {
+      "attempts": 25,
+      "successes": 20
+    },
+    "schedule_consultation": {
+      "attempts": 38,
+      "successes": 32
+    },
+    "file_escrow": {
+      "attempts": 20,
+      "successes": 12
+    },
+    "file_electronically": {
+      "attempts": 28,
+      "successes": 18
+    },
+    "apply_assistance": {
+      "attempts": 45,
+      "successes": 28
+    },
+    "fill_forms_online": {
+      "attempts": 50,
+      "successes": 30
+    },
+    "navigate_court_system": {
+      "attempts": 35,
+      "successes": 18
+    },
+    "represent_self_court": {
+      "attempts": 25,
+      "successes": 10
+    }
+  },
+  "suggestions": {
+    "facing_eviction": "view_eviction_info",
+    "bad_conditions": "view_housing_codes",
+    "discrimination": "view_discrimination_info",
+    "need_lawyer": "find_legal_aid",
+    "rent_dispute": "view_rent_withhold_info",
+    "first_visit": "view_legal_resources",
+    "uploaded_lease": "document_evidence",
+    "has_evidence": "file_complaint",
+    "filed_complaint": "track_case",
+    "need_forms": "download_forms"
+  },
+  "_metadata": {
+    "primed_at": "2025-11-11T09:26:02.160642",
+    "version": "1.0",
+    "source": "tenant_rights_success_patterns",
+    "description": "Pre-trained with successful tenant action patterns",
+    "total_sequences": 28,
+    "total_users": 5,
+    "total_success_data_points": 618
+  }
+}
