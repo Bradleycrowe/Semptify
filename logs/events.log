@@ -362,3 +362,4 @@
 {"event": "verification_code_resent", "payload": {"user_id": "mj7kO96MgaISVTEN8wANxQ"}, "ts": 1762665739.9315972}
 {"event": "user_registration_started", "payload": {"email": "bradcrowe@hail.com", "method": "sms", "user_id": "Qc5eefcxlz4hEFl7BFZpXw"}, "ts": 1762665821.2551227}
 {"event": "user_verified", "payload": {"email": "bradcrowe@hail.com", "user_id": "Qc5eefcxlz4hEFl7BFZpXw"}, "ts": 1762665846.292576}
+{"timestamp": "2025-11-11T14:31:32.894158+00:00", "type": "admin_access", "details": {"path": "/admin", "ip": "127.0.0.1"}}
