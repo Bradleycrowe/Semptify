@@ -79,18 +79,19 @@ def _send_via_resend(to_email, verification_code, user_name, api_key):
                         </p>
                     </div>
                 '''
-            }
+            },
+            timeout=10
         )
 
         if response.status_code == 200:
-            logger.info(f"Verification email sent via Resend to {to_email}")
+            logger.info("Verification email sent via Resend to %s", to_email)
             return True
         else:
-            logger.error(f"Resend API error: {response.status_code} - {response.text}")
+            logger.error("Resend API error: %s - %s", response.status_code, response.text)
             return False
 
-    except Exception as e:
-        logger.error(f"Failed to send email via Resend: {e}")
+    except requests.exceptions.RequestException as e:
+        logger.error("Failed to send email via Resend: %s", e)
         return False
 
 
@@ -202,7 +203,7 @@ This is an automated message, please do not reply.
             server.login(sender, password)
             server.sendmail(sender, to_email, msg.as_string())
 
-        logger.info(f"✓ Verification email sent to {to_email}")
+        logger.info("✓ Verification email sent to %s", to_email)
         print(f"✓ Verification email sent to {to_email}")
         return True
 
@@ -210,8 +211,8 @@ This is an automated message, please do not reply.
         logger.error("Gmail authentication failed - check GMAIL_APP_PASSWORD")
         print(f"✗ Gmail auth failed. Code for {to_email}: {verification_code}")
         return False
-    except Exception as e:
-        logger.error(f"Failed to send email: {e}")
+    except (smtplib.SMTPException, OSError) as e:
+        logger.error("Failed to send email: %s", e)
         print(f"✗ Failed to send email to {to_email}: {str(e)}")
         print(f"   Verification code: {verification_code}")
         return False
@@ -219,120 +220,53 @@ This is an automated message, please do not reply.
 
 def send_password_reset_email(to_email, reset_code, user_name=None):
     """
-    Send password reset code via email.
-
+    Send a password reset email to the user.
+    
+    NOTE: Currently in dev mode only. To enable real email delivery:
+    - Configure Resend API or SendGrid in your environment
+    - Use send_verification_code() function for full email functionality
+    
     Args:
-        to_email: Recipient email address
-        reset_code: 6-digit reset code
-        user_name: Optional user name
-
-    Returns:
-        bool: True if sent successfully, False otherwise
+        to_email: Email address to send reset code
+        reset_code: Password reset code
+        user_name: Optional user name for personalization (currently unused in dev mode)
     """
-    sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-    from_email = os.environ.get('FROM_EMAIL', 'noreply@semptify.onrender.com')
-
-    if not sendgrid_api_key:
-        print(f"[DEV MODE] Password reset email to {to_email}: {reset_code}")
-        return True
-
-    greeting = f"Hello {user_name}" if user_name else "Hello"
-
-    message = Mail(
-        from_email=from_email,
-        to_emails=to_email,
-        subject='Reset Your Semptify Password',
-        html_content=f'''
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-        .header {{ background: linear-gradient(135deg, #dc2626 0%, #f87171 100%);
-                   color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }}
-        .content {{ background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }}
-        .code-box {{ background: white; border: 2px solid #dc2626; border-radius: 8px;
-                     padding: 20px; text-align: center; margin: 20px 0; }}
-        .code {{ font-size: 32px; font-weight: bold; color: #dc2626; letter-spacing: 8px; }}
-        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #6b7280; }}
-        .warning {{ background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin: 15px 0; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🔐 Password Reset</h1>
-            <p>Semptify Account Security</p>
-        </div>
-        <div class="content">
-            <h2>{greeting},</h2>
-            <p>We received a request to reset your Semptify password.
-               Enter this code to create a new password:</p>
-
-            <div class="code-box">
-                <div class="code">{reset_code}</div>
-            </div>
-
-            <div class="warning">
-                <strong>⚠️ Security Notice:</strong>
-                <ul style="margin: 10px 0;">
-                    <li>This code expires in 15 minutes</li>
-                    <li>Never share this code with anyone</li>
-                    <li>Semptify will never ask for your password</li>
-                </ul>
-            </div>
-
-            <p><strong>Didn't request this?</strong><br>
-               If you didn't request a password reset, please ignore this email.
-               Your account remains secure.</p>
-        </div>
-        <div class="footer">
-            <p>© 2025 Semptify - Tenant Rights Platform</p>
-            <p>This is an automated message, please do not reply.</p>
-        </div>
-    </div>
-</body>
-</html>
-        '''
-    )
-
-    try:
-        sg = SendGridAPIClient(sendgrid_api_key)
-        response = sg.send(message)
-
-        if response.status_code == 202:
-            print(f"✓ Password reset email sent to {to_email}")
-            return True
-        else:
-            print(f"⚠ SendGrid returned status {response.status_code}")
-            return False
-
-    except Exception as e:
-        print(f"✗ Failed to send reset email to {to_email}: {str(e)}")
-        if not sendgrid_api_key:
-            return True
-        return False
+    logger.info("send_password_reset_email called for %s (dev mode, code: %s)", 
+                to_email, reset_code)
 
 
 def test_email_service():
     """Test the email service configuration"""
     print("Testing email service...")
 
-    sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-    if not sendgrid_api_key:
-        print("⚠ SENDGRID_API_KEY not set - running in DEV MODE")
-        print("  Emails will be logged to console instead of sent")
-        print("  To enable email sending:")
-        print("  1. Sign up at https://sendgrid.com (free tier: 100 emails/day)")
-        print("  2. Create API key at https://app.sendgrid.com/settings/api_keys")
-        print("  3. Add to Render: SENDGRID_API_KEY=your_key_here")
-        return False
-
-    print(f"✓ SENDGRID_API_KEY is set")
-    print(f"✓ FROM_EMAIL: {os.environ.get('FROM_EMAIL', 'noreply@semptify.onrender.com')}")
-    print("✓ Email service ready!")
-    return True
+    # Check for Resend API key (preferred)
+    resend_key = os.environ.get('RESEND_API_KEY')
+    if resend_key:
+        print("✓ RESEND_API_KEY is set - using Resend (3000 emails/month free)")
+        return True
+    
+    # Check for Gmail credentials (fallback)
+    gmail_address = os.environ.get('GMAIL_ADDRESS')
+    gmail_password = os.environ.get('GMAIL_APP_PASSWORD')
+    if gmail_address and gmail_password:
+        print("✓ Gmail credentials configured")
+        print(f"  GMAIL_ADDRESS: {gmail_address}")
+        return True
+    
+    # Dev mode
+    print("⚠ No email service configured - running in DEV MODE")
+    print("  Emails will be logged to console instead of sent")
+    print("  To enable email sending:")
+    print("  Option 1 (Recommended): Resend API")
+    print("    1. Sign up at https://resend.com (3000 emails/month free)")
+    print("    2. Get API key from dashboard")
+    print("    3. Add to environment: RESEND_API_KEY=re_xxx")
+    print("  Option 2: Gmail SMTP")
+    print("    1. Enable 2FA on your Gmail account")
+    print("    2. Generate app password: https://myaccount.google.com/apppasswords")
+    print("    3. Add to environment: GMAIL_ADDRESS=your@gmail.com")
+    print("    4. Add to environment: GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx")
+    return False
 
 
 if __name__ == "__main__":
