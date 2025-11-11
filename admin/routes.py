@@ -6,6 +6,14 @@ import uuid
 import os
 from security import _require_admin_or_401, _get_or_create_csrf_token, incr_metric, validate_admin_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event
 import sqlite3
+from typing import Any, Dict
+
+# Optional human perspective formatter
+try:
+    from human_perspective import humanize_object
+except Exception:
+    def humanize_object(obj: Any, context: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        return {"title": "Humanized View", "summary": str(obj)}
 
 try:
     from r2_database_adapter import sync_database_to_r2, get_r2_adapter
@@ -54,6 +62,7 @@ def dashboard():
         {"name": "Users", "path": "/admin/users-panel", "desc": "Browse and export users"},
         {"name": "Email", "path": "/admin/email", "desc": "Delivery provider & test"},
         {"name": "Security", "path": "/admin/security", "desc": "Mode, tokens, breakglass"},
+        {"name": "Human Perspective", "path": "/admin/human", "desc": "Explain, simplify, and format for people"},
     ]
     return render_template("admin/dashboard.html", csrf_token=csrf, panels=panels)
 
@@ -239,4 +248,37 @@ def security_panel():
     mode = os.environ.get('SECURITY_MODE', 'open')
     breakglass_flag = os.path.exists('security/breakglass.flag')
     return render_template('admin/security_panel.html', csrf_token=csrf, mode=mode, breakglass=breakglass_flag)
+
+
+# =============================
+# HUMAN PERSPECTIVE PANEL
+# =============================
+@admin_bp.route('/human', methods=['GET', 'POST'])
+def human_perspective_panel():
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    csrf = _get_or_create_csrf_token()
+
+    result = None
+    input_text = ''
+    format_pref = 'concise'
+    if request.method == 'POST':
+        if request.form.get('csrf_token') != csrf:
+            return "CSRF failed", 403
+        input_text = request.form.get('input_text', '')
+        format_pref = request.form.get('format_pref', 'concise')
+        context = {
+            'format_pref': format_pref,
+            'audience': request.form.get('audience', 'tenant'),
+            'reading_level': request.form.get('reading_level', 'plain'),
+        }
+        try:
+            import json as _json
+            obj = _json.loads(input_text)
+        except Exception:
+            obj = input_text
+        result = humanize_object(obj, context)
+
+    return render_template('admin/human_perspective.html', csrf_token=csrf, result=result, input_text=input_text, format_pref=format_pref)
 

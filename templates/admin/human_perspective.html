@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Human Perspective</h2>
+<p><strong>Motto:</strong> Document everything!</p>
+<p>Transform technical info into human-centered explanations.</p>
+
+<form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Input (text or JSON):</label><br>
+  <textarea name="input_text" rows="8" cols="80" required>{{ input_text }}</textarea><br><br>
+  
+  <label>Audience:</label>
+  <select name="audience">
+    <option value="tenant" selected>Tenant</option>
+    <option value="advocate">Advocate</option>
+    <option value="judge">Judge</option>
+    <option value="landlord">Landlord</option>
+  </select>
+  
+  <label>Reading Level:</label>
+  <select name="reading_level">
+    <option value="plain" {% if format_pref == 'plain' %}selected{% endif %}>Plain</option>
+    <option value="simple">Simple</option>
+    <option value="standard">Standard</option>
+    <option value="professional">Professional</option>
+  </select><br><br>
+  
+  <button type="submit">Humanize</button>
+</form>
+
+{% if result %}
+<hr>
+<h3>Result</h3>
+<p><strong>Title:</strong> {{ result.title }}</p>
+<p><strong>Audience:</strong> {{ result.audience }}</p>
+<p><strong>Reading Level:</strong> {{ result.reading_level }}</p>
+<p><strong>Style:</strong> {{ result.style }}</p>
+<p><strong>Audience Tip:</strong> {{ result.audience_tip }}</p>
+<h4>Summary</h4>
+<pre style="background:#f5f5f5;padding:1rem;border-radius:4px;">{{ result.summary }}</pre>
+<h4>Next Steps</h4>
+<ul>
+  {% for step in result.next_steps %}
+  <li>{{ step }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<p><a href="/admin">Back to Admin</a></p>
+{% endblock %}
