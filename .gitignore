@@ -106,3 +106,4 @@ ollama.zip
 OllamaSetup.exe
 *.exe
 *.zip
+venv311/
