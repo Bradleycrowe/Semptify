@@ -8,6 +8,13 @@ from learning_engine import LearningEngine
 from typing import List, Dict, Optional
 import os
 
+# Human perspective integration
+try:
+    from human_perspective import humanize_object
+    HAS_HUMAN_PERSPECTIVE = True
+except Exception:
+    HAS_HUMAN_PERSPECTIVE = False
+
 class SmartSuggestions:
     """Provides contextual suggestions based on learning patterns."""
     
@@ -97,7 +104,7 @@ class SmartSuggestions:
     
     def _build_suggestion(self, action: str, reason: str, priority: str) -> Dict:
         """Build a complete suggestion dict."""
-        return {
+        suggestion = {
             "action": action,
             "title": self._humanize(action),
             "description": self._get_description(action),
@@ -108,6 +115,20 @@ class SmartSuggestions:
             "warning": self.engine.patterns.get("warnings", {}).get(action),
             "success_rate": self._get_success_rate(action),
         }
+        
+        # Add human perspective if available
+        if HAS_HUMAN_PERSPECTIVE:
+            try:
+                human_view = humanize_object(
+                    {"action": action, "description": suggestion["description"]},
+                    {"audience": "tenant", "reading_level": "plain"}
+                )
+                suggestion["human_explanation"] = human_view.get("summary", "")
+                suggestion["human_next_steps"] = human_view.get("next_steps", [])[:3]
+            except Exception:
+                pass
+        
+        return suggestion
     
     def _humanize(self, action: str) -> str:
         """Convert action_name to Human Readable Title."""

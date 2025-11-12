@@ -43,6 +43,22 @@ except ImportError:
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
 
+# Global template helpers for human perspective
+try:
+    from contextual_help import get_tooltip, format_deadline, explain_form_field, get_inline_help
+    
+    @app.context_processor
+    def inject_helpers():
+        """Make human perspective helpers available in all templates."""
+        return {
+            'get_tooltip': get_tooltip,
+            'format_deadline': format_deadline,
+            'explain_form_field': explain_form_field,
+            'get_help': get_inline_help,
+        }
+except Exception:
+    pass
+
 # Initialize Ledger & Calendar system (central hub)
 init_ledger_calendar(data_dir=os.path.join(os.getcwd(), "data"))
 

@@ -25,15 +25,19 @@
             <h2>Witness Information</h2>
             <label>Your Name:
                 <input type="text" name="witness_name" required>
+                <small style="color: #666;">ℹ️ Who saw or heard this? Include yourself if you were there.</small>
             </label>
             <label>Contact Information:
                 <input type="text" name="witness_contact">
+                <small style="color: #666;">ℹ️ Email or phone (optional but helpful for verification)</small>
             </label>
             <label>Date of Incident:
                 <input type="date" name="incident_date" required>
+                <small style="color: #666;">ℹ️ When did this happen? Be as specific as possible (date and time).</small>
             </label>
             <label>Location:
                 <input type="text" name="incident_location" required>
+                <small style="color: #666;">ℹ️ Where exactly did it happen? (Apartment 2B, hallway, parking lot, etc.)</small>
             </label>
         </div>
 
@@ -41,6 +45,7 @@
             <h2>Statement</h2>
             <label>What did you witness? (Be as detailed as possible):
                 <textarea name="statement" required placeholder="Describe what you saw, heard, or experienced. Include times, people involved, and any relevant context."></textarea>
+                <small style="color: #666;">ℹ️ Write it like you're telling a friend—step by step, in order. Start with what you were doing before it happened.</small>
             </label>
         </div>
 

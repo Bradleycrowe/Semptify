@@ -115,6 +115,16 @@
                     {% if suggestion.tip %}
                     <p style="margin: 0.25rem 0; color: #28a745; font-size: 0.85rem;">{{ suggestion.tip }}</p>
                     {% endif %}
+                    {% if suggestion.human_next_steps %}
+                    <details style="margin-top: 0.5rem;">
+                        <summary style="cursor: pointer; color: #667eea; font-size: 0.85rem;">📝 Quick steps</summary>
+                        <ul style="margin: 0.5rem 0 0 1.2rem; font-size: 0.85rem; color: #555;">
+                            {% for step in suggestion.human_next_steps %}
+                            <li>{{ step }}</li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                    {% endif %}
                     {% if suggestion.success_rate %}
                     <small style="color: #999;">✓ {{ suggestion.success_rate }}% success rate</small>
                     {% endif %}
