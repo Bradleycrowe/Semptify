@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 @housing_programs_bp.route('/housing-programs')
-def housing_programs_page():
+def programs():  # Renamed to match template url_for('housing_programs_bp.programs')
     """Main housing programs search interface"""
     return render_template('housing_programs.html')
 

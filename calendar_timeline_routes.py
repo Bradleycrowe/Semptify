@@ -8,7 +8,9 @@ from calendar_timeline import get_timeline_engine
 from datetime import datetime
 import io
 
-calendar_bp = Blueprint('calendar', __name__, url_prefix='/api/calendar')
+# Named 'calendar_timeline_bp' to match template expectations
+calendar_timeline_bp = Blueprint('calendar_timeline_bp', __name__)
+calendar_bp = calendar_timeline_bp  # Alias for backward compatibility
 
 
 @calendar_bp.route('/events', methods=['GET'])
