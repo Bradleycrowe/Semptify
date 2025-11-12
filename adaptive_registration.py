@@ -29,7 +29,7 @@ def register_user_adaptive(
     # Get intelligence systems
     location_intel = get_location_intelligence()
     jurisdiction = get_jurisdiction_engine()
-    learning = get_learning_engine()
+    learning = get_learning()
 
     # 1. DETECT LOCATION
     if "address" in user_data:

@@ -8,6 +8,7 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/static/icons/Semptfylogo.svg">
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="/static/css/viewport-widgets.css">
     <title>Semptify Mobile</title>
     <style>
         * {
@@ -470,6 +471,9 @@
     </style>
 </head>
 <body>
+    <!-- Viewport Indicator -->
+    <div class="viewport-indicator" data-width=""></div>
+    
     <div class="app-container">
         <!-- HEADER -->
         <div class="header">
@@ -699,6 +703,14 @@
         document.getElementById('sync-btn').addEventListener('click', () => {
             alert('Syncing with server...');
         });
+        
+        // Update viewport width indicator
+        function updateViewportWidth() {
+            const indicator = document.querySelector('.viewport-indicator');
+            if (indicator) indicator.setAttribute('data-width', window.innerWidth);
+        }
+        window.addEventListener('resize', updateViewportWidth);
+        window.addEventListener('load', updateViewportWidth);
     </script>
 </body>
 </html>

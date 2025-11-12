@@ -1,13 +1,73 @@
 {% extends "base.html" %}
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='admin/admin_tooltips.css') }}">
+
 <h2>Storage / Database</h2>
 <p>Motto: <strong>Document everything!</strong></p>
-<p>SQLite file size: {{ db_size }} bytes</p>
-<p>R2 Enabled: {{ 'Yes' if r2_enabled else 'No' }} {% if r2_enabled %}(Bucket: {{ r2_bucket }}){% endif %}</p>
-<form method="POST" action="{{ url_for('admin.storage_db_sync') }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-  <button type="submit">Sync to R2</button>
-</form>
-<p><a href="{{ url_for('admin.storage_db_download') }}">Download users.db</a></p>
-<p><a href="/admin">Back to Admin</a></p>
+
+<div class="admin-card" style="margin-bottom:1rem;">
+	<h3 style="margin-top:0;">Database Info 
+		<span class="tooltip">
+			<span class="info-icon">?</span>
+			<span class="tooltiptext">
+				<strong>SQLite Database</strong><br>
+				Shows the current size of your local users.db file. All user data is stored here.
+			</span>
+		</span>
+	</h3>
+	<div class="admin-stat">
+		<span class="stat-label">SQLite file size:</span>
+		<span class="stat-value">{{ db_size }} bytes</span>
+	</div>
+</div>
+
+<div class="admin-card" style="margin-bottom:1rem;">
+	<h3 style="margin-top:0;">R2 Cloud Storage 
+		<span class="tooltip">
+			<span class="info-icon">?</span>
+			<span class="tooltiptext">
+				<strong>Cloudflare R2</strong><br>
+				Remote backup storage for your database. When enabled, syncs automatically keep a cloud copy safe.
+			</span>
+		</span>
+	</h3>
+	<div class="admin-stat">
+		<span class="stat-label">Status:</span>
+		{% if r2_enabled %}
+			<span class="status-badge status-active">Enabled</span>
+		{% else %}
+			<span class="status-badge status-inactive">Disabled</span>
+		{% endif %}
+	</div>
+	{% if r2_enabled %}
+		<p style="color:#666;font-size:0.9rem;margin:0.5rem 0;">Bucket: <code>{{ r2_bucket }}</code></p>
+	{% endif %}
+</div>
+
+<div class="admin-card">
+	<h3 style="margin-top:0;">Actions</h3>
+	<form method="POST" action="{{ url_for('admin.storage_db_sync') }}" style="margin-bottom:0.5rem;">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+		<button type="submit" class="admin-action-btn">
+			Sync to R2 
+			<span class="tooltip">
+				<span class="info-icon">?</span>
+				<span class="tooltiptext">
+					Manually upload current database to R2 cloud storage (if enabled)
+				</span>
+			</span>
+		</button>
+	</form>
+	<a href="{{ url_for('admin.storage_db_download') }}" class="admin-action-btn" style="text-decoration:none;display:inline-block;">
+		Download users.db 
+		<span class="tooltip">
+			<span class="info-icon">?</span>
+			<span class="tooltiptext">
+				Download a local backup copy of your database file
+			</span>
+		</span>
+	</a>
+</div>
+
+<p style="margin-top:1.5rem;"><a href="/admin">← Back to Admin</a></p>
 {% endblock %}

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='admin/admin_tooltips.css') }}">
+
 <h2>Admin Dashboard</h2>
 <p style="margin:0 0 0.5rem 0;color:#555;">Motto: <strong>Document everything!</strong></p>
 
@@ -15,15 +17,26 @@
 
 {% if panels %}
 <section style="margin-top:1rem;">
-	<h3>Admin Panels</h3>
-	<ul>
+	<h3>Admin Panels 
+		<span class="tooltip">
+			<span class="info-icon">?</span>
+			<span class="tooltiptext">
+				<strong>Admin Control Panels</strong><br>
+				Each panel gives you control over a key system component. Click to access detailed controls and monitoring.
+			</span>
+		</span>
+	</h3>
+	<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:1rem;margin-top:1rem;">
 		{% for p in panels %}
-			<li>
-				<a href="{{ p.path }}">{{ p.name }}</a>
-				<small style="color:#666;">— {{ p.desc }}</small>
-			</li>
+			<div class="admin-card">
+				<h4 style="margin-top:0;">{{ p.name }}</h4>
+				<p style="color:#666;font-size:0.9rem;">{{ p.desc }}</p>
+				<a href="{{ p.path }}" class="admin-action-btn" style="text-decoration:none;display:inline-block;margin-top:0.5rem;">
+					Open Panel →
+				</a>
+			</div>
 		{% endfor %}
-	</ul>
+	</div>
 </section>
 {% endif %}
 {% endblock %}

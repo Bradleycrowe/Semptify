@@ -670,10 +670,7 @@ def timeline_simple_ui():
     """Simple horizontal scrolling timeline - all events, documents, calls with timestamps."""
     return render_template('timeline_simple_horizontal.html')
 
-@app.route('/timeline')
-def timeline_unified():
-    """Unified timeline - one format, multiple output modes (mobile/desktop/display/presentation)."""
-    return render_template('timeline_unified.html')
+# Removed duplicate timeline route
 
 @app.route('/timeline-ruler')
 def timeline_ruler():
@@ -1490,7 +1487,80 @@ def vault_upload():
     with open(cert_path, 'w', encoding='utf-8') as f:
         json.dump(cert, f)
 
-    return jsonify({"status": "uploaded", "file": safe_name, "cert": cert_name}), 200# register blueprints if present
+    return jsonify({"status": "uploaded", "file": safe_name, "cert": cert_name}), 200
+
+# ==================== SIMPLE TIMELINE GUI ====================
+
+@app.route('/timeline')
+def simple_timeline_page():
+    """Renders the simple, functional timeline GUI."""
+    user_id = session.get('user_id')
+    if not user_id:
+        # For a guest, show a static example page
+        return render_template('timeline_guest.html')
+    return render_template('simple_timeline.html', user_id=user_id)
+
+@app.route('/api/timeline/events')
+def api_get_timeline_events():
+    """API endpoint to get all timeline events for the logged-in user."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "error": "User not authenticated"}), 401
+
+    all_events = []
+    try:
+        # 1. Get events from the database (if available)
+        DATABASE_URL = os.getenv('DATABASE_URL')
+        if DATABASE_URL:
+            import psycopg2
+            from psycopg2.extras import RealDictCursor
+            conn = psycopg2.connect(DATABASE_URL)
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            # Assuming a table named 'timeline_events' exists from previous work
+            if cur.execute("SELECT to_regclass('timeline_events')") is not None:
+                 cur.execute("SELECT event_type, title, description, event_date as date FROM timeline_events WHERE user_id = %s", (user_id,))
+                 db_events = cur.fetchall()
+                 for event in db_events:
+                     event['source'] = 'timeline'
+                     event['icon'] = '📅'
+                 all_events.extend(db_events)
+            cur.close()
+            conn.close()
+
+        # 2. Get events from vault uploads
+        vault_path = os.path.join('uploads', 'vault', user_id)
+        if os.path.exists(vault_path):
+            for filename in os.listdir(vault_path):
+                if filename.endswith('.json'): continue # Skip certificate files
+                
+                cert_path = os.path.join(vault_path, filename + '.json')
+                if os.path.exists(cert_path):
+                    with open(cert_path, 'r') as f:
+                        cert = json.load(f)
+                        all_events.append({
+                            "title": f"Uploaded: {filename}",
+                            "description": cert.get('context', {}).get('description', 'File from vault.'),
+                            "date": cert.get('ts'),
+                            "source": "vault",
+                            "icon": '📂'
+                        })
+
+        # Sort all events by date, newest first
+        all_events.sort(key=lambda x: x.get('date', '1970-01-01'), reverse=True)
+
+        return jsonify({"success": True, "events": all_events})
+
+    except Exception as e:
+        log_event("timeline_api_error", {"error": str(e)})
+        return jsonify({"success": False, "error": "Could not retrieve timeline events."}), 500
+
+@app.route('/timeline/add', methods=['GET'])
+def timeline_add_form():
+    # This should render a form to POST to create a new event.
+    # For now, it's just a placeholder.
+    return "Page to add a new timeline event. (Not implemented in this snippet)"
+
+# register blueprints if present
 try:
     from admin.routes import admin_bp
     app.register_blueprint(admin_bp)

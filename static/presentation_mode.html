@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/viewport-widgets.css">
     <title>Semptify Court Presentation</title>
     <style>
         * {
@@ -452,6 +453,9 @@
     </style>
 </head>
 <body>
+    <!-- Viewport Indicator -->
+    <div class="viewport-indicator" data-width=""></div>
+    
     <div class="presentation">
         <!-- TIMELINE MODE -->
         <div class="timeline-mode presentation-mode active">
@@ -761,6 +765,14 @@
 
         // INITIALIZE
         init();
+        
+        // Update viewport width indicator
+        function updateViewportWidth() {
+            const indicator = document.querySelector('.viewport-indicator');
+            if (indicator) indicator.setAttribute('data-width', window.innerWidth);
+        }
+        window.addEventListener('resize', updateViewportWidth);
+        window.addEventListener('load', updateViewportWidth);
     </script>
 </body>
 </html>

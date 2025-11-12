@@ -1,20 +1,83 @@
 {% extends "base.html" %}
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='admin/admin_tooltips.css') }}">
+
 <h2>Users Panel</h2>
 <p>Motto: <strong>Document everything!</strong></p>
-<p>Total users: {{ total }}</p>
-<table border="1" cellpadding="4" cellspacing="0">
-  <tr><th>ID</th><th>Email</th><th>Name</th><th>Verified At</th><th>Login Count</th></tr>
-  {% for u in users %}
-  <tr>
-    <td>{{ u.user_id }}</td>
-    <td>{{ u.email }}</td>
-    <td>{{ u.first_name }} {{ u.last_name }}</td>
-    <td>{{ u.verified_at }}</td>
-    <td>{{ u.login_count }}</td>
-  </tr>
-  {% endfor %}
+
+<div class="admin-card" style="margin-bottom:1rem;">
+	<div class="admin-stat">
+		<span class="stat-label">Total users:</span>
+		<span class="stat-value">{{ total }}</span>
+		<span class="tooltip">
+			<span class="info-icon">?</span>
+			<span class="tooltiptext">
+				All registered users in the system, including unverified accounts
+			</span>
+		</span>
+	</div>
+</div>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse;">
+	<thead style="background:#f5f5f5;">
+		<tr>
+			<th>ID 
+				<span class="tooltip">
+					<span class="info-icon">?</span>
+					<span class="tooltiptext">Unique user identifier</span>
+				</span>
+			</th>
+			<th>Email 
+				<span class="tooltip">
+					<span class="info-icon">?</span>
+					<span class="tooltiptext">User's login email</span>
+				</span>
+			</th>
+			<th>Name</th>
+			<th>Verified 
+				<span class="tooltip">
+					<span class="info-icon">?</span>
+					<span class="tooltiptext">When user confirmed their email</span>
+				</span>
+			</th>
+			<th>Login Count 
+				<span class="tooltip">
+					<span class="info-icon">?</span>
+					<span class="tooltiptext">Total successful logins</span>
+				</span>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for u in users %}
+		<tr>
+			<td>{{ u.user_id }}</td>
+			<td>{{ u.email }}</td>
+			<td>{{ u.first_name }} {{ u.last_name }}</td>
+			<td>
+				{% if u.verified_at %}
+					<span class="status-badge status-active">{{ u.verified_at }}</span>
+				{% else %}
+					<span class="status-badge status-pending">Not verified</span>
+				{% endif %}
+			</td>
+			<td>{{ u.login_count }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
 </table>
-<p><a href="{{ url_for('admin.users_panel_export') }}">Export JSON</a></p>
-<p><a href="/admin">Back to Admin</a></p>
+
+<div class="admin-card" style="margin-top:1rem;">
+	<a href="{{ url_for('admin.users_panel_export') }}" class="admin-action-btn" style="text-decoration:none;">
+		Export JSON 
+		<span class="tooltip">
+			<span class="info-icon">?</span>
+			<span class="tooltiptext">
+				Download all user data as JSON for backup or analysis
+			</span>
+		</span>
+	</a>
+</div>
+
+<p style="margin-top:1.5rem;"><a href="/admin">← Back to Admin</a></p>
 {% endblock %}

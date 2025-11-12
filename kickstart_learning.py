@@ -1,82 +1,86 @@
 """
-Kickstart Learning Engine - Rich Starter Patterns
+Human Perspective Modulee - Rich Starter Patterns
 
-Pre-loads the learning engine with practical tenant rights knowledge,
-real-world workflows, and contextual suggestions based on common scenarios.
-
-This gives new users immediate value with smart recommendations from day 1!
+Purpose: transform technical or raw objects (text or JSON) into clear, human-centered explanations
+for specific audiences and reading levels. Emphasizes Semptify's motto: Document everything!
 """
-
-import json
-import os
-from datetime import datetime
-
-def create_rich_starter_patterns():
+from typing import Any, Dictte value with smart recommendations from day 1!
+"""
+READING_LEVELS = {
+    "plain":  "Use simple words. Short sentences. No jargon.",
+    "simple": "Everyday language. Explain any legal terms in one line.",
+    "standard": "Clear and complete. Use definitions when needed.",
+    "professional": "Use proper legal/technical terms with brief clarifications.",
+}ef create_rich_starter_patterns():
     """
-    Create comprehensive starter patterns based on real tenant scenarios.
-    """
-    
-    # === EVIDENCE & DOCUMENTATION PATTERNS ===
-    evidence_workflows = {
-        # Photo/video evidence → witness statement (very common)
+AUDIENCE_TIPS = {hensive starter patterns based on real tenant scenarios.
+    "tenant": "Focus on practical steps. What to do next. What to save as evidence.",
+    "advocate": "Highlight rights, deadlines, evidence standards, and escalation paths.",
+    "judge": "Organize facts, timeline, exhibits, and relevant statutes clearly.",
+    "landlord": "State obligations, notice requirements, and remediation timelines.",
+}       # Photo/video evidence → witness statement (very common)
         "upload_photo->create_witness_statement": 25,
-        "upload_video->create_witness_statement": 20,
-        "upload_photo->build_timeline": 22,
-        "upload_video->document_complaint": 18,
-        
-        # Document organization patterns
+def _summarize_text(text: str) -> str:statement": 20,
+    text = text.strip()build_timeline": 22,
+    if len(text) <= 200:ocument_complaint": 18,
+        return text
+    return text[:197] + "..."on patterns
         "upload_lease->upload_rent_receipts": 30,
         "upload_rent_receipts->build_ledger": 28,
-        "upload_correspondence->organize_timeline": 24,
-        "organize_timeline->generate_packet": 20,
+def humanize_object(obj: Any, context: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    """Return a human-centered view with title, summary, next-steps, and tips.
         
-        # Complaint filing sequences
-        "document_incident->upload_evidence": 26,
-        "upload_evidence->create_witness_statement": 22,
-        "create_witness_statement->file_complaint": 18,
-        "file_complaint->download_packet": 15,
-    }
-    
+    Args: Complaint filing sequences
+        obj: text or JSON-like structurence": 26,
+        context: {format_pref, audience, reading_level},
+    """ "create_witness_statement->file_complaint": 18,
+    context = context or {}wnload_packet": 15,
+    audience = context.get("audience", "tenant")
+    level = context.get("reading_level", "plain")
     # === HOUSING & HABITABILITY PATTERNS ===
-    housing_workflows = {
-        "document_mold->upload_photos": 28,
-        "upload_photos->request_inspection": 24,
-        "request_inspection->check_housing_codes": 20,
-        "check_housing_codes->send_repair_demand": 18,
-        "send_repair_demand->track_timeline": 16,
-        "track_timeline->file_escrow": 12,
+    base = {workflows = {
+        "title": "Humanized View",tos": 28,
+        "audience": audience,st_inspection": 24,
+        "reading_level": level,eck_housing_codes": 20,
+        "style": READING_LEVELS.get(level, READING_LEVELS["plain"]),
+        "audience_tip": AUDIENCE_TIPS.get(audience, AUDIENCE_TIPS["tenant"]),
+    }   "track_timeline->file_escrow": 12,
     }
-    
-    # === EVICTION DEFENSE PATTERNS ===
-    eviction_workflows = {
-        "receive_notice->upload_notice": 35,
-        "upload_notice->check_eviction_rules": 32,
-        "check_eviction_rules->find_legal_aid": 28,
-        "find_legal_aid->gather_rent_receipts": 25,
-        "gather_rent_receipts->prepare_defense": 22,
-        "prepare_defense->file_answer": 18,
-    }
-    
-    # === DISCRIMINATION PATTERNS ===
-    discrimination_workflows = {
-        "document_discrimination->upload_evidence": 24,
-        "upload_evidence->check_fair_housing": 22,
-        "check_fair_housing->file_hud_complaint": 18,
+    if isinstance(obj, str):
+        base.update({FENSE PATTERNS ===
+            "summary": _summarize_text(obj),
+            "kind": "text",load_notice": 35,
+        })pload_notice->check_eviction_rules": 32,
+    else:check_eviction_rules->find_legal_aid": 28,
+        # Treat as JSON-likeher_rent_receipts": 25,
+        import jsont_receipts->prepare_defense": 22,
+        try:pare_defense->file_answer": 18,
+            preview = json.dumps(obj, indent=2)[:600]
+        except Exception:
+            preview = str(obj)RNS ===
+        base.update({rkflows = {
+            "summary": preview,n->upload_evidence": 24,
+            "kind": "json",heck_fair_housing": 22,
+        })heck_fair_housing->file_hud_complaint": 18,
         "file_hud_complaint->find_legal_aid": 16,
+    # Opinionated next steps for tenants: document everything
+    next_steps = [
+        "Write down what happened in order (who/what/when/where).",
+        "Upload pictures, screenshots, and documents to your vault.",
+        "Add events to your timeline with exact dates and times.",
+        "Create a witness statement if others saw/heard it.",
+        "Save copies of all messages and notices (texts, emails, letters).",
+    ]   **discrimination_workflows,
     }
-    
-    # Combine all workflows
-    all_sequences = {
-        **evidence_workflows,
-        **housing_workflows,
-        **eviction_workflows,
-        **discrimination_workflows,
-    }
-    
+    base["next_steps"] = next_steps
     # === CONTEXTUAL SUGGESTIONS ===
-    # What to suggest based on user's situation/last action
+    return baseuggest based on user's situation/last action
     smart_suggestions = {
-        # New users
+
+
+
+
+# .\.venv311\Scripts\python.exe Semptify.py# Then restart:# Find the terminal running Flask server and press Ctrl+C        # New users
         "first_visit": "explore_vault",
         "account_created": "upload_first_document",
         

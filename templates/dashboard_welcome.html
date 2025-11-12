@@ -170,6 +170,162 @@
     </ul>
 </div>
 
+<!-- ============================================
+     OUTPUT WIDGETS - Fill dashboard with useful info
+     ============================================ -->
+<h2 style="color: #333; margin: 3rem 0 1.5rem 0; text-align: center;">📊 Your Dashboard</h2>
+
+<div class="widget-grid">
+    <!-- Stat: Documents Stored -->
+    <div class="output-widget widget-stat">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">📄</div>
+            <div class="output-widget-title">Your Documents</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="widget-stat-value">{{ session.get('document_count', 0) }}</div>
+            <div class="widget-stat-label">Documents Stored</div>
+            <div class="widget-stat-change positive">+{{ session.get('new_docs_week', 0) }} this week</div>
+        </div>
+    </div>
+
+    <!-- Stat: Upcoming Events -->
+    <div class="output-widget widget-stat">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">⚖️</div>
+            <div class="output-widget-title">Calendar</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="widget-stat-value">{{ session.get('upcoming_events', '--') }}</div>
+            <div class="widget-stat-label">Upcoming Events</div>
+            <a href="/calendar-timeline" style="text-decoration: none; color: #667eea; font-size: 0.9rem; font-weight: 600;">View Calendar →</a>
+        </div>
+    </div>
+
+    <!-- Stat: Progress -->
+    <div class="output-widget widget-stat">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">✅</div>
+            <div class="output-widget-title">Your Progress</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="widget-stat-value">{{ session.get('completed_actions', 0) }}</div>
+            <div class="widget-stat-label">Actions Completed</div>
+        </div>
+    </div>
+
+    <!-- Quick Resources (Full Width) -->
+    <div class="output-widget fill-row">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">🔗</div>
+            <div class="output-widget-title">Quick Resources</div>
+        </div>
+        <div class="output-widget-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <a href="/witness-statement" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333; transition: all 0.3s;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
+                    <div style="font-weight: 600;">Witness Statement</div>
+                </a>
+                <a href="/service-animal-letter" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333; transition: all 0.3s;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🐕</div>
+                    <div style="font-weight: 600;">Service Animal</div>
+                </a>
+                <a href="/rent-ledger" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333; transition: all 0.3s;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+                    <div style="font-weight: 600;">Rent Ledger</div>
+                </a>
+                <a href="/packet-generator" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333; transition: all 0.3s;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📦</div>
+                    <div style="font-weight: 600;">Court Packet</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggested Actions -->
+    <div class="output-widget">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">💡</div>
+            <div class="output-widget-title">Suggested Actions</div>
+        </div>
+        <div class="output-widget-body">
+            <ul class="widget-list">
+                <li>
+                    <div class="widget-list-icon">📷</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Document housing conditions</div>
+                        <div class="widget-list-meta"><a href="/tools/photo-evidence" style="color: #667eea;">Take photos →</a></div>
+                    </div>
+                </li>
+                <li>
+                    <div class="widget-list-icon">📋</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Complete move-out checklist</div>
+                        <div class="widget-list-meta"><a href="/move-checklist" style="color: #667eea;">Start checklist →</a></div>
+                    </div>
+                </li>
+                <li>
+                    <div class="widget-list-icon">🏠</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Explore housing programs</div>
+                        <div class="widget-list-meta"><a href="/housing-programs" style="color: #667eea;">View programs →</a></div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="output-widget">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">🕐</div>
+            <div class="output-widget-title">Recent Activity</div>
+        </div>
+        <div class="output-widget-body">
+            <ul class="widget-list">
+                <li>
+                    <div class="widget-list-icon">📤</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Logged in to dashboard</div>
+                        <div class="widget-list-meta">Just now</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="widget-list-icon">📝</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Account created</div>
+                        <div class="widget-list-meta">{{ session.get('created_at', 'Recently') }}</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Device Info -->
+    <div class="output-widget">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">📱</div>
+            <div class="output-widget-title">Current View</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="mobile-only">
+                <p><strong>Mobile View Active</strong><br>
+                Optimized for phones. Switch to desktop for all features.</p>
+            </div>
+            <div class="desktop-only">
+                <p><strong>Desktop View Active</strong><br>
+                Full features available. All tools accessible.</p>
+            </div>
+            <div class="tv-only">
+                <p><strong>Presentation Mode Active</strong><br>
+                Large-screen display for court or demonstrations.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="widget-divider"></div>
+
 <section style="background: #e7f3ff; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
     <h3 style="color: #0066cc; margin-bottom: 1rem;">🔐 Your Data is Safe</h3>
     <p style="color: #333; line-height: 1.6;">

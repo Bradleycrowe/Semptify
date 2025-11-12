@@ -1,0 +1,237 @@
+<!-- ================================================
+     DASHBOARD OUTPUT WIDGETS EXAMPLES
+     Copy these into dashboard_welcome.html rows
+     ================================================ -->
+
+<!-- VIEWPORT INDICATOR - Add to base.html, mobile_app.html, presentation_mode.html -->
+<div class="viewport-indicator" data-width=""></div>
+<script>
+    // Update width dynamically
+    function updateViewportWidth() {
+        const indicator = document.querySelector('.viewport-indicator');
+        if (indicator) {
+            indicator.setAttribute('data-width', window.innerWidth);
+        }
+    }
+    window.addEventListener('resize', updateViewportWidth);
+    window.addEventListener('load', updateViewportWidth);
+</script>
+
+<!-- WIDGET GRID - Replace empty rows in dashboard_welcome.html -->
+<div class="widget-grid">
+    
+    <!-- Stat Widget: Documents Stored -->
+    <div class="output-widget widget-stat">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">📄</div>
+            <div class="output-widget-title">Your Documents</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="widget-stat-value">{{ user_document_count|default(0) }}</div>
+            <div class="widget-stat-label">Documents Stored</div>
+            <div class="widget-stat-change positive">+3 this week</div>
+        </div>
+    </div>
+
+    <!-- Stat Widget: Days Until Hearing -->
+    <div class="output-widget widget-stat">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">⚖️</div>
+            <div class="output-widget-title">Upcoming Events</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="widget-stat-value">{{ days_until_hearing|default('--') }}</div>
+            <div class="widget-stat-label">Days Until Hearing</div>
+            <a href="/calendar-timeline" style="text-decoration: none; color: #667eea; font-size: 0.9rem;">View Calendar →</a>
+        </div>
+    </div>
+
+    <!-- Stat Widget: Actions Completed -->
+    <div class="output-widget widget-stat">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">✅</div>
+            <div class="output-widget-title">Your Progress</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="widget-stat-value">{{ completed_actions|default(0) }}</div>
+            <div class="widget-stat-label">Actions Completed</div>
+            <div class="widget-progress">
+                <div class="widget-progress-bar">
+                    <div class="widget-progress-fill" style="width: {{ completion_percent|default(0) }}%;"></div>
+                </div>
+                <div class="widget-progress-label">
+                    <span>Case Progress</span>
+                    <span>{{ completion_percent|default(0) }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Widget -->
+    <div class="output-widget">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">🕐</div>
+            <div class="output-widget-title">Recent Activity</div>
+        </div>
+        <div class="output-widget-body">
+            <ul class="widget-list">
+                <li>
+                    <div class="widget-list-icon">📤</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Uploaded lease agreement</div>
+                        <div class="widget-list-meta">2 hours ago</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="widget-list-icon">📝</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Filed complaint form</div>
+                        <div class="widget-list-meta">Yesterday</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="widget-list-icon">✉️</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Received court notice</div>
+                        <div class="widget-list-meta">3 days ago</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Timeline Widget -->
+    <div class="output-widget">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">📅</div>
+            <div class="output-widget-title">Case Timeline</div>
+        </div>
+        <div class="output-widget-body">
+            <div class="widget-timeline">
+                <div class="widget-timeline-item">
+                    <div class="widget-timeline-dot"></div>
+                    <div class="widget-timeline-time">Today</div>
+                    <div class="widget-timeline-content">Court hearing scheduled</div>
+                </div>
+                <div class="widget-timeline-item">
+                    <div class="widget-timeline-dot"></div>
+                    <div class="widget-timeline-time">2 days ago</div>
+                    <div class="widget-timeline-content">Response filed by landlord</div>
+                </div>
+                <div class="widget-timeline-item">
+                    <div class="widget-timeline-dot"></div>
+                    <div class="widget-timeline-time">1 week ago</div>
+                    <div class="widget-timeline-content">Initial complaint submitted</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggestions Widget -->
+    <div class="output-widget">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">💡</div>
+            <div class="output-widget-title">Suggested Actions</div>
+        </div>
+        <div class="output-widget-body">
+            <ul class="widget-list">
+                <li>
+                    <div class="widget-list-icon">📷</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Document housing conditions</div>
+                        <div class="widget-list-meta"><a href="/tools/photo-evidence" style="color: #667eea;">Take photos →</a></div>
+                    </div>
+                </li>
+                <li>
+                    <div class="widget-list-icon">📋</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Complete move-out checklist</div>
+                        <div class="widget-list-meta"><a href="/move-checklist" style="color: #667eea;">Start checklist →</a></div>
+                    </div>
+                </li>
+                <li>
+                    <div class="widget-list-icon">🏠</div>
+                    <div class="widget-list-content">
+                        <div class="widget-list-title">Explore housing programs</div>
+                        <div class="widget-list-meta"><a href="/housing-programs" style="color: #667eea;">View programs →</a></div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Quick Resources Widget (Full Width) -->
+    <div class="output-widget fill-row">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">🔗</div>
+            <div class="output-widget-title">Quick Resources</div>
+        </div>
+        <div class="output-widget-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <a href="/witness-statement" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
+                    <div style="font-weight: 600;">Witness Statement</div>
+                </a>
+                <a href="/service-animal-letter" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🐕</div>
+                    <div style="font-weight: 600;">Service Animal</div>
+                </a>
+                <a href="/rent-ledger" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+                    <div style="font-weight: 600;">Rent Ledger</div>
+                </a>
+                <a href="/packet-generator" style="text-decoration: none; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #333;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📦</div>
+                    <div style="font-weight: 600;">Court Packet</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Widget: Important Notice -->
+    <div class="output-widget widget-alert warning fill-row">
+        <div class="widget-alert-icon">⚠️</div>
+        <div class="widget-alert-content">
+            <strong>Upcoming Deadline:</strong> Your court response is due in 5 days. Make sure all documents are uploaded to your vault.
+            <a href="/vault" style="color: #856404; font-weight: 600; text-decoration: underline;">Go to Vault →</a>
+        </div>
+    </div>
+
+    <!-- System Status Widget (Admin/Dev) -->
+    <div class="output-widget mobile-only">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">📱</div>
+            <div class="output-widget-title">Mobile Optimized</div>
+        </div>
+        <div class="output-widget-body">
+            <p>You're viewing the mobile-optimized interface. Switch to desktop for advanced features.</p>
+        </div>
+    </div>
+
+    <div class="output-widget desktop-only">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">💻</div>
+            <div class="output-widget-title">Desktop View</div>
+        </div>
+        <div class="output-widget-body">
+            <p>Full desktop features available. All tools and resources accessible.</p>
+        </div>
+    </div>
+
+    <div class="output-widget tv-only">
+        <div class="output-widget-header">
+            <div class="output-widget-icon">📺</div>
+            <div class="output-widget-title">Presentation Mode</div>
+        </div>
+        <div class="output-widget-body">
+            <p>Large-screen presentation mode active. Perfect for court displays and demonstrations.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Add spacer for breathing room -->
+<div class="widget-spacer"></div>
+
+<!-- Optional divider before existing content -->
+<div class="widget-divider"></div>

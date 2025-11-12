@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Example Timeline - Semptify{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>👀 Example Timeline</h1>
+            <p class="lead">This is an example of what a documented timeline looks like.</p>
+        </div>
+        <div>
+            <a href="/register" class="btn btn-primary">Register to Start Your Own Timeline</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Example Events
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">📝 Lease Agreement Signed</h5>
+                        <small>September 1, 2023, 10:00 AM</small>
+                    </div>
+                    <p class="mb-1">Received and signed the new 12-month lease for Apartment 4B.</p>
+                    <small class="text-muted">Source: Document Upload</small>
+                </li>
+                <li class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">🔧 Maintenance Request Submitted</h5>
+                        <small>October 15, 2023, 2:30 PM</small>
+                    </div>
+                    <p class="mb-1">Submitted a request via the online portal for a leaking faucet in the kitchen sink. Reference #5821.</p>
+                    <small class="text-muted">Source: Manual Entry</small>
+                </li>
+                <li class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">🗣️ Conversation with Landlord</h5>
+                        <small>October 20, 2023, 11:15 AM</small>
+                    </div>
+                    <p class="mb-1">Spoke with the landlord, Mr. Smith, in the hallway. He said he would "get someone to look at the faucet soon."</p>
+                    <small class="text-muted">Source: Manual Entry</small>
+                </li>
+                 <li class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">📧 Email Follow-up Sent</h5>
+                        <small>October 27, 2023, 4:00 PM</small>
+                    </div>
+                    <p class="mb-1">Sent a follow-up email to the landlord regarding the still-leaking faucet, referencing the initial request #5821.</p>
+                    <small class="text-muted">Source: Email Import</small>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

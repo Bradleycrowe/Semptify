@@ -420,3 +420,27 @@
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762847628.7209318}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762864810.374706}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762865373.6628575}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762892915.8195462}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762892915.8261058}
+{"event": "user_registration_started", "payload": {"email": "test.411dfd8c@example.com", "method": "email", "user_id": "PBAFl5ChjVUwGqeD5A7d2w"}, "ts": 1762892916.6493597}
+{"event": "user_verified", "payload": {"email": null, "user_id": "PBAFl5ChjVUwGqeD5A7d2w"}, "ts": 1762892916.6785128}
+{"event": "user_registration_started", "payload": {"email": "login.35cb84a8@example.com", "method": "email", "user_id": "u0nXfcsH8x8OZc6qIBuddA"}, "ts": 1762892917.084549}
+{"event": "user_verified", "payload": {"email": null, "user_id": "u0nXfcsH8x8OZc6qIBuddA"}, "ts": 1762892917.147338}
+{"event": "login_code_sent", "payload": {"email": "login.35cb84a8@example.com", "user_id": "u0nXfcsH8x8OZc6qIBuddA"}, "ts": 1762892917.2711458}
+{"event": "user_verified", "payload": {"email": null, "user_id": "u0nXfcsH8x8OZc6qIBuddA"}, "ts": 1762892917.503918}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762895199.9915292}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762895199.9983468}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762897874.1828303}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762897874.1931596}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762898681.472961}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762898681.4830873}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762899702.3840914}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762899702.394371}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762900029.400166}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1762900029.400166}
+{"event": "user_signin_started", "payload": {"contact": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762910371.4150891}
+{"event": "user_signin_error", "payload": {"error": "Could not build url for endpoint 'verify' with values ['user_id']. Did you mean 'auth.verify' instead?"}, "ts": 1762910371.4494686}
+{"event": "login_code_sent", "payload": {"email": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762910406.1021938}
+{"event": "user_verified", "payload": {"email": null, "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762910519.6010072}
+{"event": "login_code_sent", "payload": {"email": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762912623.5819345}
+{"event": "user_verified", "payload": {"email": null, "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762912666.7182043}
