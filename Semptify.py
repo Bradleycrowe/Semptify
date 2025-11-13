@@ -1501,11 +1501,65 @@ def vault_upload():
 @app.route('/timeline')
 def simple_timeline_page():
     """Renders the simple, functional timeline GUI."""
-    user_id = session.get('user_id')
-    if not user_id:
-        # For a guest, show a static example page
-        return render_template('timeline_guest.html')
-    return render_template('simple_timeline.html', user_id=user_id)
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            # For a guest, return simple HTML instead of template
+            return '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example Timeline - Semptify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Semptify</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/register">Register</a>
+                <a class="nav-link" href="/">Home</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1>📅 Example Timeline</h1>
+        <p class="lead">This is what your timeline will look like once you register and start documenting.</p>
+        <div class="card">
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>📝 Lease Agreement Signed</h5>
+                        <p>September 1, 2023 - Signed new lease for apartment 4B</p>
+                        <small class="text-muted">Source: Document Upload</small>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>🔧 Maintenance Request</h5>
+                        <p>October 15, 2023 - Submitted request for kitchen faucet leak</p>
+                        <small class="text-muted">Source: Manual Entry</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="/register" class="btn btn-primary">Register to Start Your Timeline</a>
+        </div>
+    </div>
+</body>
+</html>
+            ''', 200, {'Content-Type': 'text/html'}
+        return render_template('simple_timeline.html', user_id=user_id)
+    except Exception as e:
+        # Return error info for debugging
+        return f'''
+<html><body>
+<h1>Timeline Error</h1>
+<p>Error: {str(e)}</p>
+<p><a href="/">Back to Home</a></p>
+</body></html>
+        ''', 500
 
 @app.route('/api/test')
 def api_test():
