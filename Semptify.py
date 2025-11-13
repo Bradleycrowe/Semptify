@@ -1514,63 +1514,127 @@ def timeline_test():
     '''
 
 @app.route('/timeline')
-def simple_timeline_page():
-    """Renders the simple, functional timeline GUI."""
+def timeline_widget_viewer():
+    """Timeline widget - scrollable feed of vault documents and interactions"""
     return '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline - Semptify</title>
+    <title>Timeline Widget - Semptify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .timeline-feed { max-height: 70vh; overflow-y: auto; }
+        .timeline-item { border-left: 3px solid #0d6efd; padding-left: 15px; margin-bottom: 20px; }
+        .timeline-item:hover { background-color: #f8f9fa; border-radius: 8px; padding: 10px; margin-left: -10px; }
+        .timeline-date { font-size: 0.85rem; color: #6c757d; }
+        .timeline-icon { font-size: 1.2rem; margin-right: 8px; }
+        .quick-scroll { position: sticky; top: 10px; z-index: 100; }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Semptify</a>
+            <a class="navbar-brand" href="/">📋 Semptify</a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/register">Register</a>
-                <a class="nav-link" href="/vault">Vault</a>
-                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/vault">📁 Vault</a>
+                <a class="nav-link" href="/register">👤 Register</a>
             </div>
         </div>
     </nav>
-    <div class="container mt-4">
-        <h1>📅 Your Timeline</h1>
-        <p class="lead">Document everything! This timeline shows all your tenant-landlord interactions chronologically.</p>
-        <div class="card">
-            <div class="card-header">Recent Events</div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <strong>Getting Started:</strong> Register an account to start documenting your interactions.
-                    Your timeline will automatically track all uploaded documents, conversations, and important events.
+    
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="quick-scroll">
+                    <div class="card">
+                        <div class="card-header">📅 Quick Jump</div>
+                        <div class="card-body">
+                            <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="scrollToDate('today')">Today</button>
+                            <button class="btn btn-sm btn-outline-secondary w-100 mb-2" onclick="scrollToDate('week')">This Week</button>
+                            <button class="btn btn-sm btn-outline-secondary w-100 mb-2" onclick="scrollToDate('month')">This Month</button>
+                            <hr>
+                            <a href="/vault" class="btn btn-success w-100">📁 Add to Vault</a>
+                        </div>
+                    </div>
                 </div>
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <h5>📝 Example: Lease Agreement</h5>
-                        <p>Upload your lease agreement to create a permanent record.</p>
-                        <small class="text-muted">Source: Document Upload</small>
-                    </li>
-                    <li class="list-group-item">
-                        <h5>🔧 Example: Maintenance Request</h5>
-                        <p>Log maintenance requests with timestamps for accountability.</p>
-                        <small class="text-muted">Source: Manual Entry</small>
-                    </li>
-                    <li class="list-group-item">
-                        <h5>📧 Example: Communication Record</h5>
-                        <p>Keep records of all communications with your landlord.</p>
-                        <small class="text-muted">Source: Email/Message</small>
-                    </li>
-                </ul>
+            </div>
+            
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">📅 Your Documentation Timeline</h5>
+                        <small class="text-muted">Scrollable feed of all vault items</small>
+                    </div>
+                    <div class="card-body timeline-feed">
+                        
+                        <div class="timeline-item" id="today">
+                            <div class="timeline-date">November 12, 2025 - 2:30 PM</div>
+                            <h6 class="timeline-icon">📝 Example: Rent Payment Confirmation</h6>
+                            <p class="mb-1">Rent payment of $1,200 confirmed via bank transfer. Reference #TR2025112.</p>
+                            <small class="text-success">✅ Vault: payment_confirmation.pdf</small>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-date">November 10, 2025 - 11:15 AM</div>
+                            <h6 class="timeline-icon">📧 Example: Email Exchange</h6>
+                            <p class="mb-1">Landlord responded to maintenance request. Scheduled repair for Nov 15th.</p>
+                            <small class="text-info">✅ Vault: landlord_email_response.txt</small>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-date">November 8, 2025 - 4:45 PM</div>
+                            <h6 class="timeline-icon">🔧 Example: Maintenance Request</h6>
+                            <p class="mb-1">Submitted repair request for broken bathroom faucet via online portal.</p>
+                            <small class="text-warning">✅ Vault: maintenance_request_screenshot.png</small>
+                        </div>
+                        
+                        <div class="timeline-item" id="week">
+                            <div class="timeline-date">November 5, 2025 - 9:00 AM</div>
+                            <h6 class="timeline-icon">🏠 Example: Lease Renewal Notice</h6>
+                            <p class="mb-1">Received lease renewal offer with 3% rent increase for next year.</p>
+                            <small class="text-primary">✅ Vault: lease_renewal_notice.pdf</small>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-date">October 28, 2025 - 6:30 PM</div>
+                            <h6 class="timeline-icon">📸 Example: Photo Documentation</h6>
+                            <p class="mb-1">Documented water damage in bedroom ceiling before reporting.</p>
+                            <small class="text-danger">✅ Vault: ceiling_damage_photos.zip</small>
+                        </div>
+                        
+                        <div class="timeline-item" id="month">
+                            <div class="timeline-date">October 15, 2025 - 1:20 PM</div>
+                            <h6 class="timeline-icon">📋 Example: Inspection Report</h6>
+                            <p class="mb-1">Annual inspection completed. Minor items noted for future attention.</p>
+                            <small class="text-secondary">✅ Vault: annual_inspection_2025.pdf</small>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <strong>💡 How it works:</strong> Every document you upload to your vault automatically appears here with a timestamp. 
+                            This creates a chronological record of your entire tenancy for easy reference and legal documentation.
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a href="/register" class="btn btn-primary">Start Your Timeline - Register Now</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="mt-4">
-            <a href="/register" class="btn btn-primary me-2">Get Started - Register Now</a>
-            <a href="/vault" class="btn btn-outline-secondary">Document Vault</a>
-        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function scrollToDate(period) {
+            const element = document.getElementById(period);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.style.backgroundColor = '#fff3cd';
+                setTimeout(() => { element.style.backgroundColor = ''; }, 2000);
+            }
+        }
+    </script>
 </body>
 </html>
     '''
