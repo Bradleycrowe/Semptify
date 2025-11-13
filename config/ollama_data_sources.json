@@ -1,0 +1,10 @@
+{
+  "sources": [
+    { "name": "The Pile", "url": "https://pile.eleuther.ai/", "type": "bulk" },
+    { "name": "Open Legal Data", "url": "https://openlegaldata.io/", "type": "api" },
+    { "name": "Cornell LII", "url": "https://www.law.cornell.edu/", "type": "scrape" },
+    { "name": "HUD Data", "url": "https://www.huduser.gov/portal/datasets.html", "type": "bulk" },
+    { "name": "GovInfo Bulk", "url": "https://www.govinfo.gov/bulkdata", "type": "bulk" },
+    { "name": "Wikipedia Dumps", "url": "https://dumps.wikimedia.org/", "type": "bulk" }
+  ]
+}

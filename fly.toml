@@ -1,0 +1,48 @@
+# Fly.io configuration for Ollama
+app = "semptify-ollama"
+primary_region = "ord"  # Chicago - change to your preferred region
+
+[build]
+  dockerfile = "Dockerfile.ollama"
+
+[env]
+  OLLAMA_HOST = "0.0.0.0:11434"
+
+[http_service]
+  internal_port = 11434
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 11434
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "10s"
+    grace_period = "30s"
+
+[mounts]
+  source = "ollama_data"
+  destination = "/root/.ollama"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 2048

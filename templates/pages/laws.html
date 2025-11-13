@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Law Library - Semptify</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+{% include 'includes/header.html' %}
+<div class="container mt-4">
+  <h1>📚 Law Library</h1>
+  <p class="lead">Local, state, and federal housing laws in plain language.</p>
+
+  <!-- Librarian's Daily Fun Fact -->
+  <div class="card mb-4 border-primary">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">👨‍🏫 The Librarian Says...</h5>
+    </div>
+    <div class="card-body">
+      <p id="librarianGreeting" class="mb-2"><em>Loading greeting...</em></p>
+      <p id="dailyFunFact" class="mb-0"><strong>Daily Fun Fact:</strong> <em>Loading...</em></p>
+    </div>
+  </div>
+
+    <!-- AI Summary Card -->
+    <div class="card mb-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">🤖 AI Legal Summary</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Get an AI-powered summary of legal resources from our data sources.</p>
+            <div class="row">
+                <div class="col-md-8">
+                    <select id="aiSourceSelect" class="form-select">
+                        <option value="">-- Select a source --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button id="aiSummarizeBtn" class="btn btn-success w-100" disabled>
+                        <span id="aiLoadingSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        Summarize
+                    </button>
+                </div>
+            </div>
+            <div id="aiSummaryResult" class="mt-3 d-none">
+                <div class="alert alert-info">
+                    <strong>Summary:</strong>
+                    <div id="aiSummaryText"></div>
+                </div>
+            </div>
+            <div id="aiSummaryError" class="mt-3 d-none">
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> <span id="aiErrorText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <!-- Search Bar -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Search Legal Resources</h5>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <input type="text" class="form-control" id="searchQuery" placeholder="Search by topic or keyword...">
+        </div>
+        <div class="col-md-3 mb-3">
+          <select class="form-select" id="categoryFilter">
+            <option value="">All Categories</option>
+            {% for key, value in categories.items() %}
+            <option value="{{ key }}">{{ value }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <button class="btn btn-primary w-100" onclick="searchLibrary()">🔍 Search</button>
+        </div>
+      </div>
+      <p class="text-muted mb-0">
+        <small>{{ resource_count }} resources available | Last updated: {{ last_updated[:10] }}</small>
+      </p>
+    </div>
+  </div>
+
+  <!-- Browse by Category -->
+  <h3>Browse by Topic</h3>
+  <div class="row mb-4">
+    {% for key, value in categories.items() %}
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ value }}</h5>
+          <button class="btn btn-sm btn-outline-primary" onclick="browseCategory('{{ key }}')">
+            View Resources →
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Search Results -->
+  <div id="searchResults" style="display: none;">
+    <h3>Search Results</h3>
+    <div id="resultsContainer"></div>
+  </div>
+
+  <!-- Info Section -->
+  <div class="alert alert-info mt-4">
+    <h5>💡 How to Use the Law Library</h5>
+    <ol>
+      <li><strong>Search by topic</strong> - Enter keywords like "eviction", "repairs", "security deposit"</li>
+      <li><strong>Browse categories</strong> - Explore resources organized by legal topic</li>
+      <li><strong>Read key facts</strong> - Each resource has plain-language explanations</li>
+      <li><strong>Save to vault</strong> - Save relevant resources for your case</li>
+    </ol>
+    <p class="mb-0"><strong>Note:</strong> This information is educational. For legal advice, consult an attorney.</p>
+  </div>
+</div>
+
+<script>
+// Load Librarian's greeting and fun fact
+async function loadLibrarianMessages() {
+  try {
+    const [greetingRes, factRes] = await Promise.all([
+      fetch('/api/library/greeting'),
+      fetch('/api/library/fun-fact')
+    ]);
+    
+    if (greetingRes.ok) {
+      const greetingData = await greetingRes.json();
+      document.getElementById('librarianGreeting').innerHTML = `<strong>${greetingData.greeting}</strong>`;
+    }
+    
+    if (factRes.ok) {
+      const factData = await factRes.json();
+      document.getElementById('dailyFunFact').innerHTML = `<strong>Daily Fun Fact (${factData.date}):</strong> ${factData.fact}`;
+    }
+  } catch (error) {
+    console.error('Error loading librarian messages:', error);
+  }
+}
+
+async function searchLibrary() {
+  const query = document.getElementById('searchQuery').value;
+  const category = document.getElementById('categoryFilter').value;
+  
+  let url = '/api/library/search?query=' + encodeURIComponent(query);
+  if (category) url += '&category=' + encodeURIComponent(category);
+  
+  const response = await fetch(url);
+  const data = await response.json();
+  displayResults(data.results);
+}
+
+async function browseCategory(category) {
+  const response = await fetch('/api/library/category/' + encodeURIComponent(category));
+  const data = await response.json();
+  displayResults(data.resources);
+}
+
+function displayResults(results) {
+  const container = document.getElementById('resultsContainer');
+  const resultsDiv = document.getElementById('searchResults');
+  
+  if (results.length === 0) {
+    container.innerHTML = '<div class="alert alert-warning">No resources found. Try a different search.</div>';
+    resultsDiv.style.display = 'block';
+    return;
+  }
+  
+  let html = '<div class="row">';
+  results.forEach(resource => {
+    html += `
+      <div class="col-md-12 mb-3">
+        <div class="card">
+          <div class="card-header">
+            <h5>${resource.title}</h5>
+            <span class="badge bg-secondary">${resource.jurisdiction}</span>
+          </div>
+          <div class="card-body">
+            <p>${resource.summary}</p>
+            <h6>Key Facts:</h6>
+            <ul>${resource.key_facts.map(fact => '<li>' + fact + '</li>').join('')}</ul>
+            ${resource.citations && resource.citations.length > 0 ? 
+              '<p class="text-muted"><small><strong>Citations:</strong> ' + resource.citations.join(', ') + '</small></p>' : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  
+  container.innerHTML = html;
+  resultsDiv.style.display = 'block';
+  resultsDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Load Librarian messages on page load
+  loadLibrarianMessages();
+  
+  // Set up search keyboard shortcut
+  document.getElementById('searchQuery').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') searchLibrary();
+  });
+});
+</script>
+
+// Load available AI sources and enable summarize
+async function loadAISources() {
+  try {
+    const r = await fetch('/api/ollama/sources');
+    if (!r.ok) return;
+    const data = await r.json();
+    const select = document.getElementById('aiSourceSelect');
+    data.sources.forEach(src => {
+      const opt = document.createElement('option');
+      opt.value = src.name;
+      opt.textContent = `${src.name} (${src.type})`;
+      select.appendChild(opt);
+    });
+    select.addEventListener('change', () => {
+      document.getElementById('aiSummarizeBtn').disabled = !select.value;
+    });
+  } catch (err) {
+    console.error('Error loading AI sources:', err);
+  }
+}
+
+// Summarize selected source
+async function summarizeAISource() {
+  const select = document.getElementById('aiSourceSelect');
+  const btn = document.getElementById('aiSummarizeBtn');
+  const spinner = document.getElementById('aiLoadingSpinner');
+  const result = document.getElementById('aiSummaryResult');
+  const error = document.getElementById('aiSummaryError');
+  const text = document.getElementById('aiSummaryText');
+  const errText = document.getElementById('aiErrorText');
+  
+  if (!select.value) return;
+  
+  btn.disabled = true;
+  spinner.classList.remove('d-none');
+  result.classList.add('d-none');
+  error.classList.add('d-none');
+  
+  try {
+    const r = await fetch('/api/ollama/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: select.value, model: 'llama3' })
+    });
+    const data = await r.json();
+    
+    if (data.error) {
+      errText.textContent = data.error + (data.ollama_url ? ` (${data.ollama_url})` : '');
+      error.classList.remove('d-none');
+    } else {
+      text.textContent = data.response || 'No summary available.';
+      result.classList.remove('d-none');
+    }
+  } catch (err) {
+    errText.textContent = 'Request failed: ' + err.message;
+    error.classList.remove('d-none');
+  } finally {
+    btn.disabled = false;
+    spinner.classList.add('d-none');
+  }
+}
+
+document.getElementById('aiSummarizeBtn').addEventListener('click', summarizeAISource);
+loadAISources();
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

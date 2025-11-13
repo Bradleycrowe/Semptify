@@ -33,6 +33,18 @@ from adaptive_registration import (
     report_outcome_adaptive,
     contribute_resource_adaptive
 )
+# Cards catalog model
+try:
+    from cards_model import get_cards_grouped, get_cards, init_cards_tables, seed_default_cards, seed_expanded_cards
+except Exception:
+    get_cards_grouped = None
+    get_cards = None
+    def init_cards_tables():
+        pass
+    def seed_default_cards():
+        pass
+    def seed_expanded_cards():
+        pass
 # Route Discovery & Dynamic Data Source Integration
 try:
     from route_discovery_routes import route_discovery_bp, init_route_discovery_api
@@ -42,6 +54,9 @@ except ImportError:
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
+# Dev: make changes show immediately
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Global template helpers for human perspective
 try:
@@ -213,6 +228,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Dashboard API not available: {e}")
 
+# Ollama routes - Local LLM integration
+try:
+    from ollama_routes import ollama_bp
+    app.register_blueprint(ollama_bp)
+    print("[OK] Ollama routes registered (/api/ollama/*)")
+except ImportError as e:
+    print(f"[WARN] Ollama routes not available: {e}")
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
     from veeper import veeper_bp
@@ -244,6 +266,14 @@ _has_admin_bp = _importlib_util.find_spec('admin') is not None
 @app.route("/")
 def home():
     """Simple, clean landing page - Renter's Sidekick"""
+    # Dev mode: skip landing, go straight to dashboard
+    security_mode = os.environ.get('SECURITY_MODE', 'open')
+    if security_mode == 'open':
+        session['user_id'] = 'dev_user'
+        session['verified'] = True
+        session['user_name'] = 'Dev User'
+        return redirect(url_for('dashboard'))
+    
     return render_template('index_simple.html')
 
 @app.route('/recover')
@@ -358,6 +388,14 @@ def signin():
 def dashboard():
     """User dashboard - dynamic, personalized based on learning engine"""
     user_id = session.get('user_id')
+    
+    # Dev mode: auto-login if no session
+    security_mode = os.environ.get('SECURITY_MODE', 'open')
+    if not user_id and security_mode == 'open':
+        session['user_id'] = 'dev_user'
+        session['verified'] = True
+        session['user_name'] = 'Dev User'
+        user_id = 'dev_user'
 
     if not user_id:
         return redirect(url_for('auth.register'))
@@ -378,7 +416,8 @@ def dashboard():
     except Exception:
         pass
 
-    return render_template('dashboard_dynamic.html')
+    # Default: simple dashboard
+    return render_template('dashboard_simple.html', user_name=session.get('user_name', 'User'))
 
 @app.route('/api/dashboard')
 def api_dashboard():
@@ -430,6 +469,442 @@ def api_dashboard():
             "error": str(e)
         })
         return jsonify({"error": "Failed to generate dashboard"}), 500
+
+@app.route('/cards')
+def cards_catalog():
+    """List all action cards grouped by function with what/who/why/when."""
+    try:
+        init_cards_tables()
+        seed_default_cards()
+        seed_expanded_cards()
+        grouped = get_cards_grouped() if get_cards_grouped else {}
+    except Exception:
+        grouped = {}
+    return render_template('cards.html', grouped_cards=grouped, user_name=session.get('user_name', 'User'))
+
+@app.route('/api/cards')
+def api_cards_list():
+    try:
+        init_cards_tables()
+        seed_default_cards()
+        seed_expanded_cards()
+        data = get_cards() if get_cards else []
+        return jsonify({"cards": data})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Lightweight pages for new tools (privacy, laws, research, courtroom, checklists)
+@app.route('/privacy')
+def page_privacy():
+    return render_template('pages/privacy.html')
+
+@app.route('/laws')
+def page_laws():
+    """Law library - browse and search legal resources."""
+    from librarian_engine import init_librarian, LEGAL_CATEGORIES
+    
+    # Initialize library if needed
+    init_librarian()
+    
+    # Get index
+    import json
+    library_path = os.path.join('data', 'library', 'index.json')
+    with open(library_path, 'r') as f:
+        index = json.load(f)
+    
+    return render_template('pages/laws.html', 
+                         categories=LEGAL_CATEGORIES,
+                         resource_count=len(index['resources']),
+                         last_updated=index.get('last_updated', ''))
+
+@app.route('/jurisdiction')
+def page_jurisdiction():
+    return render_template('pages/jurisdiction.html')
+
+@app.route('/landlord-research')
+def page_landlord_research():
+    return render_template('pages/landlord_research.html')
+
+@app.route('/courtroom')
+def page_courtroom():
+    return render_template('pages/courtroom.html')
+
+@app.route('/attorney')
+def page_attorney():
+    return render_template('pages/attorney.html')
+
+@app.route('/move-in')
+def page_move_in():
+    return render_template('pages/move_in.html')
+
+@app.route('/smart-inbox')
+def page_smart_inbox():
+    """Smart inbox page - auto-captured rental messages."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+    
+    from smart_inbox import get_inbox_messages
+    messages = get_inbox_messages(user_id)
+    
+    return render_template('pages/smart_inbox.html', messages=messages)
+
+@app.route('/api/smart-inbox/scan', methods=['POST'])
+def api_scan_messages():
+    """Scan messages and capture relevant ones."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from smart_inbox import scan_messages, save_to_inbox
+    messages = request.json.get('messages', [])
+    
+    captured = scan_messages(messages)
+    for msg in captured:
+        save_to_inbox(user_id, msg)
+    
+    return jsonify({'captured': len(captured), 'messages': captured})
+
+@app.route('/api/smart-inbox/update', methods=['POST'])
+def api_update_message():
+    """Update message status (save to vault, dismiss, etc.)."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from smart_inbox import update_message_status
+    message_id = request.json.get('message_id')
+    status = request.json.get('status')  # saved, dismissed
+    
+    success = update_message_status(user_id, message_id, status)
+    return jsonify({'success': success})
+
+@app.route('/research')
+def page_research():
+    return render_template('pages/research.html')
+
+@app.route('/ocr')
+def page_ocr():
+    """OCR document manager page."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+    
+    from ocr_manager import search_documents
+    # Show all documents by default
+    documents = search_documents(user_id, '')
+    
+    return render_template('pages/ocr.html', documents=documents)
+
+@app.route('/api/ocr/process', methods=['POST'])
+def api_process_document():
+    """Process uploaded document with OCR."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from ocr_manager import process_document
+    file = request.files.get('file')
+    
+    if not file:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    # Save file temporarily
+    import tempfile
+    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+        file.save(tmp.name)
+        tmp_path = tmp.name
+    
+    metadata = process_document(tmp_path, user_id)
+    os.remove(tmp_path)
+    
+    return jsonify(metadata)
+
+@app.route('/api/ocr/search', methods=['GET'])
+def api_search_documents():
+    """Search OCR documents by text or tags."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from ocr_manager import search_documents
+    query = request.args.get('query', '')
+    
+    results = search_documents(user_id, query)
+    return jsonify({'results': results})
+
+@app.route('/voice-capture')
+def page_voice_capture():
+    """Voice capture page - record memos and log calls."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+    
+    from voice_capture import get_voice_memos, get_call_logs
+    memos = get_voice_memos(user_id)
+    calls = get_call_logs(user_id)
+    
+    return render_template('pages/voice_capture.html', memos=memos, calls=calls)
+
+@app.route('/api/voice/save-memo', methods=['POST'])
+def api_save_voice_memo():
+    """Save voice memo with metadata."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from voice_capture import save_voice_memo
+    file = request.files.get('audio')
+    
+    if not file:
+        return jsonify({'error': 'No audio file provided'}), 400
+    
+    metadata = {
+        'title': request.form.get('title', 'Untitled Memo'),
+        'notes': request.form.get('notes', ''),
+        'tags': request.form.get('tags', '').split(','),
+        'duration_seconds': request.form.get('duration_seconds', type=int)
+    }
+    
+    result = save_voice_memo(user_id, file.read(), file.filename, metadata)
+    return jsonify(result)
+
+@app.route('/api/voice/log-call', methods=['POST'])
+def api_log_call():
+    """Log a phone call."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from voice_capture import log_call
+    call_metadata = request.json
+    
+    result = log_call(user_id, call_metadata)
+    return jsonify(result)
+
+@app.route('/court-packet')
+def page_court_packet():
+    """Court packet wizard - create and manage evidence packets."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+    
+    from court_packet_wizard import list_packets
+    packets = list_packets(user_id)
+    
+    return render_template('pages/court_packet.html', packets=packets)
+
+@app.route('/court-packet/<packet_id>')
+def view_court_packet(packet_id):
+    """View specific court packet."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+    
+    from court_packet_wizard import get_packet, get_packet_progress
+    packet = get_packet(packet_id, user_id)
+    progress = get_packet_progress(packet_id, user_id)
+    
+    if not packet:
+        return "Packet not found", 404
+    
+    return render_template('pages/court_packet_detail.html', packet=packet, progress=progress)
+
+@app.route('/api/court-packet/create', methods=['POST'])
+def api_create_packet():
+    """Create new court packet."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from court_packet_wizard import create_packet
+    case_type = request.json.get('case_type')
+    case_info = request.json.get('case_info', {})
+    
+    result = create_packet(user_id, case_type, case_info)
+    return jsonify(result)
+
+@app.route('/api/court-packet/<packet_id>/add-document', methods=['POST'])
+def api_add_document_to_packet(packet_id):
+    """Add document to packet."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from court_packet_wizard import add_document_to_packet
+    document = request.json.get('document')
+    
+    success = add_document_to_packet(packet_id, user_id, document)
+    return jsonify({'success': success})
+
+@app.route('/api/court-packet/<packet_id>/update-section', methods=['POST'])
+def api_update_packet_section(packet_id):
+    """Update section completion status."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    from court_packet_wizard import update_section_status
+    section = request.json.get('section')
+    completed = request.json.get('completed', False)
+    
+    success = update_section_status(packet_id, user_id, section, completed)
+    return jsonify({'success': success})
+
+# Law Library API Routes
+@app.route('/api/library/search', methods=['GET'])
+def api_library_search():
+    """Search law library."""
+    from librarian_engine import search_library
+    
+    query = request.args.get('query', '')
+    category = request.args.get('category')
+    jurisdiction = request.args.get('jurisdiction')
+    
+    results = search_library(query, category, jurisdiction)
+    return jsonify({'results': results, 'count': len(results)})
+
+@app.route('/api/library/resource/<resource_id>', methods=['GET'])
+def api_library_resource(resource_id):
+    """Get specific legal resource."""
+    from librarian_engine import get_resource_by_id
+    
+    resource = get_resource_by_id(resource_id)
+    if not resource:
+        return jsonify({'error': 'Resource not found'}), 404
+    
+    return jsonify(resource)
+
+@app.route('/api/library/info-card/<resource_id>', methods=['GET'])
+def api_library_info_card(resource_id):
+    """Get user-friendly info card for a resource."""
+    from librarian_engine import generate_info_card
+    
+    card = generate_info_card(resource_id)
+    if not card:
+        return jsonify({'error': 'Resource not found'}), 404
+    
+    return jsonify(card)
+
+@app.route('/api/library/category/<category>', methods=['GET'])
+def api_library_by_category(category):
+    """Get all resources in a category."""
+    from librarian_engine import get_resources_by_category
+    
+    resources = get_resources_by_category(category)
+    return jsonify({'category': category, 'resources': resources, 'count': len(resources)})
+
+@app.route('/api/library/jurisdiction/<jurisdiction>', methods=['GET'])
+def api_library_by_jurisdiction(jurisdiction):
+    """Get all resources for a jurisdiction."""
+    from librarian_engine import get_resources_by_jurisdiction
+    
+    resources = get_resources_by_jurisdiction(jurisdiction)
+    return jsonify({'jurisdiction': jurisdiction, 'resources': resources, 'count': len(resources)})
+
+@app.route('/api/library/relevant', methods=['POST'])
+def api_library_relevant():
+    """Get relevant resources for user's situation."""
+    from librarian_engine import get_relevant_resources_for_situation
+    
+    situation = request.json
+    cards = get_relevant_resources_for_situation(situation)
+    
+    return jsonify({'cards': cards, 'count': len(cards)})
+
+@app.route('/api/library/fun-fact', methods=['GET'])
+def api_library_fun_fact():
+    """Get today's fun fact from the Librarian."""
+    from librarian_engine import get_daily_fun_fact
+    
+    fact_data = get_daily_fun_fact()
+    return jsonify(fact_data)
+
+@app.route('/api/library/greeting', methods=['GET'])
+def api_library_greeting():
+    """Get a greeting from the Librarian."""
+    from librarian_engine import get_librarian_greeting
+    
+    greeting = get_librarian_greeting()
+    return jsonify({'greeting': greeting})
+    section = request.json.get('section')
+    completed = request.json.get('completed', False)
+    
+    success = update_section_status(packet_id, user_id, section, completed)
+    return jsonify({'success': success})
+
+@app.route('/getting-started')
+def page_getting_started():
+    return render_template('pages/getting_started.html')
+
+
+@app.route('/setup/situation', methods=['GET', 'POST'])
+def setup_situation():
+    """Collect user situation during onboarding, then generate personalized cards."""
+    if request.method == 'GET':
+        return render_template('setup_situation.html', csrf_token=_get_or_create_csrf_token(), user_name=session.get('user_name', 'User'))
+    
+    # POST: save situation and redirect to personalized plan
+    user_id = session.get('user_id', 'dev_user')
+    situation_data = {
+        'issue_type': request.form.get('issue_type'),
+        'urgency': request.form.get('urgency'),
+        'notice_date': request.form.get('notice_date'),
+        'has_evidence': request.form.get('has_evidence') == '1',
+        'has_attorney': request.form.get('has_attorney') == '1',
+        'details': {
+            'summary': request.form.get('situation_summary', ''),
+            'receives_assistance': request.form.get('receives_assistance') == '1'
+        }
+    }
+    
+    from user_database import save_user_situation
+    save_user_situation(user_id, situation_data)
+    
+    log_event('situation_saved', {'user_id': user_id, 'issue_type': situation_data['issue_type']})
+    
+    return redirect(url_for('personalized_plan'))
+
+
+@app.route('/plan')
+def personalized_plan():
+    """Show personalized action plan with cards based on user situation."""
+    user_id = session.get('user_id', 'dev_user')
+    
+    from user_database import get_user_situation, get_user_by_id
+    from situation_analyzer import analyze_situation, generate_situation_cards
+    
+    situation = get_user_situation(user_id)
+    if not situation:
+        return redirect(url_for('setup_situation'))
+    
+    user = get_user_by_id(user_id)
+    
+    # Merge user + situation for analysis
+    combined = {
+        'issue_type': situation.get('issue_type'),
+        'urgency': situation.get('urgency'),
+        'notice_date': situation.get('notice_date'),
+        'has_evidence': situation.get('has_evidence'),
+        'has_attorney': situation.get('has_attorney'),
+        'location': user.get('state', 'MN') if user else 'MN',
+        'stage': user.get('stage', 'SEARCHING') if user else 'SEARCHING'
+    }
+    
+    analysis = analyze_situation(combined)
+    cards = generate_situation_cards(analysis, user_id)
+    
+    # Group cards
+    cards_by_group = {}
+    for card in cards:
+        group = card.get('group_name', 'Other')
+        cards_by_group.setdefault(group, []).append(card)
+    
+    return render_template('personalized_plan.html',
+                         analysis=analysis,
+                         cards=cards,
+                         cards_by_group=cards_by_group,
+                         user_name=session.get('user_name', 'User'))
 
 @app.route('/api/dashboard/update', methods=['POST'])
 def api_dashboard_update():
@@ -2174,4 +2649,5 @@ def preliminary_learning_ui():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
