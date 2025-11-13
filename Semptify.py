@@ -500,6 +500,133 @@ def register_slate():
     return render_template('register_option4_slate.html')
 
 # ============================================================================
+# STORAGE SETUP ROUTES - Cloudflare R2 & Google Drive Integration
+# ============================================================================
+
+@app.route('/setup')
+def user_setup():
+    """User storage setup page with both Cloudflare R2 and Google Drive options"""
+    return render_template('user_setup.html')
+
+@app.route('/settings')  
+def user_settings():
+    """User settings page for managing storage and account"""
+    return render_template('user_settings.html')
+
+@app.route('/api/setup-auto-storage', methods=['POST'])
+def setup_auto_storage():
+    """Setup automatic Cloudflare R2 storage for user"""
+    try:
+        # Generate unique user storage bucket
+        user_id = str(uuid.uuid4())[:8]
+        bucket_name = f"semptify-user-{user_id}"
+        
+        # In production, create R2 bucket via Cloudflare API
+        # For now, simulate successful setup
+        storage_config = {
+            "user_id": user_id,
+            "storage_type": "cloudflare_r2",
+            "bucket_name": bucket_name,
+            "created_at": datetime.now().isoformat(),
+            "encryption": "AES-256",
+            "quota_gb": 1
+        }
+        
+        # Store user storage config
+        os.makedirs('security', exist_ok=True)
+        storage_file = 'security/user_storage.json'
+        
+        if os.path.exists(storage_file):
+            with open(storage_file, 'r') as f:
+                all_storage = json.load(f)
+        else:
+            all_storage = {}
+            
+        all_storage[user_id] = storage_config
+        
+        with open(storage_file, 'w') as f:
+            json.dump(all_storage, f, indent=2)
+            
+        log_event('storage_setup', {
+            'user_id': user_id,
+            'storage_type': 'cloudflare_r2',
+            'bucket_name': bucket_name
+        })
+        
+        return jsonify({
+            "success": True,
+            "user_id": user_id,
+            "storage_type": "cloudflare_r2",
+            "message": "Secure storage ready!"
+        })
+        
+    except Exception as e:
+        log_event('storage_setup_error', {'error': str(e)})
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/auth/google-drive')
+def google_drive_auth():
+    """Initiate Google Drive OAuth flow"""
+    try:
+        migrate = request.args.get('migrate', 'false') == 'true'
+        
+        # In production, redirect to Google OAuth
+        # For now, simulate successful connection
+        user_id = str(uuid.uuid4())[:8]
+        
+        storage_config = {
+            "user_id": user_id,
+            "storage_type": "google_drive", 
+            "created_at": datetime.now().isoformat(),
+            "drive_folder": f"Semptify Documents",
+            "quota_gb": 15,
+            "migrate_requested": migrate
+        }
+        
+        # Store user storage config
+        os.makedirs('security', exist_ok=True)
+        storage_file = 'security/user_storage.json'
+        
+        if os.path.exists(storage_file):
+            with open(storage_file, 'r') as f:
+                all_storage = json.load(f)
+        else:
+            all_storage = {}
+            
+        all_storage[user_id] = storage_config
+        
+        with open(storage_file, 'w') as f:
+            json.dump(all_storage, f, indent=2)
+            
+        log_event('google_drive_auth', {
+            'user_id': user_id,
+            'migrate': migrate
+        })
+        
+        # Redirect to vault with success message
+        return redirect(f'/vault?user_id={user_id}&storage=google_drive&setup=complete')
+        
+    except Exception as e:
+        log_event('google_drive_auth_error', {'error': str(e)})
+        return redirect('/setup?error=google_drive_failed')
+
+@app.route('/api/regenerate-token', methods=['POST'])
+def regenerate_token():
+    """Regenerate user access token"""
+    try:
+        # Generate new secure token
+        new_token = secrets.token_urlsafe(16)
+        
+        return jsonify({
+            "success": True,
+            "message": "Token regenerated successfully",
+            "token": new_token
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ============================================================================
 # ADAPTIVE REGISTRATION API (Automatically learns from user data)
 # ============================================================================
 

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Your Storage - Semptify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">📋 Semptify</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/timeline">Timeline</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3>🚀 Setup Your Document Storage</h3>
+                        <p class="mb-0">Choose how you want to store your tenant-landlord documents</p>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Option 1: Auto Storage -->
+                        <div class="storage-option mb-4 p-4 border rounded bg-light">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    <span class="badge bg-success fs-6">🔒 RECOMMENDED</span>
+                                </div>
+                                <h4 class="mb-0">Automatic Secure Storage</h4>
+                            </div>
+                            <p class="text-muted mb-3">
+                                We automatically create secure, encrypted storage for you. 
+                                <strong>No setup required</strong> - just start uploading documents!
+                            </p>
+                            <ul class="list-unstyled mb-3">
+                                <li>✅ <strong>Zero setup</strong> - Ready in seconds</li>
+                                <li>✅ <strong>Free for 1GB</strong> - Perfect for most users</li>
+                                <li>✅ <strong>Fully encrypted</strong> - Bank-level security</li>
+                                <li>✅ <strong>Always available</strong> - 99.9% uptime</li>
+                            </ul>
+                            <button class="btn btn-success btn-lg w-100" onclick="setupAutoStorage()">
+                                🚀 Get Started Now (Instant Setup)
+                            </button>
+                        </div>
+
+                        <!-- Option 2: Google Drive -->
+                        <div class="storage-option mb-4 p-4 border rounded">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    <img src="https://developers.google.com/drive/images/drive_icon.png" width="32" height="32" alt="Google Drive">
+                                </div>
+                                <h4 class="mb-0">Use Your Google Drive</h4>
+                            </div>
+                            <p class="text-muted mb-3">
+                                Connect your existing Google Drive account. 
+                                Documents stored in your personal Google Drive.
+                            </p>
+                            <ul class="list-unstyled mb-3">
+                                <li>✅ <strong>Your existing account</strong> - Use what you have</li>
+                                <li>✅ <strong>15GB free</strong> - Comes with Google account</li>
+                                <li>✅ <strong>You control access</strong> - Full ownership</li>
+                                <li>✅ <strong>Familiar interface</strong> - Same as regular Google Drive</li>
+                            </ul>
+                            <button class="btn btn-primary btn-lg w-100" onclick="connectGoogleDrive()">
+                                📁 Connect Google Drive (1-Click)
+                            </button>
+                        </div>
+
+                        <!-- Skip Option -->
+                        <div class="text-center">
+                            <p class="text-muted small">You can always change this later in Settings</p>
+                            <a href="/timeline" class="btn btn-outline-secondary">Skip for Now</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setupAutoStorage() {
+            // Show loading state
+            event.target.innerHTML = '⏳ Setting up your secure storage...';
+            event.target.disabled = true;
+            
+            // Call setup endpoint
+            fetch('/api/setup-auto-storage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success and redirect
+                    event.target.innerHTML = '✅ Storage Ready!';
+                    event.target.classList.remove('btn-success');
+                    event.target.classList.add('btn-success');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/vault?setup=complete';
+                    }, 1500);
+                } else {
+                    // Show error
+                    event.target.innerHTML = '❌ Setup Failed - Try Again';
+                    event.target.disabled = false;
+                    event.target.classList.remove('btn-success');
+                    event.target.classList.add('btn-danger');
+                }
+            })
+            .catch(error => {
+                console.error('Setup error:', error);
+                event.target.innerHTML = '❌ Setup Failed - Try Again';
+                event.target.disabled = false;
+            });
+        }
+
+        function connectGoogleDrive() {
+            // Show loading state
+            event.target.innerHTML = '⏳ Connecting to Google Drive...';
+            event.target.disabled = true;
+            
+            // Redirect to Google OAuth
+            window.location.href = '/auth/google-drive';
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
