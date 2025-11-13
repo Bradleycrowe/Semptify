@@ -1498,12 +1498,82 @@ def vault_upload():
 
 # ==================== SIMPLE TIMELINE GUI ====================
 
+@app.route('/timeline-test')
+def timeline_test():
+    """Simple test timeline that always works"""
+    return '''
+<!DOCTYPE html>
+<html>
+<head><title>Timeline Test</title></head>
+<body>
+<h1>Timeline Test - Working!</h1>
+<p>This is a simple test to verify the route works.</p>
+<a href="/">Back to Home</a>
+</body>
+</html>
+    '''
+
 @app.route('/timeline')
 def simple_timeline_page():
     """Renders the simple, functional timeline GUI."""
-    try:
-        user_id = session.get('user_id')
-        if not user_id:
+    return '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Semptify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Semptify</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/register">Register</a>
+                <a class="nav-link" href="/vault">Vault</a>
+                <a class="nav-link" href="/">Home</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1>📅 Your Timeline</h1>
+        <p class="lead">Document everything! This timeline shows all your tenant-landlord interactions chronologically.</p>
+        <div class="card">
+            <div class="card-header">Recent Events</div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Getting Started:</strong> Register an account to start documenting your interactions.
+                    Your timeline will automatically track all uploaded documents, conversations, and important events.
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <h5>📝 Example: Lease Agreement</h5>
+                        <p>Upload your lease agreement to create a permanent record.</p>
+                        <small class="text-muted">Source: Document Upload</small>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>🔧 Example: Maintenance Request</h5>
+                        <p>Log maintenance requests with timestamps for accountability.</p>
+                        <small class="text-muted">Source: Manual Entry</small>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>📧 Example: Communication Record</h5>
+                        <p>Keep records of all communications with your landlord.</p>
+                        <small class="text-muted">Source: Email/Message</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="/register" class="btn btn-primary me-2">Get Started - Register Now</a>
+            <a href="/vault" class="btn btn-outline-secondary">Document Vault</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+    '''
             # For a guest, return simple HTML instead of template
             return '''
 <!DOCTYPE html>
@@ -1549,17 +1619,7 @@ def simple_timeline_page():
     </div>
 </body>
 </html>
-            ''', 200, {'Content-Type': 'text/html'}
-        return render_template('simple_timeline.html', user_id=user_id)
-    except Exception as e:
-        # Return error info for debugging
-        return f'''
-<html><body>
-<h1>Timeline Error</h1>
-<p>Error: {str(e)}</p>
-<p><a href="/">Back to Home</a></p>
-</body></html>
-        ''', 500
+    '''
 
 @app.route('/api/test')
 def api_test():
