@@ -1500,7 +1500,7 @@ def simple_timeline_page():
         return render_template('timeline_guest.html')
     return render_template('simple_timeline.html', user_id=user_id)
 
-@app.route('/api/timeline/events')
+@app.route('/api/timeline/events', methods=['GET'])
 def api_get_timeline_events():
     """API endpoint to get all timeline events for the logged-in user."""
     user_id = session.get('user_id')
