@@ -1,43 +1,18 @@
-# Multi-stage Dockerfile - FORCE REBUILD: 2025-11-09-v1
-FROM python:3.11-slim AS builder
-ARG GIT_SHA="dev"
-ARG BUILD_TIME="unknown"
-ARG CACHE_BUST="2025-11-09-v1"
-WORKDIR /app
+FROM ollama/ollama:latest
 
-# Verify Python version
-RUN python --version && python --version | grep "3.11" || (echo "ERROR: Wrong Python version!" && exit 1)
+# Set environment variables
+ENV OLLAMA_HOST=0.0.0.0:11434
+ENV OLLAMA_MODELS=/root/.ollama/models
 
-# Install build/test dependencies and app requirements (cached separately from source)
-COPY requirements.txt ./
-RUN pip install --upgrade pip && \
-	pip install --no-cache-dir -r requirements.txt
+# Create models directory
+RUN mkdir -p /root/.ollama/models
 
-# Copy source for testing
-COPY . /app
+# Expose Ollama port
+EXPOSE 11434
 
-# (Optional) Omit running tests during image build to speed up deploys on Render
-# Tests are run in CI; keeping image build lean reduces failures due to transient CI vs builder differences.
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:11434/api/tags || exit 1
 
-### Final image (runtime)
-FROM python:3.11-slim AS runtime
-ARG GIT_SHA="dev"
-ARG BUILD_TIME="unknown"
-ARG CACHE_BUST="2025-11-09-v1"
-ENV GIT_SHA=${GIT_SHA} \
-	BUILD_TIME=${BUILD_TIME} \
-	CACHE_BUST=${CACHE_BUST}
-WORKDIR /app
-
-# Copy pre-installed dependencies from builder to avoid re-install (smaller & faster)
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Copy only necessary application code (exclude caches & tests for smaller runtime image)
-COPY . /app
-RUN rm -rf /app/tests /app/__pycache__ || true
- # Do not ship any committed tokens file; enforced mode will bootstrap from ADMIN_TOKEN if needed
-RUN rm -f /app/security/admin_tokens.json || true
-
-EXPOSE 8080
-CMD ["python", "./run_prod.py"]
+# Start Ollama server and pull llama3 model
+CMD ["/bin/sh", "-c", "ollama serve & sleep 10 && ollama pull llama3 && tail -f /dev/null"]
