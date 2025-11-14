@@ -258,7 +258,12 @@ async function summarizeAISource() {
       errText.textContent = data.error + (data.ollama_url ? ` (${data.ollama_url})` : '');
       error.classList.remove('d-none');
     } else {
-      text.textContent = data.response || 'No summary available.';
+      // Render markdown-style citations as HTML links
+      let html = data.response
+        .replace(/\*\*(.*?)\*\*/g, '<strong></strong>')  // Bold
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener"></a>')  // Links
+        .replace(/\n/g, '<br>');  // Line breaks
+      text.innerHTML = html || 'No summary available.';
       result.classList.remove('d-none');
     }
   } catch (err) {
