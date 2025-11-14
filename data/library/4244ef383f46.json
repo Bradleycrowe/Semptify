@@ -1,0 +1,23 @@
+{
+  "resource_id": "4244ef383f46",
+  "title": "Habitability Requirements",
+  "category": "repairs_habitability",
+  "jurisdiction": "Minnesota",
+  "level": "state",
+  "summary": "Minimum habitability standards landlords must maintain",
+  "key_facts": [
+    "Heat must be maintained at 68\u00b0F (October-May)",
+    "Hot water temperature 110-130\u00b0F",
+    "Working smoke and carbon monoxide detectors required",
+    "Landlord must make repairs within 14 days of notice"
+  ],
+  "citations": [
+    "MN Stat \u00a7 504B.161",
+    "Minneapolis Code \u00a7 244.2050"
+  ],
+  "effective_date": "2024-01-01",
+  "source_url": "",
+  "added_at": "2025-11-13T20:48:05.749815",
+  "last_updated": "2025-11-13T20:47:47.622018",
+  "tags": []
+}

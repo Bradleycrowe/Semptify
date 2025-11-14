@@ -1,0 +1,237 @@
+{% extends "layout.html" %}
+{% block title %}{{ packet.case_name }} - Court Packet - Semptify{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>📁 {{ packet.case_name }}</h1>
+    <p class="lead">{{ packet.template.name }}</p>
+    
+    <!-- Progress Bar -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Overall Progress: {{ progress.overall_progress }}%</h5>
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar" role="progressbar" style="width: {{ progress.overall_progress }}%;" aria-valuenow="{{ progress.overall_progress }}" aria-valuemin="0" aria-valuemax="100">
+                    {{ progress.overall_progress }}%
+                </div>
+            </div>
+            <p class="mt-2 mb-0">
+                <strong>Checklist:</strong> {{ progress.checklist_progress }} &nbsp;|&nbsp;
+                <strong>Sections:</strong> {{ progress.sections_progress }}
+                {% if progress.is_ready %}
+                <span class="badge bg-success ms-2">Ready for Review</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Case Info & Documents -->
+        <div class="col-md-8">
+            <!-- Case Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Case Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Case Number:</strong> {{ packet.case_number or 'Not assigned' }}</p>
+                    <p><strong>Court:</strong> {{ packet.court_name }}</p>
+                    <p><strong>Hearing Date:</strong> {{ packet.hearing_date or 'Not scheduled' }}</p>
+                    <p><strong>Summary:</strong> {{ packet.summary }}</p>
+                    <p><strong>Status:</strong> <span class="badge bg-{{ 'success' if packet.status == 'finalized' else 'warning' }}">{{ packet.status }}</span></p>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Documents ({{ packet.documents|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if packet.documents %}
+                    <div class="list-group">
+                        {% for doc in packet.documents %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ doc.doc_type }}</h6>
+                                <small>{{ doc.added_at[:10] }}</small>
+                            </div>
+                            <p class="mb-1">{{ doc.description }}</p>
+                            <small class="text-muted">
+                                {% for tag in doc.tags %}
+                                <span class="badge bg-secondary">{{ tag }}</span>
+                                {% endfor %}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No documents added yet.</p>
+                    {% endif %}
+                    
+                    <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addDocModal">+ Add Document</button>
+                </div>
+            </div>
+
+            <!-- Sections -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Packet Sections</h5>
+                </div>
+                <div class="card-body">
+                    {% for section in packet.template.sections %}
+                    <div class="form-check mb-2">
+                        <input class="form-check-input section-check" type="checkbox" 
+                               id="section_{{ loop.index }}" 
+                               data-section="{{ section }}"
+                               {% if packet.sections_completed[section] %}checked{% endif %}>
+                        <label class="form-check-label" for="section_{{ loop.index }}">
+                            {{ section }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Checklist & Actions -->
+        <div class="col-md-4">
+            <!-- Checklist -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Document Checklist</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Required Documents:</h6>
+                    <ul class="list-unstyled">
+                        {% for doc in packet.template.required_docs %}
+                        <li>
+                            {% if packet.checklist_progress[doc] %}
+                            ✅ {{ doc }}
+                            {% else %}
+                            ⬜ {{ doc }}
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <h6 class="mt-3">Optional Documents:</h6>
+                    <ul class="list-unstyled text-muted">
+                        {% for doc in packet.template.optional_docs %}
+                        <li>{{ doc }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-success w-100 mb-2" disabled>
+                        📄 Generate PDF
+                        <small class="d-block text-muted">(Coming soon)</small>
+                    </button>
+                    <button class="btn btn-info w-100 mb-2" disabled>
+                        🔗 Share with Attorney
+                        <small class="d-block text-muted">(Coming soon)</small>
+                    </button>
+                    <a href="{{ url_for('page_court_packet') }}" class="btn btn-secondary w-100">← Back to Packets</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Document Modal -->
+<div class="modal fade" id="addDocModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Document to Packet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addDocForm">
+                    <div class="mb-3">
+                        <label class="form-label">Document Type</label>
+                        <select class="form-select" name="doc_type" required>
+                            {% for doc in packet.template.required_docs %}
+                            <option value="{{ doc }}">{{ doc }}</option>
+                            {% endfor %}
+                            {% for doc in packet.template.optional_docs %}
+                            <option value="{{ doc }}">{{ doc }} (optional)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">File Path (from vault)</label>
+                        <input type="text" class="form-control" name="file_path" required placeholder="/uploads/vault/...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tags (comma-separated)</label>
+                        <input type="text" class="form-control" name="tags" placeholder="e.g., lease, evidence">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveDocBtn">Add Document</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const packetId = '{{ packet.packet_id }}';
+
+// Section checkbox handler
+document.querySelectorAll('.section-check').forEach(checkbox => {
+    checkbox.addEventListener('change', async (e) => {
+        const section = e.target.dataset.section;
+        const completed = e.target.checked;
+        
+        const response = await fetch(`/api/court-packet/${packetId}/update-section`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ section, completed })
+        });
+        
+        if (response.ok) {
+            location.reload();  // Refresh to update progress
+        }
+    });
+});
+
+// Add document handler
+document.getElementById('saveDocBtn').addEventListener('click', async () => {
+    const form = document.getElementById('addDocForm');
+    const formData = new FormData(form);
+    
+    const document = {
+        file_path: formData.get('file_path'),
+        doc_type: formData.get('doc_type'),
+        description: formData.get('description'),
+        tags: formData.get('tags').split(',').map(t => t.trim()).filter(t => t)
+    };
+    
+    const response = await fetch(`/api/court-packet/${packetId}/add-document`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ document })
+    });
+    
+    if (response.ok) {
+        location.reload();
+    } else {
+        alert('Error adding document. Please try again.');
+    }
+});
+</script>
+{% endblock %}

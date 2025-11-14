@@ -1,0 +1,24 @@
+{
+  "resource_id": "727ffada0f74",
+  "title": "Section 8 Housing Choice Voucher Program",
+  "category": "section_8",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Overview of Section 8 voucher program for low-income tenants",
+  "key_facts": [
+    "Voucher pays portion of rent based on income (typically 30%)",
+    "Tenant must find landlord who accepts Section 8",
+    "Unit must pass HUD inspection before move-in",
+    "Annual income recertification required",
+    "Portability allows moving between jurisdictions"
+  ],
+  "citations": [
+    "42 U.S.C. \u00a7 1437f",
+    "24 CFR \u00a7 982"
+  ],
+  "effective_date": "1974-08-22",
+  "source_url": "https://www.hud.gov/topics/housing_choice_voucher_program_section_8",
+  "added_at": "2025-11-13T20:48:05.808219",
+  "last_updated": "2025-11-13T20:47:47.622024",
+  "tags": []
+}

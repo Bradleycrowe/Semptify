@@ -1,0 +1,23 @@
+{
+  "resource_id": "37e98aee1202",
+  "title": "Eviction Process in Minnesota",
+  "category": "eviction_process",
+  "jurisdiction": "Minnesota",
+  "level": "state",
+  "summary": "Step-by-step explanation of the eviction process in Minnesota courts",
+  "key_facts": [
+    "Landlord must serve proper notice (14 days for non-payment)",
+    "Tenant has 7 days to answer eviction summons",
+    "Court hearing typically within 7-14 days of filing",
+    "Redemption period available in some cases"
+  ],
+  "citations": [
+    "MN Stat \u00a7 504B.321",
+    "MN Stat \u00a7 504B.335"
+  ],
+  "effective_date": "2024-01-01",
+  "source_url": "",
+  "added_at": "2025-11-13T20:48:05.682045",
+  "last_updated": "2025-11-13T20:47:47.622014",
+  "tags": []
+}

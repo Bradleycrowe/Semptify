@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attorney Connect - Semptify</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% include 'includes/header.html' %}
+<div class="container" style="max-width:960px;margin:32px auto;padding:0 16px;">
+  <h1>👩‍⚖️ Attorney Connect</h1>
+  <p>Share your evidence packet securely with your attorney.</p>
+  <ul>
+    <li>Export packet and share securely</li>
+    <li>Restrict access with one-time links</li>
+    <li>Keep attorney updated via your timeline</li>
+  </ul>
+  <p><a href="/packet/export">Export my packet →</a></p>
+</div>
+</body>
+</html>

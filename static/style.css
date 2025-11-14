@@ -1,3 +1,31 @@
+/* Theme Variables */
+:root {
+    /* Brand palette */
+    --brand-maroon: #500000;         /* deep maroon */
+    --brand-maroon-rgb: 80, 0, 0;
+    --brand-gold: #d4af37;           /* metallic gold */
+    --brand-gold-rgb: 212, 175, 55;
+
+    /* Gradients */
+    --brand-gradient: linear-gradient(135deg, var(--brand-maroon) 0%, var(--brand-gold) 100%);
+
+    /* Bootstrap primary overrides */
+    --bs-primary: var(--brand-maroon);
+    --bs-primary-rgb: var(--brand-maroon-rgb);
+}
+
+/* Utility: brand gradient background */
+.bg-gradient-primary {
+    background-image: var(--brand-gradient) !important;
+    background-color: transparent !important;
+    color: #fff;
+}
+
+/* Navbar on brand backgrounds maintains readable text */
+.navbar.bg-primary, .navbar.bg-gradient-primary {
+    color: #fff;
+}
+
 /* General Body Styles */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

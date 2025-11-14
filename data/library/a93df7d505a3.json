@@ -1,0 +1,24 @@
+{
+  "resource_id": "a93df7d505a3",
+  "title": "Low-Income Housing Tax Credit (LIHTC) for Landlords",
+  "category": "landlord_funding",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Federal tax credits for landlords who provide affordable housing",
+  "key_facts": [
+    "Largest source of affordable housing funding in U.S.",
+    "Provides dollar-for-dollar reduction in federal tax liability",
+    "Units must remain affordable for 15-30 years",
+    "Rent limits tied to area median income",
+    "Landlord must accept tenants at or below 60% AMI"
+  ],
+  "citations": [
+    "26 U.S.C. \u00a7 42",
+    "IRS Revenue Procedure 2022-14"
+  ],
+  "effective_date": "1986-01-01",
+  "source_url": "https://www.irs.gov/credits-deductions/businesses/low-income-housing-tax-credit",
+  "added_at": "2025-11-13T20:48:05.851833",
+  "last_updated": "2025-11-13T20:47:47.622028",
+  "tags": []
+}

@@ -1,0 +1,121 @@
+{
+  "categories": {
+    "tenant_rights": "Tenant Rights & Protections",
+    "landlord_duties": "Landlord Responsibilities",
+    "eviction_process": "Eviction Process & Defense",
+    "rent_control": "Rent Control & Increases",
+    "security_deposit": "Security Deposits",
+    "repairs_habitability": "Repairs & Habitability",
+    "discrimination": "Fair Housing & Discrimination",
+    "lease_terms": "Lease Agreements & Terms",
+    "court_procedures": "Court Procedures & Filing",
+    "local_ordinances": "Local Ordinances & Codes"
+  },
+  "resources": [
+    {
+      "resource_id": "730d3b9e0959",
+      "title": "Minnesota Tenant Rights Overview",
+      "category": "tenant_rights",
+      "jurisdiction": "Minnesota",
+      "level": "state",
+      "last_updated": "2025-11-13T20:48:05.680058"
+    },
+    {
+      "resource_id": "37e98aee1202",
+      "title": "Eviction Process in Minnesota",
+      "category": "eviction_process",
+      "jurisdiction": "Minnesota",
+      "level": "state",
+      "last_updated": "2025-11-13T20:48:05.725514"
+    },
+    {
+      "resource_id": "0fb81575f254",
+      "title": "Security Deposit Laws",
+      "category": "security_deposit",
+      "jurisdiction": "Minnesota",
+      "level": "state",
+      "last_updated": "2025-11-13T20:48:05.747779"
+    },
+    {
+      "resource_id": "4244ef383f46",
+      "title": "Habitability Requirements",
+      "category": "repairs_habitability",
+      "jurisdiction": "Minnesota",
+      "level": "state",
+      "last_updated": "2025-11-13T20:48:05.762735"
+    },
+    {
+      "resource_id": "ef77b0a300a2",
+      "title": "Fair Housing Protections",
+      "category": "discrimination",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.787019"
+    },
+    {
+      "resource_id": "46d5f9453f02",
+      "title": "HUD Housing Quality Standards",
+      "category": "federal_hud",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.806815"
+    },
+    {
+      "resource_id": "727ffada0f74",
+      "title": "Section 8 Housing Choice Voucher Program",
+      "category": "section_8",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.827074"
+    },
+    {
+      "resource_id": "c87be03f96f2",
+      "title": "Emergency Rental Assistance Program (ERAP)",
+      "category": "emergency_rental",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.848080"
+    },
+    {
+      "resource_id": "a93df7d505a3",
+      "title": "Low-Income Housing Tax Credit (LIHTC) for Landlords",
+      "category": "landlord_funding",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.877247"
+    },
+    {
+      "resource_id": "00181da11a5b",
+      "title": "Minnesota Emergency Rental Assistance (RentHelpMN)",
+      "category": "tenant_funding",
+      "jurisdiction": "Minnesota",
+      "level": "state",
+      "last_updated": "2025-11-13T20:48:05.896459"
+    },
+    {
+      "resource_id": "9e14bcb70189",
+      "title": "Fair Housing Act - National Law",
+      "category": "fair_housing_act",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.927379"
+    },
+    {
+      "resource_id": "8d6d1adee0ea",
+      "title": "HUD Rental Assistance Programs Overview",
+      "category": "federal_hud",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.957547"
+    },
+    {
+      "resource_id": "59519c43d771",
+      "title": "Landlord Participation in Section 8 - Requirements & Benefits",
+      "category": "landlord_funding",
+      "jurisdiction": "Federal",
+      "level": "federal",
+      "last_updated": "2025-11-13T20:48:05.996283"
+    }
+  ],
+  "last_updated": "2025-11-13T20:48:05.996298"
+}

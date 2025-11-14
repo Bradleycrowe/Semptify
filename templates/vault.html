@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Vault - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
         h1 { color: #333; }
@@ -15,6 +16,7 @@
     </style>
 </head>
 <body>
+    {% include 'includes/header.html' %}
     <h1>📁 Document Vault</h1>
     <p>Secure storage for your documents and evidence. All files are encrypted and accessible only with your unique token.</p>
     

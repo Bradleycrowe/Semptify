@@ -1,0 +1,23 @@
+{
+  "resource_id": "ef77b0a300a2",
+  "title": "Fair Housing Protections",
+  "category": "discrimination",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Protected classes under Fair Housing Act",
+  "key_facts": [
+    "Cannot discriminate based on race, color, religion, national origin",
+    "Sex (including sexual harassment) is protected",
+    "Familial status and disability are protected",
+    "Minnesota adds sexual orientation, gender identity, and public assistance"
+  ],
+  "citations": [
+    "42 U.S.C. \u00a7 3604",
+    "MN Stat \u00a7 363A.09"
+  ],
+  "effective_date": "1968-04-11",
+  "source_url": "",
+  "added_at": "2025-11-13T20:48:05.764087",
+  "last_updated": "2025-11-13T20:47:47.622020",
+  "tags": []
+}

@@ -1,0 +1,25 @@
+{
+  "resource_id": "59519c43d771",
+  "title": "Landlord Participation in Section 8 - Requirements & Benefits",
+  "category": "landlord_funding",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Guide for landlords on accepting Section 8 vouchers",
+  "key_facts": [
+    "Guaranteed monthly rent payment from housing authority",
+    "Tenant responsible for their portion (usually 30% of income)",
+    "Unit must pass HUD Housing Quality Standards inspection",
+    "Annual inspections required",
+    "Landlord can reject tenant for legitimate reasons (credit, rental history)",
+    "Cannot reject solely because tenant has voucher (in many states)"
+  ],
+  "citations": [
+    "24 CFR \u00a7 982.308",
+    "Local source of income protection laws"
+  ],
+  "effective_date": "1974-08-22",
+  "source_url": "https://www.hud.gov/topics/housing_choice_voucher_program_section_8",
+  "added_at": "2025-11-13T20:48:05.959236",
+  "last_updated": "2025-11-13T20:47:47.622036",
+  "tags": []
+}

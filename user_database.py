@@ -106,6 +106,22 @@ def init_database():
             FOREIGN KEY (user_id) REFERENCES users(user_id)
         )
     ''')
+    
+    # User situation data (captured during onboarding/setup)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_situations (
+            user_id TEXT PRIMARY KEY,
+            issue_type TEXT,
+            urgency TEXT,
+            notice_date TEXT,
+            has_evidence INTEGER DEFAULT 0,
+            has_attorney INTEGER DEFAULT 0,
+            situation_details TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+    ''')
 
     conn.commit()
     conn.close()
@@ -464,6 +480,58 @@ def get_user_by_id(user_id: str):
     conn.close()
     return dict(row) if row else None
 
+
+def save_user_situation(user_id: str, situation_data: Dict[str, Any]):
+    """Save or update user situation data."""
+    import json
+    conn = _get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO user_situations (user_id, issue_type, urgency, notice_date, has_evidence, has_attorney, situation_details, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ON CONFLICT(user_id) DO UPDATE SET
+            issue_type=excluded.issue_type,
+            urgency=excluded.urgency,
+            notice_date=excluded.notice_date,
+            has_evidence=excluded.has_evidence,
+            has_attorney=excluded.has_attorney,
+            situation_details=excluded.situation_details,
+            updated_at=datetime('now')
+    ''', (
+        user_id,
+        situation_data.get('issue_type'),
+        situation_data.get('urgency'),
+        situation_data.get('notice_date'),
+        1 if situation_data.get('has_evidence') else 0,
+        1 if situation_data.get('has_attorney') else 0,
+        json.dumps(situation_data.get('details', {}))
+    ))
+    conn.commit()
+    conn.close()
+
+
+def get_user_situation(user_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieve user situation data."""
+    import json
+    conn = _get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM user_situations WHERE user_id = ?', (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if not row:
+        return None
+    return {
+        'user_id': row[0],
+        'issue_type': row[1],
+        'urgency': row[2],
+        'notice_date': row[3],
+        'has_evidence': bool(row[4]),
+        'has_attorney': bool(row[5]),
+        'details': json.loads(row[6]) if row[6] else {},
+        'created_at': row[7],
+        'updated_at': row[8]
+    }
+
 # Initialize database on import
 init_database()
 
@@ -483,3 +551,36 @@ try:
 except ImportError:
     def _sync_to_r2_if_enabled():
         pass  # R2 adapter not available
+
+
+
+def init_remember_tokens_table():
+    """Initialize remember tokens table for persistent login"""
+    conn = _get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS remember_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            token_hash TEXT UNIQUE NOT NULL,
+            created_at TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            last_used TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+    ''')
+    
+    # Create index for faster lookups
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_remember_tokens_hash 
+        ON remember_tokens(token_hash)
+    ''')
+    
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_remember_tokens_user 
+        ON remember_tokens(user_id)
+    ''')
+    
+    conn.commit()
+    conn.close()

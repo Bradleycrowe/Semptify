@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy & Security - Semptify</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% include 'includes/header.html' %}
+<div class="container" style="max-width:960px;margin:32px auto;padding:0 16px;">
+  <h1>🔒 Privacy & Security</h1>
+  <p>Your information is yours. We store items under anonymous user IDs with token encryption. Even we cannot open your vault.</p>
+  <ul>
+    <li>Anonymous user ID + token-based encryption</li>
+    <li>Secure vault: files, messages, receipts, notes</li>
+    <li>No ads. No selling data. Private by default</li>
+    <li>End-to-end transport encryption</li>
+  </ul>
+  <p><a href="/vault">Go to your Vault →</a></p>
+</div>
+</body>
+</html>

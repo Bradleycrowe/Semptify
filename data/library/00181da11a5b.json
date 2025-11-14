@@ -1,0 +1,23 @@
+{
+  "resource_id": "00181da11a5b",
+  "title": "Minnesota Emergency Rental Assistance (RentHelpMN)",
+  "category": "tenant_funding",
+  "jurisdiction": "Minnesota",
+  "level": "state",
+  "summary": "State program providing emergency rental assistance to Minnesota tenants",
+  "key_facts": [
+    "Pays up to 18 months of past due and future rent",
+    "Income must be at or below 80% area median income",
+    "Must show pandemic-related hardship",
+    "Application submitted by tenant or landlord",
+    "Payment made directly to landlord"
+  ],
+  "citations": [
+    "MN Dept of Employment and Economic Development"
+  ],
+  "effective_date": "2021-03-01",
+  "source_url": "https://www.renthelpmn.org",
+  "added_at": "2025-11-13T20:48:05.878657",
+  "last_updated": "2025-11-13T20:47:47.622030",
+  "tags": []
+}

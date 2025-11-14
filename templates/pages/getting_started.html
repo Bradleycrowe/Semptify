@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Getting Started - Semptify</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  .container{max-width:960px;margin:32px auto;padding:0 16px}
+  .step{background:#fff;padding:18px;margin:12px 0;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+  .step h2{margin:0 0 8px;font-size:18px}
+  .step p{margin:4px 0;color:#555}
+  .cta{display:inline-block;margin-top:8px;padding:10px 14px;background:var(--brand-maroon);color:#fff;text-decoration:none}
+  .cta:hover{background:var(--brand-gold);color:var(--brand-maroon)}
+</style>
+</head>
+<body>
+{% include 'includes/header.html' %}
+<div class="container">
+  <h1>Welcome to Semptify</h1>
+  <p>Semptify is your renter’s toolbox. It helps you document everything, understand your rights, and prepare for next steps. Private by default. No ads. Your data is yours.</p>
+
+  <div class="step">
+    <h2>1) Secure Your Vault</h2>
+    <p>We store your items under an anonymous user ID with token encryption. Even we cannot open your vault.</p>
+    <a class="cta" href="/vault">Open my Vault →</a>
+  </div>
+
+  <div class="step">
+    <h2>2) Document Everything</h2>
+    <p>Upload photos, letters, texts, and receipts. Write down what happened with dates and times. Add witnesses.</p>
+    <a class="cta" href="/cards">See all actions →</a>
+  </div>
+
+  <div class="step">
+    <h2>3) Use the Move‑In Checklist</h2>
+    <p>Walk each room, take photos, and add notes. We timestamp and save everything.</p>
+    <a class="cta" href="/move-in">Open Move‑In Checklist →</a>
+  </div>
+
+  <div class="step">
+    <h2>4) Track Deadlines & Timeline</h2>
+    <p>Never miss important dates. Add notices, payments, hearings, and tasks.</p>
+    <a class="cta" href="/calendar-timeline">Go to Timeline →</a>
+  </div>
+
+  <div class="step">
+    <h2>5) Know Your Rights</h2>
+    <p>Read plain‑language guides. Find your jurisdiction. See forms and fees.</p>
+    <a class="cta" href="/laws">Open Law Library →</a>
+  </div>
+
+  <div class="step">
+    <h2>6) Build a Court Packet</h2>
+    <p>Quickly export a clean evidence packet and share with an attorney.</p>
+    <a class="cta" href="/packet/export">Build Packet →</a>
+  </div>
+
+  <div class="step">
+    <h2>7) Get Personalized Plan</h2>
+    <p>Tell us your situation. We’ll generate a step‑by‑step plan with options and stats.</p>
+    <a class="cta" href="/setup/situation">Start My Plan →</a>
+  </div>
+
+  <div class="step">
+    <h2>8) Research Tools</h2>
+    <p>Research your landlord and get AI‑assisted facts with sources. Save findings to your vault.</p>
+    <a class="cta" href="/landlord-research">Research Landlord →</a>
+    <a class="cta" href="/research" style="margin-left:8px">Research Assistant →</a>
+  </div>
+</div>
+</body>
+</html>

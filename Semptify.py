@@ -238,6 +238,13 @@ try:
     print("[OK] Ollama routes registered (/api/ollama/*)")
 except ImportError as e:
     print(f"[WARN] Ollama routes not available: {e}")
+# Packet Builder - SQLite-backed packet assembly system
+try:
+    from packet_builder import packet_builder_bp
+    app.register_blueprint(packet_builder_bp)
+    print("[OK] Packet builder registered (/api/packet-builder/*)")
+except ImportError as e:
+    print(f"[WARN] Packet builder not available: {e}")
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
     from veeper import veeper_bp
@@ -268,15 +275,32 @@ _has_admin_bp = _importlib_util.find_spec('admin') is not None
 # Core Pages
 @app.route("/")
 def home():
-    """Simple, clean landing page - Renter's Sidekick"""
-    # Dev mode: skip landing, go straight to dashboard
+    """Homepage with auto-login via remember-me cookie"""
+    # Check for remember-me cookie first
+    remember_token = request.cookies.get('remember_me')
+    if remember_token:
+        try:
+            from persistent_auth import verify_remember_token
+            user_data = verify_remember_token(remember_token)
+            if user_data:
+                # Auto-login: set session from remember token
+                session['user_id'] = user_data['user_id']
+                session['verified'] = True
+                session['user_name'] = f"{user_data.get('first_name','')} {user_data.get('last_name','')}".strip()
+                log_event("auto_login_remember_me", {"user_id": user_data['user_id']})
+                return redirect(url_for('dashboard'))
+        except Exception as e:
+            log_event("remember_token_error", {"error": str(e)})
+    
+    # Dev mode: skip landing if in open mode
     security_mode = os.environ.get('SECURITY_MODE', 'open')
-    if security_mode == 'open':
+    if security_mode == 'open' and not remember_token:
         session['user_id'] = 'dev_user'
         session['verified'] = True
         session['user_name'] = 'Dev User'
         return redirect(url_for('dashboard'))
-    
+
+    # Show landing page
     return render_template('index_simple.html')
 
 @app.route('/recover')

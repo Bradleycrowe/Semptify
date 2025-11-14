@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Personalized Plan - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .hero { background: var(--brand-gradient); color: white; padding: 40px 30px; margin-bottom: 30px; text-align: center; }
+        .hero h1 { font-size: 32px; margin-bottom: 12px; }
+        .hero p { font-size: 16px; opacity: 0.95; }
+        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        .stat { background: #fff; padding: 20px; text-align: center; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--brand-maroon); margin-bottom: 4px; }
+        .stat-label { font-size: 14px; color: #666; }
+        .section-title { font-size: 22px; font-weight: 700; margin: 24px 0 12px; color: #333; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-bottom: 30px; }
+        .card { background: #fff; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); transition: transform 0.15s, box-shadow 0.15s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .card-icon { font-size: 32px; }
+        .card-title { font-size: 19px; font-weight: 600; color: #222; }
+        .card-desc { font-size: 14px; color: #666; margin-bottom: 14px; line-height: 1.5; }
+        .meta-grid { display: grid; grid-template-columns: 1fr; gap: 8px; font-size: 13px; color: #444; margin-bottom: 14px; }
+        .meta-grid b { color: #222; font-weight: 600; }
+        .card-stats { background: #f9f9f9; padding: 12px; margin-bottom: 12px; font-size: 13px; }
+        .card-stats div { margin: 4px 0; }
+        .options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        .option-btn { padding: 10px 14px; background: #fff; border: 1px solid #ddd; text-decoration: none; color: #333; font-size: 14px; font-weight: 500; text-align: center; transition: all 0.15s; }
+        .option-btn:hover { border-color: var(--brand-maroon); background: var(--brand-maroon); color: white; }
+        .steps-list { font-size: 13px; color: #555; margin-top: 10px; }
+        .steps-list li { margin: 6px 0; padding-left: 4px; }
+        .primary-action { background: var(--brand-maroon); color: white; padding: 14px 24px; font-size: 16px; font-weight: 600; text-decoration: none; display: inline-block; margin-top: 10px; }
+        .primary-action:hover { background: var(--brand-gold); color: var(--brand-maroon); }
+        .urgency-high { border-left: 4px solid #dc3545; }
+        .urgency-medium { border-left: 4px solid #ffc107; }
+        .urgency-low { border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+    <div class="hero">
+        <h1>Your Personalized Action Plan</h1>
+        <p>Based on your situation, here's what you should do next—with stats, options, and step-by-step guidance.</p>
+    </div>
+
+    <div class="container">
+        {% if analysis %}
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">{{ analysis.success_rate }}</div>
+                <div class="stat-label">Success Rate with Documentation</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{ analysis.avg_resolution_days }} days</div>
+                <div class="stat-label">Average Resolution Time</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{ analysis.timeframe }}</div>
+                <div class="stat-label">Typical Timeframe</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value urgency-{{ analysis.urgency }}">{{ analysis.urgency|upper }}</div>
+                <div class="stat-label">Urgency Level</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if cards %}
+            {% for group, group_cards in cards_by_group.items() %}
+                <div class="section-title">{{ group }}</div>
+                <div class="cards-grid">
+                    {% for card in group_cards %}
+                        <div class="card urgency-{{ card.stats.urgency if card.stats and card.stats.urgency else 'medium' }}">
+                            <div class="card-head">
+                                <div class="card-icon">{{ card.icon or '⬜' }}</div>
+                                <div class="card-title">{{ card.title }}</div>
+                            </div>
+                            {% if card.description %}
+                                <div class="card-desc">{{ card.description }}</div>
+                            {% endif %}
+
+                            <div class="meta-grid">
+                                {% if card.what %}<div><b>What:</b> {{ card.what }}</div>{% endif %}
+                                {% if card.who %}<div><b>Who:</b> {{ card.who }}</div>{% endif %}
+                                {% if card.why %}<div><b>Why:</b> {{ card.why }}</div>{% endif %}
+                                {% if card.when %}<div><b>When:</b> {{ card.when }}</div>{% endif %}
+                            </div>
+
+                            {% if card.stats %}
+                                <div class="card-stats">
+                                    <strong>📊 Stats & Info:</strong>
+                                    {% for key, value in card.stats.items() %}
+                                        <div>• {{ key|replace('_', ' ')|title }}: {{ value }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if card.options %}
+                                <div class="options">
+                                    {% for opt in card.options %}
+                                        <a href="{{ opt.route }}" class="option-btn">{{ opt.label }}</a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if card.steps %}
+                                <strong>Steps:</strong>
+                                <ol class="steps-list">
+                                    {% for step in card.steps %}
+                                        <li>{{ step }}</li>
+                                    {% endfor %}
+                                </ol>
+                            {% endif %}
+
+                            <a href="{{ card.route }}" class="primary-action">Get Started →</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No personalized cards available. <a href="/setup/situation">Complete your situation assessment</a>.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

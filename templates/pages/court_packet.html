@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+{% block title %}Court Packet Wizard - Semptify{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>📁 Court Packet Wizard</h1>
+    <p class="lead">Organize your evidence into a professional court-ready packet.</p>
+
+    <!-- Create New Packet -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Create New Packet</h5>
+        </div>
+        <div class="card-body">
+            <form id="createPacketForm">
+                <div class="mb-3">
+                    <label class="form-label">Case Type</label>
+                    <select class="form-select" name="case_type" required>
+                        <option value="">Select case type...</option>
+                        <option value="eviction_defense">Eviction Defense</option>
+                        <option value="small_claims">Small Claims</option>
+                        <option value="housing_discrimination">Housing Discrimination</option>
+                        <option value="general">General Court Case</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Case Name</label>
+                    <input type="text" class="form-control" name="case_name" placeholder="e.g., Smith v. Jones Landlord LLC" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Case Number (optional)</label>
+                        <input type="text" class="form-control" name="case_number" placeholder="CV-2025-001234">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Court Name</label>
+                        <input type="text" class="form-control" name="court_name" placeholder="District Court">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Hearing Date (if known)</label>
+                    <input type="date" class="form-control" name="hearing_date">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Brief Summary</label>
+                    <textarea class="form-control" name="summary" rows="3" placeholder="Describe your case in a few sentences..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Packet</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing Packets -->
+    <h3>Your Packets</h3>
+    {% if packets %}
+    <div class="row">
+        {% for packet in packets %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <strong>{{ packet.case_name }}</strong>
+                    <span class="badge bg-{{ 'success' if packet.status == 'finalized' else 'warning' }} float-end">{{ packet.status }}</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Type:</strong> {{ packet.case_type.replace('_', ' ').title() }}</p>
+                    <p class="mb-2"><strong>Court:</strong> {{ packet.court_name or 'Not specified' }}</p>
+                    <p class="mb-2"><strong>Hearing:</strong> {{ packet.hearing_date or 'Not scheduled' }}</p>
+                    <p class="mb-2"><strong>Documents:</strong> {{ packet.documents|length }}</p>
+                    <p class="mb-2"><small class="text-muted">Updated: {{ packet.updated_at[:10] }}</small></p>
+                    <a href="{{ url_for('view_court_packet', packet_id=packet.packet_id) }}" class="btn btn-primary btn-sm">Open Packet</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p class="mb-0">No packets yet. Create your first packet above to get started!</p>
+    </div>
+    {% endif %}
+
+    <!-- Info Section -->
+    <div class="alert alert-info mt-4">
+        <h5>📋 How It Works</h5>
+        <ol>
+            <li><strong>Create a packet</strong> for your case type</li>
+            <li><strong>Add documents</strong> from your vault or upload new ones</li>
+            <li><strong>Organize evidence</strong> into sections (timeline, photos, communications)</li>
+            <li><strong>Review checklist</strong> to ensure you have everything</li>
+            <li><strong>Generate PDF</strong> with cover page and table of contents</li>
+            <li><strong>Share securely</strong> with your attorney or submit to court</li>
+        </ol>
+    </div>
+</div>
+
+<script>
+document.getElementById('createPacketForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    const caseInfo = {
+        case_name: formData.get('case_name'),
+        case_number: formData.get('case_number'),
+        court_name: formData.get('court_name'),
+        hearing_date: formData.get('hearing_date'),
+        summary: formData.get('summary')
+    };
+    
+    const response = await fetch('/api/court-packet/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            case_type: formData.get('case_type'),
+            case_info: caseInfo
+        })
+    });
+    
+    if (response.ok) {
+        const result = await response.json();
+        window.location.href = `/court-packet/${result.packet_id}`;
+    } else {
+        alert('Error creating packet. Please try again.');
+    }
+});
+</script>
+{% endblock %}

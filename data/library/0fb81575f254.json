@@ -1,0 +1,22 @@
+{
+  "resource_id": "0fb81575f254",
+  "title": "Security Deposit Laws",
+  "category": "security_deposit",
+  "jurisdiction": "Minnesota",
+  "level": "state",
+  "summary": "Rules governing security deposits, interest, and returns",
+  "key_facts": [
+    "Landlord must provide itemized list of deductions",
+    "Interest must be paid on deposits held over 1 year",
+    "Failure to return deposit within 21 days = bad faith",
+    "Tenant may recover 2x deposit plus attorney fees if landlord in bad faith"
+  ],
+  "citations": [
+    "MN Stat \u00a7 504B.178"
+  ],
+  "effective_date": "2024-01-01",
+  "source_url": "",
+  "added_at": "2025-11-13T20:48:05.727233",
+  "last_updated": "2025-11-13T20:47:47.622016",
+  "tags": []
+}

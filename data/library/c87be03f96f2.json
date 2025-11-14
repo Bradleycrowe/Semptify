@@ -1,0 +1,24 @@
+{
+  "resource_id": "c87be03f96f2",
+  "title": "Emergency Rental Assistance Program (ERAP)",
+  "category": "emergency_rental",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Federal funding for tenants struggling to pay rent due to COVID-19 or economic hardship",
+  "key_facts": [
+    "Covers past due rent, current rent, and future rent (up to 3 months)",
+    "Also covers utilities and internet service",
+    "No repayment required (not a loan)",
+    "Tenant must demonstrate financial hardship",
+    "Income must be at or below 80% area median income"
+  ],
+  "citations": [
+    "American Rescue Plan Act of 2021",
+    "ERA1 and ERA2 Programs"
+  ],
+  "effective_date": "2021-03-11",
+  "source_url": "https://home.treasury.gov/policy-issues/coronavirus/assistance-for-state-local-and-tribal-governments/emergency-rental-assistance-program",
+  "added_at": "2025-11-13T20:48:05.828547",
+  "last_updated": "2025-11-13T20:47:47.622026",
+  "tags": []
+}

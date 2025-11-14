@@ -1,0 +1,23 @@
+{
+  "resource_id": "46d5f9453f02",
+  "title": "HUD Housing Quality Standards",
+  "category": "federal_hud",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Federal minimum housing quality standards for HUD-assisted properties",
+  "key_facts": [
+    "All HUD housing must meet basic health and safety standards",
+    "Annual inspections required for Section 8 properties",
+    "Tenants can request special inspections for violations",
+    "Landlords must make repairs within 24 hours (emergency) or 30 days (non-emergency)"
+  ],
+  "citations": [
+    "24 CFR \u00a7 982.401",
+    "HUD Handbook 4350.3"
+  ],
+  "effective_date": "2000-01-01",
+  "source_url": "",
+  "added_at": "2025-11-13T20:48:05.790018",
+  "last_updated": "2025-11-13T20:47:47.622022",
+  "tags": []
+}

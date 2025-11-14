@@ -112,6 +112,14 @@
     "prepare_evidence_packet": {
       "attempts": 80,
       "successes": 58
+    },
+    "file_eviction_response": {
+      "attempts": 3,
+      "successes": 3
+    },
+    "review_lease_terms": {
+      "attempts": 1,
+      "successes": 1
     }
   },
   "user_habits": {
@@ -151,6 +159,15 @@
       "gather_communication_records": 2,
       "file_hud_complaint": 1,
       "find_legal_aid_nearby": 1
+    },
+    "test_user_123": {
+      "file_eviction_response": 2
+    },
+    "test": {
+      "file_eviction_response": 1
+    },
+    "dev_user": {
+      "review_lease_terms": 1
     }
   },
   "time_patterns": {
@@ -196,9 +213,7 @@
       "check_housing_codes": 10
     },
     "9": {
-      "prepare_evidence_packet": 18,
-      "organize_timeline": 16,
-      "file_complaint": 12
+      "file_eviction_response": 1
     },
     "10": {
       "create_witness_statement": 20,
@@ -209,6 +224,9 @@
       "file_answer": 12,
       "send_repair_demand": 10,
       "request_inspection": 8
+    },
+    "14": {
+      "review_lease_terms": 1
     }
   },
   "action_tips": {

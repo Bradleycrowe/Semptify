@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Semptify Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         * { 
             margin: 0; 
@@ -399,12 +400,9 @@
     <script src="/static/js/timeline_widget.js"></script>
 </head>
 <body>
+    {% include 'includes/header.html' %}
 
-<!-- HEADER - Fixed, min-height 60px -->
-<div class="header">
-    <h1>🏠 Semptify Dashboard</h1>
-    <div class="user-info">Welcome, User</div>
-</div>
+<!-- Global header included above -->
 
 <!-- BODY - Scrollable container for rows A-F -->
 <div class="dashboard-body">

@@ -1,0 +1,23 @@
+{
+  "resource_id": "8d6d1adee0ea",
+  "title": "HUD Rental Assistance Programs Overview",
+  "category": "federal_hud",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Comprehensive overview of HUD rental assistance programs",
+  "key_facts": [
+    "Public Housing - government-owned properties for low-income families",
+    "Section 8 Vouchers - tenant-based rental assistance",
+    "Project-Based Section 8 - assistance tied to specific buildings",
+    "Section 811 - housing for people with disabilities",
+    "Section 202 - housing for elderly (62+)"
+  ],
+  "citations": [
+    "24 CFR Parts 5, 880, 882, 960, 982"
+  ],
+  "effective_date": "1937-09-01",
+  "source_url": "https://www.hud.gov/topics/rental_assistance",
+  "added_at": "2025-11-13T20:48:05.929175",
+  "last_updated": "2025-11-13T20:47:47.622034",
+  "tags": []
+}

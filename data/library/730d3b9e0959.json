@@ -1,0 +1,24 @@
+{
+  "resource_id": "730d3b9e0959",
+  "title": "Minnesota Tenant Rights Overview",
+  "category": "tenant_rights",
+  "jurisdiction": "Minnesota",
+  "level": "state",
+  "summary": "Comprehensive overview of tenant rights under Minnesota Statutes Chapter 504B",
+  "key_facts": [
+    "Landlords must provide 24-hour notice before entry (except emergencies)",
+    "Security deposits must be returned within 21 days",
+    "Tenants have right to withhold rent for uninhabitable conditions",
+    "Retaliation for exercising rights is illegal"
+  ],
+  "citations": [
+    "MN Stat \u00a7 504B.211",
+    "MN Stat \u00a7 504B.178",
+    "MN Stat \u00a7 504B.285"
+  ],
+  "effective_date": "2024-01-01",
+  "source_url": "",
+  "added_at": "2025-11-13T20:48:05.678813",
+  "last_updated": "2025-11-13T20:47:47.622003",
+  "tags": []
+}

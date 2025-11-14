@@ -3,6 +3,8 @@ Calendar Master View - Central hub for vault documents, events, and packet assem
 """
 from flask import Blueprint, render_template, request, jsonify
 from functools import wraps
+import sqlite3
+from user_database import DB_PATH
 
 calendar_master_bp = Blueprint('calendar_master', __name__)
 
@@ -18,14 +20,33 @@ def calendar_master():
 
 @calendar_master_bp.route('/api/calendar/vault-items')
 def vault_items():
-    """Get all vault items organized by date"""
-    # TODO: Integrate with vault to fetch user documents
-    # For now, return structure
-    return jsonify({
-        "items": [],
-        "categories": ["evidence", "receipts", "correspondence", "photos", "recordings"],
-        "timeline": []
-    })
+    """Get all vault items organized by date from SQLite"""
+    user_token = _get_user_token()
+    if not user_token:
+        return jsonify({"error": "Authentication required"}), 401
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute(
+            '''SELECT doc_id, filename, file_type, category, upload_date, file_size, description, tags
+               FROM vault_documents WHERE user_id = ? ORDER BY upload_date DESC''',
+            (user_token,)
+        )
+        rows = cur.fetchall()
+        items = [dict(r) for r in rows]
+        return jsonify({
+            "items": items,
+            "categories": ["evidence","receipts","correspondence","photos","recordings","other"],
+            "timeline": []
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "items": [], "categories": [], "timeline": []}), 500
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 @calendar_master_bp.route('/api/calendar/packet-builder')
 def packet_builder():
@@ -35,3 +56,6 @@ def packet_builder():
         "packet_types": ["eviction_defense", "repair_claim", "discrimination", "security_deposit"],
         "templates": []
     })
+
+
+

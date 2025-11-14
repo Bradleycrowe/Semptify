@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tell Us Your Situation - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: #f5f7fa; }
+        .container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+        .card { background: #fff; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        h1 { font-size: 28px; color: #222; margin-bottom: 12px; }
+        .subtitle { font-size: 15px; color: #666; margin-bottom: 30px; line-height: 1.6; }
+        label { display: block; font-weight: 600; margin-top: 20px; margin-bottom: 6px; color: #333; }
+        .help-text { font-size: 13px; color: #777; margin-top: 4px; }
+        input[type="text"], input[type="date"], select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 8px;
+        }
+        textarea { min-height: 100px; resize: vertical; font-family: inherit; }
+        .checkbox-group { margin: 20px 0; }
+        .checkbox-group label { display: flex; align-items: center; font-weight: 400; margin: 8px 0; }
+        .checkbox-group input[type="checkbox"] { margin-right: 8px; width: auto; }
+        .btn { background: var(--brand-maroon); color: white; padding: 14px 28px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; width: 100%; margin-top: 20px; }
+        .btn:hover { background: var(--brand-gold); color: var(--brand-maroon); }
+        .urgency-options { display: flex; gap: 12px; margin-top: 8px; }
+        .urgency-btn { flex: 1; padding: 12px; text-align: center; border: 2px solid #ddd; background: #fff; cursor: pointer; font-weight: 500; }
+        .urgency-btn.selected { border-color: var(--brand-maroon); background: var(--brand-maroon); color: white; }
+        .urgency-btn:hover { border-color: var(--brand-gold); }
+    </style>
+</head>
+<body>
+    {% include 'includes/header.html' %}
+    <div class="container">
+        <div class="card">
+            <h1>📋 Tell Us Your Situation</h1>
+            <p class="subtitle">
+                Help us understand what's happening so we can give you the right guidance, forms, and action steps. 
+                This takes 2-3 minutes and helps us build a personalized plan.
+            </p>
+
+            <form method="POST" action="/setup/situation">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <label for="issue_type">What's the main issue? *</label>
+                <select name="issue_type" id="issue_type" required>
+                    <option value="">-- Select --</option>
+                    <option value="eviction_notice">Eviction Notice / Lockout</option>
+                    <option value="repair_issues">Repairs Not Done</option>
+                    <option value="rent_dispute">Rent Payment Dispute</option>
+                    <option value="deposit_return">Security Deposit Not Returned</option>
+                    <option value="harassment">Landlord Harassment</option>
+                    <option value="lease_violation">Lease Violation Claim</option>
+                    <option value="other">Other</option>
+                </select>
+                <div class="help-text">Pick the issue causing the most urgency right now.</div>
+
+                <label>How urgent is this? *</label>
+                <div class="urgency-options">
+                    <div class="urgency-btn" onclick="selectUrgency('low')">
+                        🟢 Low<br><small>Can wait weeks</small>
+                    </div>
+                    <div class="urgency-btn" onclick="selectUrgency('medium')">
+                        🟡 Medium<br><small>Within days</small>
+                    </div>
+                    <div class="urgency-btn urgency-high" onclick="selectUrgency('high')">
+                        🔴 High<br><small>Immediate</small>
+                    </div>
+                </div>
+                <input type="hidden" name="urgency" id="urgency" required>
+
+                <label for="notice_date">Did you receive a notice? If yes, when?</label>
+                <input type="date" name="notice_date" id="notice_date">
+                <div class="help-text">Leave blank if not applicable. This helps us calculate deadlines.</div>
+
+                <label for="situation_summary">Brief summary (optional)</label>
+                <textarea name="situation_summary" id="situation_summary" placeholder="Example: Landlord won't fix broken heat. Sent 3 emails, no response for 2 weeks."></textarea>
+
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="has_evidence" value="1">
+                        I have photos, emails, or other documentation
+                    </label>
+                    <label>
+                        <input type="checkbox" name="has_attorney" value="1">
+                        I already have an attorney helping me
+                    </label>
+                    <label>
+                        <input type="checkbox" name="receives_assistance" value="1">
+                        I receive housing assistance (Section 8, etc.)
+                    </label>
+                </div>
+
+                <button type="submit" class="btn">Continue to Personalized Plan</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function selectUrgency(level) {
+            document.querySelectorAll('.urgency-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.closest('.urgency-btn').classList.add('selected');
+            document.getElementById('urgency').value = level;
+        }
+    </script>
+</body>
+</html>

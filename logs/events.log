@@ -444,3 +444,19 @@
 {"event": "user_verified", "payload": {"email": null, "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762910519.6010072}
 {"event": "login_code_sent", "payload": {"email": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762912623.5819345}
 {"event": "user_verified", "payload": {"email": null, "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1762912666.7182043}
+{"event": "user_signin_started", "payload": {"contact": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763019794.7011383}
+{"event": "user_signin_error", "payload": {"error": "Could not build url for endpoint 'verify' with values ['user_id']. Did you mean 'auth.verify' instead?"}, "ts": 1763019794.7098198}
+{"event": "user_signin_started", "payload": {"contact": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763019804.0453086}
+{"event": "user_signin_error", "payload": {"error": "Could not build url for endpoint 'verify' with values ['user_id']. Did you mean 'auth.verify' instead?"}, "ts": 1763019804.0545125}
+{"event": "login_code_sent", "payload": {"email": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763019941.637934}
+{"event": "user_verified", "payload": {"email": null, "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763019965.3701487}
+{"event": "login_code_sent", "payload": {"email": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763020039.719727}
+{"event": "verification_code_resent", "payload": {"user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763020053.687765}
+{"event": "user_verified", "payload": {"email": null, "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763020075.699411}
+{"event": "login_code_sent", "payload": {"email": "bradcrowe45@gmail.com", "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763020134.1820343}
+{"event": "user_verified", "payload": {"email": null, "user_id": "0BJzNVjFXHqCW8fHHuy9tQ"}, "ts": 1763020154.0644577}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763041126.0212262}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763041126.0212262}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763044338.1650858}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763044338.169934}
+{"event": "situation_saved", "payload": {"issue_type": "lease_violation", "user_id": "dev_user"}, "ts": 1763066634.678926}

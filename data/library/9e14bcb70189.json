@@ -1,0 +1,24 @@
+{
+  "resource_id": "9e14bcb70189",
+  "title": "Fair Housing Act - National Law",
+  "category": "fair_housing_act",
+  "jurisdiction": "Federal",
+  "level": "federal",
+  "summary": "Federal law prohibiting housing discrimination",
+  "key_facts": [
+    "Prohibits discrimination in sale, rental, and financing of housing",
+    "Protected classes: race, color, religion, national origin, sex, disability, familial status",
+    "Applies to landlords, property managers, lenders, and real estate agents",
+    "Tenants can file complaint with HUD within 1 year",
+    "Violations can result in fines up to $100,000+"
+  ],
+  "citations": [
+    "42 U.S.C. \u00a7 3601-3619",
+    "24 CFR Part 100"
+  ],
+  "effective_date": "1968-04-11",
+  "source_url": "https://www.hud.gov/program_offices/fair_housing_equal_opp/fair_housing_act_overview",
+  "added_at": "2025-11-13T20:48:05.897725",
+  "last_updated": "2025-11-13T20:47:47.622032",
+  "tags": []
+}

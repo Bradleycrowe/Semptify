@@ -229,6 +229,14 @@
                        oninput="handleCodeInput(this, 5)" onkeydown="handleBackspace(event, 5)">
             </div>
 
+                        
+            <div style="margin: 20px 0; text-align: left;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="remember_me" value="1" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-size: 14px; color: #555;">Remember me for 30 days</span>
+                </label>
+            </div>
+
             <button type="button" class="verify-button" id="verifyBtn" disabled onclick="submitCode()">
                 Verify Account
             </button>
@@ -245,3 +253,4 @@
     </div>
 </body>
 </html>
+

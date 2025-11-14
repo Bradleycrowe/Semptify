@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actions Catalog - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .group-title { font-size: 22px; font-weight: 700; margin: 24px 0 12px; color: #333; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        .card { background: #fff; padding: 18px; text-decoration: none; color: inherit; box-shadow: 0 1px 6px rgba(0,0,0,0.06); transition: transform .15s ease, box-shadow .15s ease; display: block; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); }
+        .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .card-icon { font-size: 26px; }
+        .card-title { font-size: 18px; font-weight: 600; color: #222; }
+        .card-desc { font-size: 13px; color: #666; margin-bottom: 10px; }
+        .meta { display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 12px; color: #444; }
+        .meta b { color: #222; font-weight: 600; }
+    </style>
+    
+</head>
+<body>
+    {% include 'includes/header.html' %}
+    <div class="container">
+        {% if grouped_cards %}
+            {% for group, cards in grouped_cards.items() %}
+                <div class="group-title">{{ group }}</div>
+                <div class="cards-grid">
+                    {% for c in cards %}
+                        <a class="card" href="{{ c.route or '#' }}">
+                            <div class="card-head">
+                                <div class="card-icon">{{ c.icon or '⬜' }}</div>
+                                <div class="card-title">{{ c.title }}</div>
+                            </div>
+                            {% if c.description %}<div class="card-desc">{{ c.description }}</div>{% endif %}
+                            <div class="meta">
+                                {% if c.what %}<div><b>What:</b> {{ c.what }}</div>{% endif %}
+                                {% if c.who %}<div><b>Who:</b> {{ c.who }}</div>{% endif %}
+                                {% if c.why %}<div><b>Why:</b> {{ c.why }}</div>{% endif %}
+                                {% if c.when %}<div><b>When:</b> {{ c.when }}</div>{% endif %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No cards available.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

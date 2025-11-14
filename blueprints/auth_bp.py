@@ -163,3 +163,25 @@ def resend_code():
 @auth_bp.route('/recover')
 def recover():
     return render_template('token_recovery.html')
+
+
+@auth_bp.route('/logout')
+def logout():
+    """Logout user - clear session and remember token"""
+    from persistent_auth import delete_remember_token
+    
+    # Delete remember token if exists
+    remember_token = request.cookies.get('remember_me')
+    if remember_token:
+        delete_remember_token(remember_token)
+    
+    # Clear session
+    session.clear()
+    
+    # Create response and delete cookie
+    resp = redirect(url_for('index'))
+    resp.set_cookie('remember_me', '', expires=0)
+    
+    log_event("user_logout", {"ip": request.remote_addr})
+    return resp
+

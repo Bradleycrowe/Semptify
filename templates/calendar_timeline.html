@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar Timeline - Semptify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         * {
             margin: 0;
@@ -318,6 +319,7 @@
     </style>
 </head>
 <body>
+    {% include 'includes/header.html' %}
     <div class="container">
         <header>
             <h1>📅 Calendar & Timeline</h1>
