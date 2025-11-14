@@ -1,3 +1,4 @@
+# Updated: 2025-11-14 02:47:41 - Fixed except Exception syntax for Python 3.9+
 """
 Document Vault for Semptify - Tenant Document Storage
 
@@ -500,5 +501,6 @@ def _cert_path(user_id, filename):
 if __name__ == '__main__':
     _ensure_dirs(UPLOAD_ROOT)
     app.run(host='127.0.0.1', port=5000, debug=True)
+
 
 
