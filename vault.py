@@ -357,14 +357,14 @@ def _cert_path(user_id, filename):
         try:
             with open(cert_path, 'r', encoding='utf-8') as f:
                 cert = json.load(f)
-        except Exception:
+        except Exception as e:
             return jsonify({"error": "corrupt cert"}), 500
 
         # Load encrypted data
         try:
             with open(encrypted_path, 'rb') as f:
                 encrypted_data = f.read()
-        except Exception:
+        except Exception as e:
             return jsonify({"error": "cannot read file"}), 500
 
         # Verify integrity of encrypted data
@@ -419,7 +419,7 @@ def _cert_path(user_id, filename):
         try:
             with open(cert_path, 'r', encoding='utf-8') as f:
                 cert = json.load(f)
-        except Exception:
+        except Exception as e:
             return jsonify({"error": "corrupt cert"}), 500
 
         att = {
@@ -500,4 +500,5 @@ def _cert_path(user_id, filename):
 if __name__ == '__main__':
     _ensure_dirs(UPLOAD_ROOT)
     app.run(host='127.0.0.1', port=5000, debug=True)
+
 
