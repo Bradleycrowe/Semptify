@@ -1,9 +1,8 @@
 services:
   - type: web
     name: semptify
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python run_prod.py
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: PYTHON_VERSION
         value: 3.11
