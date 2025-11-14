@@ -1,44 +1,11 @@
 services:
   - type: web
-    name: Semptify
-    runtime: docker
-    plan: free
-    region: ohio
+    name: semptify
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run_prod.py
     envVars:
-      - key: AI_PROVIDER
-        value: openai
-      - key: OPENAI_BASE_URL
-        value: https://api.groq.com/openai/v1/chat/completions
-      - key: OPENAI_MODEL
-        value: llama-3.1-8b-instant
-      - key: OPENAI_API_KEY
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: GROQ_API_KEY
         sync: false
-      - key: AZURE_OPENAI_ENDPOINT
-        sync: false
-      - key: AZURE_OPENAI_API_KEY
-        sync: false
-      - key: AZURE_OPENAI_DEPLOYMENT
-        sync: false
-      - key: AZURE_OPENAI_API_VERSION
-        value: "2024-02-15-preview"
-      - key: FLASK_SECRET
-        sync: false
-      - key: ADMIN_TOKEN
-        sync: false
-      - key: SECURITY_MODE
-        value: open
-      - key: FORCE_HTTPS
-        value: "1"
-      - key: HSTS_MAX_AGE
-        value: "31536000"
-      - key: HSTS_PRELOAD
-        value: "1"
-      - key: ACCESS_LOG_JSON
-        value: "1"
-      - key: ADMIN_RATE_WINDOW
-        value: "60"
-      - key: ADMIN_RATE_MAX
-        value: "60"
-      - key: ADMIN_RATE_STATUS
-        value: "429"
-
