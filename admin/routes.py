@@ -32,7 +32,7 @@ def _admin_check():
     """Extract token from request and validate admin access."""
     token = request.args.get('token') or request.args.get('admin_token') or request.headers.get('X-Admin-Token')
     if not validate_admin_token(token):
-        return None, ("unauthorized", 401), None
+        return None, "unauthorized", 401
 
     # Check rate limit AFTER auth
     ip = request.remote_addr or 'unknown'
@@ -40,7 +40,7 @@ def _admin_check():
     if not check_rate_limit(rate_key):
         log_event("admin_rate_limited", {"path": request.path, "ip": ip})
         incr_metric("rate_limited_total")
-        return None, (jsonify({'error': 'rate_limited'}), int(os.environ.get('ADMIN_RATE_STATUS', '429'))), None
+        return None, jsonify({'error': 'rate_limited'}), int(os.environ.get('ADMIN_RATE_STATUS', '429'))
 
     # Handle breakglass token (one-shot use)
     if token and is_breakglass_active(token):
@@ -281,4 +281,93 @@ def human_perspective_panel():
         result = humanize_object(obj, context)
 
     return render_template('admin/human_perspective.html', csrf_token=csrf, result=result, input_text=input_text, format_pref=format_pref)
+
+
+# =============================
+# GRAPHICAL CONTROL PANEL (GA-STYLE)
+# =============================
+@admin_bp.route('/control-panel')
+def control_panel():
+    '''State-of-the-art graphical admin interface with integrated manuals.'''
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    
+    try:
+        from admin_control_engine import build_admin_context
+        context = build_admin_context()
+    except Exception:
+        context = {
+            'overview': {
+                'security_mode': os.environ.get('SECURITY_MODE', 'open'),
+                'ai_provider': os.environ.get('AI_PROVIDER', 'openai'),
+                'admin_tokens': 0,
+                'total_users': 0,
+                'timeline_events': 0,
+            },
+            'panels': [],
+            'recent_events': [],
+        }
+    
+    return render_template('admin/control_panel.html', **context)
+
+# =============================
+# TEMPORARY ACCESS API
+# =============================
+@admin_bp.route('/issue-temp-access', methods=['POST'])
+def issue_temp_access():
+    '''Issue temporary access tokens (admin-only; excludes vault).'''
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    
+    try:
+        from temp_access_engine import issue_temp_token
+        payload = request.get_json()
+        scope = payload.get('scope')
+        issued_to = payload.get('issued_to')
+        minutes = int(payload.get('minutes', 60))
+        
+        result = issue_temp_token(
+            scope=scope,
+            issued_to=issued_to,
+            minutes=minutes,
+            issued_by=f"admin_{token[:8] if token else 'system'}"
+        )
+        log_event('temp_access_issued', {'scope': scope, 'issued_to': issued_to, 'minutes': minutes})
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@admin_bp.route('/list-temp-access')
+def list_temp_access():
+    '''List all active temporary access tokens.'''
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    
+    try:
+        from temp_access_engine import list_temp_tokens
+        tokens = list_temp_tokens()
+        return jsonify({'tokens': tokens, 'count': len(tokens)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/revoke-temp-access', methods=['POST'])
+def revoke_temp_access():
+    '''Revoke a temporary access token immediately.'''
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    
+    try:
+        from temp_access_engine import revoke_temp_token
+        payload = request.get_json()
+        token_to_revoke = payload.get('token')
+        revoked = revoke_temp_token(token_to_revoke)
+        if revoked:
+            log_event('temp_access_revoked', {'token': token_to_revoke[:8]})
+        return jsonify({'revoked': revoked})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 

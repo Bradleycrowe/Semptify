@@ -1,3 +1,7 @@
+{% set storage = settings.storage_status %}
+{% set account = settings.account_info %}
+{% set privacy = settings.privacy_preferences %}
+{% set export_options = settings.export_options %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,161 +32,134 @@
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-10 col-lg-8">
-                
-                <!-- Page Header -->
                 <div class="d-flex align-items-center mb-4">
                     <h2 class="me-3">⚙️ User Settings</h2>
                     <span class="badge bg-primary">Manage Your Account</span>
                 </div>
 
-                <!-- Storage Settings Card -->
                 <div class="card shadow mb-4">
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0">📁 Storage Settings</h4>
                     </div>
                     <div class="card-body">
-                        
-                        <!-- Current Storage Status -->
                         <div class="current-storage mb-4 p-3 bg-light rounded">
                             <h5>Current Storage:</h5>
-                            <div id="storage-status">
-                                <div class="d-flex align-items-center">
-                                    <span class="me-3">🔒</span>
-                                    <div>
-                                        <strong>Automatic Secure Storage</strong>
-                                        <div class="text-muted small">
-                                            Storage used: <span class="badge bg-success">234 MB / 1 GB Free</span>
-                                        </div>
+                            <div class="d-flex align-items-center">
+                                <span class="me-3">{{ storage.icon }}</span>
+                                <div>
+                                    <strong>{{ storage.provider }}</strong>
+                                    <div class="text-muted small">
+                                        Storage used:
+                                        <span class="badge bg-success">
+                                            {{ storage.usage_label }}
+                                        </span>
+                                    </div>
+                                    <div class="text-muted small">
+                                        Encryption: {{ storage.encryption }} • Region: {{ storage.region }}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Storage Options -->
                         <h5 class="mb-3">Available Storage Options:</h5>
-                        
-                        <!-- Auto Storage Option -->
+                        {% for option in settings.storage_options %}
                         <div class="storage-option mb-3 p-3 border rounded">
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <div>
                                     <div class="d-flex align-items-center mb-2">
-                                        <span class="me-2">🔒</span>
-                                        <strong>Automatic Secure Storage</strong>
-                                        <span class="badge bg-success ms-2">ACTIVE</span>
+                                        <span class="me-2">{{ option.icon }}</span>
+                                        <strong>{{ option.label }}</strong>
+                                        {% if option.is_active %}
+                                            <span class="badge bg-success ms-2">ACTIVE</span>
+                                        {% endif %}
                                     </div>
-                                    <p class="text-muted small mb-0">
-                                        Fully encrypted, zero-setup storage with 1GB free tier
-                                    </p>
+                                    <p class="text-muted small mb-0">{{ option.description }}</p>
                                 </div>
-                                <button class="btn btn-outline-secondary" disabled>
-                                    Currently Active
-                                </button>
+                                <div class="mt-3 mt-md-0">
+                                    {% if option.is_active %}
+                                        <button class="btn btn-outline-secondary" disabled>
+                                            Currently Active
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-primary" data-provider="{{ option.provider }}" onclick="switchStorage(this)">
+                                            {{ option.cta }}
+                                        </button>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
+                        {% endfor %}
 
-                        <!-- Google Drive Option -->
-                        <div class="storage-option mb-3 p-3 border rounded">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="https://developers.google.com/drive/images/drive_icon.png" width="24" height="24" class="me-2" alt="Google Drive">
-                                        <strong>Google Drive Integration</strong>
-                                    </div>
-                                    <p class="text-muted small mb-0">
-                                        Use your personal Google Drive (15GB free with Google account)
-                                    </p>
-                                </div>
-                                <button class="btn btn-primary" onclick="switchToGoogleDrive()">
-                                    Connect Google Drive
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Storage Migration Notice -->
                         <div class="alert alert-info">
                             <h6><strong>💡 Switching Storage:</strong></h6>
                             <p class="mb-0 small">
-                                When you switch storage providers, we'll help you migrate your existing documents. 
-                                This process is automatic and secure.
+                                When you switch storage providers, we'll help migrate your existing documents automatically and securely.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Account Settings Card -->
                 <div class="card shadow mb-4">
                     <div class="card-header bg-secondary text-white">
                         <h4 class="mb-0">👤 Account Settings</h4>
                     </div>
                     <div class="card-body">
-                        
-                        <!-- User Info -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">User ID</label>
-                                <input type="text" class="form-control" value="USER-7429851" readonly>
+                                <input type="text" class="form-control" value="{{ account.user_id }}" readonly>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Registration Date</label>
-                                <input type="text" class="form-control" value="November 12, 2025" readonly>
+                                <input type="text" class="form-control" value="{{ account.registration_date }}" readonly>
                             </div>
                         </div>
 
-                        <!-- Access Token Management -->
                         <div class="mb-3">
                             <label class="form-label">Access Token</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" id="access-token" value="*************" readonly>
-                                <button class="btn btn-outline-secondary" onclick="toggleTokenVisibility()">
+                                <input type="password" class="form-control" id="access-token" value="{{ account.token_masked }}" readonly data-token="{{ account.token_plain }}">
+                                <button class="btn btn-outline-secondary" onclick="toggleTokenVisibility(this)">
                                     👁️ Show
                                 </button>
-                                <button class="btn btn-warning" onclick="regenerateToken()">
+                                <button class="btn btn-warning" onclick="regenerateToken(this)">
                                     🔄 Regenerate
                                 </button>
                             </div>
-                            <div class="form-text">Keep this token secure - it's your key to access your documents</div>
+                            <div class="form-text">Keep this token secure - it is required to access your documents.</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Privacy & Security Card -->
                 <div class="card shadow mb-4">
                     <div class="card-header bg-success text-white">
                         <h4 class="mb-0">🛡️ Privacy & Security</h4>
                     </div>
                     <div class="card-body">
-                        
-                        <!-- Privacy Settings -->
+                        {% for pref in privacy %}
                         <div class="mb-3">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="encrypt-uploads" checked>
-                                <label class="form-check-label" for="encrypt-uploads">
-                                    <strong>Encrypt all uploads</strong> (Recommended)
+                                <input class="form-check-input" type="checkbox" id="{{ pref.id }}" {% if pref.enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ pref.id }}">
+                                    <strong>{{ pref.label }}</strong>
                                 </label>
                             </div>
-                            <div class="form-text">Documents are encrypted before upload using your personal encryption key</div>
+                            <div class="form-text">{{ pref.description }}</div>
                         </div>
+                        {% endfor %}
 
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="auto-delete">
-                                <label class="form-check-label" for="auto-delete">
-                                    <strong>Auto-delete after 7 years</strong>
-                                </label>
-                            </div>
-                            <div class="form-text">Automatically remove old documents for compliance</div>
-                        </div>
-
-                        <!-- Export Data -->
                         <div class="mt-4">
                             <h6>Data Export</h6>
-                            <p class="text-muted small">Download all your documents and data</p>
-                            <button class="btn btn-outline-primary">📥 Export All Data</button>
+                            <p class="text-muted small">Download your documents or request a complete archive.</p>
+                            {% for export in export_options %}
+                                <button class="btn btn-outline-primary me-2 mb-2" data-export="{{ export.id }}" onclick="requestExport(this)">
+                                    {{ export.label }}
+                                </button>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
 
-                <!-- Danger Zone -->
                 <div class="card shadow border-danger">
                     <div class="card-header bg-danger text-white">
                         <h4 class="mb-0">⚠️ Danger Zone</h4>
@@ -192,8 +169,7 @@
                             <div class="col-md-8">
                                 <h6>Delete Account</h6>
                                 <p class="text-muted small">
-                                    Permanently delete your account and all associated documents. 
-                                    This action cannot be undone.
+                                    Permanently delete your account and all associated documents. This action cannot be undone.
                                 </p>
                             </div>
                             <div class="col-md-4 text-end">
@@ -210,46 +186,50 @@
     </div>
 
     <script>
-        function switchToGoogleDrive() {
-            if (confirm('Switch to Google Drive? We\'ll help migrate your existing documents.')) {
+        function switchStorage(button) {
+            const provider = button.dataset.provider;
+            if (!provider) return;
+            if (provider === 'google_drive') {
                 window.location.href = '/auth/google-drive?migrate=true';
+                return;
             }
+            fetch('/api/setup-auto-storage', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => alert(data.message || 'Storage provider updated.'))
+                .catch(() => alert('Unable to update storage at the moment.'));
         }
 
-        function toggleTokenVisibility() {
+        function toggleTokenVisibility(button) {
             const tokenInput = document.getElementById('access-token');
-            const button = event.target;
-            
             if (tokenInput.type === 'password') {
                 tokenInput.type = 'text';
-                tokenInput.value = '4729851639274582';
+                tokenInput.value = tokenInput.dataset.token;
                 button.innerHTML = '🙈 Hide';
             } else {
                 tokenInput.type = 'password';
-                tokenInput.value = '*************';
+                tokenInput.value = '{{ account.token_masked }}';
                 button.innerHTML = '👁️ Show';
             }
         }
 
-        function regenerateToken() {
-            if (confirm('Generate a new access token? Your old token will stop working.')) {
-                // API call to regenerate token
-                fetch('/api/regenerate-token', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('✅ New token generated! Make sure to update any saved tokens.');
-                        location.reload();
-                    }
-                });
-            }
+        function regenerateToken(button) {
+            button.disabled = true;
+            fetch('/api/regenerate-token', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => alert(data.message || 'Token regenerated.'))
+                .catch(() => alert('Unable to regenerate token right now.'))
+                .finally(() => button.disabled = false);
+        }
+
+        function requestExport(button) {
+            const type = button.dataset.export;
+            alert('Preparing '+ type +' export. We will email you when it is ready.');
         }
 
         function confirmDeleteAccount() {
             const confirmation = prompt('Type "DELETE" to confirm account deletion:');
             if (confirmation === 'DELETE') {
-                alert('Account deletion initiated. You will receive a confirmation email.');
-                // API call to delete account
+                alert('Account deletion initiated. Support will contact you for verification.');
             }
         }
     </script>
