@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Calendar - Document Journey{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">📅 Your Document Journey</h1>
+            <p class="lead">Visual timeline of all your vault documents, events, and court packets</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary" id="vaultCount">0</h3>
+                    <p class="mb-0">Vault Items</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success" id="eventCount">0</h3>
+                    <p class="mb-0">Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning" id="packetCount">0</h3>
+                    <p class="mb-0">Packets Ready</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info" id="deadlineCount">0</h3>
+                    <p class="mb-0">Upcoming Deadlines</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <ul class="nav nav-tabs mb-3" id="calendarTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button">
+                📊 Timeline View
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="vault-tab" data-bs-toggle="tab" data-bs-target="#vault" type="button">
+                🗄️ Vault Documents
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="packets-tab" data-bs-toggle="tab" data-bs-target="#packets" type="button">
+                📋 Court Packets
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="calendarTabContent">
+        <!-- Timeline View -->
+        <div class="tab-pane fade show active" id="timeline" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Visual Timeline</h5>
+                    <div id="timelineContainer">
+                        <iframe src="/calendar-timeline" style="width:100%; height:600px; border:none;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vault Documents -->
+        <div class="tab-pane fade" id="vault" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Your Vault Documents</h5>
+                    <div id="vaultItems" class="row">
+                        <div class="col-12 text-center text-muted py-5">
+                            <p>Loading vault items...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Court Packets -->
+        <div class="tab-pane fade" id="packets" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Assemble Court Packets</h5>
+                    <button class="btn btn-primary mb-3" id="newPacketBtn">
+                        <i class="bi bi-plus-circle"></i> New Packet
+                    </button>
+                    <div id="packetList">
+                        <div class="alert alert-info">
+                            <strong>Court Packet Builder</strong><br>
+                            Select documents from your vault to create organized packets for court filing.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load calendar data
+async function loadCalendarData() {
+    try {
+        const vaultRes = await fetch('/api/calendar/vault-items');
+        const vaultData = await vaultRes.json();
+        document.getElementById('vaultCount').textContent = vaultData.items.length;
+        
+        // TODO: Load actual event count from calendar API
+        // TODO: Load packet count
+        // TODO: Load deadline count
+    } catch (err) {
+        console.error('Error loading calendar data:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadCalendarData);
+</script>
+{% endblock %}
