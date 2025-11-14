@@ -206,12 +206,12 @@ except ImportError:
 
 # Calendar Timeline - New timeline view with rent ledger integration
 try:
+    from calendar_master import calendar_master_bp
     from calendar_timeline_routes import calendar_timeline_bp, calendar_bp
-from calendar_master import calendar_master_bp
     app.register_blueprint(calendar_timeline_bp)
+    app.register_blueprint(calendar_master_bp)
+    print('[OK] Calendar master view registered (/calendar)')
     print("[OK] Calendar timeline routes registered")
-app.register_blueprint(calendar_master_bp)
-print('[OK] Calendar master view registered (/calendar)')
 except ImportError as e:
     print(f"[WARN] Calendar timeline not available: {e}")
 
