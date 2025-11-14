@@ -101,7 +101,7 @@ jobs:
     - name: Run Trivy scan
       # Pinned to a specific Trivy action release to avoid implicit changes from @master
       # Update version deliberately when upgrading Trivy
-      uses: aquasecurity/trivy-action@0.21.0
+      uses: aquasecurity/trivy-action@0.33.1
       with:
         image-ref: Semptify:ci
         format: 'sarif'
@@ -250,7 +250,7 @@ jobs:
           robot -v BASE_URL:http://127.0.0.1:${{ matrix.port }} robot/smoke.robot
       - name: Trivy scan (podman image parity)
         if: matrix.engine == 'podman'
-        uses: aquasecurity/trivy-action@0.21.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: Semptify:integration
           format: 'table'
