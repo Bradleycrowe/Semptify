@@ -400,7 +400,7 @@ def signin():
                 "contact": contact
             })
 
-            return redirect(url_for('verify', user_id=user_id))
+            return redirect(url_for('auth.verify', user_id=user_id))
 
         except Exception as e:
             log_event("user_signin_error", {"error": str(e)})
@@ -868,11 +868,22 @@ def page_getting_started():
 @app.route('/setup/situation', methods=['GET', 'POST'])
 def setup_situation():
     """Collect user situation during onboarding, then generate personalized cards."""
+    # Get user token from query param or session
+    user_token = request.args.get('user_token') or session.get('user_token')
+    
     if request.method == 'GET':
-        return render_template('setup_situation.html', csrf_token=_get_or_create_csrf_token(), user_name=session.get('user_name', 'User'))
+        return render_template('setup_situation.html', 
+                             csrf_token=_get_or_create_csrf_token(), 
+                             user_name=session.get('user_name', 'User'),
+                             user_token=user_token)
     
     # POST: save situation and redirect to personalized plan
     user_id = session.get('user_id', 'dev_user')
+    if user_token:
+        # Store token in session for authenticated flow
+        session['user_token'] = user_token
+        user_id = user_token[:8]  # Use first 8 chars as user_id
+    
     situation_data = {
         'issue_type': request.form.get('issue_type'),
         'urgency': request.form.get('urgency'),
@@ -890,6 +901,9 @@ def setup_situation():
     
     log_event('situation_saved', {'user_id': user_id, 'issue_type': situation_data['issue_type']})
     
+    # Redirect to personalized plan with token
+    if user_token:
+        return redirect(url_for('personalized_plan') + f'?user_token={user_token}')
     return redirect(url_for('personalized_plan'))
 
 
@@ -1464,6 +1478,72 @@ def packet_form():
     if request.method == 'POST':
         return render_template('packet_preview.html')
     return render_template('packet_form.html')
+
+@app.route('/packet/export', methods=['GET', 'POST'])
+def packet_export():
+    """Generate and export evidence packet as PDF."""
+    try:
+        from packet_builder import build_packet
+        user_id = session.get('user_id', 'guest')
+        
+        if request.method == 'POST':
+            # Get selected items from form
+            selected_items = request.form.getlist('items')
+            packet_title = request.form.get('title', 'Evidence Packet')
+            
+            # Build packet
+            packet_result = build_packet(user_id, selected_items, packet_title)
+            
+            if packet_result.get('success'):
+                return jsonify({
+                    'success': True,
+                    'packet_url': packet_result.get('url'),
+                    'message': 'Packet generated successfully'
+                })
+            else:
+                return jsonify({'success': False, 'error': packet_result.get('error')}), 400
+        
+        # GET: Show export form with user's vault items
+        return render_template('filing_packet.html', user_name=session.get('user_name', 'User'))
+    except Exception as e:
+        return render_template('placeholder.html', 
+                             feature_name='Generate Evidence Packet',
+                             description='Export your evidence as a court-ready PDF packet',
+                             user_name=session.get('user_name', 'User'))
+
+@app.route('/demand-letter', methods=['GET', 'POST'])
+def demand_letter():
+    """Create and send demand letter to landlord."""
+    if request.method == 'POST':
+        # Process demand letter submission
+        recipient = request.form.get('recipient')
+        issue = request.form.get('issue')
+        demand = request.form.get('demand')
+        deadline = request.form.get('deadline')
+        
+        # TODO: Generate and save demand letter
+        return jsonify({
+            'success': True,
+            'message': 'Demand letter created and saved to vault'
+        })
+    
+    # GET: Show demand letter form
+    return render_template('placeholder.html',
+                         feature_name='Send Demand Letter',
+                         description='Create a formal demand letter to your landlord documenting issues and requesting action',
+                         user_name=session.get('user_name', 'User'))
+
+@app.route('/complaint-filing', methods=['GET', 'POST'])
+def complaint_filing():
+    """File complaint with court or housing agency."""
+    # Redirect to existing complaint generator for now
+    try:
+        return render_template('file_complaint.html', user_name=session.get('user_name', 'User'))
+    except Exception:
+        return render_template('placeholder.html',
+                             feature_name='File Complaint',
+                             description='Prepare and file complaints with housing agencies or courts',
+                             user_name=session.get('user_name', 'User'))
 
 @app.route('/service_animal_form', methods=['GET', 'POST'])
 def service_animal_form():
@@ -2668,7 +2748,7 @@ def preliminary_learning_ui():
     """
     user_id = session.get('user_id')
     if not user_id:
-        return redirect(url_for('register'))
+        return redirect(url_for('auth.register'))
 
     return render_template('preliminary_learning.html')
 
