@@ -1,0 +1,58 @@
+{
+  "purpose": "Empower tenants with knowledge and tools",
+  "goals": [
+    "document_everything",
+    "understand_rights",
+    "file_complaints",
+    "find_resources",
+    "connect_with_attorneys"
+  ],
+  "evolution_triggers": {
+    "response_time_threshold_ms": 1000,
+    "concurrent_user_threshold": 100,
+    "error_rate_threshold": 0.05,
+    "user_confusion_threshold": 0.3,
+    "feature_request_threshold": 10
+  },
+  "learning_enabled": true,
+  "simulation_required": true,
+  "auto_deploy_on_pass": true,
+  "rollback_on_failure": true,
+  "simulation_settings": {
+    "min_test_coverage": 0.95,
+    "performance_improvement_required": true,
+    "max_simulation_time_seconds": 300,
+    "parallel_simulations": 3
+  },
+  "stack_preferences": {
+    "languages": [
+      "python",
+      "rust",
+      "javascript"
+    ],
+    "frameworks": [
+      "flask",
+      "actix-web",
+      "express"
+    ],
+    "databases": [
+      "sqlite",
+      "postgresql"
+    ],
+    "cloud_storage": [
+      "r2",
+      "gcs"
+    ],
+    "ai_providers": [
+      "openai",
+      "ollama",
+      "azure"
+    ]
+  },
+  "feature_generation": {
+    "enabled": true,
+    "ai_assisted": true,
+    "human_review_required": true,
+    "template_based": true
+  }
+}

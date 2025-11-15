@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Your Storage - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .benefit {
+            display: flex;
+            align-items: start;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .benefit-icon {
+            font-size: 32px;
+            margin-right: 16px;
+        }
+        .benefit-text h3 {
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 18px;
+        }
+        .benefit-text p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .providers {
+            margin: 32px 0;
+        }
+        .provider-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .provider-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        .provider-card.recommended {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+        .provider-card .badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .provider-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+        .provider-card .features {
+            list-style: none;
+            margin-top: 12px;
+        }
+        .provider-card .features li {
+            color: #666;
+            margin-bottom: 6px;
+            padding-left: 24px;
+            position: relative;
+            font-size: 14px;
+        }
+        .provider-card .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .cta {
+            text-align: center;
+            margin-top: 32px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+        .footer {
+            text-align: center;
+            padding: 24px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Secure Your Documents</h1>
+            <p>Connect your own cloud storage—you own your data</p>
+        </div>
+        
+        <div class="content">
+            <div class="benefit">
+                <div class="benefit-icon">🛡️</div>
+                <div class="benefit-text">
+                    <h3>You Own Your Data</h3>
+                    <p>Documents stored in YOUR cloud account. We never see or store your files.</p>
+                </div>
+            </div>
+            
+            <div class="benefit">
+                <div class="benefit-icon">🔒</div>
+                <div class="benefit-text">
+                    <h3>Zero-Knowledge Privacy</h3>
+                    <p>Credentials stay in your browser. Nothing sent to our servers.</p>
+                </div>
+            </div>
+            
+            <div class="benefit">
+                <div class="benefit-icon">📦</div>
+                <div class="benefit-text">
+                    <h3>Portable & Permanent</h3>
+                    <p>Take your documents anywhere. They're yours forever.</p>
+                </div>
+            </div>
+
+            <div class="providers">
+                <h2 style="margin-bottom: 20px; color: #333;">Choose Your Storage Provider</h2>
+                
+                <div class="provider-card recommended" onclick="window.location.href='/setup/storage/r2'">
+                    <span class="badge">RECOMMENDED</span>
+                    <h3>Cloudflare R2</h3>
+                    <p style="color: #666; margin-bottom: 12px;">Best for most users</p>
+                    <ul class="features">
+                        <li>10GB free forever</li>
+                        <li>No credit card required</li>
+                        <li>5-minute setup</li>
+                        <li>No egress fees</li>
+                    </ul>
+                </div>
+                
+                <div class="provider-card" onclick="window.location.href='/setup/storage/gcs'">
+                    <h3>Google Cloud Storage</h3>
+                    <p style="color: #666; margin-bottom: 12px;">For existing GCP users</p>
+                    <ul class="features">
+                        <li>5GB free tier</li>
+                        <li>Billing account required</li>
+                        <li>Enterprise-grade reliability</li>
+                        <li>Global network</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="cta">
+                <a href="/setup/storage/r2" class="btn">Get Started →</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>⚡ Takes 5 minutes | 🔒 Your data stays yours | 💰 Free tier available</p>
+        </div>
+    </div>
+</body>
+</html>

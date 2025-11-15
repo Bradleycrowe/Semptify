@@ -239,6 +239,14 @@ try:
 except ImportError as e:
     print(f"[WARN] Ollama routes not available: {e}")
 # Packet Builder - SQLite-backed packet assembly system
+
+# Maintenance - automated cleanup & health checks
+try:
+    from maintenance_routes import maintenance_bp
+    app.register_blueprint(maintenance_bp)
+    print("[OK] Maintenance routes registered (/maintenance/*)")
+except ImportError as e:
+    print(f"[WARN] Maintenance routes not available: {e}")
 try:
     from packet_builder import packet_builder_bp
     app.register_blueprint(packet_builder_bp)
@@ -2756,5 +2764,4 @@ def preliminary_learning_ui():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=True)
-
 
