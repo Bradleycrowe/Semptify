@@ -2812,6 +2812,32 @@ def housing_journey():
     """Housing journey - guided conversation."""
     return render_template('housing_journey.html')
 
+# Run startup health check (non-blocking)
+try:
+    from engines.health_check_engine import run_health_check, save_health_report
+    from services.card_fixer_service import auto_fix_cards
+    
+    print("[HEALTH] Running startup validation...")
+    health_report = run_health_check(app)
+    
+    # Auto-fix broken cards if in open mode
+    if os.environ.get('SECURITY_MODE', 'open') == 'open':
+        if health_report['checks'].get('cards', {}).get('status') == 'degraded':
+            fix_result = auto_fix_cards(app)
+            print(f"[HEALTH] Auto-fixed {fix_result['fixes_applied']} cards, deactivated {fix_result['deactivated']}")
+    
+    save_health_report(health_report)
+    status_icon = {'healthy': '✓', 'degraded': '⚠', 'critical': '✗'}.get(health_report['overall_status'], '?')
+    print(f"[HEALTH] {status_icon} System status: {health_report['overall_status']}")
+    
+    # Log any critical issues
+    if health_report['overall_status'] in ['critical', 'degraded']:
+        for check_name, check_result in health_report['checks'].items():
+            if isinstance(check_result, dict) and check_result.get('status') in ['critical', 'error']:
+                print(f"[HEALTH] Issue in {check_name}: {check_result}")
+except Exception as e:
+    print(f"[HEALTH] Health check failed: {e}")
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)

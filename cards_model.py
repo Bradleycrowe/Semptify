@@ -28,10 +28,10 @@ def init_cards_tables():
             icon TEXT,
             group_name TEXT NOT NULL,
             description TEXT,
-            what TEXT,
-            who TEXT,
-            why TEXT,
-            when TEXT,
+            "what" TEXT,
+            "who" TEXT,
+            "why" TEXT,
+            "when" TEXT,
             route TEXT,
             priority INTEGER DEFAULT 100,
             active INTEGER DEFAULT 1,
@@ -128,7 +128,7 @@ def seed_default_cards():
     cur.executemany(
         """
         INSERT OR IGNORE INTO cards
-        (slug, title, icon, group_name, description, what, who, why, when, route, priority, active)
+        (slug, title, icon, group_name, description, "what", "who", "why", "when", route, priority, active)
         VALUES (:slug, :title, :icon, :group_name, :description, :what, :who, :why, :when, :route, :priority, 1)
         """,
         defaults,
@@ -219,7 +219,7 @@ def seed_expanded_cards():
     cur.executemany(
         """
         INSERT OR IGNORE INTO cards
-        (slug, title, icon, group_name, description, what, who, why, when, route, priority, active)
+        (slug, title, icon, group_name, description, "what", "who", "why", "when", route, priority, active)
         VALUES (:slug, :title, :icon, :group_name, :description, :what, :who, :why, :when, :route, :priority, 1)
         """,
         expanded,

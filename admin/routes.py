@@ -372,3 +372,75 @@ def revoke_temp_access():
         return jsonify({'error': str(e)}), 400
 
 
+
+
+@admin_bp.route('/health')
+def health_dashboard():
+    """System health dashboard with manual check trigger."""
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    
+    from engines.health_check_engine import get_latest_health_report
+    report = get_latest_health_report()
+    
+    return render_template('admin/health.html', csrf_token=_get_or_create_csrf_token(), report=report)
+
+
+@admin_bp.route('/health/run', methods=['POST'])
+def run_health_check():
+    """Manually trigger full health check."""
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    
+    from engines.health_check_engine import run_health_check, save_health_report
+    from services.card_fixer_service import auto_fix_cards
+    
+    # Run health check
+    report = run_health_check(current_app._get_current_object())
+    
+    # Auto-fix broken cards if any found
+    if report['checks'].get('cards', {}).get('status') == 'degraded':
+        fix_result = auto_fix_cards(current_app._get_current_object())
+        report['auto_fix'] = fix_result
+    
+    # Save report
+    filename = save_health_report(report)
+    
+    return jsonify({
+        'status': report['overall_status'],
+        'report': report,
+        'saved_to': filename
+    })
+
+
+@admin_bp.route('/health/reports')
+def health_reports_list():
+    """List all historical health reports."""
+    token, error_resp, error_code = _admin_check()
+    if error_resp:
+        return error_resp, error_code
+    
+    from pathlib import Path
+    import json
+    
+    reports_dir = Path('logs/health_reports')
+    if not reports_dir.exists():
+        return jsonify({'reports': []})
+    
+    reports = []
+    for report_file in sorted(reports_dir.glob('health_*.json'), reverse=True)[:30]:
+        try:
+            with open(report_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                reports.append({
+                    'filename': report_file.name,
+                    'timestamp': data.get('timestamp'),
+                    'status': data.get('overall_status'),
+                    'path': str(report_file)
+                })
+        except Exception:
+            pass
+    
+    return jsonify({'reports': reports})
