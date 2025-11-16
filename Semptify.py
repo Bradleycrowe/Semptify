@@ -4,6 +4,15 @@ import time
 import uuid
 import secrets
 from datetime import datetime, timedelta
+
+# ============================================================================
+# CRITICAL: Enforce persistent storage requirement
+# App will NOT START without R2/GCS/Persistent Disk configured
+# ============================================================================
+from services.storage_enforcer import enforce_storage_requirement
+enforce_storage_requirement()  # Exits if no storage configured
+# ============================================================================
+
 from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session, send_file, Response
 from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401, _atomic_write_json
 from engines.prime_learning_engine import create_seed_data

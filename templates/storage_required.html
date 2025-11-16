@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Configuration Required - Semptify</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #dc2626;
+            margin-top: 0;
+            font-size: 28px;
+        }
+        .icon {
+            font-size: 64px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .critical {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .solution {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .provider {
+            background: #fff;
+            border: 2px solid #e5e7eb;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .provider h3 {
+            margin-top: 0;
+            color: #4f46e5;
+        }
+        .recommended {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .recommended h3:after {
+            content: " ⭐ Recommended";
+            color: #10b981;
+            font-size: 14px;
+            font-weight: normal;
+        }
+        a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🛑</div>
+        <h1>Persistent Storage Required</h1>
+        
+        <div class="critical">
+            <strong>❌ Application Startup Blocked</strong><br>
+            Semptify requires persistent storage to function. The application will not start without it.
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Why Storage Matters</strong><br>
+            Without persistent storage, ALL user data is lost on container restart:
+            <ul>
+                <li><strong>Vault documents</strong> - PDFs, images, lease agreements, evidence</li>
+                <li><strong>User accounts</strong> - Login credentials, authentication tokens</li>
+                <li><strong>Timeline history</strong> - Important dates and events</li>
+                <li><strong>Notary certificates</strong> - Document integrity proofs</li>
+                <li><strong>Admin access</strong> - Administrative credentials</li>
+                <li><strong>AI learning</strong> - Adaptive system knowledge</li>
+            </ul>
+        </div>
+
+        <h2>Configuration Options</h2>
+
+        <div class="provider recommended">
+            <h3>1. Cloudflare R2</h3>
+            <p><strong>Cost:</strong> ~$2-3/month for typical usage<br>
+            <strong>Setup:</strong> 10 minutes</p>
+            <p>Set these environment variables in your deployment platform:</p>
+            <ul>
+                <li><code>R2_ACCOUNT_ID</code> - Your Cloudflare account ID</li>
+                <li><code>R2_ACCESS_KEY_ID</code> - API access key</li>
+                <li><code>R2_SECRET_ACCESS_KEY</code> - API secret</li>
+                <li><code>R2_BUCKET_NAME</code> - Bucket name (e.g., "semptify-vault")</li>
+                <li><code>R2_ENDPOINT_URL</code> - Your R2 endpoint URL</li>
+            </ul>
+        </div>
+
+        <div class="provider">
+            <h3>2. Google Cloud Storage</h3>
+            <p><strong>Cost:</strong> Free tier available (5GB)<br>
+            <strong>Setup:</strong> 15 minutes</p>
+            <p>Requirements:</p>
+            <ul>
+                <li>Install: <code>google-cloud-storage</code> package</li>
+                <li><code>GOOGLE_APPLICATION_CREDENTIALS</code> - Service account key path</li>
+                <li><code>GCS_BUCKET_NAME</code> - Bucket name</li>
+                <li>Upload service account JSON key as secret file</li>
+            </ul>
+        </div>
+
+        <div class="provider">
+            <h3>3. Render Persistent Disk</h3>
+            <p><strong>Cost:</strong> $10/month for 10GB<br>
+            <strong>Setup:</strong> 5 minutes</p>
+            <p>Configuration:</p>
+            <ul>
+                <li>Create persistent disk in Render dashboard</li>
+                <li>Set <code>PERSISTENT_DISK_PATH=/mnt/data</code></li>
+                <li>Restart application</li>
+            </ul>
+        </div>
+
+        <div class="solution">
+            <strong>📚 Need Help?</strong><br>
+            See <code>PERSISTENCE_SETUP_GUIDE.md</code> for detailed setup instructions for each provider.
+        </div>
+
+        <div class="footer">
+            Once storage is configured, restart the application.<br>
+            The system will automatically detect and use the configured storage provider.
+        </div>
+    </div>
+</body>
+</html>
