@@ -12,7 +12,7 @@
     .topbar { position:sticky; top:0; z-index:50; background:#fff; border-bottom:1px solid #e5e7eb; }
     .wrap { max-width:1100px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:16px; }
     .brand { font-weight:800; letter-spacing:-0.4px; color:var(--brandDark); font-size:1.1rem; }
-    nav { margin-left:auto; display:flex; gap:12px; }
+    nav { margin-left:auto; display:flex; gap:12px; font-size:0.95rem; }
     nav a { text-decoration:none; color:#374151; padding:8px 12px; border-radius:8px; font-weight:600; }
     nav a:hover { background:#eef2ff; color:var(--brandDark); }
     .cta { background:var(--brand); color:#fff !important; }
@@ -79,7 +79,44 @@
       });
     })();
   </script>
+
+  <footer style="background: #1f2937; color: #9ca3af; padding: 32px 20px; margin-top: 60px;">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px;">
+      <div>
+        <h3 style="color: white; font-size: 1.1rem; margin-bottom: 12px;">Semptify</h3>
+        <p style="font-size: 0.9rem; line-height: 1.6;">Empowering tenants with evidence, guidance, and legal tools to protect their rights.</p>
+      </div>
+      <div>
+        <h4 style="color: white; font-size: 0.95rem; margin-bottom: 12px;">Resources</h4>
+        <ul style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 2;">
+          <li><a href="/pages/research" style="color: #9ca3af; text-decoration: none;">Legal Library</a></li>
+          <li><a href="/housing_journey" style="color: #9ca3af; text-decoration: none;">Tenant Journey</a></li>
+          <li><a href="/housing-programs" style="color: #9ca3af; text-decoration: none;">Housing Programs</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: white; font-size: 0.95rem; margin-bottom: 12px;">Tools</h4>
+        <ul style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 2;">
+          <li><a href="/vault" style="color: #9ca3af; text-decoration: none;">Evidence Vault</a></li>
+          <li><a href="/timeline" style="color: #9ca3af; text-decoration: none;">Timeline Builder</a></li>
+          <li><a href="/file-complaint" style="color: #9ca3af; text-decoration: none;">File Complaint</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: white; font-size: 0.95rem; margin-bottom: 12px;">Support</h4>
+        <ul style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 2;">
+          <li><a href="/settings" style="color: #9ca3af; text-decoration: none;">Settings</a></li>
+          <li><a href="/help" style="color: #9ca3af; text-decoration: none;">Help Center</a></li>
+          <li><a href="/privacy" style="color: #9ca3af; text-decoration: none;">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="max-width: 1200px; margin: 24px auto 0; padding-top: 24px; border-top: 1px solid #374151; text-align: center; font-size: 0.85rem;">
+      <p>&copy; {{ datetime.utcnow().year }} Semptify. Built to protect tenant rights. Not legal advice.</p>
+    </div>
+  </footer>
 </body>
 </html>
+
 
 
