@@ -111,7 +111,6 @@ venv311/
 *_engine.py
 *_routes.py
 generated/
-engines/
 routes/
 
 # Feature tracking database
