@@ -64,8 +64,14 @@ class ReasoningSystem:
         step1 = self._gather_facts(facts)
         reasoning_chain['steps'].append(step1)
         
-        # Step 2: Identify Issues['steps'].append(step2)\n\n        # Step 1.5: Jurisdiction Resolution\n        step15 = self._resolve_jurisdiction(facts)\n        reasoning_chain['steps'].append(step15)
-        
+                # Step 2: Identify Issues
+        step2 = self._identify_issues(stage, facts)
+        reasoning_chain['steps'].append(step2)
+
+        # Step 1.5: Jurisdiction Resolution
+        step15 = self._resolve_jurisdiction(facts)
+        reasoning_chain['steps'].append(step15)
+
         # Step 3: Determine Research Needs
         step3 = self._determine_research_needs(step2['issues'])
         reasoning_chain['steps'].append(step3)
@@ -423,7 +429,7 @@ class ReasoningSystem:
         else:
             return min(0.95, base + 0.1)  # Higher confidence when not rushed
 
-\n    def _resolve_jurisdiction(self, facts: Dict) -> Dict:
+    def _resolve_jurisdiction(self, facts: Dict) -> Dict:
         """Step 1.5: Resolve jurisdiction assumption and confirmation."""
         cand = facts.get('jurisdiction_candidate')
         conf = float(facts.get('jurisdiction_confidence') or 0.0)
@@ -447,7 +453,8 @@ class ReasoningSystem:
             'confidence': conf,
             'sources': sources,
             'reasoning': reason
-        }\n# Test if run directly
+        }
+# Test if run directly
 if __name__ == '__main__':
     reasoner = ReasoningSystem()
     
@@ -480,5 +487,7 @@ if __name__ == '__main__':
     print(f"Urgency: {result['summary']['urgency']}")
     print(f"Recommendation: {result['summary']['recommended_action']}")
     print(f"Confidence: {int(result['summary']['confidence']*100)}%")
+
+
 
 

@@ -112,10 +112,9 @@ def respond():
             'deposit_returned': 'deposit' in answer.lower() and 'returned' in answer.lower(),
             'timeline': answer  # Keep full answer for context
         }
-        
         reasoning_result = bridge.analyze_with_context(facts, stage, answer)
         result['reasoning'] = reasoning_result
-        result['assumptions'] = { 'jurisdiction': { 'candidate': jurisdiction_candidate, 'confidence': jurisdiction_confidence, 'sources': jurisdiction_sources } }\n        result['assumptions'] = { 'jurisdiction': { 'candidate': jurisdiction_candidate, 'confidence': jurisdiction_confidence, 'sources': jurisdiction_sources } }
+        result['assumptions'] = { 'jurisdiction': { 'candidate': jurisdiction_candidate, 'confidence': jurisdiction_confidence, 'sources': jurisdiction_sources } }
     except Exception as e:
         result['reasoning'] = None
         result['reasoning_error'] = str(e)
@@ -180,4 +179,6 @@ def set_jurisdiction():
     session['jurisdiction'] = state
     session['jurisdiction_confirmed'] = confirmed
     return jsonify({'ok': True, 'jurisdiction': state, 'confirmed': confirmed})
+
+
 
