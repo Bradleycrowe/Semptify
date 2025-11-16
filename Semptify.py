@@ -2814,6 +2814,16 @@ def housing_journey():
 
 # Run startup health check (non-blocking)
 try:
+# Initialize database persistence (restore from cloud on startup)
+try:
+    from services.db_persistence import init_database_persistence
+    print("[DB] Initializing database persistence...")
+    db_service = init_database_persistence(enable_auto_backup=True)
+    print("[DB] ✓ Database persistence active (R2/GCS backup enabled)")
+except Exception as e:
+    print(f"[DB] ⚠ Database persistence unavailable: {e}")
+    print("[DB] Using ephemeral local storage (data lost on restart)")
+
     from engines.health_check_engine import run_health_check, save_health_report
     from services.card_fixer_service import auto_fix_cards
     
