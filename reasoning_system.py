@@ -64,9 +64,7 @@ class ReasoningSystem:
         step1 = self._gather_facts(facts)
         reasoning_chain['steps'].append(step1)
         
-        # Step 2: Identify Issues
-        step2 = self._identify_issues(stage, facts)
-        reasoning_chain['steps'].append(step2)
+        # Step 2: Identify Issues['steps'].append(step2)\n\n        # Step 1.5: Jurisdiction Resolution\n        step15 = self._resolve_jurisdiction(facts)\n        reasoning_chain['steps'].append(step15)
         
         # Step 3: Determine Research Needs
         step3 = self._determine_research_needs(step2['issues'])
@@ -425,8 +423,31 @@ class ReasoningSystem:
         else:
             return min(0.95, base + 0.1)  # Higher confidence when not rushed
 
-
-# Test if run directly
+\n    def _resolve_jurisdiction(self, facts: Dict) -> Dict:
+        """Step 1.5: Resolve jurisdiction assumption and confirmation."""
+        cand = facts.get('jurisdiction_candidate')
+        conf = float(facts.get('jurisdiction_confidence') or 0.0)
+        confirmed = bool(facts.get('jurisdiction_confirmed'))
+        sources = facts.get('jurisdiction_sources') or []
+        if confirmed and cand:
+            chosen = cand
+            reason = f"Using confirmed jurisdiction {cand}"
+        elif cand:
+            chosen = 'MN'  # Phase 1: default to MN until user confirms
+            why = ', '.join([f"{s.get('type')}={s.get('value')}" for s in sources]) or 'unknown signals'
+            reason = f"Candidate {cand} (confidence {conf}); defaulting to MN until confirmed (sources: {why})"
+        else:
+            chosen = 'MN'
+            reason = 'No candidate jurisdiction found; defaulting to MN'
+        return {
+            'step': 'jurisdiction_resolution',
+            'jurisdiction': chosen,
+            'candidate': cand,
+            'confirmed': confirmed,
+            'confidence': conf,
+            'sources': sources,
+            'reasoning': reason
+        }\n# Test if run directly
 if __name__ == '__main__':
     reasoner = ReasoningSystem()
     
@@ -459,3 +480,5 @@ if __name__ == '__main__':
     print(f"Urgency: {result['summary']['urgency']}")
     print(f"Recommendation: {result['summary']['recommended_action']}")
     print(f"Confidence: {int(result['summary']['confidence']*100)}%")
+
+

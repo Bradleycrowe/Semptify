@@ -59,6 +59,12 @@ def respond():
     answer = data.get('answer')
     question_index = data.get('question_index', 0)
 
+    # Apply client confirmation of jurisdiction, if provided
+    if isinstance(data.get('jurisdiction_confirm'), dict):
+        j = data['jurisdiction_confirm']
+        session['jurisdiction_confirmed'] = bool(j.get('confirmed'))
+        session['jurisdiction'] = j.get('state')
+
     if not stage or not answer:
         return jsonify({'error': 'Missing stage or answer'}), 400
 
@@ -78,7 +84,21 @@ def respond():
         result['verification_status'] = 'unverified'
         result['research_error'] = str(e)
     
-    # NEW: AI Reasoning Integration
+        # Passive assumptions (Phase 1): Jurisdiction candidate
+    try:
+        from assumption_engine import AssumptionEngine
+        ae = AssumptionEngine()
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        ctx = { 'text': answer, 'ip': ip }
+        jur = ae.detect('jurisdiction', ctx) or {}
+        jurisdiction_candidate = jur.get('state')
+        jurisdiction_confidence = jur.get('confidence', 0.0)
+        jurisdiction_sources = jur.get('sources', [])
+    except Exception:
+        jurisdiction_candidate = None
+        jurisdiction_confidence = 0.0
+        jurisdiction_sources = []
+# NEW: AI Reasoning Integration
     try:
         bridge = CuriosityReasoningBridge()
         # Build facts from conversation
@@ -95,6 +115,7 @@ def respond():
         
         reasoning_result = bridge.analyze_with_context(facts, stage, answer)
         result['reasoning'] = reasoning_result
+        result['assumptions'] = { 'jurisdiction': { 'candidate': jurisdiction_candidate, 'confidence': jurisdiction_confidence, 'sources': jurisdiction_sources } }\n        result['assumptions'] = { 'jurisdiction': { 'candidate': jurisdiction_candidate, 'confidence': jurisdiction_confidence, 'sources': jurisdiction_sources } }
     except Exception as e:
         result['reasoning'] = None
         result['reasoning_error'] = str(e)
@@ -148,3 +169,15 @@ def status():
         'facts_learned': len(engine.facts_learned),
         'capabilities': len(seed_manager.seed.capabilities) if seed_manager else 0
     })
+
+
+@journey_bp.route('/jurisdiction', methods=['POST'])
+def set_jurisdiction():
+    """Set/confirm jurisdiction in session."""
+    data = request.get_json() or {}
+    state = (data.get('state') or '').upper() or None
+    confirmed = bool(data.get('confirmed'))
+    session['jurisdiction'] = state
+    session['jurisdiction_confirmed'] = confirmed
+    return jsonify({'ok': True, 'jurisdiction': state, 'confirmed': confirmed})
+

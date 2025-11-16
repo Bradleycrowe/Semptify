@@ -306,8 +306,24 @@
             }
         }
 
-        // Start on load
-        startJourney();
+                function renderJurisdiction(data){
+            const b = document.getElementById('jurBanner');
+            const j = data && data.assumptions && data.assumptions.jurisdiction;
+            if (!j || !j.candidate) { b.style.display='none'; return; }
+            const state = j.candidate;
+            const conf = Math.round((j.confidence||0)*100);
+            b.innerHTML = `We think your situation is in <strong>${state}</strong> (confidence ${conf}%). ` +
+                          `<button class="button" style="padding:6px 10px; font-size:12px; width:auto; margin-left:8px;" onclick="confirmJurisdiction('${state}', true)">Use this</button>` +
+                          `<button class="button" style="padding:6px 10px; font-size:12px; width:auto; margin-left:6px; background:#e5e7eb; color:#111;" onclick="confirmJurisdiction('', false)">Change</button>`;
+            b.style.display = 'block';
+        }
+        async function confirmJurisdiction(state, confirmed){
+            try{
+                const res = await fetch('/api/journey/jurisdiction', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ state, confirmed })});
+                const ok = await res.json();
+                document.getElementById('jurBanner').style.display = 'none';
+            }catch(e){ console.warn('jurisdiction set failed', e); }
+        }\n        // Start on load\n        startJourney();
     </script>
 <script>
 function renderCitations(data) {
@@ -433,6 +449,7 @@ function renderCitations(data) {
     </script>
 </body>
 </html>
+
 
 
 
