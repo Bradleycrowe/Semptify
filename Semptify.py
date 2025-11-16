@@ -1070,16 +1070,14 @@ def user_settings():
 def setup_auto_storage():
     """Setup automatic Cloudflare R2 storage for user - REAL provisioning"""
     try:
-        from r2_provisioning import provision_user_storage, provision_fallback
+        from r2_provisioning import auto_provision_storage
         
         user_id = str(uuid.uuid4())[:8]
         
         # Try real R2 provisioning first
-        storage_config = provision_user_storage(user_id)
-        
-        # Fallback to shared bucket if CF API not available
+        storage_config = auto_provision_storage(user_id)
         if not storage_config:
-            storage_config = provision_fallback(user_id)
+            return jsonify({'success': False, 'error': 'Storage provisioning unavailable - please contact support'}), 503
         
         storage_config['user_id'] = user_id
         storage_config['created_at'] = datetime.now().isoformat()
@@ -2788,6 +2786,7 @@ def housing_journey():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
 
 
 

@@ -82,3 +82,61 @@ def provision_fallback(user_id: str) -> Dict:
         'prefix': f'users/{user_id}/',  # Namespace in shared bucket
         'shared': True
     }
+
+# Google Cloud Storage Provisioning
+from google.cloud import storage as gcs_client
+from google.oauth2 import service_account
+import json
+
+GCS_PROJECT_ID = os.getenv('GCS_PROJECT_ID')
+GCS_SERVICE_ACCOUNT_JSON = os.getenv('GCS_SERVICE_ACCOUNT_JSON')
+
+def provision_user_storage_gcs(user_id: str) -> Optional[Dict]:
+    """
+    Create GCS bucket for user.
+    Returns: {bucket_name, project_id, service_account} or None on error.
+    """
+    if not GCS_PROJECT_ID or not GCS_SERVICE_ACCOUNT_JSON:
+        return None
+    
+    try:
+        creds_dict = json.loads(GCS_SERVICE_ACCOUNT_JSON)
+        credentials = service_account.Credentials.from_service_account_info(creds_dict)
+        client = gcs_client.Client(project=GCS_PROJECT_ID, credentials=credentials)
+        
+        bucket_name = f"semptify-user-{user_id}"
+        bucket = client.bucket(bucket_name)
+        
+        if not bucket.exists():
+            bucket.location = "US"
+            bucket.storage_class = "STANDARD"
+            bucket = client.create_bucket(bucket)
+        
+        return {
+            'bucket_name': bucket_name,
+            'project_id': GCS_PROJECT_ID,
+            'provider': 'google',
+            'credentials': creds_dict
+        }
+    except Exception:
+        return None
+
+def auto_provision_storage(user_id: str) -> Optional[Dict]:
+    """
+    Auto-provision storage: try R2 first, then GCS.
+    Returns storage config or None if both fail.
+    NO FALLBACK - user must have real storage.
+    """
+    # Try R2 first
+    config = provision_user_storage(user_id)
+    if config:
+        config['provider'] = 'r2'
+        return config
+    
+    # Try GCS second
+    config = provision_user_storage_gcs(user_id)
+    if config:
+        return config
+    
+    # Both failed - return None (no qualification)
+    return None
