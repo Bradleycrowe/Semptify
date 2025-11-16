@@ -89,6 +89,11 @@ if init_route_discovery_api:
 # Note: Curiosity, Intelligence, and Jurisdiction engines initialize on first use
 
 # Register Core Blueprints
+# Vault login page for returning users
+@app.route('/vault-login')
+def vault_login():
+    return render_template('vault_login.html')
+
 # Add route for storage provider choice page
 @app.route('/storage-setup')
 def storage_setup():
@@ -2791,6 +2796,7 @@ def housing_journey():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
 
 
 

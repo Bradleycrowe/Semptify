@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Access Your Storage - Semptify</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+    .container { max-width:500px; width:100%; background:#fff; border-radius:18px; padding:48px 40px; box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+    .header { text-align:center; margin-bottom:32px; }
+    .header h1 { font-size:2rem; color:#222; margin-bottom:8px; }
+    .header p { color:#666; font-size:0.95rem; }
+    .form-group { margin-bottom:24px; }
+    .form-group label { display:block; font-weight:600; color:#444; margin-bottom:8px; font-size:0.9rem; }
+    .form-group input { width:100%; padding:14px 16px; border:2px solid #e0e0e0; border-radius:10px; font-size:1.1rem; font-family:'Courier New',monospace; letter-spacing:2px; text-transform:uppercase; transition:border .2s; }
+    .form-group input:focus { outline:none; border-color:#667eea; }
+    .btn { width:100%; background:#667eea; color:#fff; padding:16px; border:none; border-radius:12px; font-size:1.1rem; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(102,126,234,0.4); transition:all .2s; }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(102,126,234,0.5); }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .help { text-align:center; margin-top:24px; font-size:0.85rem; color:#888; }
+    .help a { color:#667eea; text-decoration:none; font-weight:600; }
+    .error { background:#fee; border:1px solid #fcc; color:#c33; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.9rem; display:none; }
+    .info { background:#e3f2fd; border:1px solid #90caf9; color:#1565c0; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔐 Access Your Storage</h1>
+      <p>Enter your saved token to continue</p>
+    </div>
+
+    <div class="info">
+      💡 Your token was shown when you first set up storage. It looks like <strong>SMPT-XXXX-XXXX-XXXX</strong>
+    </div>
+
+    <div class="error" id="errorMsg"></div>
+
+    <form id="tokenForm">
+      <div class="form-group">
+        <label for="token">Storage Access Token</label>
+        <input type="text" id="token" name="token" placeholder="SMPT-XXXX-XXXX-XXXX" required autofocus maxlength="19" />
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Verify Access</button>
+    </form>
+
+    <div class="help">
+      Lost your token? <a href="/storage-setup">Set up new storage</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('tokenForm');
+    const btn = document.getElementById('submitBtn');
+    const tokenInput = document.getElementById('token');
+    const errorMsg = document.getElementById('errorMsg');
+
+    // Auto-format token as user types (add hyphens)
+    tokenInput.addEventListener('input', (e) => {
+      let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      let parts = [];
+      parts.push(val.substring(0, 4));
+      if (val.length > 4) parts.push(val.substring(4, 8));
+      if (val.length > 8) parts.push(val.substring(8, 12));
+      if (val.length > 12) parts.push(val.substring(12, 16));
+      e.target.value = parts.filter(p => p).join('-');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = tokenInput.value.trim().toUpperCase();
+      
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      errorMsg.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/verify-storage-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          // Redirect to vault
+          window.location.href = '/vault';
+        } else {
+          errorMsg.textContent = '❌ ' + (data.error || 'Invalid token');
+          errorMsg.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Verify Access';
+        }
+      } catch (err) {
+        errorMsg.textContent = '❌ Network error - please try again';
+        errorMsg.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Verify Access';
+      }
+    });
+  </script>
+</body>
+</html>

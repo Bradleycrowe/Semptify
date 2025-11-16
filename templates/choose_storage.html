@@ -116,7 +116,39 @@
         const data = await res.json();
         
         if (data.success) {
-          window.location.href = '/setup?storage=ready';
+          // Show token prominently - user must save it
+          const token = data.token;
+          const providerName = data.provider;
+          document.body.innerHTML = `
+            <div class="container" style="max-width:600px; text-align:center;">
+              <div style="background:#10b981; color:#fff; padding:20px; border-radius:18px 18px 0 0; margin:-48px -40px 32px;">
+                <h1 style="font-size:2.5rem; margin:0;">✅ Success!</h1>
+                <p style="margin:12px 0 0; font-size:1.1rem; opacity:0.95;">Your ${providerName} storage is ready</p>
+              </div>
+              
+              <div style="background:#fff7ed; border:3px solid #fb923c; border-radius:12px; padding:24px; margin-bottom:32px;">
+                <p style="font-size:0.9rem; color:#c2410c; font-weight:600; margin-bottom:12px;">⚠️ SAVE THIS TOKEN - It won't be shown again!</p>
+                <div style="background:#fff; padding:20px; border-radius:8px; margin:16px 0;">
+                  <code style="font-size:1.8rem; letter-spacing:3px; color:#222; font-family:'Courier New',monospace; font-weight:700;">${token}</code>
+                </div>
+                <p style="font-size:0.85rem; color:#92400e; margin-top:12px;">Write it down, save it in your password manager, or take a screenshot.</p>
+              </div>
+
+              <div style="text-align:left; background:#f9fafb; padding:20px; border-radius:12px; margin-bottom:24px;">
+                <h3 style="font-size:1.1rem; margin-bottom:12px; color:#444;">🔐 How to use your token:</h3>
+                <ul style="list-style:none; padding:0; margin:0; color:#666; line-height:1.8;">
+                  <li>✓ Your token proves you control your storage</li>
+                  <li>✓ Use it to access your vault from any device</li>
+                  <li>✓ It's stored encrypted in your ${providerName} bucket</li>
+                  <li>✓ No one (not even Semptify) can see your files</li>
+                </ul>
+              </div>
+
+              <button onclick="window.location.href='/vault'" class="btn" style="width:100%; background:#667eea; color:#fff; padding:16px; border:none; border-radius:12px; font-size:1.1rem; font-weight:600; cursor:pointer; box-shadow:0 6px 20px rgba(102,126,234,0.4);">
+                Continue to Your Vault →
+              </button>
+            </div>
+          `;
         } else {
           alert('Storage setup failed: ' + (data.error || 'Unknown error'));
           btn.disabled = false;
@@ -131,3 +163,4 @@
   </script>
 </body>
 </html>
+
