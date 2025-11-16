@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Tenant Rights Attorneys</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 20px; }
+        .search-box { display: flex; gap: 10px; margin: 20px 0; }
+        .search-box input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; }
+        .search-box button { padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .search-box button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- AUTO-INJECTED STATUS BANNER -->
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin-bottom: 20px; border-radius: 4px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 24px;">⚠️</span>
+                <div>
+                    <strong style="color: #92400e;">This feature is under development</strong>
+                    <p style="margin: 4px 0 0; color: #78350f; font-size: 14px;">
+                        Currently showing placeholder data. Real attorney database integration coming soon.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <h1>🏠 Find Tenant Rights Attorneys</h1>
+        <p style="color: #666; margin-bottom: 20px;">
+            Search for attorneys specializing in tenant rights in Minnesota.
+        </p>
+        
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Search by name, location, or specialty..." />
+            <button onclick="searchAttorneys()">Search</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+    
+    <script>
+        async function searchAttorneys() {
+            const query = document.getElementById('search').value;
+            const response = await fetch('/api/attorney_finder', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({search: query, location: 'Minnesota'})
+            });
+            const data = await response.json();
+            document.getElementById('results').innerHTML = 
+                `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+    </script>
+</body>
+</html>

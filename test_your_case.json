@@ -1,0 +1,14 @@
+{
+  "facts": {
+    "lease_status": "ended",
+    "lease_end_date": "2025-10-31",
+    "still_in_unit": true,
+    "payment_current": true,
+    "paying_rent": true,
+    "notices_received": null,
+    "landlord_communication": "accepting rent",
+    "deposit_returned": false,
+    "timeline": "15 days since lease end"
+  },
+  "stage": "ended_lease"
+}

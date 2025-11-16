@@ -43,8 +43,9 @@
                 This takes 2-3 minutes and helps us build a personalized plan.
             </p>
 
-            <form method="POST" action="/setup/situation">
+            <form method="POST" action="/setup/situation{% if user_token %}?user_token={{ user_token }}{% endif %}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                {% if user_token %}<input type="hidden" name="user_token" value="{{ user_token }}">{% endif %}
 
                 <label for="issue_type">What's the main issue? *</label>
                 <select name="issue_type" id="issue_type" required>

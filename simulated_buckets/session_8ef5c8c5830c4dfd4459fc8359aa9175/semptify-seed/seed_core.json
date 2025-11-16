@@ -1,0 +1,15 @@
+{
+  "seed_id": "seed_d266b2a54c9f9ed8",
+  "created_at": "2025-11-15T22:31:23.043124",
+  "user_context": {
+    "session_id": "8ef5c8c5830c4dfd4459fc8359aa9175"
+  },
+  "capabilities": [],
+  "interaction_count": 0,
+  "learning_patterns": {
+    "common_needs": [],
+    "jurisdiction": null,
+    "case_type": null,
+    "confidence_scores": {}
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "seed_id": "seed_24977ff8935a10d3",
+  "created_at": "2025-11-15T20:51:08.738295",
+  "user_context": {
+    "name": "Test User",
+    "state": "CA"
+  },
+  "capabilities": [
+    {
+      "name": "rent_calculator",
+      "engine_file": "rent_calculator.py",
+      "description": "Generated from: My landlord raised rent from $1500 to $1800, is th...",
+      "learned_from": "My landlord raised rent from $1500 to $1800, is that legal?",
+      "created_at": "2025-11-15T20:51:08.754692",
+      "usage_count": 3,
+      "success_rate": 1.0
+    },
+    {
+      "name": "motion_writer",
+      "engine_file": "motion_writer.py",
+      "description": "Generated from: I need to file a motion for continuance...",
+      "learned_from": "I need to file a motion for continuance",
+      "created_at": "2025-11-15T20:51:08.775136",
+      "usage_count": 3,
+      "success_rate": 1.0
+    },
+    {
+      "name": "eviction_defense",
+      "engine_file": "eviction_defense.py",
+      "description": "Generated from: I got another eviction notice, help!...",
+      "learned_from": "I got another eviction notice, help!",
+      "created_at": "2025-11-15T20:51:08.789213",
+      "usage_count": 3,
+      "success_rate": 1.0
+    }
+  ],
+  "interaction_count": 3,
+  "learning_patterns": {
+    "common_needs": [
+      "rent_calculator",
+      "motion_writer",
+      "eviction_defense"
+    ],
+    "jurisdiction": null,
+    "case_type": null,
+    "confidence_scores": {}
+  }
+}

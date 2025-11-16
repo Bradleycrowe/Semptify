@@ -1,0 +1,5 @@
+# Add after improvement routes registration in Semptify.py
+@app.route('/seed-test')
+def seed_test():
+    """Self-growing seed test interface."""
+    return render_template('seed_test.html')

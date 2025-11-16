@@ -460,3 +460,10 @@
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763044338.1650858}
 {"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763044338.169934}
 {"event": "situation_saved", "payload": {"issue_type": "lease_violation", "user_id": "dev_user"}, "ts": 1763066634.678926}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin/control-panel"}, "ts": 1763106230.0543733}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin/control-panel"}, "ts": 1763106434.0462415}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin/control-panel"}, "ts": 1763106462.4270995}
+{"event": "login_code_sent", "payload": {"email": "test@example.com", "user_id": "test_user_001"}, "ts": 1763115592.6346242}
+{"event": "login_code_sent", "payload": {"email": "test@example.com", "user_id": "test_user_001"}, "ts": 1763116059.0078309}
+{"event": "login_code_sent", "payload": {"email": "test@example.com", "user_id": "test_user_001"}, "ts": 1763121206.8144577}
+{"event": "login_code_sent", "payload": {"email": "test@example.com", "user_id": "test_user_001"}, "ts": 1763121223.3794107}

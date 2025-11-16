@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Your Storage - Semptify</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+    .container { max-width:900px; width:100%; }
+    .header { text-align:center; color:#fff; margin-bottom:40px; }
+    .header h1 { font-size:2.5rem; margin-bottom:12px; }
+    .header p { font-size:1.1rem; opacity:0.95; }
+    .options { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px; }
+    @media (max-width:768px) { .options { grid-template-columns:1fr; } }
+    .option { background:#fff; border-radius:18px; padding:32px 28px; cursor:pointer; border:3px solid transparent; transition:all .2s; position:relative; }
+    .option:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,0.25); }
+    .option.selected { border-color:#667eea; box-shadow:0 0 0 4px rgba(102,126,234,0.3); }
+    .option input[type=radio] { position:absolute; opacity:0; }
+    .option-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+    .option-icon { font-size:2.5rem; }
+    .option-title { font-size:1.5rem; font-weight:700; color:#222; }
+    .badge { display:inline-block; background:#10b981; color:#fff; padding:4px 10px; border-radius:12px; font-size:0.75rem; font-weight:600; margin-left:auto; }
+    .option-features { list-style:none; margin:16px 0; }
+    .option-features li { padding:8px 0; color:#555; font-size:0.95rem; display:flex; align-items:center; gap:8px; }
+    .option-features li::before { content:'✓'; color:#10b981; font-weight:700; }
+    .option-note { font-size:0.85rem; color:#888; margin-top:12px; font-style:italic; }
+    .cta { text-align:center; }
+    .btn { display:inline-block; background:#667eea; color:#fff; padding:16px 48px; border-radius:12px; font-size:1.1rem; font-weight:600; border:none; cursor:pointer; box-shadow:0 6px 20px rgba(102,126,234,0.4); transition:all .2s; }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(102,126,234,0.5); }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .footer { text-align:center; margin-top:32px; color:#ddd; font-size:0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Choose Your Storage</h1>
+      <p>Both options are completely free and automatic - pick what feels right</p>
+    </div>
+
+    <form id="storageForm">
+      <div class="options">
+        <!-- Cloudflare R2 -->
+        <label class="option" for="r2">
+          <input type="radio" name="provider" id="r2" value="r2" required />
+          <div class="option-header">
+            <div class="option-icon">☁️</div>
+            <div class="option-title">Cloudflare R2</div>
+            <span class="badge">FREE 10GB</span>
+          </div>
+          <ul class="option-features">
+            <li>Lightning-fast global network</li>
+            <li>10GB free storage</li>
+            <li>No egress fees ever</li>
+            <li>Enterprise-grade security</li>
+          </ul>
+          <div class="option-note">Trusted by millions worldwide</div>
+        </label>
+
+        <!-- Google Cloud Storage -->
+        <label class="option" for="gcs">
+          <input type="radio" name="provider" id="gcs" value="gcs" required />
+          <div class="option-header">
+            <div class="option-icon">🔵</div>
+            <div class="option-title">Google Cloud</div>
+            <span class="badge">FREE 5GB</span>
+          </div>
+          <ul class="option-features">
+            <li>Google infrastructure</li>
+            <li>5GB free storage</li>
+            <li>99.9% uptime guarantee</li>
+            <li>Advanced encryption</li>
+          </ul>
+          <div class="option-note">Powered by Google technology</div>
+        </label>
+      </div>
+
+      <div class="cta">
+        <button type="submit" class="btn" id="continueBtn" disabled>Continue with Selected Storage</button>
+      </div>
+    </form>
+
+    <div class="footer">
+      🔒 No credit card required • Your data is encrypted • You can change providers later
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('storageForm');
+    const btn = document.getElementById('continueBtn');
+    const options = document.querySelectorAll('.option');
+
+    // Enable button when provider selected
+    document.querySelectorAll('input[name="provider"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        btn.disabled = false;
+        options.forEach(opt => opt.classList.remove('selected'));
+        radio.closest('.option').classList.add('selected');
+      });
+    });
+
+    // Submit form
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const provider = document.querySelector('input[name="provider"]:checked').value;
+      btn.disabled = true;
+      btn.textContent = 'Setting up your storage...';
+
+      try {
+        const res = await fetch('/api/setup-auto-storage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          window.location.href = '/setup?storage=ready';
+        } else {
+          alert('Storage setup failed: ' + (data.error || 'Unknown error'));
+          btn.disabled = false;
+          btn.textContent = 'Continue with Selected Storage';
+        }
+      } catch (err) {
+        alert('Network error - please try again');
+        btn.disabled = false;
+        btn.textContent = 'Continue with Selected Storage';
+      }
+    });
+  </script>
+</body>
+</html>

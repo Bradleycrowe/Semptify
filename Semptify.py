@@ -89,6 +89,11 @@ if init_route_discovery_api:
 # Note: Curiosity, Intelligence, and Jurisdiction engines initialize on first use
 
 # Register Core Blueprints
+# Add route for storage provider choice page
+@app.route('/storage-setup')
+def storage_setup():
+    return render_template('choose_storage.html')
+
 # ============================================================================
 # NEW: Modular blueprints for better code organization
 from blueprints.auth_bp import auth_bp
@@ -2786,6 +2791,7 @@ def housing_journey():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
 
 
 

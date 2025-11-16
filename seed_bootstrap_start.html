@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Seed Bootstrap – Start</title>
+    <style>
+        body { font-family: system-ui; background:#f5f7fa; margin:0; padding:40px; }
+        .wrap { max-width:900px; margin:0 auto; background:#fff; padding:40px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+        h1 { margin-top:0; font-size:32px; }
+        .step { margin:30px 0; padding:20px; border-left:4px solid #2563eb; background:#f1f5f9; border-radius:8px; }
+        label { display:block; margin:12px 0 6px; font-weight:600; }
+        input, textarea { width:100%; padding:12px; border:2px solid #d1d5db; border-radius:6px; font-size:15px; }
+        textarea { min-height:120px; resize:vertical; }
+        button { background:#2563eb; color:#fff; padding:14px 26px; border:none; border-radius:8px; font-size:16px; cursor:pointer; margin-top:20px; }
+        button:hover { background:#1d4ed8; }
+        pre { background:#0f172a; color:#e2e8f0; padding:16px; border-radius:8px; overflow:auto; }
+        .grid { display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); margin-top:30px; }
+        .card { background:#fff; border:1px solid #e2e8f0; padding:18px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.06); }
+        .badge { display:inline-block; background:#fde68a; color:#78350f; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+        .disclaimer { background:#fef3c7; padding:16px; border-left:4px solid #f59e0b; border-radius:6px; margin-top:30px; font-size:14px; }
+        .next-actions { background:#ecfdf5; padding:16px; border-left:4px solid #10b981; border-radius:6px; margin-top:30px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h1>🌱 Seed Bootstrap</h1>
+        <p>This wizard will generate a fully actionable plan—not just UI. Provide your situation and the seed will produce concrete steps, documents, timelines.</p>
+        <div class="disclaimer">
+            <strong>Important:</strong> Generated outputs are operational assistance, not formal legal advice. You must verify filings comply with local rules.
+        </div>
+
+        <div class="step">
+            <h2>1. Situation Input</h2>
+            <label>Location / Jurisdiction</label>
+            <input id="location" placeholder="e.g. Minneapolis, MN" />
+            <label>Issue Type</label>
+            <input id="issue_type" placeholder="e.g. eviction, repair, retaliation" />
+            <label>Deadline / Notice Text</label>
+            <textarea id="deadline_text" placeholder="Paste any notice text mentioning dates"></textarea>
+            <label>Rent Amount (if relevant)</label>
+            <input id="rent_amount" type="number" placeholder="e.g. 1250" />
+            <label>Court Date (if scheduled)</label>
+            <input id="court_date" type="date" />
+            <button onclick="assessNeeds()">Assess Needs →</button>
+        </div>
+
+        <div id="needs_block" style="display:none;" class="step">
+            <h2>2. Inferred Needs</h2>
+            <div id="needs_list"></div>
+            <button onclick="generatePlan()">Generate Action Plan →</button>
+        </div>
+
+        <div id="plan_block" style="display:none;" class="step">
+            <h2>3. Action Plan</h2>
+            <div id="plan_list"></div>
+            <button onclick="generateArtifacts()">Generate Artifacts →</button>
+        </div>
+
+        <div id="artifact_block" style="display:none;" class="step">
+            <h2>4. Generated Artifacts</h2>
+            <pre id="artifact_json"></pre>
+            <div class="next-actions">
+                <strong>Next Actions:</strong>
+                <ul id="next_actions_list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function assessNeeds() {
+            const payload = collectInput();
+            const res = await fetch('/seed/assess', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+            const data = await res.json();
+            const needsDiv = document.getElementById('needs_list');
+            needsDiv.innerHTML = data.needs.map(n => `<div class='card'><span class='badge'>${n.code}</span><h3>${n.title}</h3><p>Priority: ${n.priority}</p></div>`).join('');
+            document.getElementById('needs_block').style.display='block';
+        }
+        async function generatePlan() {
+            const res = await fetch('/seed/plan');
+            const data = await res.json();
+            const planDiv = document.getElementById('plan_list');
+            planDiv.innerHTML = data.action_plan.map(p => `<div class='card'><h3>${p.step_number}. ${p.title}</h3><p>Due: ${p.due}</p><ul>${p.instructions.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('');
+            document.getElementById('plan_block').style.display='block';
+        }
+        async function generateArtifacts() {
+            const payload = collectInput();
+            const res = await fetch('/seed/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+            const data = await res.json();
+            document.getElementById('artifact_json').textContent = JSON.stringify(data.artifacts, null, 2);
+            const next = document.getElementById('next_actions_list');
+            next.innerHTML = data.action_plan.map(p => `<li><strong>${p.title}</strong> – Do today if due date is ${p.due}</li>`).join('');
+            document.getElementById('artifact_block').style.display='block';
+        }
+        function collectInput() {
+            return {
+                location: document.getElementById('location').value,
+                issue_type: document.getElementById('issue_type').value,
+                deadline_text: document.getElementById('deadline_text').value,
+                rent_amount: document.getElementById('rent_amount').value,
+                court_date: document.getElementById('court_date').value
+            };
+        }
+    </script>
+</body>
+</html>
