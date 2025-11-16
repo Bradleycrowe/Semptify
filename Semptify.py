@@ -1068,54 +1068,42 @@ def user_settings():
 
 @app.route('/api/setup-auto-storage', methods=['POST'])
 def setup_auto_storage():
-    """Setup automatic Cloudflare R2 storage for user"""
+    """Setup automatic Cloudflare R2 storage for user - REAL provisioning"""
     try:
-        # Generate unique user storage bucket
+        from r2_provisioning import provision_user_storage, provision_fallback
+        
         user_id = str(uuid.uuid4())[:8]
-        bucket_name = f"semptify-user-{user_id}"
         
-        # In production, create R2 bucket via Cloudflare API
-        # For now, simulate successful setup
-        storage_config = {
-            "user_id": user_id,
-            "storage_type": "cloudflare_r2",
-            "bucket_name": bucket_name,
-            "created_at": datetime.now().isoformat(),
-            "encryption": "AES-256",
-            "quota_gb": 1
-        }
+        # Try real R2 provisioning first
+        storage_config = provision_user_storage(user_id)
         
-        # Store user storage config
+        # Fallback to shared bucket if CF API not available
+        if not storage_config:
+            storage_config = provision_fallback(user_id)
+        
+        storage_config['user_id'] = user_id
+        storage_config['created_at'] = datetime.now().isoformat()
+        storage_config['encryption'] = 'AES-256'
+        
+        # Store config
         os.makedirs('security', exist_ok=True)
         storage_file = 'security/user_storage.json'
-        
-        if os.path.exists(storage_file):
-            with open(storage_file, 'r') as f:
-                all_storage = json.load(f)
-        else:
-            all_storage = {}
-            
+        all_storage = _load_json(storage_file) or {}
         all_storage[user_id] = storage_config
+        _atomic_write_json(storage_file, all_storage)
         
-        with open(storage_file, 'w') as f:
-            json.dump(all_storage, f, indent=2)
-            
-        log_event('storage_setup', {
-            'user_id': user_id,
-            'storage_type': 'cloudflare_r2',
-            'bucket_name': bucket_name
-        })
+        # Qualify session
+        session['qualified'] = True
+        session['storage_provider'] = 'r2'
+        session['user_id'] = user_id
+        session['bucket_name'] = storage_config['bucket_name']
         
-        return jsonify({
-            "success": True,
-            "user_id": user_id,
-            "storage_type": "cloudflare_r2",
-            "message": "Secure storage ready!"
-        })
+        log_event('storage_provisioned', {'user_id': user_id, 'bucket': storage_config['bucket_name'], 'shared': storage_config.get('shared', False)})
         
+        return jsonify({'success': True, 'user_id': user_id, 'storage_type': 'cloudflare_r2', 'bucket': storage_config['bucket_name'], 'shared': storage_config.get('shared', False), 'message': 'Secure storage ready - you are qualified!'})
     except Exception as e:
         log_event('storage_setup_error', {'error': str(e)})
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/auth/google-drive')
 def google_drive_auth():
@@ -2800,6 +2788,9 @@ def housing_journey():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
+
+
 
 
 
