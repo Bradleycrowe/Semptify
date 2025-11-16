@@ -3,7 +3,7 @@ Demonstration: How Curiosity Engine Works
 Shows app learning through curiosity
 """
 
-from curiosity_engine import get_curiosity
+from engines.curiosity_engine import get_curiosity
 
 def demo_prediction_failure():
     """Demo: App learns from being wrong"""

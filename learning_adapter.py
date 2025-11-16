@@ -9,7 +9,7 @@ from dashboard_components import (
 )
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
-from reasoning_engine import get_reasoning_engine
+from engines.reasoning_engine import get_reasoning_engine
 
 
 class LearningAdapter:

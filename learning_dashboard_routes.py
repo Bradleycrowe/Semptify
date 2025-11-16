@@ -4,9 +4,9 @@ Mobile-first API for adaptive learning system
 """
 
 from flask import Blueprint, jsonify, request, render_template
-from learning_engine import LearningEngine
-from adaptive_intensity_engine import AdaptiveIntensityEngine
-from curiosity_engine import CuriosityEngine
+from engines.learning_engine import LearningEngine
+from engines.adaptive_intensity_engine import AdaptiveIntensityEngine
+from engines.curiosity_engine import CuriosityEngine
 from learning_adapter import LearningAdapter
 from user_database import _get_db
 from datetime import datetime, timedelta

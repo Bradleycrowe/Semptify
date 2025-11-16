@@ -4,7 +4,7 @@ Run different scenarios to see how the system reasons and generates recommendati
 """
 
 import json
-from reasoning_engine import get_reasoning_engine
+from engines.reasoning_engine import get_reasoning_engine
 
 
 def print_divider(title=""):

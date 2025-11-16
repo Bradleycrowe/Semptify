@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from situation_analyzer import analyze_situation, generate_situation_cards
-from learning_engine import init_learning
+from engines.learning_engine import init_learning
 from human_perspective import humanize_object, READING_LEVELS, AUDIENCE_TIPS
 
 

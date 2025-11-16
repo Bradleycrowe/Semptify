@@ -9,7 +9,7 @@ Provides REST API for:
 """
 
 from flask import Blueprint, request, jsonify
-from data_flow_engine import get_data_flow
+from engines.data_flow_engine import get_data_flow
 
 data_flow_bp = Blueprint("data_flow", __name__, url_prefix="/api/data-flow")
 

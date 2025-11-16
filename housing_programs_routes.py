@@ -14,7 +14,7 @@ Endpoints:
 
 from flask import Blueprint, render_template, request, jsonify
 import logging
-from housing_programs_engine import HousingProgramsEngine, ProgramCategory, UrgencyLevel
+from engines.housing_programs_engine import HousingProgramsEngine, ProgramCategory, UrgencyLevel
 
 # Create blueprint
 housing_programs_bp = Blueprint('housing_programs', __name__)

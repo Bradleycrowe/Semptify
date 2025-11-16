@@ -1,69 +1,85 @@
 """
-Enhanced Admin Control Engine - Discovers all modules and engines
+Enhanced Admin Control service - discovers registered modules.
 """
 import os
 import json
 from pathlib import Path
-from datetime import datetime
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ENGINES_DIR = PROJECT_ROOT / 'engines'
+BLUEPRINTS_DIR = PROJECT_ROOT / 'blueprints'
+ADMIN_DIR = PROJECT_ROOT / 'admin'
+SERVICES_DIR = PROJECT_ROOT / 'services'
+
+
+def _humanize_name(stem: str) -> str:
+    return stem.replace('_', ' ').replace('  ', ' ').strip().title()
+
+
+def _list_files(folder: Path, pattern: str):
+    if not folder.exists():
+        return []
+    return sorted(folder.glob(pattern))
+
 
 def discover_all_modules():
-    """Auto-discover all engines, routes, and blueprints in the system."""
-    base_path = Path(__file__).parent
-    
-    # Engines
+    """Auto-discover engines, routes, blueprints, admin modules, and services."""
     engines = []
-    for engine_file in base_path.glob('*_engine.py'):
-        if engine_file.name == 'admin_control_engine.py':
-            continue
+    for engine_file in _list_files(ENGINES_DIR, '*_engine.py'):
         engines.append({
-            'name': engine_file.stem.replace('_', ' ').title(),
-            'file': engine_file.name,
+            'name': _humanize_name(engine_file.stem.replace('_engine', '')),
+            'file': f'engines/{engine_file.name}',
             'category': 'engine',
             'icon': '⚙️'
         })
-    
-    # Route modules
+
     routes = []
-    for route_file in base_path.glob('*_routes.py'):
+    for route_file in _list_files(PROJECT_ROOT, '*_routes.py'):
         routes.append({
-            'name': route_file.stem.replace('_routes', '').replace('_', ' ').title(),
+            'name': _humanize_name(route_file.stem.replace('_routes', '')),
             'file': route_file.name,
             'category': 'routes',
             'icon': '🛣️'
         })
-    
-    # Blueprints
+
     blueprints = []
-    bp_path = base_path / 'blueprints'
-    if bp_path.exists():
-        for bp_file in bp_path.glob('*_bp.py'):
-            blueprints.append({
-                'name': bp_file.stem.replace('_bp', '').replace('_', ' ').title(),
-                'file': f'blueprints/{bp_file.name}',
-                'category': 'blueprint',
-                'icon': '📦'
-            })
-    
-    # Admin modules
-    admin_path = base_path / 'admin'
+    for bp_file in _list_files(BLUEPRINTS_DIR, '*_bp.py'):
+        blueprints.append({
+            'name': _humanize_name(bp_file.stem.replace('_bp', '')),
+            'file': f'blueprints/{bp_file.name}',
+            'category': 'blueprint',
+            'icon': '📦'
+        })
+
     admin_modules = []
-    if admin_path.exists():
-        for admin_file in admin_path.glob('*.py'):
-            if admin_file.name != '__init__.py':
-                admin_modules.append({
-                    'name': admin_file.stem.replace('_', ' ').title(),
-                    'file': f'admin/{admin_file.name}',
-                    'category': 'admin',
-                    'icon': '🔐'
-                })
-    
+    for admin_file in _list_files(ADMIN_DIR, '*.py'):
+        if admin_file.name == '__init__.py':
+            continue
+        admin_modules.append({
+            'name': _humanize_name(admin_file.stem),
+            'file': f'admin/{admin_file.name}',
+            'category': 'admin',
+            'icon': '🔐'
+        })
+
+    services = []
+    for svc_file in _list_files(SERVICES_DIR, '*_service.py'):
+        services.append({
+            'name': _humanize_name(svc_file.stem.replace('_service', '')),
+            'file': f'services/{svc_file.name}',
+            'category': 'service',
+            'icon': '🧩'
+        })
+
     return {
-        'engines': sorted(engines, key=lambda x: x['name']),
-        'routes': sorted(routes, key=lambda x: x['name']),
-        'blueprints': sorted(blueprints, key=lambda x: x['name']),
-        'admin': sorted(admin_modules, key=lambda x: x['name']),
-        'total_count': len(engines) + len(routes) + len(blueprints) + len(admin_modules)
+        'engines': engines,
+        'routes': routes,
+        'blueprints': blueprints,
+        'admin': admin_modules,
+        'services': services,
+        'total_count': len(engines) + len(routes) + len(blueprints) + len(admin_modules) + len(services)
     }
+
 
 def get_admin_panels():
     """Return enhanced admin panel configurations."""
@@ -72,8 +88,8 @@ def get_admin_panels():
             'name': 'System Modules',
             'icon': '🧩',
             'path': '/admin/modules',
-            'description': 'All engines, routes, and blueprints',
-            'manual': 'View all discovered system modules including engines, routes, blueprints, and admin modules.'
+            'description': 'All engines, routes, blueprints, and services',
+            'manual': 'View all discovered engines, services, routes, blueprints, and admin modules.'
         },
         {
             'name': 'Observability',
@@ -133,21 +149,20 @@ def get_admin_panels():
         }
     ]
 
+
 def get_system_overview():
     """Enhanced system overview with module counts."""
     modules = discover_all_modules()
-    
-    # Admin tokens
+
     admin_tokens = 0
     try:
-        with open('security/admin_tokens.json', 'r') as f:
+        with open('security/admin_tokens.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
             if 'tokens' in data:
                 admin_tokens = len(data['tokens'])
     except Exception:
         pass
-    
-    # Users
+
     total_users = 0
     try:
         import sqlite3
@@ -158,8 +173,7 @@ def get_system_overview():
         conn.close()
     except Exception:
         pass
-    
-    # Timeline events
+
     timeline_events = 0
     try:
         import sqlite3
@@ -170,7 +184,7 @@ def get_system_overview():
         conn.close()
     except Exception:
         pass
-    
+
     return {
         'security_mode': os.environ.get('SECURITY_MODE', 'open'),
         'ai_provider': os.environ.get('AI_PROVIDER', 'openai'),
@@ -180,11 +194,12 @@ def get_system_overview():
         'modules': modules
     }
 
+
 def get_recent_events(limit=6):
     """Get recent log events."""
     events = []
     try:
-        with open('logs/events.log', 'r') as f:
+        with open('logs/events.log', 'r', encoding='utf-8') as f:
             lines = f.readlines()[-limit:]
             for line in lines:
                 try:
@@ -195,6 +210,7 @@ def get_recent_events(limit=6):
     except Exception:
         pass
     return events
+
 
 def build_admin_context():
     """Build complete admin control panel context."""

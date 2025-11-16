@@ -1,10 +1,10 @@
 """Housing Journey API - Guided conversation that grows seed capabilities"""
 from flask import Blueprint, request, jsonify, session
-from housing_journey_engine import HousingJourneyEngine
+from engines.housing_journey_engine import HousingJourneyEngine
 from seed_core import SeedCore
 from seed_manager import SeedManager
 from user_bucket_simulator import UserBucketSimulator
-from realtime_research_engine import RealTimeResearchEngine
+from engines.realtime_research_engine import RealTimeResearchEngine
 from curiosity_reasoning_bridge import CuriosityReasoningBridge
 import secrets
 
@@ -86,7 +86,7 @@ def respond():
     
         # Passive assumptions (Phase 1): Jurisdiction candidate
     try:
-        from assumption_engine import AssumptionEngine
+        from engines.assumption_engine import AssumptionEngine
         ae = AssumptionEngine()
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         ctx = { 'text': answer, 'ip': ip }

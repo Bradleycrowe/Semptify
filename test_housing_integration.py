@@ -8,7 +8,7 @@ print("=" * 60)
 
 # Test 1: Engine import
 try:
-    from housing_programs_engine import HousingProgramsEngine
+    from engines.housing_programs_engine import HousingProgramsEngine
     print("✓ Housing programs engine imported")
 except Exception as e:
     print(f"✗ Engine import failed: {e}")

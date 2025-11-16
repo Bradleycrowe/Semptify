@@ -10,7 +10,7 @@ import os
 
 # Import core Semptify modules for consistency
 try:
-    from learning_engine import get_learning
+    from engines.learning_engine import get_learning
     from human_perspective import humanize_object, READING_LEVELS, AUDIENCE_TIPS
     from preliminary_learning import get_preliminary_learning_module
 except ImportError:

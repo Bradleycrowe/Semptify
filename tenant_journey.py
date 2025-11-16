@@ -10,10 +10,10 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 # Import all intelligence systems
-from learning_engine import get_learning
-from curiosity_engine import get_curiosity
-from intelligence_engine import get_intelligence
-from jurisdiction_engine import get_jurisdiction
+from engines.learning_engine import get_learning
+from engines.curiosity_engine import get_curiosity
+from engines.intelligence_engine import get_intelligence
+from engines.jurisdiction_engine import get_jurisdiction
 
 
 class TenantJourney:

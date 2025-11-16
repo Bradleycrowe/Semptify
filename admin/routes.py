@@ -294,7 +294,7 @@ def control_panel():
         return error_resp, error_code
     
     try:
-        from admin_control_engine import build_admin_context
+        from services.admin_control_service import build_admin_context
         context = build_admin_context()
     except Exception:
         context = {
@@ -322,7 +322,7 @@ def issue_temp_access():
         return error_resp, error_code
     
     try:
-        from temp_access_engine import issue_temp_token
+        from services.temp_access_service import issue_temp_token
         payload = request.get_json()
         scope = payload.get('scope')
         issued_to = payload.get('issued_to')
@@ -347,7 +347,7 @@ def list_temp_access():
         return error_resp, error_code
     
     try:
-        from temp_access_engine import list_temp_tokens
+        from services.temp_access_service import list_temp_tokens
         tokens = list_temp_tokens()
         return jsonify({'tokens': tokens, 'count': len(tokens)})
     except Exception as e:
@@ -361,7 +361,7 @@ def revoke_temp_access():
         return error_resp, error_code
     
     try:
-        from temp_access_engine import revoke_temp_token
+        from services.temp_access_service import revoke_temp_token
         payload = request.get_json()
         token_to_revoke = payload.get('token')
         revoked = revoke_temp_token(token_to_revoke)
@@ -370,4 +370,5 @@ def revoke_temp_access():
         return jsonify({'revoked': revoked})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
 

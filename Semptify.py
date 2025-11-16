@@ -6,7 +6,7 @@ import secrets
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session, send_file, Response
 from security import _get_or_create_csrf_token, _load_json, ADMIN_FILE, incr_metric, validate_admin_token, validate_user_token, _hash_token, check_rate_limit, is_breakglass_active, consume_breakglass, log_event, record_request_latency, _require_admin_or_401, _atomic_write_json
-from prime_learning_engine import create_seed_data
+from engines.prime_learning_engine import create_seed_data
 import hashlib
 import requests
 from user_database import (
@@ -17,14 +17,14 @@ from user_database import (
 from user_database import _get_db as get_user_db
 from learning_adapter import generate_dashboard_for_user, LearningAdapter
 from preliminary_learning_routes import learning_module_bp
-from ledger_calendar import init_ledger_calendar
+from engines.ledger_calendar_engine import init_ledger_calendar
 from ledger_calendar_routes import ledger_calendar_bp
-from data_flow_engine import init_data_flow
+from engines.data_flow_engine import init_data_flow
 from data_flow_routes import data_flow_bp
 from ledger_tracking_routes import ledger_tracking_bp
 from ledger_admin_routes import ledger_admin_bp
 from av_routes import av_routes_bp
-from learning_engine import init_learning
+from engines.learning_engine import init_learning
 from learning_routes import learning_bp
 from adaptive_registration import (
     register_user_adaptive,
@@ -72,6 +72,12 @@ try:
         }
 except Exception:
     pass
+
+@app.context_processor
+def inject_datetime():
+    '''Make datetime available in all templates.'''
+    from datetime import datetime
+    return {'datetime': datetime}
 
 # Initialize Ledger & Calendar system (central hub)
 init_ledger_calendar(data_dir=os.path.join(os.getcwd(), "data"))
@@ -581,7 +587,7 @@ def page_privacy():
 @app.route('/laws')
 def page_laws():
     """Law library - browse and search legal resources."""
-    from librarian_engine import init_librarian, LEGAL_CATEGORIES
+    from engines.librarian_engine import init_librarian, LEGAL_CATEGORIES
     
     # Initialize library if needed
     init_librarian()
@@ -835,7 +841,7 @@ def api_update_packet_section(packet_id):
 @app.route('/api/library/search', methods=['GET'])
 def api_library_search():
     """Search law library."""
-    from librarian_engine import search_library
+    from engines.librarian_engine import search_library
     
     query = request.args.get('query', '')
     category = request.args.get('category')
@@ -847,7 +853,7 @@ def api_library_search():
 @app.route('/api/library/resource/<resource_id>', methods=['GET'])
 def api_library_resource(resource_id):
     """Get specific legal resource."""
-    from librarian_engine import get_resource_by_id
+    from engines.librarian_engine import get_resource_by_id
     
     resource = get_resource_by_id(resource_id)
     if not resource:
@@ -858,7 +864,7 @@ def api_library_resource(resource_id):
 @app.route('/api/library/info-card/<resource_id>', methods=['GET'])
 def api_library_info_card(resource_id):
     """Get user-friendly info card for a resource."""
-    from librarian_engine import generate_info_card
+    from engines.librarian_engine import generate_info_card
     
     card = generate_info_card(resource_id)
     if not card:
@@ -869,7 +875,7 @@ def api_library_info_card(resource_id):
 @app.route('/api/library/category/<category>', methods=['GET'])
 def api_library_by_category(category):
     """Get all resources in a category."""
-    from librarian_engine import get_resources_by_category
+    from engines.librarian_engine import get_resources_by_category
     
     resources = get_resources_by_category(category)
     return jsonify({'category': category, 'resources': resources, 'count': len(resources)})
@@ -877,7 +883,7 @@ def api_library_by_category(category):
 @app.route('/api/library/jurisdiction/<jurisdiction>', methods=['GET'])
 def api_library_by_jurisdiction(jurisdiction):
     """Get all resources for a jurisdiction."""
-    from librarian_engine import get_resources_by_jurisdiction
+    from engines.librarian_engine import get_resources_by_jurisdiction
     
     resources = get_resources_by_jurisdiction(jurisdiction)
     return jsonify({'jurisdiction': jurisdiction, 'resources': resources, 'count': len(resources)})
@@ -885,7 +891,7 @@ def api_library_by_jurisdiction(jurisdiction):
 @app.route('/api/library/relevant', methods=['POST'])
 def api_library_relevant():
     """Get relevant resources for user's situation."""
-    from librarian_engine import get_relevant_resources_for_situation
+    from engines.librarian_engine import get_relevant_resources_for_situation
     
     situation = request.json
     cards = get_relevant_resources_for_situation(situation)
@@ -895,7 +901,7 @@ def api_library_relevant():
 @app.route('/api/library/fun-fact', methods=['GET'])
 def api_library_fun_fact():
     """Get today's fun fact from the Librarian."""
-    from librarian_engine import get_daily_fun_fact
+    from engines.librarian_engine import get_daily_fun_fact
     
     fact_data = get_daily_fun_fact()
     return jsonify(fact_data)
@@ -903,7 +909,7 @@ def api_library_fun_fact():
 @app.route('/api/library/greeting', methods=['GET'])
 def api_library_greeting():
     """Get a greeting from the Librarian."""
-    from librarian_engine import get_librarian_greeting
+    from engines.librarian_engine import get_librarian_greeting
     
     greeting = get_librarian_greeting()
     return jsonify({'greeting': greeting})

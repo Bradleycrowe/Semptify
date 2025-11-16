@@ -3,7 +3,7 @@ Curiosity-Reasoning Integration
 Connects curiosity_engine (pattern detection) with reasoning_system (legal analysis)
 """
 from typing import Dict, List, Any
-from curiosity_engine import CuriosityEngine
+from engines.curiosity_engine import CuriosityEngine
 from reasoning_system import ReasoningSystem
 from datetime import datetime
 import json

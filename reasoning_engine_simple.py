@@ -3,8 +3,8 @@ Simple Reasoning Engine - Works with actual Semptify learning modules
 Generates Cell A (situation) and Cell B (actions) content
 """
 
-from learning_engine import get_learning
-from adaptive_intensity_engine import get_adaptive_intensity
+from engines.learning_engine import get_learning
+from engines.adaptive_intensity_engine import get_adaptive_intensity
 import json
 
 

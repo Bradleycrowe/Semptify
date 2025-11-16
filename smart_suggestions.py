@@ -4,7 +4,7 @@ Smart Suggestions Widget - Contextual Help Powered by Learning Engine
 Shows users relevant next steps based on what they've done and their situation.
 """
 
-from learning_engine import LearningEngine
+from engines.learning_engine import LearningEngine
 from typing import List, Dict, Optional
 import os
 

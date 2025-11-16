@@ -13,10 +13,10 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 
 # Import existing engines
-from reasoning_engine import ReasoningEngine
-from curiosity_engine import CuriosityEngine
-from realtime_research_engine import RealTimeResearchEngine
-from housing_journey_engine import HousingJourneyEngine
+from engines.reasoning_engine import ReasoningEngine
+from engines.curiosity_engine import CuriosityEngine
+from engines.realtime_research_engine import RealTimeResearchEngine
+from engines.housing_journey_engine import HousingJourneyEngine
 from official_sources import classify_source, is_official_source
 
 

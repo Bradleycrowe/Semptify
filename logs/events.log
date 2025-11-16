@@ -467,3 +467,9 @@
 {"event": "login_code_sent", "payload": {"email": "test@example.com", "user_id": "test_user_001"}, "ts": 1763116059.0078309}
 {"event": "login_code_sent", "payload": {"email": "test@example.com", "user_id": "test_user_001"}, "ts": 1763121206.8144577}
 {"event": "login_code_sent", "payload": {"email": "test@example.com", "user_id": "test_user_001"}, "ts": 1763121223.3794107}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763318054.7311985}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763318054.7420492}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763318085.8730493}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763318085.8833013}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763318460.9694664}
+{"event": "admin_access", "payload": {"ip": "127.0.0.1", "path": "/admin"}, "ts": 1763318460.9742155}

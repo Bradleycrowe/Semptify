@@ -10,8 +10,8 @@ Provides human-facing views of the calendar and timeline:
 
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
-from ledger_calendar import get_calendar, get_ledger
-from data_flow_engine import get_data_flow
+from engines.ledger_calendar_engine import get_calendar, get_ledger
+from engines.data_flow_engine import get_data_flow
 
 
 class CalendarUIManager:

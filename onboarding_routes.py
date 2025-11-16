@@ -5,7 +5,7 @@ and populate cells with relevant content.
 
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from user_database import get_user, log_user_interaction
-from reasoning_engine import get_reasoning_engine
+from engines.reasoning_engine import get_reasoning_engine
 import json
 
 onboarding_bp = Blueprint('onboarding', __name__)

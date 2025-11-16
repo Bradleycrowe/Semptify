@@ -4,8 +4,8 @@ Automatically learns from user location information.
 """
 
 from location_intelligence import get_location_intelligence
-from jurisdiction_engine import get_jurisdiction_engine
-from learning_engine import get_learning
+from engines.jurisdiction_engine import get_jurisdiction_engine
+from engines.learning_engine import get_learning
 from typing import Dict, Any
 
 

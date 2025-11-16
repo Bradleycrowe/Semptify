@@ -3,7 +3,7 @@ Dashboard API Routes - Serve dynamic content to cells A-F
 """
 
 from flask import Blueprint, jsonify, request
-from dashboard_engine import get_dashboard_engine, AVAILABLE_WIDGETS
+from engines.dashboard_engine import get_dashboard_engine, AVAILABLE_WIDGETS
 
 dashboard_api_bp = Blueprint('dashboard_api', __name__, url_prefix='/api/dashboard')
 

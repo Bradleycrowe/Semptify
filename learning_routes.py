@@ -4,7 +4,7 @@ Provides endpoints for self-learning capabilities.
 """
 
 from flask import Blueprint, request, jsonify
-from learning_engine import get_learning
+from engines.learning_engine import get_learning
 from security import validate_user_token, validate_admin_token
 
 learning_bp = Blueprint("learning", __name__, url_prefix="/api/learning")

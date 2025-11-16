@@ -406,3 +406,12 @@ Everything you need is here:
 *Result: Clean, professional, organized repository*
 
 **Ready? Start with Phase 1!**
+
+## ⚙️ Engine & Service Layout (2025 refresh)
+- ngines/ now houses every *_engine.py module with business logic; import them via rom engines.<module> import ... so routes stay thin and consistent.
+- services/ contains lightweight helpers (ddress_validation, dmin_control, 	emp_access) that expose functions/classes instead of blueprints.
+- Admin utilities import from services.* modules, and the discovery service now scans ngines/, lueprints/, dmin/, and services/ directly from the project root.
+- When creating a new engine, place the file in ngines/ and export a focused API (un(), uild_context(), etc.) so UI layers never reach into internals.
+- When extracting helper logic, prefer services/ so multiple routes can reuse it without circular references.
+
+

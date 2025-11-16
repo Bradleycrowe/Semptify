@@ -4,9 +4,9 @@ Mobile-first intelligent assistant that shows what the learning system is doing
 """
 
 from flask import Blueprint, request, jsonify
-from learning_engine import get_learning
-from adaptive_intensity_engine import AdaptiveIntensityEngine
-from curiosity_engine import CuriosityEngine
+from engines.learning_engine import get_learning
+from engines.adaptive_intensity_engine import AdaptiveIntensityEngine
+from engines.curiosity_engine import CuriosityEngine
 from preliminary_learning import PreliminaryLearningModule
 from user_database import log_user_interaction
 from datetime import datetime

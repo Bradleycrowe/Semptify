@@ -2,7 +2,7 @@
 Test jurisdiction engine - shows how legal hierarchy works
 """
 
-from jurisdiction_engine import get_jurisdiction
+from engines.jurisdiction_engine import get_jurisdiction
 
 def test_mold_jurisdiction():
     """Test: Mold issue in Sacramento - which law applies?"""

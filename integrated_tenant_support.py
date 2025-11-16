@@ -36,9 +36,9 @@ class IntegratedTenantSupport:
     
     def __init__(self):
         # Import engines (lazy import to avoid circular dependencies)
-        from adaptive_intensity_engine import AdaptiveIntensityEngine
-        from housing_programs_engine import HousingProgramsEngine
-        from complaint_filing_engine import ComplaintFilingEngine
+        from engines.adaptive_intensity_engine import AdaptiveIntensityEngine
+        from engines.housing_programs_engine import HousingProgramsEngine
+        from engines.complaint_filing_engine import ComplaintFilingEngine
         
         self.intensity_engine = AdaptiveIntensityEngine()
         self.programs_engine = HousingProgramsEngine()
