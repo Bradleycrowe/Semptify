@@ -18,6 +18,20 @@
     .cta { background:var(--brand); color:#fff !important; }
     main { max-width:1100px; margin:20px auto; padding:0 20px 40px; }
     footer { text-align:center; color:#6b7280; font-size:0.85rem; padding:24px; }
+    /* Responsive breakpoints */
+    @media (max-width: 640px) {
+      nav { gap:8px; }
+      nav a { padding:8px 10px; font-size:0.9rem; }
+      .wrap { padding:10px 14px; }
+      main { margin:14px auto; padding:0 14px 28px; }
+    }
+    @media (min-width: 1280px) { main { max-width: 1280px; } }
+    @media (min-width: 1536px) { main { max-width: 1400px; } }
+    @media (min-width: 1920px) { main { max-width: 1600px; } }
+    /* Presentation mode */
+    body.present main { max-width: 1800px; }
+    body.present .wrap { max-width: 1800px; }
+    body.present { font-size: 18px; }
   </style>
   {% block head %}{% endblock %}
 </head>
@@ -36,6 +50,7 @@
           <a href="/storage-setup" class="cta">Get Started</a>
           <a href="/vault-login">I have a token</a>
         {% endif %}
+        <a href="#" id="togglePresent" title="Presentation mode">Presentation</a>
       </nav>
     </div>
   </header>
@@ -45,5 +60,24 @@
   <footer>
     © {{ datetime.utcnow().year }} Semptify
   </footer>
+  <script>
+    (function(){
+      const key = 'present-mode';
+      const apply = (on) => {
+        document.body.classList.toggle('present', !!on);
+        const btn = document.getElementById('togglePresent');
+        if (btn) btn.classList.toggle('cta', !!on);
+      };
+      try { apply(localStorage.getItem(key)==='1'); } catch(e){}
+      document.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.id === 'togglePresent') { e.preventDefault();
+          const on = !document.body.classList.contains('present');
+          apply(on);
+          try { localStorage.setItem(key, on ? '1' : '0'); } catch(e){}
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
