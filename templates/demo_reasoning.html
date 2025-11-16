@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reasoning System Demo - Semptify</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: #667eea;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        .form-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .form-section h2 { margin-bottom: 20px; color: #2d3748; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .form-group select,
+        .form-group input[type="text"],
+        .form-group input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .analyze-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .analyze-btn:hover { background: #5a67d8; }
+        .results-section { padding: 20px; }
+        .step-card {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .step-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .option-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+        .option-card h4 { color: #2d3748; margin-bottom: 10px; }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .badge-critical { background: #fed7d7; color: #c53030; }
+        .badge-urgent { background: #feebc8; color: #c05621; }
+        .badge-normal { background: #c6f6d5; color: #2f855a; }
+        .badge-winter { background: #bee3f8; color: #2c5282; }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .pros { color: #2f855a; }
+        .cons { color: #c53030; }
+        .resource-list {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .resource-list h4 { margin-bottom: 10px; color: #2d3748; }
+        .resource-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #cbd5e0;
+        }
+        .resource-item:last-child { border-bottom: none; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Reasoning System Demo</h1>
+            <p>Test Semptify''s AI reasoning with custom scenarios</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2>Input Facts</h2>
+                <form id="reasoningForm">
+                    <div class="form-group">
+                        <label>Housing Stage:</label>
+                        <select id="stage">
+                            <option value="looking">Looking for housing</option>
+                            <option value="applying">Applying</option>
+                            <option value="signed_lease">Signed lease (moving in soon)</option>
+                            <option value="in_lease">Currently in lease</option>
+                            <option value="ending_lease">Ending lease soon</option>
+                            <option value="ended_lease" selected>Lease ended (holdover)</option>
+                            <option value="eviction">Facing eviction</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" id="still_in_unit" checked> Still in unit</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" id="payment_current" checked> Rent payments current</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" id="paying_rent" checked> Actively paying rent</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notices received:</label>
+                        <select id="notices_received">
+                            <option value="">None</option>
+                            <option value="termination_notice">Termination notice</option>
+                            <option value="eviction_notice">Eviction notice</option>
+                            <option value="eviction_summons">Eviction summons (court)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Court date (if any):</label>
+                        <input type="date" id="court_date">
+                    </div>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" id="deposit_returned"> Security deposit returned</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Landlord communication:</label>
+                        <select id="landlord_communication">
+                            <option value="accepting rent" selected>Accepting rent</option>
+                            <option value="friendly">Friendly</option>
+                            <option value="hostile">Hostile</option>
+                            <option value="threatening">Threatening</option>
+                            <option value="silent">No communication</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Timeline:</label>
+                        <input type="text" id="timeline" placeholder="e.g., 2 weeks since lease end">
+                    </div>
+
+                    <button type="submit" class="analyze-btn">Analyze Situation</button>
+                </form>
+            </div>
+
+            <div class="results-section">
+                <div id="loading" class="loading" style="display: none;">
+                    Analyzing your situation...
+                </div>
+                <div id="results" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById(''reasoningForm'').addEventListener(''submit'', async (e) => {
+            e.preventDefault();
+
+            // Gather facts
+            const facts = {
+                lease_status: document.getElementById(''stage'').value,
+                still_in_unit: document.getElementById(''still_in_unit'').checked,
+                payment_current: document.getElementById(''payment_current'').checked,
+                paying_rent: document.getElementById(''paying_rent'').checked,
+                notices_received: document.getElementById(''notices_received'').value || null,
+                court_date: document.getElementById(''court_date'').value || null,
+                deposit_returned: document.getElementById(''deposit_returned'').checked,
+                landlord_communication: document.getElementById(''landlord_communication'').value,
+                timeline: document.getElementById(''timeline'').value
+            };
+
+            const stage = document.getElementById(''stage'').value;
+
+            // Show loading
+            document.getElementById(''loading'').style.display = ''block'';
+            document.getElementById(''results'').style.display = ''none'';
+
+            // Call API
+            try {
+                const response = await fetch(''/demo/api/analyze'', {
+                    method: ''POST'',
+                    headers: { ''Content-Type'': ''application/json'' },
+                    body: JSON.stringify({ facts, stage })
+                });
+
+                const result = await response.json();
+                displayResults(result);
+            } catch (error) {
+                document.getElementById(''results'').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                document.getElementById(''results'').style.display = ''block'';
+            }
+
+            document.getElementById(''loading'').style.display = ''none'';
+        });
+
+        function displayResults(result) {
+            const resultsDiv = document.getElementById(''results'');
+            const summary = result.summary;
+            const steps = result.steps;
+
+            let html = `
+                <div class="step-card">
+                    <h3>📊 Summary</h3>
+                    <p><strong>Primary Issue:</strong> ${summary.primary_issue.replace(''_'', '' '')}</p>
+                    <p>
+                        <strong>Urgency:</strong> 
+                        <span class="badge badge-${summary.urgency}">${summary.urgency.toUpperCase()}</span>
+                    </p>
+                    <p><strong>Risk Level:</strong> ${summary.risk_level}</p>
+                    <p><strong>Confidence:</strong> ${Math.round(summary.confidence * 100)}%</p>
+                </div>
+            `;
+
+            // Display each step
+            steps.forEach(step => {
+                if (step.step === ''fact_gathering'') {
+                    html += `
+                        <div class="step-card">
+                            <h3>1️⃣ Fact Gathering</h3>
+                            <p>${step.reasoning}</p>
+                            <p><strong>Completeness:</strong> ${Math.round(step.completeness * 100)}%</p>
+                        </div>
+                    `;
+                }
+                else if (step.step === ''risk_assessment'') {
+                    html += `
+                        <div class="step-card">
+                            <h3>⚠️ Risk Assessment</h3>
+                            <p>${step.reasoning}</p>
+                            ${step.winter_protections ? ''<p class="badge badge-winter">❄️ Winter Protections Active</p>'' : ''''}
+                            ${step.risks.length > 0 ? `<ul>${step.risks.map(r => `<li>${r}</li>`).join('''')}</ul>` : ''''}
+                        </div>
+                    `;
+                }
+                else if (step.step === ''option_generation'') {
+                    html += `<div class="step-card"><h3>💡 Your Options</h3>`;
+                    step.options.forEach((opt, i) => {
+                        html += `
+                            <div class="option-card">
+                                <h4>${i + 1}. ${opt.option}</h4>
+                                <p><em>${opt.basis}</em></p>
+                                ${opt.evidence_needed ? `
+                                    <p><strong>📋 Evidence needed:</strong></p>
+                                    <ul>${opt.evidence_needed.map(e => `<li>${e}</li>`).join('''')}</ul>
+                                ` : ''''}
+                                ${opt.action_steps ? `
+                                    <p><strong>📝 Action steps:</strong></p>
+                                    <ol>${opt.action_steps.map(s => `<li>${s}</li>`).join('''')}</ol>
+                                ` : ''''}
+                                <p><strong>💰 Cost:</strong> ${opt.costs || ''Unknown''}</p>
+                                <div class="pros-cons">
+                                    <div class="pros">
+                                        <strong>✓ Pros:</strong>
+                                        <ul>${opt.pros.map(p => `<li>${p}</li>`).join('''')}</ul>
+                                    </div>
+                                    <div class="cons">
+                                        <strong>✗ Cons:</strong>
+                                        <ul>${opt.cons.map(c => `<li>${c}</li>`).join('''')}</ul>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+                else if (step.step === ''recommendation'') {
+                    html += `
+                        <div class="step-card">
+                            <h3>🎯 Recommended Action</h3>
+                            <p style="font-size: 1.1em; font-weight: 600;">${step.recommendation}</p>
+                            <p><strong>Priority:</strong> <span class="badge badge-${step.priority}">${step.priority}</span></p>
+                            <p><strong>Next steps:</strong></p>
+                            <ol>${step.next_steps.map(s => `<li>${s}</li>`).join('''')}</ol>
+                            
+                            <div class="resource-list">
+                                <h4>📞 Free Legal Help</h4>
+                                ${step.resources.map(r => `
+                                    <div class="resource-item">
+                                        <strong>${r.name}:</strong> ${r.phone}
+                                        ${r.hours ? `<br><em>${r.hours}</em>` : ''''}
+                                    </div>
+                                `).join('''')}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = ''block'';
+        }
+    </script>
+</body>
+</html>

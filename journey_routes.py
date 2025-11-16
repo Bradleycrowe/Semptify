@@ -1,181 +1,150 @@
-"""
-Flask Routes: Tenant Journey Integration
-Exposes journey tracking and intelligent guidance to users.
-"""
+"""Housing Journey API - Guided conversation that grows seed capabilities"""
+from flask import Blueprint, request, jsonify, session
+from housing_journey_engine import HousingJourneyEngine
+from seed_core import SeedCore
+from seed_manager import SeedManager
+from user_bucket_simulator import UserBucketSimulator
+from realtime_research_engine import RealTimeResearchEngine
+from curiosity_reasoning_bridge import CuriosityReasoningBridge
+import secrets
 
-from flask import Blueprint, request, jsonify
-from tenant_journey import get_tenant_journey
-from security import validate_user_token
+journey_bp = Blueprint('housing_journey', __name__, url_prefix='/api/journey')
 
-journey_bp = Blueprint("journey", __name__, url_prefix="/api/journey")
+# Session-based engines
+_journey_engines = {}
+_seed_managers = {}
 
+def get_journey_engine():
+    """Get or create journey engine for session."""
+    session_id = session.get('session_id')
+    if not session_id:
+        session_id = secrets.token_hex(16)
+        session['session_id'] = session_id
 
-@journey_bp.route("/start", methods=["POST"])
+    if session_id not in _journey_engines:
+        _journey_engines[session_id] = HousingJourneyEngine()
+
+    return _journey_engines[session_id]
+
+def get_seed_manager():
+    """Get or create seed manager for session."""
+    session_id = session.get('session_id')
+    if not session_id:
+        return None
+
+    if session_id not in _seed_managers:
+        bucket = UserBucketSimulator(f"simulated_buckets/session_{session_id}")
+        manager = SeedManager(bucket)
+        manager.ensure_seed_exists({'session_id': session_id})
+        _seed_managers[session_id] = manager
+
+    return _seed_managers[session_id]
+
+@journey_bp.route('/start', methods=['GET'])
 def start_journey():
-    """
-    Start tracking tenant's journey.
+    """Start the housing journey conversation."""
+    engine = get_journey_engine()
+    start = engine.start_conversation()
+    return jsonify(start)
 
-    Body:
-    {
-        "user_token": "...",
-        "location": {
-            "city": "sacramento_city",
-            "county": "sacramento_county",
-            "state": "california",
-            "zip": "95814"
-        },
-        "context": {
-            "looking_for": "1br apartment",
-            "budget": 1500
+@journey_bp.route('/respond', methods=['POST'])
+def respond():
+    """
+    User responds to a journey question.
+    Engine learns from response and grows needed capabilities.
+    Now includes AI reasoning!
+    """
+    data = request.get_json()
+    stage = data.get('stage')
+    answer = data.get('answer')
+    question_index = data.get('question_index', 0)
+
+    if not stage or not answer:
+        return jsonify({'error': 'Missing stage or answer'}), 400
+
+    # Process with journey engine
+    engine = get_journey_engine()
+    result = engine.process_response(stage, answer, question_index)
+    
+    # Real-time official research (MN)
+    try:
+        research = RealTimeResearchEngine().research_holdover_rights(state='MN')
+        result['citations'] = research.get('citations', [])
+        result['presentations'] = research.get('presentations', {})
+        result['verification_status'] = research.get('verification_status', 'unverified')
+        result['preemption'] = research.get('preemption', {})
+    except Exception as e:
+        result['citations'] = []
+        result['verification_status'] = 'unverified'
+        result['research_error'] = str(e)
+    
+    # NEW: AI Reasoning Integration
+    try:
+        bridge = CuriosityReasoningBridge()
+        # Build facts from conversation
+        facts = {
+            'lease_status': 'ended' if stage == 'ended_lease' else stage,
+            'still_in_unit': 'still in' in answer.lower() or 'not moved' in answer.lower(),
+            'payment_current': 'paying' in answer.lower() or 'current' in answer.lower(),
+            'paying_rent': 'paying rent' in answer.lower(),
+            'notices_received': 'notice' in answer.lower() or 'eviction' in answer.lower(),
+            'landlord_communication': 'threatening' if 'threat' in answer.lower() else 'accepting rent',
+            'deposit_returned': 'deposit' in answer.lower() and 'returned' in answer.lower(),
+            'timeline': answer  # Keep full answer for context
         }
+        
+        reasoning_result = bridge.analyze_with_context(facts, stage, answer)
+        result['reasoning'] = reasoning_result
+    except Exception as e:
+        result['reasoning'] = None
+        result['reasoning_error'] = str(e)
+    
+    # Grow capabilities in seed if needed
+    seed_manager = get_seed_manager()
+    grown_capabilities = []
+
+    for capability_name in result['capabilities_to_grow']:
+        if not seed_manager.seed.has_capability(capability_name):
+            # Trigger seed to grow this capability
+            grow_result = seed_manager.process_user_input(
+                f"I need help with {capability_name.replace('_', ' ')}"
+            )
+            if grow_result.get('new_capability'):
+                grown_capabilities.append(capability_name)
+
+    # Add seed stats to response
+    result['seed_stats'] = {
+        'seed_id': seed_manager.seed.seed_id,
+        'total_capabilities': len(seed_manager.seed.capabilities),
+        'grown_this_turn': grown_capabilities
     }
-    """
-    data = request.get_json() or {}
-
-    user_token = data.get("user_token") or request.headers.get("X-User-Token")
-    user_id = validate_user_token(user_token)
-
-    if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
-
-    location = data.get("location", {})
-    context = data.get("context", {})
-
-    journey_tracker = get_tenant_journey()
-    result = journey_tracker.start_journey(user_id, location, context)
 
     return jsonify(result)
 
+@journey_bp.route('/execute/<capability>', methods=['POST'])
+def execute_capability(capability):
+    """Execute a grown capability with user's data."""
+    data = request.get_json()
 
-@journey_bp.route("/<journey_id>/advance", methods=["POST"])
-def advance_stage(journey_id):
-    """
-    Move to next stage in journey.
+    seed_manager = get_seed_manager()
+    if not seed_manager:
+        return jsonify({'error': 'No session'}), 400
 
-    Body:
-    {
-        "user_token": "...",
-        "new_stage": "applying",
-        "data": {
-            "agency": "ABC Property Management",
-            "address": "123 Main St",
-            "application_fee": 75
-        }
-    }
-    """
-    data = request.get_json() or {}
+    # Check if capability exists
+    if not seed_manager.seed.has_capability(capability):
+        return jsonify({'error': 'Capability not found'}), 404
 
-    user_token = data.get("user_token") or request.headers.get("X-User-Token")
-    user_id = validate_user_token(user_token)
-
-    if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
-
-    new_stage = data.get("new_stage")
-    stage_data = data.get("data", {})
-
-    if not new_stage:
-        return jsonify({"error": "new_stage required"}), 400
-
-    journey_tracker = get_tenant_journey()
-    result = journey_tracker.advance_stage(journey_id, new_stage, stage_data)
-
+    # Execute
+    result = seed_manager.process_user_input(data.get('input', ''))
     return jsonify(result)
 
-
-@journey_bp.route("/<journey_id>/guidance", methods=["GET"])
-def get_guidance(journey_id):
-    """
-    Get intelligent guidance for current stage.
-    Uses all learning systems to provide smart advice.
-
-    Query params:
-    - user_token: Authentication
-    - stage: (optional) Get guidance for specific stage
-    """
-    user_token = request.args.get("user_token") or request.headers.get("X-User-Token")
-    user_id = validate_user_token(user_token)
-
-    if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
-
-    stage = request.args.get("stage")
-
-    journey_tracker = get_tenant_journey()
-    journey = journey_tracker.journeys.get(journey_id)
-
-    if not journey:
-        return jsonify({"error": "journey not found"}), 404
-
-    if journey["user_id"] != user_id:
-        return jsonify({"error": "unauthorized"}), 403
-
-    current_stage = stage or journey["stage"]
-    guidance = journey_tracker.get_stage_guidance(journey_id, current_stage)
-
+@journey_bp.route('/status', methods=['GET'])
+def status():
+    """Get current session status."""
+    engine = get_journey_engine()
+    seed_manager = get_seed_manager()
+    
     return jsonify({
-        "journey_id": journey_id,
-        "stage": current_stage,
-        "guidance": guidance
+        'facts_learned': len(engine.facts_learned),
+        'capabilities': len(seed_manager.seed.capabilities) if seed_manager else 0
     })
-
-
-@journey_bp.route("/<journey_id>/outcome", methods=["POST"])
-def record_outcome(journey_id):
-    """
-    Record journey outcome - triggers learning.
-
-    Body:
-    {
-        "user_token": "...",
-        "outcome_type": "resolved" | "dispute" | "moved_out" | "lost_case" | "won_case",
-        "outcome_data": {
-            "resolution": "Repair completed",
-            "time_taken_days": 45,
-            "cost": 1800,
-            "satisfaction": "high"
-        }
-    }
-    """
-    data = request.get_json() or {}
-
-    user_token = data.get("user_token") or request.headers.get("X-User-Token")
-    user_id = validate_user_token(user_token)
-
-    if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
-
-    outcome_type = data.get("outcome_type")
-    outcome_data = data.get("outcome_data", {})
-
-    if not outcome_type:
-        return jsonify({"error": "outcome_type required"}), 400
-
-    journey_tracker = get_tenant_journey()
-    journey_tracker.record_outcome(journey_id, outcome_type, outcome_data)
-
-    return jsonify({
-        "status": "recorded",
-        "message": "Thank you! Your outcome helps other tenants."
-    })
-
-
-@journey_bp.route("/<journey_id>", methods=["GET"])
-def get_journey(journey_id):
-    """Get full journey details."""
-    user_token = request.args.get("user_token") or request.headers.get("X-User-Token")
-    user_id = validate_user_token(user_token)
-
-    if not user_id:
-        return jsonify({"error": "unauthorized"}), 401
-
-    journey_tracker = get_tenant_journey()
-    journey = journey_tracker.journeys.get(journey_id)
-
-    if not journey:
-        return jsonify({"error": "journey not found"}), 404
-
-    if journey["user_id"] != user_id:
-        return jsonify({"error": "unauthorized"}), 403
-
-    return jsonify(journey)

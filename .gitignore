@@ -107,3 +107,16 @@ OllamaSetup.exe
 *.exe
 *.zip
 venv311/
+# Generated Code - Auto-created by engine_generator.py
+*_engine.py
+*_routes.py
+generated/
+engines/
+routes/
+
+# Feature tracking database
+data/features.db
+data/engine_generations.json
+
+# Temporary generation files
+.generator_cache/

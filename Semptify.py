@@ -26,7 +26,6 @@ from ledger_admin_routes import ledger_admin_bp
 from av_routes import av_routes_bp
 from learning_engine import init_learning
 from learning_routes import learning_bp
-from journey_routes import journey_bp
 from adaptive_registration import (
     register_user_adaptive,
     report_issue_adaptive,
@@ -111,7 +110,6 @@ app.register_blueprint(ledger_admin_bp)
 app.register_blueprint(av_routes_bp)
 app.register_blueprint(learning_bp)
 app.register_blueprint(learning_module_bp)  # Preliminary Learning Module - Info acquisition & fact-checking
-app.register_blueprint(journey_bp)  # Tenant Journey with all intelligence systems
 
 # Route Discovery & Dynamic Data Source System
 if route_discovery_bp:
@@ -238,6 +236,22 @@ try:
     print("[OK] Ollama routes registered (/api/ollama/*)")
 except ImportError as e:
     print(f"[WARN] Ollama routes not available: {e}")
+
+# Seed Growth API - Self-growing capabilities
+try:
+    from seed_api_routes import seed_api_bp
+    app.register_blueprint(seed_api_bp)
+    print("[OK] Seed Growth API registered (/api/seed/*)")
+except ImportError as e:
+    print(f"[WARN] Seed Growth API not available: {e}")
+
+# Housing Journey - Guided conversation that grows capabilities
+try:
+    from journey_routes import journey_bp
+    app.register_blueprint(journey_bp)
+    print("[OK] Housing Journey registered (/api/journey/*)")
+except ImportError as e:
+    print(f"[WARN] Housing Journey not available: {e}")
 # Packet Builder - SQLite-backed packet assembly system
 
 # Maintenance - automated cleanup & health checks
@@ -247,12 +261,27 @@ try:
     print("[OK] Maintenance routes registered (/maintenance/*)")
 except ImportError as e:
     print(f"[WARN] Maintenance routes not available: {e}")
+
+# Storage Qualification - Users prove R2/Google access = qualified
+try:
+    from storage_qualification import storage_qual_bp
+    app.register_blueprint(storage_qual_bp)
+    print("[OK] Storage qualification registered (/storage/qualify, /storage/status)")
+except ImportError as e:
+    print(f"[WARN] Storage qualification not available: {e}")
 try:
     from packet_builder import packet_builder_bp
     app.register_blueprint(packet_builder_bp)
     print("[OK] Packet builder registered (/api/packet-builder/*)")
 except ImportError as e:
     print(f"[WARN] Packet builder not available: {e}")
+# Reasoning Demo - Test AI reasoning system
+try:
+    from demo_routes import demo_bp
+    app.register_blueprint(demo_bp)
+    print("[OK] Reasoning demo registered (/demo/reasoning)")
+except ImportError as e:
+    print(f"[WARN] Reasoning demo not available: {e}")
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
     from veeper import veeper_bp
@@ -2761,7 +2790,24 @@ def preliminary_learning_ui():
     return render_template('preliminary_learning.html')
 
 
+
+
+@app.route('/journey')
+def housing_journey():
+    """Housing journey - guided conversation."""
+    return render_template('housing_journey.html')
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
+
+
+
+
+
+
+
+
+
 

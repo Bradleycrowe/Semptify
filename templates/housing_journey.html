@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Housing Journey - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.8em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 0.95em; }
+        .content {
+            padding: 40px;
+        }
+        .question {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option {
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1em;
+        }
+        .option:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        .text-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .button {
+            width: 100%;
+            padding: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .button:hover { background: #5568d3; }
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .progress {
+            background: #f0f4ff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s;
+        }
+        .grown-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin: 5px 5px 0 0;
+        }
+        .recommendation {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        .seed-stats {
+            padding: 20px;
+            background: #f0f4ff;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .stat-value { font-size: 2em; font-weight: bold; color: #667eea; }
+        .stat-label { color: #666; font-size: 0.9em; margin-top: 5px; }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Your Housing Journey</h1>
+            <p>Tell us where you are - we'll learn and grow with you</p>
+        </div>
+        
+        <div class="content" id="content">
+            <div class="loading">Loading...</div>
+        </div>
+        
+        <div class="seed-stats" id="stats">
+            <div>
+                <div class="stat-value" id="factsLearned">0</div>
+                <div class="stat-label">Facts Learned</div>
+            </div>
+            <div>
+                <div class="stat-value" id="capabilitiesGrown">0</div>
+                <div class="stat-label">Capabilities Grown</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStage = null;
+        let questionIndex = 0;
+        let factsLearned = 0;
+        let capabilitiesGrown = 0;
+
+        async function startJourney() {
+            const response = await fetch('/api/journey/start');
+            const data = await response.json();
+            renderQuestion(data);
+        }
+
+        function renderQuestion(data) {
+            const content = document.getElementById('content');
+            
+            if (data.type === 'stage_selection') {
+                content.innerHTML = `
+                    <div class="question">${data.question}</div>
+                    <div class="options">
+                        ${data.options.map(opt => `
+                            <div class="option" onclick="selectStage('${opt.value}')">
+                                ${opt.label}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    ${data.progress ? `
+                        <div class="progress">
+                            <div>Progress: ${data.progress}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${(questionIndex / 4) * 100}%"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div class="question">${data.next_question || data.question}</div>
+                    <textarea class="text-input" id="userAnswer" rows="4" placeholder="Type your answer..."></textarea>
+                    <button class="button" onclick="submitAnswer()">Continue</button>
+                    ${data.grown_capabilities && data.grown_capabilities.length > 0 ? `
+                        <div style="margin-top: 20px;">
+                            ${data.grown_capabilities.map(cap => `
+                                <span class="grown-badge">✓ Added: ${cap}</span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    ${data.recommendation ? `
+                        <div class="recommendation">
+                            <strong>💡 Tip:</strong> ${data.recommendation}
+                        </div>
+                    ` : ''}
+                `;
+            }
+        }
+
+        async function selectStage(stage) {
+            currentStage = stage;
+            questionIndex = 0;
+            
+            // Get first question for this stage
+            const response = await fetch('/api/journey/respond', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    stage: stage,
+                    answer: `I selected ${stage}`,
+                    question_index: 0
+                })
+            });
+            
+            const data = await response.json();
+            updateStats(data);
+            renderQuestion(data);
+        }
+
+        async function submitAnswer() {
+            const answer = document.getElementById('userAnswer').value.trim();
+            
+            // Allow Enter key to submit
+            const userAnswerInput = document.getElementById('userAnswer');
+            if (!userAnswerInput.dataset.enterListenerAdded) {
+                userAnswerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        answerQuestion();
+                    }
+                });
+                userAnswerInput.dataset.enterListenerAdded = 'true';
+            }
+            if (!answer) return;
+            
+            const response = await fetch('/api/journey/respond', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    stage: currentStage,
+                    answer: answer,
+                    question_index: questionIndex
+                })
+            });
+            
+            const data = await response.json();
+            questionIndex++;
+            updateStats(data);
+            
+            if (data.next_question) {
+                renderQuestion(data);
+            } else {
+                // Journey complete for this stage
+                document.getElementById('content').innerHTML = `
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="font-size: 3em; margin-bottom: 20px;">✅</div>
+                        <h2 style="color: #333; margin-bottom: 15px;">Information Gathered!</h2>
+                        <p style="color: #666; margin-bottom: 30px;">
+                            The system learned from your answers and grew ${data.seed_stats.grown_this_turn.length} new capabilities.
+                        </p>
+                        <button class="button" onclick="location.reload()">Start New Journey</button>
+                    </div>
+                    ${data.recommendation ? `
+                        <div class="recommendation">
+                            <strong>💡 Remember:</strong> ${data.recommendation}
+                        </div>
+                    ` : ''}
+                `;
+            }
+        }
+
+        function updateStats(data) {
+            if (data.all_facts_learned) {
+                factsLearned = data.all_facts_learned;
+                document.getElementById('factsLearned').textContent = factsLearned;
+            }
+            if (data.seed_stats && data.seed_stats.total_capabilities) {
+                capabilitiesGrown = data.seed_stats.total_capabilities;
+                document.getElementById('capabilitiesGrown').textContent = capabilitiesGrown;
+            }
+        }
+
+        // Start on load
+        startJourney();
+    </script>
+<script>
+function renderCitations(data) {
+  const box = document.getElementById('sources');
+  const list = document.getElementById('citations');
+  if (!box || !list) return;
+  list.innerHTML = '';
+  const cites = (data && data.citations) ? data.citations : [];
+  if (cites.length === 0) { box.style.display = 'none'; return; }
+  cites.slice(0, 6).forEach(c => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = c.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.textContent = ${c.statute} — ;
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+  box.style.display = 'block';
+}
+</script>\n
+    <!-- AI Reasoning Display -->
+    <div id="reasoningPanel" style="display: none; position: fixed; top: 100px; right: 20px; width: 400px; max-height: 80vh; overflow-y: auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); padding: 20px; z-index: 1000;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="color: #6c63ff; margin: 0;">🧠 AI Analysis</h3>
+            <button onclick="document.getElementById(''reasoningPanel'').style.display=''none''" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+        </div>
+        
+        <div id="curiosityBox" style="display: none; margin-bottom: 15px; padding: 12px; background: #f0f4ff; border-radius: 6px; font-size: 13px;">
+            <strong style="color: #6c63ff;">💡 Detected:</strong>
+            <div id="curiosityText" style="margin-top: 5px;"></div>
+        </div>
+        
+        <div id="summaryBox" style="margin-bottom: 15px; padding: 12px; background: #f7fafc; border-radius: 6px;">
+            <div id="summaryText"></div>
+        </div>
+        
+        <div id="optionsBox" style="margin-bottom: 15px;">
+            <h4 style="font-size: 14px; margin-bottom: 10px;">Your Options:</h4>
+            <div id="optionsList"></div>
+        </div>
+        
+        <div id="recommendBox" style="padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px;">
+            <strong style="display: block; margin-bottom: 8px;">🎯 Recommended:</strong>
+            <div id="recommendText"></div>
+            <div id="resourcesBox" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.3);">
+                <strong style="display: block; margin-bottom: 5px;">📞 Free Help:</strong>
+                <div id="resourcesList" style="font-size: 12px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Display reasoning results
+        function displayReasoning(data) {
+            if (!data.reasoning || !data.reasoning.reasoning) return;
+            
+            const reasoning = data.reasoning.reasoning;
+            const panel = document.getElementById(''reasoningPanel'');
+            
+            // Curiosity insights
+            if (data.reasoning.curiosity_insights && data.reasoning.curiosity_insights.urgency_detected) {
+                document.getElementById(''curiosityBox'').style.display = ''block'';
+                const insights = data.reasoning.curiosity_insights;
+                let text = [];
+                if (insights.urgency_detected) text.push(`⚡ Urgency: ${insights.urgency_signals.join('', '')}`);
+                if (insights.concerns.length > 0) text.push(`📋 Concerns: ${insights.concerns.join('', '')}`);
+                if (insights.emotional_state !== ''neutral'') text.push(`💭 State: ${insights.emotional_state}`);
+                document.getElementById(''curiosityText'').innerHTML = text.join(''<br>'');
+            }
+            
+            // Summary
+            const summary = reasoning.summary;
+            document.getElementById(''summaryText'').innerHTML = `
+                <div style="font-size: 13px;">
+                    <strong>Issue:</strong> ${summary.primary_issue.replace(''_'', '' '')}<br>
+                    <strong>Urgency:</strong> <span style="padding: 2px 8px; background: ${summary.urgency===''critical''?''#fed7d7'':summary.urgency===''urgent''?''#feebc8'':''#c6f6d5''}; border-radius: 10px; font-size: 11px;">${summary.urgency.toUpperCase()}</span><br>
+                    <strong>Confidence:</strong> ${Math.round(summary.confidence*100)}%
+                </div>
+            `;
+            
+            // Options (show top 2)
+            const options = reasoning.steps.find(s => s.step === ''option_generation'').options.slice(0, 2);
+            document.getElementById(''optionsList'').innerHTML = options.map((opt, i) => `
+                <div style="margin-bottom: 10px; padding: 10px; background: #f7fafc; border-radius: 6px; font-size: 12px;">
+                    <strong>${i+1}. ${opt.option}</strong><br>
+                    <span style="color: #666;">${opt.basis}</span>
+                    ${opt.costs ? `<br><span style="color: #6c63ff;">💰 ${opt.costs}</span>` : ''''}
+                </div>
+            `).join('''');
+            
+            // Recommendation
+            const recommend = reasoning.steps.find(s => s.step === ''recommendation'');
+            document.getElementById(''recommendText'').innerHTML = recommend.recommendation;
+            
+            // Resources
+            if (recommend.resources) {
+                document.getElementById(''resourcesList'').innerHTML = recommend.resources.slice(0, 2).map(r => 
+                    `<div style="margin: 5px 0;">${r.name}: <strong>${r.phone}</strong></div>`
+                ).join('''');
+            }
+            
+            // Show panel
+            panel.style.display = ''block'';
+        }
+
+        // Update existing submitResponse to call displayReasoning
+        const originalSubmit = submitResponse;
+        submitResponse = function() {
+            originalSubmit();
+            // Hook into fetch response
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                return originalFetch.apply(this, args).then(response => {
+                    return response.clone().json().then(data => {
+                        if (data.reasoning) {
+                            setTimeout(() => displayReasoning(data), 500);
+                        }
+                        return response;
+                    });
+                });
+            };
+        };
+    </script>
+</body>
+</html>
+
+
+
+
