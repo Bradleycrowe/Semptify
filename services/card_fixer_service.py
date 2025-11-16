@@ -102,6 +102,37 @@ def auto_fix_cards(app) -> Dict[str, Any]:
         
         # If no fix available, keep card active
         pass  # Cards stay active even with broken routes
+        # Use universal reasoning fallback
+        try:
+            from services.reasoning_fallback import get_reasoning_fallback
+            fallback = get_reasoning_fallback()
+            
+            facts = {
+                'broken_route': old_route,
+                'card_slug': card['slug'],
+                'available_routes': valid_routes
+            }
+            
+            def apply_route_fix(suggestion):
+                if suggestion['type'] == 'route_fix':
+                    new_route = suggestion['value']
+                    if update_card_route(card['slug'], old_route, new_route):
+                        fixes_applied.append({
+                            'slug': card['slug'],
+                            'old': old_route,
+                            'new': new_route,
+                            'source': 'reasoning_fallback'
+                        })
+                        return True
+                return False
+            
+            fallback.auto_apply('route_broken', facts, apply_route_fix,
+                               context=f"Fixing {card['slug']}")
+        except Exception as e:
+            print(f"[CARD-FIXER] Fallback failed: {e}")
+            pass
+
+
 
     # Never deactivate cards - admin will fix routes manually
     
