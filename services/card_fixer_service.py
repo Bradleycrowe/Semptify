@@ -100,12 +100,10 @@ def auto_fix_cards(app) -> Dict[str, Any]:
                     })
                     continue
         
-        # If no fix available, deactivate
-        deactivated.append(card['slug'])
-    
-    # Deactivate cards that couldn't be fixed
-    if deactivated:
-        deactivate_broken_cards([c for c in broken if c['slug'] in deactivated])
+        # If no fix available, keep card active
+        pass  # Cards stay active even with broken routes
+
+    # Never deactivate cards - admin will fix routes manually
     
     return {
         'status': 'completed',
