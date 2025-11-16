@@ -37,11 +37,28 @@ def check_storage_configured() -> tuple[bool, str, list]:
     return False, "None", missing
 
 
-def enforce_storage_requirement():
+def enforce_storage_requirement(strict: bool = None):
     """
     Enforce persistent storage requirement.
     Exits application with clear error if not configured.
     """
+    # Check if dev mode (allow local storage)
+    import os
+    if strict is None:
+        # Auto-detect: strict in production, lenient in dev
+        # Auto-detect production: check for Render or explicit PRODUCTION flag
+        is_render = bool(os.getenv('RENDER_SERVICE_NAME') or os.getenv('RENDER_SERVICE_ID'))
+        is_production = os.getenv('PRODUCTION') == 'true'
+        strict = is_render or is_production
+    
+    # Allow bypass in development
+    if not strict and os.getenv('DEV_MODE') == 'true':
+        print("\n" + "="*70)
+        print("⚠️  DEV MODE: Running with ephemeral local storage")
+        print("   Data will be lost on restart!")
+        print("="*70 + "\n")
+        return True
+    
     configured, provider, missing = check_storage_configured()
     
     if configured:
@@ -88,12 +105,35 @@ def enforce_storage_requirement():
     print("="*70)
     print("\n🛑 Application startup blocked until storage is configured.\n")
     
-    # Exit with error code
+    # In non-strict mode, warn but allow
+    if not strict:
+        print("⚠️  WARNING: Continuing with ephemeral storage (development only)")
+        print("   Set PRODUCTION=true to enforce storage requirement\n")
+        return False
+    
+    # Exit with error code in strict/production mode
     sys.exit(1)
 
 
 def get_storage_status() -> dict:
     """Get detailed storage configuration status for health checks."""
+    # Check if dev mode (allow local storage)
+    import os
+    if strict is None:
+        # Auto-detect: strict in production, lenient in dev
+        # Auto-detect production: check for Render or explicit PRODUCTION flag
+        is_render = bool(os.getenv('RENDER_SERVICE_NAME') or os.getenv('RENDER_SERVICE_ID'))
+        is_production = os.getenv('PRODUCTION') == 'true'
+        strict = is_render or is_production
+    
+    # Allow bypass in development
+    if not strict and os.getenv('DEV_MODE') == 'true':
+        print("\n" + "="*70)
+        print("⚠️  DEV MODE: Running with ephemeral local storage")
+        print("   Data will be lost on restart!")
+        print("="*70 + "\n")
+        return True
+    
     configured, provider, missing = check_storage_configured()
     
     return {

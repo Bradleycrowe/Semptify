@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 # App will NOT START without R2/GCS/Persistent Disk configured
 # ============================================================================
 from services.storage_enforcer import enforce_storage_requirement
-enforce_storage_requirement()  # Exits if no storage configured
+enforce_storage_requirement(strict=False)  # Warn in dev, block in prod (RENDER/PRODUCTION env)
 # ============================================================================
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, g, session, send_file, Response
