@@ -2770,6 +2770,13 @@ if 'vault_blueprint.vault' not in app.view_functions:
 
 # ============================================================================
 # PRELIMINARY LEARNING MODULE - UI ROUTE
+
+# Dashboard route (authenticated home)
+@app.route('/dashboard')
+def dashboard_home():
+    if not session.get('qualified'):
+        return redirect(url_for('vault_login'))
+    return render_template('dashboard_home.html')
 # ============================================================================
 
 @app.route('/learning')
@@ -2796,6 +2803,7 @@ def housing_journey():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
 
 
 

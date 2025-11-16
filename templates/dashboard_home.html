@@ -1,0 +1,50 @@
+{% extends "base_auth.html" %}
+{% block title %}Dashboard • Semptify{% endblock %}
+{% block head %}
+<style>
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; }
+  .card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; box-shadow:0 8px 20px rgba(0,0,0,0.06); display:flex; flex-direction:column; }
+  .card h3 { margin:0 0 6px; font-size:1.1rem; }
+  .card p { margin:0 0 14px; color:#6b7280; font-size:0.9rem; }
+  .card a { align-self:flex-start; background:#667eea; color:#fff; text-decoration:none; padding:10px 14px; border-radius:10px; font-weight:700; font-size:0.9rem; }
+  .welcome { margin-bottom:16px; }
+</style>
+{% endblock %}
+{% block content %}
+  <div class="welcome">
+    <h2>Welcome back</h2>
+    <p style="color:#6b7280;">Quick actions to manage your case and evidence.</p>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Evidence Vault</h3>
+      <p>Upload photos, videos, and documents. All notarized automatically.</p>
+      <a href="/vault">Open Vault →</a>
+    </div>
+    <div class="card">
+      <h3>Journey & Guidance</h3>
+      <p>Answer a few questions to get statute-aware steps.</p>
+      <a href="/housing_journey">Start Journey →</a>
+    </div>
+    <div class="card">
+      <h3>Timeline</h3>
+      <p>See events, uploads, and actions in chronological order.</p>
+      <a href="/timeline">View Timeline →</a>
+    </div>
+    <div class="card">
+      <h3>File a Complaint</h3>
+      <p>Generate court-ready packets and guidance tailored to your jurisdiction.</p>
+      <a href="/file-complaint">Begin Filing →</a>
+    </div>
+    <div class="card">
+      <h3>Programs & Help</h3>
+      <p>Explore housing programs and assistance options in your area.</p>
+      <a href="/housing_programs">Browse Programs →</a>
+    </div>
+    <div class="card">
+      <h3>Settings</h3>
+      <p>Manage storage, token, and preferences.</p>
+      <a href="/settings">Open Settings →</a>
+    </div>
+  </div>
+{% endblock %}

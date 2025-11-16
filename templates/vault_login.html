@@ -86,7 +86,7 @@
         
         if (data.success) {
           // Redirect to vault
-          window.location.href = '/vault';
+          window.location.href = '/dashboard';
         } else {
           errorMsg.textContent = '❌ ' + (data.error || 'Invalid token');
           errorMsg.style.display = 'block';
@@ -103,3 +103,4 @@
   </script>
 </body>
 </html>
+
