@@ -95,9 +95,15 @@ def vault_login():
     return render_template('vault_login.html')
 
 # Add route for storage provider choice page
-@app.route('/storage-setup')
+@app.route('/storage-setup', methods=['GET', 'POST'])
 def storage_setup():
-    return render_template('choose_storage.html')
+    if request.method == 'POST':
+        provider = request.form.get('provider')
+        # Set qualified session after storage choice
+        session['qualified'] = True
+        session['storage_provider'] = provider
+        return redirect(url_for('dashboard'))
+    return render_template('choose_storage.html', csrf_token=_get_or_create_csrf_token())
 
 # ============================================================================
 # NEW: Modular blueprints for better code organization
