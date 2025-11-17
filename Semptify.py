@@ -76,7 +76,16 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 try:
     from contextual_help import get_tooltip, format_deadline, explain_form_field, get_inline_help
     
-    @app.context_processor
+    @app.route('/')
+def index():
+    """Root route - redirect to dashboard"""
+    return redirect(url_for('dashboard'))
+@app.route('/')
+def index():
+    "`Root route - redirect to dashboard"`
+    return redirect(url_for('dashboard'))
+
+@app.context_processor
     def inject_helpers():
         """Make human perspective helpers available in all templates."""
         return {
