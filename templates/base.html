@@ -23,7 +23,17 @@
     a:hover { text-decoration: underline; }
   </style>
   {% block extra_head %}{% endblock %}
-</head>
+
+<style>
+  /* Align navbar with logo on desktop */
+  @media (min-width: 769px) {
+    .header { display: flex !important; align-items: flex-end !important; padding-bottom: 20px !important; }
+    .header .logo img { height: 96px !important; display: block; }
+    .nav-bar { position: static !important; transform: none !important; left: auto !important; bottom: auto !important; margin-left: 24px !important; align-self: flex-end !important; gap: 20px !important; }
+    .nav-bar a { padding: 0 0 6px 0 !important; line-height: 1 !important; border-bottom-width: 2px !important; }
+    .user-info { position: static !important; margin-left: auto !important; align-self: flex-start !important; }
+  }
+</style></head>
 <body>
   {% include 'includes/header.html' %}
   <main>
@@ -33,6 +43,7 @@
   {% block extra_js %}{% endblock %}
 </body>
 </html>
+
 
 
 
