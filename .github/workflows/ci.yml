@@ -47,7 +47,7 @@ jobs:
         syft dir:. -o json > sbom-source-${{ matrix.python-version }}.json
         test -s sbom-source-${{ matrix.python-version }}.json
     - name: Upload SBOM (source) artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: sbom-source-${{ matrix.python-version }}-${{ github.run_id }}
         path: sbom-source-${{ matrix.python-version }}.json
@@ -79,7 +79,7 @@ jobs:
         python -m pytest -q --junitxml=test-results/junit-${{ matrix.python-version }}.xml
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: junit-${{ matrix.python-version }}-${{ github.run_id }}
         path: test-results/junit-${{ matrix.python-version }}.xml
@@ -115,7 +115,7 @@ jobs:
         sarif_file: trivy-report.sarif
 
     - name: Upload Trivy reports (artifact)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: trivy-reports-${{ github.run_id }}
         path: trivy-report.sarif
@@ -155,7 +155,7 @@ jobs:
         shell: bash
 
       - name: Upload image info artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: image-info-${{ github.ref_name }}
           path: image-info.txt
@@ -186,7 +186,7 @@ jobs:
           test -s sbom.json || (echo "SBOM file empty" && exit 1)
 
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: sbom-${{ github.ref_name }}
           path: sbom.json
@@ -341,19 +341,19 @@ jobs:
           name: sbom-${{ github.ref_name }}
 
       - name: Upload Trivy reports (artifact)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: trivy-reports-${{ github.run_id }}
           path: trivy-report.sarif
 
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: sbom-${{ github.ref_name }}
           path: sbom.json
 
       - name: Upload image info artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: image-info-${{ github.ref_name }}
           path: image-info.txt
