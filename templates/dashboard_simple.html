@@ -2,82 +2,97 @@
 {% block page_title %}Dashboard - Semptify{% endblock %}
 {% block content %}
 
+<style>
+  :root {
+    --brand-maroon: #7a0019;
+    --brand-gold: #ffce00;
+    --text-dark: #1f2937;
+    --text-mid: #4b5563;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+  }
+  .brand-accent { color: var(--brand-maroon); }
+  .btn-primary, a.primary { background: var(--brand-maroon); color: #fff; border: 1px solid var(--brand-maroon); padding: 10px 16px; text-decoration: none; font-weight: 600; display:inline-block; border-radius: 0; }
+  .btn-primary:hover, a.primary:hover { background: #5a0013; border-color: #5a0013; }
+  .btn-secondary { background: var(--brand-gold); color: #1f2937; border: 1px solid var(--brand-gold); padding: 10px 16px; font-weight: 600; border-radius: 0; }
+  .thin-border { border: 1px solid var(--border); }
+  .app-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 0; box-shadow: none; }
+  .card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+  .setup-banner { background: linear-gradient(90deg, var(--brand-maroon) 0%, #5a0013 100%); color:#fff; padding:20px; border-radius:0; border-left: 6px solid var(--brand-gold); }
+  label { font-weight:500; color: var(--text-dark); }
+  input, textarea { border:1px solid var(--border); padding:10px; width:100%; border-radius:0; }
+</style>
+
 <!-- Setup Card: Only shows for non-qualified users -->
 {% if not session.get('qualified') %}
-<div style="margin:0 0 30px; padding:24px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; box-shadow:0 8px 20px rgba(102,126,234,0.3); color:white;">
-  <h2 style="margin:0 0 12px; color:white;">🔐 Get Started: Connect Your Storage</h2>
-  <p style="margin:0 0 20px; opacity:0.95;">Semptify needs access to your cloud storage (R2 or Google Cloud) to securely store documents. Set up takes 2 minutes.</p>
-  
-  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:24px;">
-    <!-- R2 Provider Card -->
-    <div id="r2Card" onclick="selectProvider('r2')" style="cursor:pointer; padding:20px; background:rgba(255,255,255,0.15); border-radius:8px; border:2px solid transparent; transition:all 0.2s;">
-      <h3 style="margin:0 0 8px; color:white;">☁️ Cloudflare R2</h3>
-      <p style="margin:0; font-size:0.9em; opacity:0.9;">Fast, affordable, S3-compatible storage</p>
+<div class="setup-banner" style="margin:0 0 24px;">
+  <h2 style="margin:0 0 8px;">Semptify — The Tenants Toolbox</h2>
+  <p style="margin:0 0 16px; font-size:0.95rem; opacity:0.95;">Motto: <strong>Document everything!</strong> • Tagline: <strong>Know your rights. Strength in knowledge.</strong></p>
+  <p style="margin:0 0 16px;">Connect your storage to start protecting your rights.</p>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-bottom:16px;">
+    <div id="r2Card" onclick="selectProvider('r2')" class="thin-border" style="cursor:pointer; background:rgba(255,255,255,0.1); padding:14px;">
+      <h3 style="margin:0 0 6px; color:#fff;">Cloudflare R2</h3>
+      <p style="margin:0; font-size:0.9em; opacity:0.95;">Fast, affordable, S3-compatible storage</p>
     </div>
-    
-    <!-- Google Provider Card -->
-    <div id="googleCard" onclick="selectProvider('google')" style="cursor:pointer; padding:20px; background:rgba(255,255,255,0.15); border-radius:8px; border:2px solid transparent; transition:all 0.2s;">
-      <h3 style="margin:0 0 8px; color:white;">📦 Google Cloud Storage</h3>
-      <p style="margin:0; font-size:0.9em; opacity:0.9;">Enterprise-grade Google storage</p>
+    <div id="googleCard" onclick="selectProvider('google')" class="thin-border" style="cursor:pointer; background:rgba(255,255,255,0.1); padding:14px;">
+      <h3 style="margin:0 0 6px; color:#fff;">Google Cloud Storage</h3>
+      <p style="margin:0; font-size:0.9em; opacity:0.95;">Enterprise-grade Google storage</p>
     </div>
   </div>
   
-  <!-- R2 Credentials Form -->
-  <form id="r2Form" method="POST" action="/storage/qualify" style="display:none; background:rgba(255,255,255,0.2); padding:20px; border-radius:8px;">
+  <form id="r2Form" method="POST" action="/storage/qualify" class="thin-border" style="display:none; background:#fff; padding:16px;">
     <input type="hidden" name="provider" value="r2">
-    <div style="margin-bottom:12px;">
-      <label style="display:block; margin-bottom:4px; font-weight:500;">Account ID</label>
-      <input type="text" name="account_id" required style="width:100%; padding:10px; border:none; border-radius:6px; background:white; color:#333;">
+    <div style="margin-bottom:10px;">
+      <label>Account ID</label>
+      <input type="text" name="account_id" required>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label>Access Key ID</label>
+      <input type="text" name="access_key" required>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label>Secret Access Key</label>
+      <input type="password" name="secret_key" required>
     </div>
     <div style="margin-bottom:12px;">
-      <label style="display:block; margin-bottom:4px; font-weight:500;">Access Key ID</label>
-      <input type="text" name="access_key" required style="width:100%; padding:10px; border:none; border-radius:6px; background:white; color:#333;">
+      <label>Bucket Name</label>
+      <input type="text" name="bucket_name" required>
     </div>
-    <div style="margin-bottom:12px;">
-      <label style="display:block; margin-bottom:4px; font-weight:500;">Secret Access Key</label>
-      <input type="password" name="secret_key" required style="width:100%; padding:10px; border:none; border-radius:6px; background:white; color:#333;">
-    </div>
-    <div style="margin-bottom:16px;">
-      <label style="display:block; margin-bottom:4px; font-weight:500;">Bucket Name</label>
-      <input type="text" name="bucket_name" required style="width:100%; padding:10px; border:none; border-radius:6px; background:white; color:#333;">
-    </div>
-    <button type="submit" style="padding:12px 24px; background:#48bb78; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Connect R2 Storage</button>
-    <button type="button" onclick="cancelSetup()" style="margin-left:12px; padding:12px 24px; background:rgba(255,255,255,0.2); color:white; border:none; border-radius:6px; cursor:pointer;">Cancel</button>
+    <button type="submit" class="btn-primary">Connect R2 Storage</button>
+    <button type="button" onclick="cancelSetup()" class="btn-secondary" style="margin-left:10px;">Cancel</button>
   </form>
-  
-  <!-- Google Credentials Form -->
-  <form id="googleForm" method="POST" action="/storage/qualify" style="display:none; background:rgba(255,255,255,0.2); padding:20px; border-radius:8px;">
+
+  <form id="googleForm" method="POST" action="/storage/qualify" class="thin-border" style="display:none; background:#fff; padding:16px;">
     <input type="hidden" name="provider" value="google">
+    <div style="margin-bottom:10px;">
+      <label>Service Account JSON</label>
+      <textarea name="credentials_json" rows="6" required style="font-family:monospace; font-size:0.9em;"></textarea>
+    </div>
     <div style="margin-bottom:12px;">
-      <label style="display:block; margin-bottom:4px; font-weight:500;">Service Account JSON</label>
-      <textarea name="credentials_json" rows="6" required style="width:100%; padding:10px; border:none; border-radius:6px; background:white; color:#333; font-family:monospace; font-size:0.85em;"></textarea>
-      <small style="display:block; margin-top:4px; opacity:0.9;">Paste your service account JSON credentials</small>
+      <label>Bucket Name</label>
+      <input type="text" name="bucket_name" required>
     </div>
-    <div style="margin-bottom:16px;">
-      <label style="display:block; margin-bottom:4px; font-weight:500;">Bucket Name</label>
-      <input type="text" name="bucket_name" required style="width:100%; padding:10px; border:none; border-radius:6px; background:white; color:#333;">
-    </div>
-    <button type="submit" style="padding:12px 24px; background:#48bb78; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Connect Google Storage</button>
-    <button type="button" onclick="cancelSetup()" style="margin-left:12px; padding:12px 24px; background:rgba(255,255,255,0.2); color:white; border:none; border-radius:6px; cursor:pointer;">Cancel</button>
+    <button type="submit" class="btn-primary">Connect Google Storage</button>
+    <button type="button" onclick="cancelSetup()" class="btn-secondary" style="margin-left:10px;">Cancel</button>
   </form>
 </div>
 {% endif %}
 
-<h1 style="margin:0 0 24px;">Your Tools</h1>
-<p style="margin:0 0 30px; color:#555; max-width:680px;">Access core Semptify features. Each tool helps document, organize, and act on tenant rights issues. All actions persist securely with configured storage.</p>
+<h1 style="margin:0 0 16px; color:var(--text-dark);">Your Tools</h1>
+<p style="margin:0 0 24px; color:var(--text-mid); max-width:680px;">Access core Semptify features. Everything stays yours, secured in your storage.</p>
 
 <div class="card-grid">
   {% for card in cards %}
     <div class="app-card">
-      <h3>{{ card.title }}</h3>
-      <p>{{ card.description or 'Tool description coming soon.' }}</p>
-      <a class="primary" href="{{ card.route }}">Open</a>
+      <h3 style="margin:0 0 6px;">{{ card.title }}</h3>
+      <p style="margin:0 0 12px; color:var(--text-mid);">{{ card.description or 'Tool description coming soon.' }}</p>
+      <a class="primary btn-primary" href="{{ card.route }}">Open</a>
     </div>
   {% endfor %}
 </div>
 
 {% if not cards %}
-  <div style="padding:40px; background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.06);">
+  <div class="app-card">
     <h3>No cards loaded</h3>
     <p>Card metadata not available. Run health check or seed defaults.</p>
   </div>
@@ -85,31 +100,25 @@
 
 <script>
 function selectProvider(provider) {
-  // Hide all forms and reset card borders
   document.getElementById('r2Form').style.display = 'none';
   document.getElementById('googleForm').style.display = 'none';
-  document.getElementById('r2Card').style.border = '2px solid transparent';
-  document.getElementById('googleCard').style.border = '2px solid transparent';
-  
-  // Show selected form and highlight card
+  document.getElementById('r2Card').style.outline = 'none';
+  document.getElementById('googleCard').style.outline = 'none';
+
   if (provider === 'r2') {
     document.getElementById('r2Form').style.display = 'block';
-    document.getElementById('r2Card').style.border = '2px solid white';
-    document.getElementById('r2Card').style.background = 'rgba(255,255,255,0.25)';
+    document.getElementById('r2Card').style.outline = '3px solid var(--brand-gold)';
   } else {
     document.getElementById('googleForm').style.display = 'block';
-    document.getElementById('googleCard').style.border = '2px solid white';
-    document.getElementById('googleCard').style.background = 'rgba(255,255,255,0.25)';
+    document.getElementById('googleCard').style.outline = '3px solid var(--brand-gold)';
   }
 }
 
 function cancelSetup() {
   document.getElementById('r2Form').style.display = 'none';
   document.getElementById('googleForm').style.display = 'none';
-  document.getElementById('r2Card').style.border = '2px solid transparent';
-  document.getElementById('googleCard').style.border = '2px solid transparent';
-  document.getElementById('r2Card').style.background = 'rgba(255,255,255,0.15)';
-  document.getElementById('googleCard').style.background = 'rgba(255,255,255,0.15)';
+  document.getElementById('r2Card').style.outline = 'none';
+  document.getElementById('googleCard').style.outline = 'none';
 }
 </script>
 
