@@ -75,19 +75,9 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 # Global template helpers for human perspective
 try:
     from contextual_help import get_tooltip, format_deadline, explain_form_field, get_inline_help
-    
-    @app.route('/')
-def index():
-    """Root route - redirect to dashboard"""
-    return redirect(url_for('dashboard'))
-@app.route('/')
-def index():
-    "`Root route - redirect to dashboard"`
-    return redirect(url_for('dashboard'))
 
-@app.context_processor
+    @app.context_processor
     def inject_helpers():
-        """Make human perspective helpers available in all templates."""
         return {
             'get_tooltip': get_tooltip,
             'format_deadline': format_deadline,
@@ -95,8 +85,13 @@ def index():
             'get_help': get_inline_help,
         }
 except Exception:
-    pass
+    @app.context_processor
+    def inject_helpers():
+        return {}
 
+@app.route('/')
+def index():
+    return redirect(url_for('dashboard'))
 @app.context_processor
 def inject_datetime():
     '''Make datetime available in all templates.'''
@@ -2846,6 +2841,8 @@ pass
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
+
 
 
 

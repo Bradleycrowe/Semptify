@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block page_title %}Semptify{% endblock %}</title>
+  <style>
+    :root {
+      --brand-maroon: #7a0019;
+      --brand-gold: #ffce00;
+      --brand-gradient: linear-gradient(90deg, #7a0019 0%, #5a0013 100%);
+      --text-dark: #1f2937;
+      --text-mid: #4b5563;
+      --surface: #ffffff;
+      --border: #e5e7eb;
+      --bg: #f7f7f9;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, Arial, sans-serif; color: var(--text-dark); background: var(--bg); }
+    main { max-width: 1200px; margin: 16px auto; padding: 0 20px 40px; }
+    a { color: var(--brand-maroon); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% include 'includes/header.html' %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  {% include 'includes/footer.html' %}
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
