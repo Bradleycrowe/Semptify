@@ -1,0 +1,322 @@
+{
+  "components": {
+    "blueprints": [
+      {
+        "name": "ai_bp",
+        "path": "blueprints\\ai_bp.py",
+        "docstring": "AI Blueprint\nHandles AI-powered assistance using local Ollama models",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "auth_bp",
+        "path": "blueprints\\auth_bp.py",
+        "docstring": "Authentication Blueprint unified on SQLite-backed user_database.",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "vault_bp",
+        "path": "blueprints\\vault_bp.py",
+        "docstring": "Vault Blueprint - Document Vault & Notary Services\nHandles secure document storage, notarization, and certification management.",
+        "functions": [],
+        "classes": []
+      }
+    ],
+    "routes": [
+      {
+        "name": "attorney_finder_routes",
+        "path": "attorney_finder_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "av_routes",
+        "path": "av_routes.py",
+        "docstring": "Audio/Visual Capture and Mobile Import Routes\n\nEndpoints for:\n- Video/audio/photo uploads from mobile devices\n- Voicemail imports\n- SMS/text message imports\n- Email imports\n- Chat message imports\n- Evidence retrieval and linking to calendar",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "calendar_timeline_routes",
+        "path": "calendar_timeline_routes.py",
+        "docstring": "Flask routes for Calendar Timeline API\nProvides REST endpoints for timeline events and rent ledger",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "complaint_filing_routes",
+        "path": "complaint_filing_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "dashboard_api_routes",
+        "path": "dashboard_api_routes.py",
+        "docstring": "Dashboard API Routes - Serve dynamic content to cells A-F",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "data_flow_routes",
+        "path": "data_flow_routes.py",
+        "docstring": "Flask Blueprint: Data Flow API endpoints\n\nProvides REST API for:\n- Registering module functions\n- Processing documents through flow\n- Tracking document lineage\n- Viewing actor activity",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "demo_routes",
+        "path": "demo_routes.py",
+        "docstring": "Demo routes for testing reasoning system side-by-side",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "doc_explorer_routes",
+        "path": "doc_explorer_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "feature_admin_routes",
+        "path": "feature_admin_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "housing_programs_routes",
+        "path": "housing_programs_routes.py",
+        "docstring": "Flask routes for Housing Programs & Resources system\n\nEndpoints:\n- GET /housing-programs - Main search interface\n- POST /api/programs/search - Search programs by location and criteria\n- GET /api/programs/category/<category> - Get programs by category\n- GET /api/programs/guide/<program_id> - Get detailed application guide\n- POST /api/programs/track-outcome - Track application outcome\n- GET /api/programs/intensity-recommendations - Get intensity-based recommendations\n- GET /api/programs/eligibility-check - Check eligibility for programs\n- GET /programs-for-landlords - Landlord resources page",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "improvement_routes",
+        "path": "improvement_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "journey_routes",
+        "path": "journey_routes.py",
+        "docstring": "Housing Journey API - Guided conversation that grows seed capabilities",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "learning_dashboard_routes",
+        "path": "learning_dashboard_routes.py",
+        "docstring": "Learning Dashboard API Routes\nMobile-first API for adaptive learning system",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "learning_routes",
+        "path": "learning_routes.py",
+        "docstring": "Flask Blueprint: Learning Engine API\nProvides endpoints for self-learning capabilities.",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "ledger_admin_routes",
+        "path": "ledger_admin_routes.py",
+        "docstring": "Ledger Admin Control Panel Routes\n\nAllows administrators to:\n- View and update ledger configuration\n- Adjust statute durations and time sensitivities\n- Configure weather alert thresholds\n- Manage ledger retention policies",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "ledger_calendar_routes",
+        "path": "ledger_calendar_routes.py",
+        "docstring": "Flask Blueprint: Ledger & Calendar API endpoints\n\nProvides REST API for:\n- Viewing ledger entries\n- Querying calendar events\n- Adding new events\n- Exporting for legal review",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "ledger_tracking_routes",
+        "path": "ledger_tracking_routes.py",
+        "docstring": "Ledger Tracking and Weather/Sensitivity API Routes\n\nExposes:\n- Money/Time/Service Date ledgers\n- Statute of limitations tracking\n- Weather conditions and caching\n- Time-sensitive deadline calculations",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "maintenance_routes",
+        "path": "maintenance_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "ollama_routes",
+        "path": "ollama_routes.py",
+        "docstring": "AI integration routes for Semptify - Groq (primary) with Ollama fallback\nProvides AI-powered summarization of legal and housing data sources",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "onboarding_routes",
+        "path": "onboarding_routes.py",
+        "docstring": "Onboarding Flow - Collects essential user info to activate reasoning engine\nand populate cells with relevant content.",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "preliminary_learning_routes",
+        "path": "preliminary_learning_routes.py",
+        "docstring": "Flask Routes for Preliminary Learning Module\nProvides API endpoints for accessing procedures, forms, timelines, and fact-checking.",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "rent_calculator_routes",
+        "path": "rent_calculator_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "route_discovery_routes",
+        "path": "route_discovery_routes.py",
+        "docstring": "Route Discovery & Dynamic Data Source Flask Endpoints\nExposes route discovery and integration capabilities via API",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "seed_api_routes",
+        "path": "seed_api_routes.py",
+        "docstring": "Seed Growth API - Web interface for self-growing seed",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "seed_bootstrap_routes",
+        "path": "seed_bootstrap_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "test_all_routes",
+        "path": "test_all_routes.py",
+        "docstring": "Route Testing Script\nTests all possible navigation paths from homepage on Render\nReports broken routes and navigation issues",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "themes_routes",
+        "path": "themes_routes.py",
+        "docstring": null,
+        "functions": [],
+        "classes": []
+      }
+    ],
+    "apis": [
+      {
+        "name": "calendar_api",
+        "path": "calendar_api.py",
+        "docstring": "Calendar API for Semptify\nProvides REST API for tenant calendar management, court dates, rent due dates, appointments",
+        "functions": [],
+        "classes": []
+      },
+      {
+        "name": "learning_dashboard_api",
+        "path": "learning_dashboard_api.py",
+        "docstring": "Learning Dashboard API for Semptify\nMobile-first intelligent assistant that shows what the learning system is doing",
+        "functions": [],
+        "classes": []
+      }
+    ],
+    "utilities": [],
+    "templates": []
+  },
+  "features": {
+    "User Management": {
+      "description": "Registration, login, authentication",
+      "components": [
+        "auth_bp"
+      ],
+      "routes": [
+        "/register",
+        "/login"
+      ],
+      "icon": "\ud83d\udc64"
+    },
+    "Document Vault": {
+      "description": "Secure document storage with notarization",
+      "components": [
+        "vault_bp"
+      ],
+      "routes": [
+        "/vault"
+      ],
+      "icon": "\ud83d\udd10"
+    },
+    "Rent & Ledger": {
+      "description": "Track rent payments and receipts",
+      "components": [
+        "ledger_tracking"
+      ],
+      "routes": [
+        "/ledger"
+      ],
+      "icon": "\ud83d\udcb0"
+    },
+    "AI Assistant": {
+      "description": "Local and cloud AI integration",
+      "components": [
+        "ai_bp"
+      ],
+      "routes": [
+        "/api/copilot"
+      ],
+      "icon": "\ud83e\udd16"
+    },
+    "Learning System": {
+      "description": "Adaptive learning engine",
+      "components": [
+        "learning_routes"
+      ],
+      "routes": [
+        "/learning"
+      ],
+      "icon": "\ud83d\udcda"
+    },
+    "Admin": {
+      "description": "System administration",
+      "components": [
+        "security"
+      ],
+      "routes": [
+        "/admin",
+        "/metrics"
+      ],
+      "icon": "\u2699\ufe0f"
+    }
+  },
+  "navigation": {
+    "For Tenants": {
+      "icon": "\ud83d\udc65",
+      "sections": [
+        {
+          "name": "Get Started",
+          "link": "/register",
+          "description": "Create account"
+        }
+      ]
+    },
+    "Documentation": {
+      "icon": "\ud83d\udcd6",
+      "sections": [
+        {
+          "name": "Overview",
+          "link": "/docs/overview",
+          "description": "How it works"
+        }
+      ]
+    }
+  }
+}

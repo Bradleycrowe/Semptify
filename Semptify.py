@@ -89,10 +89,10 @@ except Exception:
     def inject_helpers():
         return {}
 
-@app.route('/')
-def index():
-    return redirect(url_for('dashboard'))
-@app.context_processor
+# NOTE: / route now handled by main_dashboard_bp
+# @app.route('/')
+# def index():
+#     return redirect(url_for('dashboard'))
 def inject_datetime():
     '''Make datetime available in all templates.'''
     from datetime import datetime
@@ -112,6 +112,16 @@ if init_route_discovery_api:
     init_route_discovery_api(app, data_dir=os.path.join(os.getcwd(), "data"))
 
 # Note: Curiosity, Intelligence, and Jurisdiction engines initialize on first use
+
+
+
+# Main Dashboard - Human-friendly primary interface
+try:
+    from main_dashboard_routes import main_dashboard_bp
+    app.register_blueprint(main_dashboard_bp)
+    print("[OK] Main Dashboard registered at / (homepage)")
+except ImportError as e:
+    print(f"[WARN] Main Dashboard not available: {e}")
 
 # Register Core Blueprints
 # Vault login page for returning users
@@ -254,6 +264,16 @@ try:
 except ImportError as e:
     print(f"[WARN] Calendar timeline not available: {e}")
 
+# Documentation Explorer - Human-friendly GUI for exploring all features
+try:
+    from doc_explorer_routes import doc_explorer_bp
+    app.register_blueprint(doc_explorer_bp)
+    print("[OK] Documentation Explorer registered (/docs)")
+except ImportError as e:
+    print(f"[WARN] Documentation Explorer not available: {e}")
+
+
+
 # Learning Dashboard API - Mobile-first intelligent assistant
 try:
     from learning_dashboard_api import learning_dashboard_bp
@@ -262,14 +282,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Learning dashboard API not available: {e}")
 
-# Dashboard API - Dynamic cell-based dashboard
+# Themes - UI theme system
 try:
-    from dashboard_api_routes import dashboard_api_bp
-    app.register_blueprint(dashboard_api_bp)
-    print("[OK] Dashboard API registered")
+    from themes_routes import themes_bp
+    app.register_blueprint(themes_bp)
+    print("[OK] Theme system registered (/theme/*)")
 except ImportError as e:
-    print(f"[WARN] Dashboard API not available: {e}")
-
+    print(f"[WARN] Themes not available: {e}")
 # Ollama routes - Local LLM integration
 try:
     from ollama_routes import ollama_bp
@@ -540,7 +559,8 @@ def api_dashboard():
     if not session.get('verified'):
         return jsonify({"error": "User not verified"}), 401
 
-    # Get user data from database
+    from themes_routes import themes_bp
+    app.register_blueprint(themes_bp)
     db = get_user_db()
     cursor = db.cursor()
     cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
@@ -2841,6 +2861,7 @@ pass
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
 
 
 
