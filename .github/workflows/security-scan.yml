@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload audit reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: security-audit-reports-${{ github.run_id }}
           path: /tmp/
@@ -104,7 +104,7 @@ jobs:
 
       - name: Upload bandit report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bandit-report-${{ github.run_id }}
           path: /tmp/bandit-report.json
@@ -130,7 +130,7 @@ jobs:
           test -s sbom.json && echo "✅ SBOM generated successfully" || echo "❌ SBOM is empty"
 
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: sbom-${{ github.run_id }}
           path: sbom.json

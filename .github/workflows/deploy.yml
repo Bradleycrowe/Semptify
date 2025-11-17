@@ -105,7 +105,7 @@ jobs:
           ls -l phase-history.txt || true
       - name: Upload phase history artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: phase-history
           path: phase-history.txt
