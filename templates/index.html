@@ -1,35 +1,15 @@
 {% extends 'base.html' %}
 {% block page_title %}Welcome to Semptify - Document Everything! - Semptify{% endblock %}
 {% block content %}
-<nav class="navbar" style="background:#7a0019;color:#fff;border-bottom:2px solid #ffce00;padding:10px 0;">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">📋 Semptify</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link active" href="/">Home</a>
-                    <a class="nav-link" href="/timeline">Timeline</a>
-                    <a class="nav-link" href="/setup">Setup</a>
-                    <a class="nav-link" href="/settings">Settings</a>
-                    <a class="nav-link" href="/register">Register</a>
-                    <a class="nav-link" href="/settings">Settings</a>
-                </div>
-            </div>
-        </div>
-    </nav>
 
-                <!-- Welcome Hero Section -->
-    <div class="hero-section" style="background:#7a0019;color:#fff;border-bottom:4px solid #ffce00;padding:40px 0;">
-        <div class="container text-center">
-            <h1 class="fw-bold mb-1">Semptify — The Tenants Toolbox</h1>
-            <p class="mb-1" style="font-weight:700;">Document everything!</p>
-            <p class="mb-0" style="color:#ffce00;font-weight:700;">Know your rights. Strength in knowledge.</p>
-        </div>
-    </div>
-    <!-- Setup Presentation Section -->
-    <div class="container py-5">
+
+                <div class="hero" style="background: var(--brand-gradient); color:#fff; border-bottom: 4px solid var(--brand-gold); padding: 44px 0;">
+  <div class="container text-center">
+    <h1 class="fw-bold" style="margin:0 0 6px;">Semptify — The Tenants Toolbox</h1>
+    <div style="font-weight:700;">Document everything!</div>
+    <div style="color: var(--brand-gold); font-weight:700;">Know your rights. Strength in knowledge.</div>
+  </div>
+</div><div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 
@@ -502,5 +482,6 @@
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
+
 
 

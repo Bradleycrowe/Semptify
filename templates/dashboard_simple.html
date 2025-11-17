@@ -18,7 +18,7 @@
   .thin-border { border: 1px solid var(--border); }
   .app-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 0; box-shadow: none; }
   .card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
-  .setup-banner { background: linear-gradient(90deg, var(--brand-maroon) 0%, #5a0013 100%); color:#fff; padding:20px; border-radius:0; border-left: 6px solid var(--brand-gold); }
+  .setup-banner { background: var(--brand-gradient); color:#fff; padding:20px; border-radius:0; border-left: 6px solid var(--brand-gold); }
   label { font-weight:500; color: var(--text-dark); }
   input, textarea { border:1px solid var(--border); padding:10px; width:100%; border-radius:0; }
 </style>
@@ -123,3 +123,4 @@ function cancelSetup() {
 </script>
 
 {% endblock %}
+
