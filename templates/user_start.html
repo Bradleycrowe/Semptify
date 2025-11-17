@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Semptify Setup{% endblock %}
+
+{% block content %}
+<style>
+    .setup-container { max-width: 600px; margin: 3rem auto; padding: 0 1rem; }
+    .setup-header { text-align: center; margin-bottom: 2rem; }
+    .setup-header h1 { font-size: 2rem; color: #1e293b; margin-bottom: 0.5rem; }
+    .setup-header p { color: #64748b; }
+    
+    .provider-select { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+    .provider-btn { background: white; border: 3px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .provider-btn:hover { border-color: #2563eb; transform: translateY(-2px); }
+    .provider-btn.selected { border-color: #2563eb; background: #eff6ff; }
+    .provider-btn input { display: none; }
+    .provider-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .provider-name { font-weight: 700; color: #1e293b; }
+    
+    .creds-form { display: none; background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .creds-form.active { display: block; }
+    .form-field { margin-bottom: 1.5rem; }
+    .form-field label { display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; }
+    .form-field input, .form-field textarea { width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 6px; font-family: monospace; font-size: 0.9rem; }
+    .form-field input:focus, .form-field textarea:focus { outline: none; border-color: #2563eb; }
+    
+    .submit-btn { width: 100%; background: #2563eb; color: white; padding: 1rem; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: pointer; }
+    .submit-btn:hover { background: #1d4ed8; }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .help-text { font-size: 0.85rem; color: #64748b; margin-top: 0.25rem; }
+</style>
+
+<div class="setup-container">
+    <div class="setup-header">
+        <h1>Storage Setup</h1>
+        <p>Choose your storage provider</p>
+    </div>
+
+    <form id="setupForm" method="POST" action="/storage/qualify">
+        <div class="provider-select">
+            <label class="provider-btn" data-provider="r2">
+                <input type="radio" name="provider" value="r2" required>
+                <div class="provider-icon">☁️</div>
+                <div class="provider-name">Cloudflare R2</div>
+            </label>
+
+            <label class="provider-btn" data-provider="google">
+                <input type="radio" name="provider" value="google">
+                <div class="provider-icon">🔷</div>
+                <div class="provider-name">Google Cloud</div>
+            </label>
+        </div>
+
+        <div id="r2Form" class="creds-form">
+            <div class="form-field">
+                <label>Account ID</label>
+                <input type="text" name="account_id" placeholder="abc123def456">
+                <div class="help-text">From: Cloudflare Dashboard → R2</div>
+            </div>
+            
+            <div class="form-field">
+                <label>Access Key</label>
+                <input type="text" name="access_key" placeholder="Your access key">
+            </div>
+            
+            <div class="form-field">
+                <label>Secret Key</label>
+                <input type="password" name="secret_key" placeholder="Your secret key">
+            </div>
+            
+            <div class="form-field">
+                <label>Bucket Name (optional)</label>
+                <input type="text" name="bucket_name" placeholder="semptify-data">
+                <div class="help-text">Leave empty to auto-create</div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Complete Setup</button>
+        </div>
+
+        <div id="googleForm" class="creds-form">
+            <div class="form-field">
+                <label>Service Account JSON</label>
+                <textarea name="credentials_json" rows="10" placeholder='{"type":"service_account",...}'></textarea>
+                <div class="help-text">From: GCP Console → Service Accounts</div>
+            </div>
+            
+            <div class="form-field">
+                <label>Bucket Name (optional)</label>
+                <input type="text" name="bucket_name_gcs" placeholder="semptify-data">
+                <div class="help-text">Leave empty to auto-create</div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Complete Setup</button>
+        </div>
+    </form>
+</div>
+
+<script>
+const providerBtns = document.querySelectorAll('.provider-btn');
+const r2Form = document.getElementById('r2Form');
+const googleForm = document.getElementById('googleForm');
+
+providerBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        providerBtns.forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input').checked = true;
+        
+        const provider = this.dataset.provider;
+        if (provider === 'r2') {
+            r2Form.classList.add('active');
+            googleForm.classList.remove('active');
+        } else {
+            googleForm.classList.add('active');
+            r2Form.classList.remove('active');
+        }
+    });
+});
+</script>
+{% endblock %}

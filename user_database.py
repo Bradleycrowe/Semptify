@@ -18,6 +18,89 @@ def _get_db():
     conn.row_factory = sqlite3.Row  # Return rows as dicts
     return conn
 
+
+def init_storage_users_table():
+    """Initialize storage_users table for tracking qualified users"""
+    conn = _get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS storage_users (
+            user_id TEXT PRIMARY KEY,
+            bucket_name TEXT NOT NULL,
+            storage_provider TEXT NOT NULL,
+            token_hash TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            last_login TEXT,
+            status TEXT DEFAULT 'active'
+        )
+    ''')
+    
+    # Index for fast token lookup
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_token_hash 
+        ON storage_users(token_hash)
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+def add_storage_user(user_id: str, bucket_name: str, provider: str, token: str) -> bool:
+    """Add a new storage-qualified user"""
+    try:
+        import hashlib
+        token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+        
+        conn = _get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO storage_users 
+            (user_id, bucket_name, storage_provider, token_hash, created_at)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, bucket_name, provider, token_hash, datetime.utcnow().isoformat()))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[ERROR] Failed to add storage user: {e}")
+        return False
+
+def get_storage_user_by_token(token: str) -> Optional[Dict]:
+    """Lookup user by token hash"""
+    try:
+        import hashlib
+        token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+        
+        conn = _get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT user_id, bucket_name, storage_provider, created_at, last_login, status
+            FROM storage_users WHERE token_hash = ?
+        ''', (token_hash,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return dict(row)
+        return None
+    except Exception as e:
+        print(f"[ERROR] Failed to lookup storage user: {e}")
+        return None
+
+def update_storage_user_login(user_id: str):
+    """Update last_login timestamp for user"""
+    try:
+        conn = _get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE storage_users 
+            SET last_login = ? 
+            WHERE user_id = ?
+        ''', (datetime.utcnow().isoformat(), user_id))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[ERROR] Failed to update login: {e}")
 def init_database():
     """Initialize database tables"""
     conn = _get_db()
@@ -584,3 +667,4 @@ def init_remember_tokens_table():
     
     conn.commit()
     conn.close()
+

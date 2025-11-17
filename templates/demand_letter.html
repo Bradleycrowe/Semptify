@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block page_title %}Send Demand Letter - Semptify{% endblock %}
+{% block content %}
+
+    
+    <h1>✉️ Send Demand Letter</h1>
+    <div class="info-box">
+        <strong>💡 What is a demand letter?</strong> A formal written request to your landlord to fix issues, return deposits, 
+        or comply with lease obligations. Creates a documented record of your attempts to resolve issues before court.
+    </div>
+    <form action="/demand-letter" method="POST" class="letter-form">
+        <h2>Letter Details</h2>
+        <div class="form-group">
+            <label for="recipient">To: (Landlord/Property Manager Name)*</label>
+            <input type="text" name="recipient" id="recipient" placeholder="e.g., John Smith, ABC Property Management" required>
+        </div>
+        <div class="form-group">
+            <label for="issue">Describe the Issue*</label>
+            <textarea name="issue" id="issue" placeholder="Detailed description..." required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="demand">What are you demanding?*</label>
+            <textarea name="demand" id="demand" placeholder="Be specific: e.g., Repair the leaking roof within 14 days..." required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="deadline">Response Deadline*</label>
+            <input type="date" name="deadline" id="deadline" required>
+        </div>
+        <button type="submit" class="send-btn">📤 Generate & Save Letter</button>
+    </form>
+    
+
+{% endblock %}

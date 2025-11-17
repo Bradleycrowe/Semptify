@@ -103,3 +103,5 @@ def verify_token_from_bucket(storage_config: Dict[str, Any], provided_token: str
 def hash_token_for_index(token: str) -> str:
     """Hash token for secure local indexing (user_id lookup)"""
     return hashlib.sha256(token.encode('utf-8')).hexdigest()
+
+

@@ -8,6 +8,14 @@ from google.cloud import storage as gcs
 import os
 import secrets
 from datetime import datetime
+from user_database import init_storage_users_table, add_storage_user, get_storage_user_by_token, update_storage_user_login
+from storage_token_auth import generate_token, write_token_to_bucket
+
+# Initialize storage users table on import
+try:
+    init_storage_users_table()
+except Exception as e:
+    print(f"[WARN] Could not init storage_users table: {e}")
 
 storage_qual_bp = Blueprint('storage_qual', __name__, url_prefix='/storage')
 
@@ -156,3 +164,6 @@ def require_storage_qualification(f):
             return jsonify({'error': 'Storage qualification required'}), 401
         return f(*args, **kwargs)
     return decorated
+
+
+
