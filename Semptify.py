@@ -369,9 +369,9 @@ except ImportError as e:
 
 # Vault (User Storage) - Document storage in user's Drive/Dropbox only
 try:
-    from vault_user_storage import vault_bp
-    app.register_blueprint(vault_bp)
-    print("[OK] Vault (user storage) registered")
+# OLD - duplicate vault registration
+#     app.register_blueprint(vault_bp)
+#     print("[OK] Vault (user storage) registered")
 except ImportError as e:
     print(f"[WARN] Vault (user storage) not available: {e}")
 # Veeper - Local-only AI for token recovery (phone/email verification)
@@ -2560,15 +2560,15 @@ for m in ("register", "metrics", "readyz"):
 
 # Register the vault blueprint
 try:
-    from vault import vault_bp as vault_blueprint
-    # Register vault blueprint using its own name to avoid duplicate/alien endpoint names
-    app.register_blueprint(vault_blueprint)
+# OLD - duplicate vault registration
+#     # Register vault blueprint using its own name to avoid duplicate/alien endpoint names
+#     app.register_blueprint(vault_blueprint)
 except ImportError:
     pass
 
 try:
-    from vault import vault_bp
-    app.register_blueprint(vault_bp)
+# OLD - duplicate vault registration
+#     app.register_blueprint(vault_bp)
 except Exception:
     # best-effort: if importing/registering the vault blueprint fails in tests, continue
     pass
@@ -2826,9 +2826,9 @@ def _compat_pre_requests():
 # isn't registered under that name.
 try:
     # Try to import and register the blueprint normally if present
-    from vault import vault_bp
-    try:
-        app.register_blueprint(vault_bp)
+# OLD - duplicate vault registration
+#     try:
+#         app.register_blueprint(vault_bp)
     except Exception:
         pass
 except Exception:
@@ -2893,7 +2893,6 @@ pass
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
-
 
 
 
