@@ -1,0 +1,16 @@
+[
+  {
+    "id": "unique-kebab-case-id",
+    "category": "federal|state|tax|funding|other",
+    "title": "Human-readable title",
+    "summary": "Plain-language tenant-focused summary explaining what this law/resource means for renters",
+    "source_url": "https://www.example.gov/resource",
+    "jurisdiction": "US|MN|IRS|Federal|County|City",
+    "updated": "YYYY-MM-DD",
+    "tags": ["keyword1", "keyword2"],
+    "risk_level": "low|medium|high",
+    "recommended_action": "Suggested action tenant should take",
+    "disclaimer": "This is general information, not legal advice. Consult an attorney for your situation.",
+    "version": 1
+  }
+]
