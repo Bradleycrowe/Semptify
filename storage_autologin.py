@@ -92,18 +92,36 @@ def check_storage_auth():
             return redirect('/setup')
         return
     
-    # Storage is connected, check for auth_token.enc
+    # Storage is connected, check for auth_token.enc and auto-login
     try:
         encrypted_token_data = storage_client.download('auth_token.enc')
         
+        # Auto-decrypt using token hash as key
+        try:
+            token_hash_data = storage_client.download('token_hash.txt')
+            stored_hash = token_hash_data.decode().strip() if isinstance(token_hash_data, bytes) else token_hash_data.strip()
+            
+            # Use hash as decryption key to retrieve actual token
+            storage = EncryptedCalendarStorage(storage_client, stored_hash)
+            decrypted = storage.decrypt_data(encrypted_token_data.decode() if isinstance(encrypted_token_data, bytes) else encrypted_token_data)
+            
+            actual_token = decrypted.get('token')
+            if actual_token:
+                # Auto-authorized! Store in g and session
+                g.user_token = actual_token
+                g.storage_client = storage_client
+                g.storage_type = storage_type
+                session['auto_authorized'] = True
+                return
+        except:
+            pass
+        
+        # If we have user_token in request, try that too
         if user_token:
-            # Verify token by decrypting
             try:
                 storage = EncryptedCalendarStorage(storage_client, user_token)
                 decrypted = storage.decrypt_data(encrypted_token_data.decode() if isinstance(encrypted_token_data, bytes) else encrypted_token_data)
-                
                 if decrypted.get('token') == user_token:
-                    # Valid! Store in g for this request
                     g.user_token = user_token
                     g.storage_client = storage_client
                     g.storage_type = storage_type
@@ -111,13 +129,14 @@ def check_storage_auth():
             except:
                 pass
         
-        # Token missing or invalid, redirect to unlock
-        if request.path != '/unlock':
-            return redirect(f'/unlock?next={request.path}')
+        # Couldn't auto-login, redirect to setup
+        if request.path not in ('/setup', '/welcome'):
+            return redirect('/setup')
     
     except FileNotFoundError:
         # No auth_token.enc, need to run setup
-        return redirect('/setup')
+        if request.path not in ('/setup', '/welcome', '/', '/index'):
+            return redirect('/setup')
 
 @storage_autologin_bp.route('/unlock', methods=['GET', 'POST'])
 def unlock():
@@ -134,3 +153,4 @@ def unlock():
     storage_client, storage_type = _get_storage_client()
     
     return render_template('unlock.html', next_url=next_url, storage_type=storage_type)
+

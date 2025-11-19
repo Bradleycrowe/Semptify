@@ -1,110 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Semptify</title>
+    <title>Setup Complete - Semptify</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            max-width: 600px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-        h1 {
-            color: #2563eb;
-            margin-bottom: 1.5rem;
-            font-size: 2rem;
-        }
-        .warning-box {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-        }
-        .warning-box h2 {
-            color: #92400e;
-            font-size: 1.2rem;
-            margin-bottom: 0.75rem;
-        }
-        .warning-box p {
-            color: #78350f;
-            line-height: 1.6;
-            margin-bottom: 0.5rem;
-        }
-        .warning-box strong {
-            color: #92400e;
-        }
-        .token-box {
-            background: #f8fafc;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-            border: 2px solid #cbd5e1;
-        }
-        .token-label {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 0.5rem;
-        }
-        .token-value {
-            font-family: 'Courier New', monospace;
-            font-size: 1.25rem;
-            color: #1e293b;
-            font-weight: bold;
-            word-break: break-all;
-        }
-        .btn {
-            display: inline-block;
-            background: #2563eb;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background 0.3s;
-            margin-top: 1.5rem;
-        }
-        .btn:hover {
-            background: #1d4ed8;
-        }
-        .info-text {
-            color: #64748b;
-            line-height: 1.6;
-            margin: 1rem 0;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 100px auto; padding: 20px; background: #f5f7fb; text-align: center; }
+        .card { background: white; border-radius: 12px; padding: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { font-size: 32px; margin-bottom: 20px; color: #28a745; }
+        .subtitle { font-size: 18px; color: #666; margin-bottom: 30px; }
+        .storage-badge { display: inline-block; background: #e3f2fd; color: #1976d2; padding: 8px 16px; border-radius: 16px; font-size: 14px; margin: 20px 0; }
+        .btn { display: inline-block; background: #1976d2; color: white; padding: 16px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; }
+        .btn:hover { background: #1565c0; }
+        .info { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; text-align: left; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>✅ Storage Connected!</h1>
+    <div class="card">
+        <h1>✅ Setup Complete!</h1>
+        <p class="subtitle">Your storage is connected and ready to use.</p>
         
-        <div class="warning-box">
-            <h2>⚠️ Important: Configuration File</h2>
-            <p>We have placed a configuration file in your <strong>{{ storage_provider }}</strong>.</p>
-            <p>This file makes it possible for Semptify to work. <strong>Please do not delete it</strong>—without it, you will lose all files from Semptify with no possible recovery.</p>
+        <span class="storage-badge">🔐 {{ storage_provider }}</span>
+        
+        <div class="info">
+            <strong>⚠️ Important:</strong> Your documents are stored securely in your {{ storage_provider }}. Do not delete the <code>.semptify</code> folder in your cloud storage - it contains your configuration and documents.
         </div>
-
-        <div class="token-box">
-            <div class="token-label">Your Secure Access Token:</div>
-            <div class="token-value">{{ user_token }}</div>
-        </div>
-
-        <p class="info-text">Save this token in a secure place. You'll need it to access your documents and data.</p>
-
-        <a href="/" class="btn">Continue to Dashboard →</a>
+        
+        <a href="/vault" class="btn">Go to Vault</a>
     </div>
 </body>
 </html>

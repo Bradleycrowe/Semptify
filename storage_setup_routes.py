@@ -192,7 +192,7 @@ def google_oauth_callback():
     with open(users_file, 'w') as f:
         json.dump(users, f, indent=2)
 
-    return redirect(f'/welcome?user_token={user_token}')
+    return redirect('/welcome')
 
 # ============================================================================
 # DROPBOX OAUTH
@@ -289,7 +289,7 @@ def dropbox_oauth_callback():
 
     session['dropbox_access_token'] = oauth_result.access_token
 
-    return redirect(f'/welcome?user_token={user_token}')
+    return redirect('/welcome')
 
 # ============================================================================
 # HELPERS
@@ -299,4 +299,5 @@ def _google_redirect_uri():
     '''Build HTTPS-aware redirect URI for Google OAuth'''
     scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1') else 'http'
     return url_for('storage_setup.google_oauth_callback', _external=True, _scheme=scheme)
+
 
