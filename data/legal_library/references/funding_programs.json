@@ -1,0 +1,74 @@
+[
+  {
+    "id": "hud-hcv-eligibility",
+    "jurisdiction": "Federal",
+    "layer": "Program",
+    "title": "HUD Housing Choice Voucher Program",
+    "citation": "HCV Guidebook",
+    "url": "https://www.hud.gov/program_offices/public_indian_housing/programs/hcv",
+    "scope": ["Eligibility", "Admissions", "Leases", "HAP"],
+    "summary": "Eligibility, admissions, and leasing processes for vouchers.",
+    "last_updated": "2025-11-19",
+    "tags": ["HUD", "Voucher"]
+  },
+  {
+    "id": "hud-pbra",
+    "jurisdiction": "Federal",
+    "layer": "Program",
+    "title": "HUD Project-Based Rental Assistance",
+    "citation": "PBRA Resources",
+    "url": "https://www.hud.gov/program_offices/housing/mfh/pbcr",
+    "scope": ["Contracts", "Compliance", "Rent"],
+    "summary": "PBRA compliance, contract renewals, and rent setting resources.",
+    "last_updated": "2025-11-19",
+    "tags": ["HUD", "PBRA"]
+  },
+  {
+    "id": "hud-sec202",
+    "jurisdiction": "Federal",
+    "layer": "Program",
+    "title": "HUD Section 202 — Supportive Housing for the Elderly",
+    "citation": "Section 202",
+    "url": "https://www.hud.gov/program_offices/housing/mfh/progdesc/eld202",
+    "scope": ["Eligibility", "Capital Advance", "Rental Assistance"],
+    "summary": "Funding and rules for elderly supportive housing.",
+    "last_updated": "2025-11-19",
+    "tags": ["HUD", "Elderly"]
+  },
+  {
+    "id": "hud-sec811",
+    "jurisdiction": "Federal",
+    "layer": "Program",
+    "title": "HUD Section 811 — Supportive Housing for Persons with Disabilities",
+    "citation": "Section 811",
+    "url": "https://www.hud.gov/program_offices/housing/mfh/progdesc/disab811",
+    "scope": ["Eligibility", "Rental Assistance", "Integrated Housing"],
+    "summary": "Funding and qualification rules for disability-focused housing.",
+    "last_updated": "2025-11-19",
+    "tags": ["HUD", "Disability"]
+  },
+  {
+    "id": "usda-rd-mfh",
+    "jurisdiction": "Federal",
+    "layer": "Program",
+    "title": "USDA Rural Development — Multi-Family Housing",
+    "citation": "RD MFH",
+    "url": "https://www.rd.usda.gov/programs-services/multi-family-housing-programs",
+    "scope": ["Eligibility", "Loans", "Rental Assistance"],
+    "summary": "RD programs for rural rental housing and assistance.",
+    "last_updated": "2025-11-19",
+    "tags": ["USDA", "Rural"]
+  },
+  {
+    "id": "mn-housing-program-directory",
+    "jurisdiction": "Minnesota",
+    "layer": "Program",
+    "title": "Minnesota Housing — Program Directory",
+    "citation": "Program Directory",
+    "url": "https://www.mnhousing.gov/sites/Satellite?c=Page&childpagename=MNHousing%2FMNHSubLayout&cid=1358904990303&pagename=MNHousing%2FWrapper",
+    "scope": ["Rental Assistance", "Development Finance", "Compliance"],
+    "summary": "State-level funding, rules, and qualifications for Minnesota programs.",
+    "last_updated": "2025-11-19",
+    "tags": ["Minnesota", "Funding"]
+  }
+]

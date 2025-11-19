@@ -1,177 +1,153 @@
 """
-Phase 5: Journey Automation
-Auto-advances user progress based on completed actions
+Journey Automation - Track user progression through 5 stages
+Newcomer → Documenting → Learning → Organizing → Ready
 """
-from typing import Dict, List, Optional
 import json
 import os
 from datetime import datetime
 
 class JourneyAutomation:
-    """Automatically advance user journey based on completed milestones"""
-    
-    def __init__(self, data_path=''data/journey''):
+    def __init__(self, data_path='data/journey'):
         self.data_path = data_path
         os.makedirs(data_path, exist_ok=True)
         
-        # Define journey stages and requirements
-        self.journey_stages = {
-            ''newcomer'': {
-                ''title'': ''Getting Started'',
-                ''requirements'': [],
-                ''next'': ''documenting''
+        # 5-stage progression
+        self.stages = {
+            'newcomer': {
+                'name': 'Newcomer',
+                'description': 'Getting started with Semptify',
+                'milestones': ['register', 'setup_storage', 'first_upload']
             },
-            ''documenting'': {
-                ''title'': ''Building Your Evidence'',
-                ''requirements'': [
-                    {''type'': ''vault_upload'', ''count'': 1},
-                    {''type'': ''calendar_event'', ''count'': 1}
-                ],
-                ''next'': ''learning''
+            'documenting': {
+                'name': 'Documenting',
+                'description': 'Building your evidence vault',
+                'milestones': ['upload_5_docs', 'add_timeline_event', 'create_notary_cert']
             },
-            ''learning'': {
-                ''title'': ''Understanding Your Rights'',
-                ''requirements'': [
-                    {''type'': ''vault_upload'', ''count'': 3},
-                    {''type'': ''learning_module'', ''count'': 1}
-                ],
-                ''next'': ''organizing''
+            'learning': {
+                'name': 'Learning',
+                'description': 'Understanding your rights',
+                'milestones': ['complete_module', 'read_3_laws', 'watch_video']
             },
-            ''organizing'': {
-                ''title'': ''Organizing Your Case'',
-                ''requirements'': [
-                    {''type'': ''calendar_event'', ''count'': 5},
-                    {''type'': ''vault_upload'', ''count'': 5},
-                    {''type'': ''learning_module'', ''count'': 2}
-                ],
-                ''next'': ''ready''
+            'organizing': {
+                'name': 'Organizing',
+                'description': 'Tracking everything systematically',
+                'milestones': ['track_rent_payment', 'log_maintenance', 'calendar_event']
             },
-            ''ready'': {
-                ''title'': ''Case Ready'',
-                ''requirements'': [
-                    {''type'': ''vault_upload'', ''count'': 10},
-                    {''type'': ''calendar_event'', ''count'': 10},
-                    {''type'': ''learning_module'', ''count'': 3}
-                ],
-                ''next'': None
+            'ready': {
+                'name': 'Ready',
+                'description': 'Prepared to take action',
+                'milestones': ['all_docs_organized', 'know_rights', 'action_plan']
             }
         }
     
-    def check_and_advance(self, user_id: str, action_type: str) -> Optional[Dict]:
-        """
-        Check if action completes a milestone and advances journey
+    def get_user_file(self, user_token):
+        return os.path.join(self.data_path, f'{user_token}_journey.json')
+    
+    def get_user_stage(self, user_token):
+        """Get current stage for user"""
+        filepath = self.get_user_file(user_token)
+        if not os.path.exists(filepath):
+            return 'newcomer'
         
-        Args:
-            user_id: User identifier
-            action_type: Type of action (vault_upload, calendar_event, learning_module)
-            
-        Returns:
-            Dict with advancement info if stage advanced, None otherwise
-        """
-        # Load user progress
-        progress = self._load_progress(user_id)
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                return data.get('current_stage', 'newcomer')
+        except:
+            return 'newcomer'
+    
+    def get_stage_progress(self, user_token):
+        """Get milestones completed for current stage"""
+        filepath = self.get_user_file(user_token)
+        if not os.path.exists(filepath):
+            return []
         
-        # Increment action count
-        if action_type not in progress[''actions'']:
-            progress[''actions''][action_type] = 0
-        progress[''actions''][action_type] += 1
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                return data.get('completed_milestones', [])
+        except:
+            return []
+    
+    def check_and_advance(self, user_token, milestone):
+        """Record milestone completion and check if stage should advance"""
+        filepath = self.get_user_file(user_token)
         
-        # Check if current stage is complete
-        current_stage = progress[''current_stage'']
-        stage_info = self.journey_stages[current_stage]
+        # Load existing data
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+        else:
+            data = {
+                'current_stage': 'newcomer',
+                'completed_milestones': [],
+                'stage_history': []
+            }
         
-        if self._stage_complete(progress[''actions''], stage_info[''requirements'']):
+        # Add milestone if not already completed
+        if milestone not in data['completed_milestones']:
+            data['completed_milestones'].append(milestone)
+        
+        # Check if ready to advance stage
+        current_stage = data['current_stage']
+        required_milestones = self.stages[current_stage]['milestones']
+        
+        completed_for_stage = [m for m in required_milestones if m in data['completed_milestones']]
+        
+        if len(completed_for_stage) >= len(required_milestones):
             # Advance to next stage
-            next_stage = stage_info[''next'']
-            if next_stage:
-                progress[''current_stage''] = next_stage
-                progress[''stage_history''].append({
-                    ''stage'': next_stage,
-                    ''timestamp'': datetime.utcnow().isoformat(),
-                    ''trigger_action'': action_type
+            stage_order = ['newcomer', 'documenting', 'learning', 'organizing', 'ready']
+            current_idx = stage_order.index(current_stage)
+            
+            if current_idx < len(stage_order) - 1:
+                new_stage = stage_order[current_idx + 1]
+                data['stage_history'].append({
+                    'stage': current_stage,
+                    'completed_at': datetime.now().isoformat()
                 })
-                
-                self._save_progress(user_id, progress)
-                
-                return {
-                    ''advanced'': True,
-                    ''new_stage'': next_stage,
-                    ''title'': self.journey_stages[next_stage][''title''],
-                    ''message'': f"🎉 You''ve advanced to: {self.journey_stages[next_stage][''title'']}!"
-                }
+                data['current_stage'] = new_stage
         
-        # Save progress even if not advancing
-        self._save_progress(user_id, progress)
+        # Save
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
         
-        # Return progress update
-        return {
-            ''advanced'': False,
-            ''current_stage'': current_stage,
-            ''progress'': self._calculate_stage_progress(progress[''actions''], stage_info[''requirements''])
-        }
+        return data
     
-    def get_next_milestone(self, user_id: str) -> Dict:
-        """Get what user needs to do next"""
-        progress = self._load_progress(user_id)
-        current_stage = progress[''current_stage'']
-        stage_info = self.journey_stages[current_stage]
+    def get_next_milestone(self, user_token):
+        """Get next uncompleted milestone for current stage"""
+        current_stage = self.get_user_stage(user_token)
+        completed = self.get_stage_progress(user_token)
+        required = self.stages[current_stage]['milestones']
         
-        milestones = []
-        for req in stage_info[''requirements'']:
-            current = progress[''actions''].get(req[''type''], 0)
-            needed = req[''count'']
-            milestones.append({
-                ''action'': req[''type''],
-                ''current'': current,
-                ''needed'': needed,
-                ''complete'': current >= needed
-            })
+        for milestone in required:
+            if milestone not in completed:
+                return milestone
         
-        return {
-            ''stage'': current_stage,
-            ''title'': stage_info[''title''],
-            ''milestones'': milestones,
-            ''progress_percent'': self._calculate_stage_progress(progress[''actions''], stage_info[''requirements''])
-        }
-    
-    def _stage_complete(self, actions: Dict, requirements: List[Dict]) -> bool:
-        """Check if all requirements met"""
-        for req in requirements:
-            if actions.get(req[''type''], 0) < req[''count'']:
-                return False
-        return True
-    
-    def _calculate_stage_progress(self, actions: Dict, requirements: List[Dict]) -> int:
-        """Calculate percentage complete for current stage"""
-        if not requirements:
-            return 100
-        
-        total_needed = sum(r[''count''] for r in requirements)
-        total_complete = sum(min(actions.get(r[''type''], 0), r[''count'']) for r in requirements)
-        
-        return int((total_complete / total_needed) * 100)
-    
-    def _load_progress(self, user_id: str) -> Dict:
-        """Load user journey progress"""
-        progress_file = os.path.join(self.data_path, f''{user_id}_progress.json'')
-        
-        if os.path.exists(progress_file):
-            with open(progress_file, ''r'') as f:
-                return json.load(f)
-        
-        # Initialize new user
-        return {
-            ''user_id'': user_id,
-            ''current_stage'': ''newcomer'',
-            ''actions'': {},
-            ''stage_history'': [{
-                ''stage'': ''newcomer'',
-                ''timestamp'': datetime.utcnow().isoformat()
-            }]
-        }
-    
-    def _save_progress(self, user_id: str, progress: Dict):
-        """Save user journey progress"""
-        progress_file = os.path.join(self.data_path, f''{user_id}_progress.json'')
-        with open(progress_file, ''w'') as f:
-            json.dump(progress, f, indent=2)
+        return None
+
+# Global instance
+_journey = None
+
+def get_user_stage(user_token):
+    global _journey
+    if _journey is None:
+        _journey = JourneyAutomation()
+    return _journey.get_user_stage(user_token)
+
+def get_stage_progress(user_token):
+    global _journey
+    if _journey is None:
+        _journey = JourneyAutomation()
+    return _journey.get_stage_progress(user_token)
+
+def check_and_advance(user_token, milestone):
+    global _journey
+    if _journey is None:
+        _journey = JourneyAutomation()
+    return _journey.check_and_advance(user_token, milestone)
+
+def get_next_milestone(user_token):
+    global _journey
+    if _journey is None:
+        _journey = JourneyAutomation()
+    return _journey.get_next_milestone(user_token)

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ resource.title }} - Legal Library{% endblock %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px; margin: 0 auto; padding-top: 20px;">
+    <!-- Back to Library -->
+    <a href="{{ url_for('library.library_home') }}" class="btn btn-outline-secondary mb-3">
+        <i class="fas fa-arrow-left"></i> Back to Library
+    </a>
+
+    <!-- Resource Card -->
+    <div class="card shadow-sm">
+        <div class="card-header" style="background: linear-gradient(135deg, #500000 0%, #7a0000 100%); color: white;">
+            <h2 class="mb-0">{{ resource.title }}</h2>
+        </div>
+        <div class="card-body">
+            <!-- Metadata -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong>Jurisdiction:</strong>
+                        <span class="badge bg-primary">{{ resource.jurisdiction }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <strong>Layer:</strong>
+                        <span class="badge bg-info">{{ resource.layer }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong>Citation:</strong>
+                        <code>{{ resource.citation }}</code>
+                    </p>
+                    <p class="mb-2">
+                        <strong>Last Updated:</strong>
+                        {{ resource.last_updated }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="alert alert-light">
+                <h5><i class="fas fa-info-circle"></i> Summary</h5>
+                <p class="mb-0">{{ resource.summary }}</p>
+            </div>
+
+            <!-- Scope -->
+            <h5><i class="fas fa-list-ul"></i> Scope</h5>
+            <ul class="list-group mb-4">
+                {% for item in resource.scope %}
+                <li class="list-group-item">{{ item }}</li>
+                {% endfor %}
+            </ul>
+
+            <!-- Tags -->
+            <div class="mb-3">
+                <strong>Topics:</strong>
+                {% for tag in resource.tags %}
+                <span class="badge bg-secondary me-1">{{ tag }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Official Link -->
+            <a href="{{ resource.url }}" target="_blank" class="btn btn-primary btn-lg">
+                <i class="fas fa-external-link-alt"></i> View Official Document at {{ resource.url.split('//')[1].split('/')[0] }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Related Actions -->
+    <div class="card mt-3 shadow-sm">
+        <div class="card-body">
+            <h5>Need Help With This Law?</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="{{ url_for('vault_bp.vault_home') }}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-upload"></i> Document Evidence
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('journey.journey_home') }}" class="btn btn-outline-success w-100 mb-2">
+                        <i class="fas fa-route"></i> Check Your Progress
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('learning.learning_home') }}" class="btn btn-outline-info w-100 mb-2">
+                        <i class="fas fa-graduation-cap"></i> Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "fed-ecfr-24cfr5",
+    "jurisdiction": "Federal",
+    "layer": "Regulation",
+    "title": "24 CFR Part 5 — General HUD Program Requirements",
+    "citation": "24 CFR Part 5",
+    "url": "https://www.ecfr.gov/current/title-24/part-5",
+    "scope": ["Definitions", "Nondiscrimination", "Income", "Verification"],
+    "summary": "Cross-cutting HUD rules for program eligibility, definitions, and verification.",
+    "last_updated": "2025-11-19",
+    "tags": ["HUD", "Cross-cutting"]
+  },
+  {
+    "id": "fed-ecfr-24cfr247",
+    "jurisdiction": "Federal",
+    "layer": "Regulation",
+    "title": "24 CFR Part 247 — Evictions from certain subsidized housing",
+    "citation": "24 CFR Part 247",
+    "url": "https://www.ecfr.gov/current/title-24/part-247",
+    "scope": ["Eviction", "Subsidized Housing", "Procedures"],
+    "summary": "Establishes grounds and procedures for evictions in HUD-subsidized projects.",
+    "last_updated": "2025-11-19",
+    "tags": ["Eviction", "PBRA"]
+  },
+  {
+    "id": "fed-ecfr-24cfr966",
+    "jurisdiction": "Federal",
+    "layer": "Regulation",
+    "title": "24 CFR Part 966 — Public Housing Lease and Grievance",
+    "citation": "24 CFR Part 966",
+    "url": "https://www.ecfr.gov/current/title-24/part-966",
+    "scope": ["Leases", "Grievance", "Public Housing"],
+    "summary": "Lease terms, tenant rights, and grievance procedures for public housing authorities.",
+    "last_updated": "2025-11-19",
+    "tags": ["Public Housing", "Lease"]
+  },
+  {
+    "id": "fed-ecfr-24cfr982",
+    "jurisdiction": "Federal",
+    "layer": "Regulation",
+    "title": "24 CFR Part 982 — Housing Choice Voucher Program",
+    "citation": "24 CFR Part 982",
+    "url": "https://www.ecfr.gov/current/title-24/part-982",
+    "scope": ["Voucher", "Leases", "Inspections", "Portability"],
+    "summary": "Core HCV rules for admissions, lease-up, HAP contracts, HQS, and portability.",
+    "last_updated": "2025-11-19",
+    "tags": ["HCV", "Section 8"]
+  },
+  {
+    "id": "fed-epa-lead-disclosure",
+    "jurisdiction": "Federal",
+    "layer": "Rule/Guidance",
+    "title": "Lead disclosure requirements for rentals",
+    "citation": "Lead-Based Paint Disclosure Rule",
+    "url": "https://www.epa.gov/lead/real-estate-professionals",
+    "scope": ["Lead", "Disclosures", "Pre-1978 Housing"],
+    "summary": "Landlords must disclose known lead paint hazards in pre-1978 rentals with EPA pamphlet.",
+    "last_updated": "2025-11-19",
+    "tags": ["EPA", "Health"]
+  },
+  {
+    "id": "fed-doj-fair-housing-enforcement",
+    "jurisdiction": "Federal",
+    "layer": "Enforcement",
+    "title": "DOJ Civil Rights — Housing enforcement",
+    "citation": "Fair Housing Act enforcement",
+    "url": "https://www.justice.gov/crt/housing-and-civil-enforcement-section",
+    "scope": ["Discrimination", "Enforcement"],
+    "summary": "DOJ enforces fair housing laws against discriminatory practices in rental markets.",
+    "last_updated": "2025-11-19",
+    "tags": ["DOJ", "Fair Housing"]
+  },
+  {
+    "id": "fed-hud-fheo",
+    "jurisdiction": "Federal",
+    "layer": "Program",
+    "title": "HUD Fair Housing and Equal Opportunity",
+    "citation": "Fair Housing Act (Title VIII)",
+    "url": "https://www.hud.gov/program_offices/fair_housing_equal_opp",
+    "scope": ["Complaints", "Protected Classes", "Guidance"],
+    "summary": "HUD FHEO portal for complaints, guidance, and fair housing resources.",
+    "last_updated": "2025-11-19",
+    "tags": ["HUD", "FHEO"]
+  }
+]

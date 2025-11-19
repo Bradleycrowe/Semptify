@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mn-stat-504b",
+    "jurisdiction": "Minnesota",
+    "layer": "Statute",
+    "title": "Minnesota Statutes Ch. 504B — Landlord and Tenant",
+    "citation": "Minn. Stat. ch. 504B",
+    "url": "https://www.revisor.mn.gov/statutes/cite/504B",
+    "scope": ["Leases", "Deposits", "Habitability", "Eviction"],
+    "summary": "Comprehensive landlord-tenant law for Minnesota, including lease terms, repairs, and eviction procedures.",
+    "last_updated": "2025-11-19",
+    "tags": ["State", "Minnesota"]
+  },
+  {
+    "id": "mn-courts-housing",
+    "jurisdiction": "Minnesota",
+    "layer": "Court Resource",
+    "title": "Minnesota Judicial Branch — Housing",
+    "citation": "Court Help",
+    "url": "https://www.mncourts.gov/Help-Topics/Housing.aspx",
+    "scope": ["Eviction", "Forms", "Procedure"],
+    "summary": "Court help topics, forms, and process guidance for housing and eviction cases.",
+    "last_updated": "2025-11-19",
+    "tags": ["Courts", "Forms"]
+  },
+  {
+    "id": "mn-mdh-healthy-homes",
+    "jurisdiction": "Minnesota",
+    "layer": "Guidance",
+    "title": "Minnesota Department of Health — Healthy Homes",
+    "citation": "MDH Housing Guidance",
+    "url": "https://www.health.state.mn.us/communities/environment/healthyhomes/index.html",
+    "scope": ["Mold", "Lead", "Indoor Air", "Radon"],
+    "summary": "Health guidance relevant to rental habitability, including mold and lead hazards.",
+    "last_updated": "2025-11-19",
+    "tags": ["Health", "Habitability"]
+  },
+  {
+    "id": "mn-housing-programs",
+    "jurisdiction": "Minnesota",
+    "layer": "Program",
+    "title": "Minnesota Housing — Program Directory",
+    "citation": "Program Directory",
+    "url": "https://www.mnhousing.gov/sites/Satellite?c=Page&childpagename=MNHousing%2FMNHSubLayout&cid=1358904990303&pagename=MNHousing%2FWrapper",
+    "scope": ["Rent Assistance", "Development", "Compliance"],
+    "summary": "Directory of state rental assistance and development finance programs, with rules and qualifications.",
+    "last_updated": "2025-11-19",
+    "tags": ["Funding", "Programs"]
+  }
+]
