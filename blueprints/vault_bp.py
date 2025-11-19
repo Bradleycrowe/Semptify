@@ -142,7 +142,8 @@ def notary_upload():
 
     # === PHASE 2: Auto-create calendar event from upload ===
     try:
-        from calendar_vault_bridge import CalendarVaultBridge
+        from vault_learning_bridge import VaultLearningBridge
+from calendar_vault_bridge import CalendarVaultBridge
         from datetime import datetime
         
         bridge = CalendarVaultBridge()
@@ -360,3 +361,12 @@ def court_clerk():
         return "Court Clerk Submitted", 200
     
     return "Court Clerk Form", 200
+
+
+# === PHASE 3 LEARNING INTEGRATION ===
+# After document upload, recommend learning:
+#   learning_bridge = VaultLearningBridge()
+#   recommendations = learning_bridge.get_learning_for_upload(doc_type, filename)
+#   if recommendations:
+#       flash(f"💡 Recommended learning: {recommendations[0]['title']}", 'info')
+#       # Store recommendations in session for learning dashboard
