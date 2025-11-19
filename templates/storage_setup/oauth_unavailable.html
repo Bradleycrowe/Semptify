@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Storage Setup Unavailable</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .error-box { border: 2px solid #d32f2f; border-radius: 8px; padding: 20px; background: #ffebee; }
+        h1 { color: #d32f2f; }
+        .btn { display: inline-block; padding: 10px 20px; background: #1976d2; color: white; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="error-box">
+        <h1>⚠️ {{ provider }} Setup Temporarily Unavailable</h1>
+        <p>The {{ provider }} integration is not currently configured on this server.</p>
+        <p><strong>For now, you can:</strong></p>
+        <ul>
+            <li>Use local storage (data saved on this device only)</li>
+            <li>Contact support to enable {{ provider }} integration</li>
+        </ul>
+        <a href="/setup" class="btn">← Back to Storage Options</a>
+        <a href="/vault?skip_storage=1" class="btn">Continue with Local Storage</a>
+    </div>
+</body>
+</html>
