@@ -1,0 +1,9 @@
+=================================================================
+WHICH ROUTES CALL WHICH HTML FILES
+=================================================================
+
+Searching all Python files for render_template() calls...
+
+TEMPLATES SORTED BY NUMBER OF CALLERS:
+=================================================================
+

@@ -1,0 +1,212 @@
+=================================================================
+UNIFIED SYSTEM INTEGRATION PLAN - BEFORE ANY CHANGES
+=================================================================
+
+CURRENT STATE: All features exist but work in isolation
+GOAL: Connect them so they feed each other and grow together
+
+=================================================================
+PART 1: THE "GROWING SMART THING" - HOW IT WORKS NOW
+=================================================================
+
+LEARNING ENGINES FOUND:
+1. curiosity_engine.py - Suggests next questions/actions based on user behavior
+2. learning_engine.py - Adapts recommendations from user interactions
+3. adaptive_intensity_engine.py - Adjusts complexity based on user skill
+4. prime_learning_engine.py - Seeds initial knowledge
+5. intelligence_engine.py - Makes smart decisions
+
+BRIDGE FILES (Connect different parts):
+1. calendar_vault_bridge.py - Links calendar events to vault documents
+2. curiosity_reasoning_bridge.py - Connects curiosity to legal reasoning
+3. route_discovery_bridge.py - Finds and registers new routes dynamically
+
+ADAPTER FILES (Data transformation):
+1. learning_adapter.py - Adapts learning data between systems
+2. storage_adapter.py - Adapts storage between different providers
+3. r2_database_adapter.py - Database persistence
+
+=================================================================
+PART 2: HOW DATA SHOULD FLOW (THE MASTER PLAN)
+=================================================================
+
+USER JOURNEY (HUMAN PERSPECTIVE):
+1. ENTRY POINT: Homepage
+   → User arrives
+   → Sees: "Protect Your Rights" message
+   → Action: Click "Get Started"
+
+2. STORAGE SETUP (OAuth - what we just built)
+   → Connect Google Drive or Dropbox
+   → System creates .semptify/ folder in user's cloud
+   → Generates encrypted token (invisible to user)
+   → Auto-login activated
+   
+3. CALENDAR/TIMELINE (The Gateway)
+   → User lands on calendar view
+   → Sees: Timeline of their housing situation
+   → Can add events: "Moved in", "Repair request", "Notice received"
+   → EACH EVENT triggers:
+     - Learning engine: What does user need to know?
+     - Curiosity engine: What should we ask next?
+     - Intelligence engine: What's the risk level?
+
+4. VAULT INTEGRATION (Document Management)
+   → Calendar event: "Repair request on 2025-10-15"
+   → System suggests: "Upload photos of the issue"
+   → User uploads → calendar_vault_bridge.py connects them
+   → Document gets:
+     - SHA-256 hash (integrity)
+     - JSON certificate (notary)
+     - Linked to timeline event
+     - Encrypted in user's cloud
+
+5. LEARNING FEEDBACK LOOP
+   → User uploads repair photo
+   → Learning engine records: "User has repair issue"
+   → Suggests: "Learn about habitability laws"
+   → Journey module activated
+   → Curiosity engine: "Have you contacted landlord in writing?"
+
+6. ADAPTIVE GROWTH
+   → System tracks:
+     - What user clicks
+     - What documents they upload
+     - What questions they ask
+     - What legal areas they explore
+   → Adapts:
+     - Complexity of language (adaptive_intensity_engine)
+     - Suggestions (curiosity_engine)
+     - Legal pathways (reasoning_engine)
+
+=================================================================
+PART 3: INTEGRATION POINTS (WHERE TO CONNECT)
+=================================================================
+
+INTEGRATION #1: Homepage → Calendar (MISSING)
+WHY: User needs entry point to timeline
+HOW: Change homepage button from /register to /calendar
+BENEFIT: Immediate context for their situation
+FILE: templates/main_dashboard/home.html
+
+INTEGRATION #2: Calendar → Vault (EXISTS but weak)
+WHY: Timeline events need document proof
+HOW: calendar_vault_bridge.py already exists, strengthen it
+BENEFIT: Documents automatically tagged with dates/events
+FILES: calendar_vault_bridge.py, blueprints/vault_bp.py
+
+INTEGRATION #3: Vault → Learning (MISSING)
+WHY: What user uploads shows what they need to learn
+HOW: When document uploaded, trigger learning_adapter.py
+BENEFIT: Proactive education based on their actual situation
+FILES: vault_bp.py, learning_adapter.py, learning_engine.py
+
+INTEGRATION #4: Learning → Journey (WEAK)
+WHY: Learning should guide user through their journey
+HOW: Connect learning_routes.py to journey_routes.py
+BENEFIT: Structured path through legal process
+FILES: learning_routes.py, journey_routes.py
+
+INTEGRATION #5: Everything → Curiosity Engine (DISCONNECTED)
+WHY: System should ask smart follow-up questions
+HOW: Feed all user actions to curiosity_engine.py
+BENEFIT: Feels intelligent, guides user naturally
+FILES: ALL blueprints → curiosity_engine.py
+
+INTEGRATION #6: Storage as Identity (EXISTS)
+WHY: No passwords, storage = identity
+HOW: storage_autologin.py already does this
+BENEFIT: Zero friction, user never sees token
+FILES: storage_autologin.py, storage_setup_routes.py
+
+=================================================================
+PART 4: THE MASTER REWIRING PLAN (NO CHANGES YET)
+=================================================================
+
+PHASE 1: Fix Entry Flow (1 file change)
+- Change homepage: /register → /calendar
+- Add: "Start Your Timeline" button
+- BENEFIT: User immediately in their story
+- RISK: None (just changing a link)
+
+PHASE 2: Strengthen Calendar-Vault Bridge (enhance existing)
+- calendar_vault_bridge.py: Add bidirectional sync
+- Calendar event → suggests vault upload
+- Vault upload → creates calendar event
+- BENEFIT: Automatic timeline of evidence
+- RISK: Low (bridge file already exists)
+
+PHASE 3: Connect Vault → Learning (new connection)
+- After vault upload, analyze document type
+- Trigger learning suggestions
+- Example: Upload eviction notice → learn about defenses
+- BENEFIT: Just-in-time education
+- RISK: Medium (new integration)
+
+PHASE 4: Activate Curiosity Engine (new connections)
+- Feed ALL user actions to curiosity_engine.py
+- Calendar event added → curiosity asks follow-up
+- Document uploaded → curiosity suggests next step
+- BENEFIT: System feels alive and helpful
+- RISK: Low (engine exists, just needs hooks)
+
+PHASE 5: Journey Automation (enhance existing)
+- journey_routes.py: Auto-advance based on user progress
+- User completes step → journey moves forward
+- Learning modules unlock based on calendar events
+- BENEFIT: Guided experience
+- RISK: Medium (logic changes)
+
+=================================================================
+PART 5: BENEFITS OF UNIFIED SYSTEM
+=================================================================
+
+FOR THE USER:
+1. ONE entry point (calendar = their story)
+2. Documents auto-organize by timeline
+3. System suggests what to learn based on their situation
+4. Feels like a smart assistant, not a tool
+5. No passwords, tokens, accounts to manage
+
+FOR THE SYSTEM (GROWTH):
+1. Learning engine improves from every user interaction
+2. Curiosity engine gets smarter about what to ask
+3. More documents = better pattern recognition
+4. Legal reasoning improves with usage
+5. Adaptive intensity matches each user's level
+
+SYNERGY EFFECTS:
+- Calendar feeds vault (document timing)
+- Vault feeds learning (educational needs)
+- Learning feeds journey (progression)
+- Journey feeds curiosity (what's next)
+- Curiosity feeds calendar (new events to track)
+- ALL feed engines (continuous improvement)
+
+=================================================================
+PART 6: WHAT STAYS (DON'T DELETE)
+=================================================================
+
+KEEP ALL:
+✓ All 28 engines (they're the intelligence)
+✓ All bridge files (they're the connections)
+✓ All adapter files (they transform data)
+✓ vault_bp.py (document management)
+✓ calendar routes (timeline system)
+✓ learning routes (educational modules)
+✓ journey routes (guided experience)
+✓ storage OAuth flow (identity system)
+✓ All 124 templates (may rewire, not delete)
+
+=================================================================
+NEXT STEPS - AWAITING YOUR APPROVAL
+=================================================================
+
+SHOULD I:
+1. Start with Phase 1 (homepage → calendar link)?
+2. Show you the code for Phase 2 (calendar-vault bridge)?
+3. Explain more about how curiosity engine works?
+4. Something else?
+
+NO CHANGES WILL BE MADE until you approve the plan.
+

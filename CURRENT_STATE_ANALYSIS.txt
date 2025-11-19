@@ -1,0 +1,91 @@
+=================================================================
+SEMPTIFY CURRENT STATE ANALYSIS
+=================================================================
+
+WHAT'S ACTUALLY DEPLOYED AND WORKING ON RENDER:
+-----------------------------------------------------------------
+1. Homepage: templates/main_dashboard/home.html
+   - 3 cards: Core explanation, Evidence storage, Library
+   - Links to: /setup, /register, /docs, /learning, /cards
+   
+2. Vault System: blueprints/vault_bp.py
+   - Routes: /vault, /notary, /certified_post, /court_clerk
+   - Document uploads with certificates
+   - Timeline integration
+   
+3. Calendar/Timeline Features:
+   - calendar_api.py, calendar_master.py
+   - calendar_vault_bridge.py (connects vault to calendar)
+   - Templates: calendar_timeline.html, calendar_master.html
+   
+4. Learning/Journey System:
+   - journey_routes.py, learning_routes.py
+   - learning_dashboard_api.py
+   - Templates: housing_journey.html, learning_dashboard.html
+   
+5. Storage Flow (WHAT WE JUST BUILT):
+   - storage_setup_routes.py (Google/Dropbox OAuth)
+   - storage_autologin.py (silent token auth)
+   - vault_user_storage.py (user-owned cloud storage)
+   - Templates: choose_storage.html, welcome.html
+
+6. Document Validation:
+   - Notary routes in vault_bp
+   - Certificate generation with SHA-256
+   - JSON metadata files
+
+7. Engines (validation, learning):
+   - engines/ directory has multiple engines
+   - Learning engine, validation engine, etc.
+
+=================================================================
+THE CONFUSION:
+=================================================================
+
+YOU SAID: "we decided the way to the vault was with the calendar"
+- Calendar/vault integration EXISTS (calendar_vault_bridge.py)
+- But homepage doesn't link to it directly
+- /setup goes to storage OAuth, not calendar
+
+YOU SAID: "document thingy going on"
+- Vault notary system EXISTS with certificates
+- But home page says "Get Started" → /register (old auth)
+- Should say → /setup (OAuth) → /vault
+
+YOU SAID: "learning modules doing the journey"
+- Journey routes EXIST
+- But disconnected from main flow
+
+YOU SAID: "timeline view of vault along with calendar"
+- Calendar templates EXIST
+- vault_bp routes EXIST
+- Bridge file EXISTS
+- But not integrated in user flow
+
+=================================================================
+WHAT base_page.html WAS SUPPOSED TO DO:
+=================================================================
+
+base_page.html = consistent navbar + footer for ALL pages
+- Header with logo left-center
+- Nav links to: Home, Vault, Calendar, Learning, Settings
+- Footer with brand message
+- Bootstrap 5 responsive grid
+- Maroon/gold colors
+
+PROBLEM: Forcing all 124 templates to use it would break everything
+
+=================================================================
+THE REAL ISSUE:
+================================================================
+
+The HOMEPAGE is wrong - it points to /register (old system)
+Should point to: /setup (OAuth) → calendar → vault
+
+Calendar/vault/learning/journey ALL EXIST but aren't connected
+
+Do you want me to:
+1. Just fix the homepage links (keep everything else)?
+2. Map out the correct user flow through existing features?
+3. Something else?
+

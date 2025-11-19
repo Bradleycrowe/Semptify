@@ -69,3 +69,4 @@ def packet_builder():
 #   if suggestions:
 #       doc_list = ', '.join([s['doc_type'] for s in suggestions])
 #       flash(f"💡 Recommended uploads: {doc_list}", 'info')
+

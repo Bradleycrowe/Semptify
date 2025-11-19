@@ -18,7 +18,7 @@
       "category": "tenant_rights",
       "jurisdiction": "Minnesota",
       "level": "state",
-      "last_updated": "2025-11-13T20:48:05.680058"
+      "last_updated": "2025-11-17T01:26:49.700791"
     },
     {
       "resource_id": "37e98aee1202",
@@ -26,7 +26,7 @@
       "category": "eviction_process",
       "jurisdiction": "Minnesota",
       "level": "state",
-      "last_updated": "2025-11-13T20:48:05.725514"
+      "last_updated": "2025-11-17T01:26:49.729832"
     },
     {
       "resource_id": "0fb81575f254",
@@ -34,7 +34,7 @@
       "category": "security_deposit",
       "jurisdiction": "Minnesota",
       "level": "state",
-      "last_updated": "2025-11-13T20:48:05.747779"
+      "last_updated": "2025-11-17T01:26:49.750615"
     },
     {
       "resource_id": "4244ef383f46",
@@ -42,7 +42,7 @@
       "category": "repairs_habitability",
       "jurisdiction": "Minnesota",
       "level": "state",
-      "last_updated": "2025-11-13T20:48:05.762735"
+      "last_updated": "2025-11-17T01:26:49.769224"
     },
     {
       "resource_id": "ef77b0a300a2",
@@ -50,7 +50,7 @@
       "category": "discrimination",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.787019"
+      "last_updated": "2025-11-17T01:26:49.791981"
     },
     {
       "resource_id": "46d5f9453f02",
@@ -58,7 +58,7 @@
       "category": "federal_hud",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.806815"
+      "last_updated": "2025-11-17T01:26:49.811709"
     },
     {
       "resource_id": "727ffada0f74",
@@ -66,7 +66,7 @@
       "category": "section_8",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.827074"
+      "last_updated": "2025-11-17T01:26:49.826580"
     },
     {
       "resource_id": "c87be03f96f2",
@@ -74,7 +74,7 @@
       "category": "emergency_rental",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.848080"
+      "last_updated": "2025-11-17T01:26:49.839281"
     },
     {
       "resource_id": "a93df7d505a3",
@@ -82,7 +82,7 @@
       "category": "landlord_funding",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.877247"
+      "last_updated": "2025-11-17T01:26:49.854780"
     },
     {
       "resource_id": "00181da11a5b",
@@ -90,7 +90,7 @@
       "category": "tenant_funding",
       "jurisdiction": "Minnesota",
       "level": "state",
-      "last_updated": "2025-11-13T20:48:05.896459"
+      "last_updated": "2025-11-17T01:26:49.869861"
     },
     {
       "resource_id": "9e14bcb70189",
@@ -98,7 +98,7 @@
       "category": "fair_housing_act",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.927379"
+      "last_updated": "2025-11-17T01:26:49.884271"
     },
     {
       "resource_id": "8d6d1adee0ea",
@@ -106,7 +106,7 @@
       "category": "federal_hud",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.957547"
+      "last_updated": "2025-11-17T01:26:49.897994"
     },
     {
       "resource_id": "59519c43d771",
@@ -114,8 +114,8 @@
       "category": "landlord_funding",
       "jurisdiction": "Federal",
       "level": "federal",
-      "last_updated": "2025-11-13T20:48:05.996283"
+      "last_updated": "2025-11-17T01:26:49.918455"
     }
   ],
-  "last_updated": "2025-11-13T20:48:05.996298"
+  "last_updated": "2025-11-17T01:26:49.918466"
 }

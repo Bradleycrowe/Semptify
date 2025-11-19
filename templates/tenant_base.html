@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Semptify - Document Everything!{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --semptify-maroon: #500000;
+            --semptify-gold: #d4af37;
+        }
+        
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+        
+        .navbar-tenant {
+            background: linear-gradient(135deg, var(--semptify-maroon), #6b0000);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand { color: var(--semptify-gold) !important; font-weight: bold; }
+        .nav-link { color: rgba(255,255,255,0.9) !important; font-weight: 500; }
+        .nav-link:hover { color: var(--semptify-gold) !important; }
+        
+        .journey-badge {
+            background: var(--semptify-gold);
+            color: var(--semptify-maroon);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .storage-indicator {
+            background: rgba(255,255,255,0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+    </style>
+    {% block extra_style %}{% endblock %}
+</head>
+<body>
+    <!-- Tenant Navbar (NO ADMIN FEATURES) -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-tenant sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt me-2"></i>Semptify
+            </a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline">Document Everything!</span>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTenant">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarTenant">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user_token %}
+                    <!-- User is logged in -->
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/vault?user_token={{ user_token }}"><i class="fas fa-vault"></i> Vault</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/calendar?user_token={{ user_token }}"><i class="fas fa-calendar"></i> Timeline</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/learning?user_token={{ user_token }}"><i class="fas fa-graduation-cap"></i> Learn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/ledger?user_token={{ user_token }}"><i class="fas fa-calculator"></i> Ledger</a></li>
+                    
+                    <!-- Journey Stage Badge -->
+                    <li class="nav-item ms-2">
+                        <span class="journey-badge">
+                            <i class="fas fa-map-marked-alt me-1"></i>
+                            {% if journey_stage %}{{ journey_stage|capitalize }}{% else %}Newcomer{% endif %}
+                        </span>
+                    </li>
+                    
+                    <!-- Storage Indicator -->
+                    {% if storage_provider %}
+                    <li class="nav-item ms-2">
+                        <span class="storage-indicator">
+                            <i class="fab fa-{{ 'dropbox' if storage_provider == 'dropbox' else 'google-drive' }} me-1"></i>
+                            Connected
+                        </span>
+                    </li>
+                    {% endif %}
+                    
+                    {% else %}
+                    <!-- Not logged in -->
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/learning"><i class="fas fa-graduation-cap"></i> Learn Rights</a></li>
+                    <li class="nav-item"><a class="btn btn-outline-light btn-sm ms-2" href="/register"><i class="fas fa-user-plus"></i> Get Started</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content -->
+    <main class="container-fluid px-3 px-md-4 py-4">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-1"><strong>Semptify</strong> - Free Tenant Documentation Platform</p>
+            <p class="small text-muted mb-0">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                This is a documentation tool. We do not provide legal advice.
+            </p>
+            <p class="small text-muted mt-2">
+                <i class="fas fa-cloud me-1"></i> Your documents stay in YOUR Dropbox or Google Drive
+            </p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

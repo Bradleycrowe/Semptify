@@ -1,0 +1,55 @@
+{% extends "base_page.html" %}
+
+{% block title %}Example Page - Semptify{% endblock %}
+{% block meta_description %}Example page demonstrating the base template{% endblock %}
+
+{% block page_title %}Example New Page{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body p-5">
+                <h3 class="mb-4">Welcome to Your New Page</h3>
+                
+                <p class="lead">
+                    This page demonstrates how to use the base template.
+                </p>
+                
+                <hr class="my-4">
+                
+                <h5>Features Included:</h5>
+                <ul>
+                    <li>✅ Responsive Bootstrap 5 layout</li>
+                    <li>✅ Brand colors (maroon & gold)</li>
+                    <li>✅ Navigation bar with mobile toggle</li>
+                    <li>✅ Footer with links</li>
+                    <li>✅ Card-based content areas</li>
+                    <li>✅ Custom button styles</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <a href="/" class="btn btn-primary">Go Home</a>
+                    <a href="/vault" class="btn btn-outline-secondary">Visit Vault</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Add page-specific CSS here */
+    .custom-style {
+        color: var(--brand-maroon);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add page-specific JavaScript here
+    console.log('Example page loaded');
+</script>
+{% endblock %}

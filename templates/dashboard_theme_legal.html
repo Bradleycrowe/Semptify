@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block page_title %}Semptify Legal Portal{% endblock %}
+{% block extra_head %}
+<style>
+  :root {
+    --theme-navy: #1a2332;
+    --theme-gold: #c9a961;
+    --theme-light-bg: #f5f5f7;
+  }
+  body { font-family: 'Georgia', serif; background: var(--theme-light-bg); }
+  .header { background: var(--theme-navy) !important; }
+  .logo img { height: 80px !important; }
+  main { padding-top: 140px !important; }
+  .legal-hero { background: var(--surface); border: 1px solid var(--border); padding: 40px; margin-bottom: 40px; text-align: center; }
+  .legal-hero h1 { font-size: 36px; margin-bottom: 12px; color: var(--theme-navy); font-weight: 400; }
+  .legal-hero p { font-size: 18px; color: #666; max-width: 700px; margin: 0 auto; }
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; }
+  .doc-card { background: var(--surface); border: 1px solid var(--border); padding: 32px; transition: box-shadow 0.2s; }
+  .doc-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .doc-card h3 { font-size: 20px; margin-bottom: 12px; color: var(--theme-navy); font-weight: 600; }
+  .doc-card p { font-size: 15px; color: #555; margin-bottom: 20px; line-height: 1.6; }
+  .doc-card a { display: inline-block; padding: 12px 24px; background: var(--theme-navy); color: white; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; transition: background 0.2s; }
+  .doc-card a:hover { background: #2a3342; }
+  @media (max-width: 768px) {
+    .legal-hero { padding: 30px 20px; }
+    .legal-hero h1 { font-size: 28px; }
+    .doc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="legal-hero">
+  <h1>Tenant Rights Documentation System</h1>
+  <p>Professional document management for housing disputes. Secure, certified, and court-ready.</p>
+</section>
+<div class="doc-grid">
+  {% for card in cards %}
+  <div class="doc-card">
+    <h3>{{ card.title }}</h3>
+    <p>{{ card.description or 'Professional tool for tenant rights protection.' }}</p>
+    <a href="{{ card.route }}">Access Tool</a>
+  </div>
+  {% endfor %}
+  {% if not cards %}
+  <div class="doc-card">
+    <h3>System Initialization Required</h3>
+    <p>Card metadata not available. Please run health check or seed defaults.</p>
+    <a href="/admin">System Admin</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

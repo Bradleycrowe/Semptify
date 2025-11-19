@@ -50,3 +50,4 @@ def settings():
     <p><a href="/">← Back to Home</a></p>
     </body></html>
     ''', 200
+

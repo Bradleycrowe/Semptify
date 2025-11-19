@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block page_title %}Semptify Help Center{% endblock %}
+{% block extra_head %}
+<style>
+  :root {
+    --theme-primary: #4f46e5;
+    --theme-secondary: #06b6d4;
+    --theme-success: #10b981;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .header { background: var(--surface) !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important; }
+  .header .logo { color: var(--theme-primary) !important; }
+  main { padding-top: 140px !important; }
+  .top-alert { background: var(--theme-primary); color: white; padding: 12px 24px; text-align: center; font-size: 14px; font-weight: 500; position: fixed; top: 0; left: 0; right: 0; z-index: 2000; }
+  .welcome { background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%); color: white; padding: 48px 40px; border-radius: 12px; margin-bottom: 40px; text-align: center; }
+  .welcome h1 { font-size: 32px; margin-bottom: 12px; }
+  .welcome p { font-size: 18px; opacity: 0.95; }
+  .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+  .help-card { background: var(--surface); padding: 24px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid var(--theme-primary); transition: transform 0.2s; }
+  .help-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+  .help-card .icon { font-size: 32px; margin-bottom: 12px; }
+  .help-card h3 { font-size: 18px; margin-bottom: 8px; color: var(--theme-primary); }
+  .help-card p { font-size: 14px; color: #6b7280; margin-bottom: 16px; }
+  .help-card a { display: inline-block; padding: 10px 20px; background: var(--theme-primary); color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+  .help-card a:hover { background: #4338ca; }
+  @media (max-width: 768px) {
+    .welcome { padding: 32px 24px; }
+    .welcome h1 { font-size: 24px; }
+    .help-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="top-alert">🆘 Need immediate help? Document everything! Know your rights.</div>
+<section class="welcome">
+  <h1>Welcome! We're here to help.</h1>
+  <p>Get support, learn your rights, and resolve housing issues with confidence.</p>
+</section>
+<div class="help-grid">
+  {% for card in cards %}
+  <div class="help-card">
+    <div class="icon">{{ card.icon or '📋' }}</div>
+    <h3>{{ card.title }}</h3>
+    <p>{{ card.description or 'Tool to help protect your tenant rights.' }}</p>
+    <a href="{{ card.route }}">Get Started</a>
+  </div>
+  {% endfor %}
+  {% if not cards %}
+  <div class="help-card">
+    <div class="icon">⚙️</div>
+    <h3>Setup Required</h3>
+    <p>Card metadata not available. Initialize the system to see all available tools.</p>
+    <a href="/admin">Configure System</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

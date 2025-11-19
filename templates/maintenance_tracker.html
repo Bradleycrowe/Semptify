@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Tracker - Semptify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --semptify-maroon: #500000;
+            --semptify-gold: #d4af37;
+        }
+        .status-reported { border-left: 5px solid #ffc107; }
+        .status-acknowledged { border-left: 5px solid #17a2b8; }
+        .status-in-progress { border-left: 5px solid #007bff; }
+        .status-resolved { border-left: 5px solid #28a745; }
+        .status-ignored { border-left: 5px solid #dc3545; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark sticky-top" style="background: var(--semptify-maroon);">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt"></i> SEMPTIFY
+            </a>
+            <a href="/" class="btn btn-outline-light btn-sm">Back to Dashboard</a>
+        </div>
+    </nav>
+    
+    <main class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-wrench me-2" style="color: var(--semptify-gold);"></i> Maintenance Tracker</h1>
+            <a href="/maintenance/add?user_token={{ user_token }}" class="btn btn-lg" style="background: var(--semptify-maroon); color: white;">
+                <i class="fas fa-plus me-2"></i> Log New Issue
+            </a>
+        </div>
+        
+        <!-- Summary Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="text-warning">{{ requests|selectattr('status', 'equalto', 'reported')|list|length }}</h3>
+                        <p class="mb-0">Reported</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="text-info">{{ requests|selectattr('status', 'equalto', 'in-progress')|list|length }}</h3>
+                        <p class="mb-0">In Progress</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="text-success">{{ requests|selectattr('status', 'equalto', 'resolved')|list|length }}</h3>
+                        <p class="mb-0">Resolved</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="text-danger">{{ requests|selectattr('status', 'equalto', 'ignored')|list|length }}</h3>
+                        <p class="mb-0">Ignored</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Maintenance Requests List -->
+        <h4 class="mb-3">Your Maintenance Requests</h4>
+        
+        {% if requests %}
+            {% for req in requests|reverse %}
+            <div class="card mb-3 status-{{ req.status }}">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>
+                                {{ req.issue_type|title }}
+                                {% if req.urgency == 'urgent' %}
+                                <span class="badge bg-danger">URGENT</span>
+                                {% endif %}
+                            </h5>
+                            <p class="mb-2">{{ req.description }}</p>
+                            {% if req.location %}
+                            <p class="text-muted mb-1"><i class="fas fa-map-marker-alt me-2"></i> {{ req.location }}</p>
+                            {% endif %}
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-calendar me-2"></i> Reported: {{ req.date[:10] }}
+                            </p>
+                            {% if req.landlord_response %}
+                            <div class="alert alert-info mt-2 mb-0">
+                                <strong>Landlord Response:</strong> {{ req.landlord_response }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="badge bg-{{ 'warning' if req.status == 'reported' else 'info' if req.status == 'in-progress' else 'success' if req.status == 'resolved' else 'danger' }} mb-2">
+                                {{ req.status|upper }}
+                            </span>
+                            <br>
+                            {% if req.status != 'resolved' %}
+                            <button class="btn btn-sm btn-outline-success" onclick="updateStatus('{{ req.id }}', 'resolved')">
+                                <i class="fas fa-check me-1"></i> Mark Resolved
+                            </button>
+                            <br>
+                            <button class="btn btn-sm btn-outline-danger mt-2" onclick="updateStatus('{{ req.id }}', 'ignored')">
+                                <i class="fas fa-times me-1"></i> Mark Ignored
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> No maintenance requests yet. Click "Log New Issue" to start tracking repairs.
+            </div>
+        {% endif %}
+        
+        <div class="alert alert-warning mt-4">
+            <h6><i class="fas fa-lightbulb me-2"></i> Tip</h6>
+            <p class="mb-0">
+                Document everything! Take photos, save emails from your landlord, and log all maintenance issues here. 
+                This creates a timeline of your landlord's responsiveness (or lack thereof).
+            </p>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateStatus(requestId, newStatus) {
+            if (confirm('Update request status to ' + newStatus + '?')) {
+                fetch('/maintenance/update/' + requestId, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'user_token={{ user_token }}&status=' + newStatus
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
