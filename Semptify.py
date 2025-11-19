@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()  # Load .env file
 
 
 import os
@@ -342,6 +344,21 @@ try:
     print("[OK] Reasoning demo registered (/demo/reasoning)")
 except ImportError as e:
     print(f"[WARN] Reasoning demo not available: {e}")
+# Storage Setup - R2/GCS clipboard-monitored wizard
+try:
+    from storage_setup_routes import storage_setup_bp
+    app.register_blueprint(storage_setup_bp)
+    print("[OK] Storage Setup registered (/setup/*)")
+except ImportError as e:
+    print(f"[WARN] Storage Setup not available: {e}")
+
+# R2 Migration - Self-service data migration from R2 to user storage
+try:
+    from migration_routes import migration_bp
+    app.register_blueprint(migration_bp)
+    print("[OK] Migration routes registered (/vault/migrate, /admin/migration/*)")
+except ImportError as e:
+    print(f"[WARN] Migration routes not available: {e}")
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
     from veeper import veeper_bp
@@ -2861,6 +2878,7 @@ pass
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
 
 
 
