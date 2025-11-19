@@ -1,0 +1,83 @@
+<!-- Curiosity Engine Widget - Add to any page -->
+<div class="card border-primary mt-3" id="curiosity-widget">
+    <div class="card-header bg-primary text-white">
+        <strong>🤔 Smart Question</strong>
+    </div>
+    <div class="card-body">
+        <p id="curiosity-question" class="mb-3">Loading question...</p>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="answerCuriosity(''yes'')">Yes</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="answerCuriosity(''no'')">No</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="skipCuriosity()">Skip</button>
+        </div>
+        <div id="curiosity-followup" class="mt-3 d-none alert alert-info"></div>
+    </div>
+</div>
+
+<script>
+// Curiosity Engine Client-Side Integration
+const curiosityEngine = {
+    async loadQuestion(context) {
+        try {
+            const response = await fetch(`/api/curiosity/question?context=${context}&user_token=${getUserToken()}`);
+            const data = await response.json();
+            if (data.question) {
+                document.getElementById(''curiosity-question'').textContent = data.question.text;
+                window.currentQuestionId = data.question.id;
+            }
+        } catch (e) {
+            console.log(''Curiosity engine unavailable'', e);
+        }
+    },
+    
+    async answer(response) {
+        if (!window.currentQuestionId) return;
+        try {
+            await fetch(''/api/curiosity/answer'', {
+                method: ''POST'',
+                headers: {''Content-Type'': ''application/json''},
+                body: JSON.stringify({
+                    question_id: window.currentQuestionId,
+                    answer: response,
+                    user_token: getUserToken()
+                })
+            });
+            this.showFollowup(response);
+        } catch (e) {
+            console.log(''Could not save answer'', e);
+        }
+    },
+    
+    showFollowup(answer) {
+        const followup = document.getElementById(''curiosity-followup'');
+        followup.classList.remove(''d-none'');
+        if (answer === ''yes'') {
+            followup.textContent = ''Great! This helps us understand your situation better.'';
+        } else {
+            followup.textContent = ''Thanks for letting us know. We''ll adjust our recommendations.'';
+        }
+        setTimeout(() => this.loadQuestion(getPageContext()), 2000);
+    }
+};
+
+function answerCuriosity(response) {
+    curiosityEngine.answer(response);
+}
+
+function skipCuriosity() {
+    curiosityEngine.loadQuestion(getPageContext());
+}
+
+function getUserToken() {
+    return new URLSearchParams(window.location.search).get(''user_token'') || '''';
+}
+
+function getPageContext() {
+    return window.location.pathname.split(''/'')[1] || ''dashboard'';
+}
+
+// Auto-load question when page loads
+document.addEventListener(''DOMContentLoaded'', () => {
+    curiosityEngine.loadQuestion(getPageContext());
+});
+</script>

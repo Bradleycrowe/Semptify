@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - Store Events & Documents - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { color: #667eea; font-size: 2rem; }
+        .view-timeline-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .event-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .file-upload:hover { background: #f8f9ff; }
+        .file-upload input { display: none; }
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover { background: #5568d3; transform: translateY(-2px); }
+        .success-msg {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Calendar - Store Events</h1>
+            <a href="/timeline" class="view-timeline-btn" id="viewTimelineBtn">👁️ View Timeline</a>
+        </div>
+
+        <div class="success-msg" id="successMsg"></div>
+
+        <div class="event-form">
+            <h2 style="margin-bottom: 20px; color: #333;">Add Event to Your Tenancy Record</h2>
+            
+            <form id="eventForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Event Title *</label>
+                    <input type="text" name="title" required placeholder="e.g., Rent Payment - November 2025">
+                </div>
+
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" name="event_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Event Type *</label>
+                    <select name="event_type" required>
+                        <option value="rent">💰 Rent Payment</option>
+                        <option value="maintenance">🔧 Maintenance Request</option>
+                        <option value="inspection">🔍 Inspection</option>
+                        <option value="complaint">⚠️ Complaint</option>
+                        <option value="communication">💬 Communication with Landlord</option>
+                        <option value="document">📄 Document Receipt</option>
+                        <option value="general">📌 General Event</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Add details about this event..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Attach Documents (Photos, PDFs, etc.)</label>
+                    <div class="file-upload" id="fileUpload">
+                        <p>📎 Click or drag files here</p>
+                        <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">Upload receipts, photos, emails, etc.</p>
+                        <input type="file" name="files" id="fileInput" multiple>
+                    </div>
+                    <div id="fileList" style="margin-top: 10px; font-size: 0.9rem; color: #666;"></div>
+                </div>
+
+                <button type="submit" class="submit-btn">💾 Store in Vault</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const userToken = new URLSearchParams(window.location.search).get('user_token');
+        
+        // Update timeline link with token
+        if (userToken) {
+            document.getElementById('viewTimelineBtn').href = /timeline?user_token=$\{userToken\};
+        }
+
+        // File upload UI
+        const fileInput = document.getElementById('fileInput');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileList = document.getElementById('fileList');
+
+        fileUpload.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                fileList.innerHTML = files.map(f => ✓ $\{f.name\}).join('<br>');
+            }
+        });
+
+        // Form submission
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            formData.append('user_token', userToken);
+
+            try {
+                const response = await fetch('/api/calendar/add-event', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    const successMsg = document.getElementById('successMsg');
+                    successMsg.textContent = ✓ $\{result.message\} - Event ID: $\{result.event_id\};
+                    successMsg.style.display = 'block';
+                    
+                    // Reset form
+                    e.target.reset();
+                    fileList.innerHTML = '';
+                    
+                    setTimeout(() => {
+                        successMsg.style.display = 'none';
+                    }, 5000);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (err) {
+                alert('Failed to store event: ' + err.message);
+            }
+        });
+    </script>
+</body>
+</html>

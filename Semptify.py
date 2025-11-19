@@ -2914,3 +2914,21 @@ if __name__ == "__main__":
 
 
 
+
+
+# === PHASE 2 UI: Timeline Assistant ===
+try:
+    from calendar_vault_ui_routes import calendar_vault_ui_bp
+    app.register_blueprint(calendar_vault_ui_bp)
+    print("[OK] Phase 2 Timeline Assistant UI registered at /timeline/assistant")
+except ImportError as e:
+    print(f"[WARN] Phase 2 UI not available: {e}")
+
+
+# === PHASE 4: Curiosity Engine API ===
+try:
+    from curiosity_api_routes import curiosity_api_bp
+    app.register_blueprint(curiosity_api_bp)
+    print("[OK] Phase 4 Curiosity Engine API registered")
+except ImportError as e:
+    print(f"[WARN] Curiosity API not available: {e}")
