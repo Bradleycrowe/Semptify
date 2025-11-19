@@ -1153,10 +1153,10 @@ def register_slate():
 # STORAGE SETUP ROUTES - Cloudflare R2 & Google Drive Integration
 # ============================================================================
 
-@app.route('/setup')
-def user_setup():
-    """User storage setup page with both Cloudflare R2 and Google Drive options"""
-    return render_template('user_setup.html')
+# @app.route('/setup')
+# def user_setup():
+#     """User storage setup page with both Cloudflare R2 and Google Drive options"""
+#     return render_template('user_setup.html')
 
 @app.route('/settings')  
 def user_settings():
