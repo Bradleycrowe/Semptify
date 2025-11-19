@@ -303,6 +303,33 @@ def dropbox_oauth_callback():
     return redirect('/welcome')
 
 # ============================================================================
+@storage_setup_bp.route('/oauth/google/health', methods=['GET'])
+def google_oauth_health():
+    """Diagnostics for Google OAuth readiness"""
+    import importlib, os, json
+    status = {
+        'client_id_present': bool(os.getenv('GOOGLE_CLIENT_ID')),
+        'client_secret_present': bool(os.getenv('GOOGLE_CLIENT_SECRET')),
+        'redirect_uri': _google_redirect_uri(),
+        'session_state': session.get('oauth_state') is not None,
+        'libraries': {
+            'google_auth_oauthlib': False,
+            'googleapiclient': False
+        }
+    }
+    try:
+        importlib.import_module('google_auth_oauthlib.flow')
+        status['libraries']['google_auth_oauthlib'] = True
+    except Exception:
+        pass
+    try:
+        importlib.import_module('googleapiclient.discovery')
+        status['libraries']['googleapiclient'] = True
+    except Exception:
+        pass
+    scheme_forced = status['redirect_uri'].startswith('https://')
+    status['https_enforced'] = scheme_forced or os.getenv('FORCE_HTTPS') == '1'
+    return json.dumps(status), 200, {'Content-Type': 'application/json'}
 # HELPERS
 # ============================================================================
 
@@ -310,6 +337,7 @@ def _google_redirect_uri():
     '''Build HTTPS-aware redirect URI for Google OAuth'''
     scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1') else 'http'
     return url_for('storage_setup.google_oauth_callback', _external=True, _scheme=scheme)
+
 
 
 
