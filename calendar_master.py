@@ -2,6 +2,7 @@
 Calendar Master View - Central hub for vault documents, events, and packet assembly
 """
 from flask import Blueprint, render_template, request, jsonify
+from calendar_vault_bridge import CalendarVaultBridge
 from functools import wraps
 import sqlite3
 from user_database import DB_PATH
@@ -59,3 +60,12 @@ def packet_builder():
 
 
 
+
+
+# === PHASE 2 CALENDAR INTEGRATION ===
+# After event creation, add:
+#   bridge = CalendarVaultBridge()
+#   suggestions = bridge.suggest_documents_for_event(event_type, event_data)
+#   if suggestions:
+#       doc_list = ', '.join([s['doc_type'] for s in suggestions])
+#       flash(f"💡 Recommended uploads: {doc_list}", 'info')
