@@ -2943,3 +2943,11 @@ except ImportError as e:
     print(f"[WARN] Curiosity API not available: {e}")
 
 
+
+# Apply ProxyFix to trust X-Forwarded-Proto/Host from Render
+try:
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    print("[OK] ProxyFix applied (x_proto=1, x_host=1)")
+except Exception as e:
+    print(f"[WARN] ProxyFix not applied: {e}")
