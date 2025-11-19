@@ -8,3 +8,17 @@ services:
         value: 3.11
       - key: GROQ_API_KEY
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: DROPBOX_APP_KEY
+        sync: false
+      - key: DROPBOX_APP_SECRET
+        sync: false
+      - key: FLASK_SECRET_KEY
+        value: 199b51253d456d225c511eb6ef5d871ac649715a52f3ed297f51fafdc3937542
+      - key: FORCE_HTTPS
+        value: 1
+      - key: SECURITY_MODE
+        value: open
