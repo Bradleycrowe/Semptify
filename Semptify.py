@@ -359,6 +359,21 @@ try:
     print("[OK] Migration routes registered (/vault/migrate, /admin/migration/*)")
 except ImportError as e:
     print(f"[WARN] Migration routes not available: {e}")
+# Storage Auto-Unlock - Detects storage and prompts for token
+try:
+    from storage_autologin import storage_autologin_bp
+    app.register_blueprint(storage_autologin_bp)
+    print("[OK] Storage auto-unlock registered")
+except ImportError as e:
+    print(f"[WARN] Storage auto-unlock not available: {e}")
+
+# Vault (User Storage) - Document storage in user's Drive/Dropbox only
+try:
+    from vault_user_storage import vault_bp
+    app.register_blueprint(vault_bp)
+    print("[OK] Vault (user storage) registered")
+except ImportError as e:
+    print(f"[WARN] Vault (user storage) not available: {e}")
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
     from veeper import veeper_bp
@@ -2878,6 +2893,7 @@ pass
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
+
 
 
 

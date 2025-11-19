@@ -173,6 +173,11 @@ def google_oauth_callback():
     storage = EncryptedCalendarStorage(drive_client, user_token)
     encrypted_token = storage.encrypt_data(token_data)
     drive_client.upload('auth_token.enc', encrypted_token)
+    
+    # Write token hash for cross-device verification
+    from security import _hash_token
+    token_hash_str = _hash_token(user_token)
+    drive_client.upload('token_hash.txt', token_hash_str)
 
     # Store user token hash in server security file
     from security import _hash_token
@@ -263,6 +268,11 @@ def dropbox_oauth_callback():
     storage = EncryptedCalendarStorage(dropbox_client, user_token)
     encrypted_token = storage.encrypt_data(token_data)
     dropbox_client.upload('auth_token.enc', encrypted_token)
+    
+    # Write token hash for cross-device verification
+    from security import _hash_token
+    token_hash_str = _hash_token(user_token)
+    dropbox_client.upload('token_hash.txt', token_hash_str)
 
     # Store user token hash in server security file
     from security import _hash_token
@@ -289,3 +299,4 @@ def _google_redirect_uri():
     '''Build HTTPS-aware redirect URI for Google OAuth'''
     scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1') else 'http'
     return url_for('storage_setup.google_oauth_callback', _external=True, _scheme=scheme)
+
