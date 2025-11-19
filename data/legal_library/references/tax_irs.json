@@ -1,0 +1,62 @@
+[
+  {
+    "id": "irs-pub-527",
+    "jurisdiction": "Federal",
+    "layer": "Tax Guidance",
+    "title": "IRS Publication 527 — Residential Rental Property",
+    "citation": "Pub 527",
+    "url": "https://www.irs.gov/forms-pubs/about-publication-527",
+    "scope": ["Income", "Expenses", "Depreciation", "Vacation Homes"],
+    "summary": "Primary reference for reporting rental income, expenses, and depreciation.",
+    "last_updated": "2025-11-19",
+    "tags": ["IRS", "Tax"]
+  },
+  {
+    "id": "irs-topic-414",
+    "jurisdiction": "Federal",
+    "layer": "Tax Guidance",
+    "title": "IRS Topic No. 414 — Rental Income and Expenses",
+    "citation": "Topic 414",
+    "url": "https://www.irs.gov/taxtopics/tc414",
+    "scope": ["Income", "Deductible Expenses"],
+    "summary": "Defines taxable rental income and deductible expenses for landlords.",
+    "last_updated": "2025-11-19",
+    "tags": ["IRS", "Tax"]
+  },
+  {
+    "id": "irs-topic-415",
+    "jurisdiction": "Federal",
+    "layer": "Tax Guidance",
+    "title": "IRS Topic No. 415 — Renting Residential and Vacation Property",
+    "citation": "Topic 415",
+    "url": "https://www.irs.gov/taxtopics/tc415",
+    "scope": ["Personal Use", "Allocation", "Limits"],
+    "summary": "Rules for mixed-use properties and vacation rentals.",
+    "last_updated": "2025-11-19",
+    "tags": ["IRS", "Vacation"]
+  },
+  {
+    "id": "irs-pub-946",
+    "jurisdiction": "Federal",
+    "layer": "Tax Guidance",
+    "title": "IRS Publication 946 — How to Depreciate Property",
+    "citation": "Pub 946",
+    "url": "https://www.irs.gov/forms-pubs/about-publication-946",
+    "scope": ["MACRS", "Recovery Periods", "Methods"],
+    "summary": "Depreciation methods and recovery periods for residential rental property.",
+    "last_updated": "2025-11-19",
+    "tags": ["IRS", "Depreciation"]
+  },
+  {
+    "id": "irs-lihtc-section42",
+    "jurisdiction": "Federal",
+    "layer": "Tax Credit",
+    "title": "Low-Income Housing Tax Credit (Section 42) — IRS",
+    "citation": "26 U.S.C. § 42 resources",
+    "url": "https://www.irs.gov/businesses/small-businesses-self-employed/low-income-housing-credit",
+    "scope": ["Compliance", "Allocations", "Recapture"],
+    "summary": "Compliance and administration references for LIHTC projects.",
+    "last_updated": "2025-11-19",
+    "tags": ["LIHTC", "IRS"]
+  }
+]

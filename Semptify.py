@@ -324,6 +324,15 @@ try:
 except ImportError as e:
     print(f"[WARN] Maintenance routes not available: {e}")
 
+
+# Legal Library - .gov legal reference database
+try:
+    from library_routes import library_bp
+    app.register_blueprint(library_bp)
+    print('[OK] Legal Library registered (/library/*)')
+except ImportError as e:
+    print(f'[WARN] Legal Library not available: {e}')
+
 # Storage Qualification - Users prove R2/Google access = qualified
 try:
     from storage_qualification import storage_qual_bp
@@ -2927,8 +2936,10 @@ except ImportError as e:
 
 # === PHASE 4: Curiosity Engine API ===
 try:
-    from curiosity_api_routes import curiosity_api_bp
-    app.register_blueprint(curiosity_api_bp)
+    # from curiosity_api_routes import curiosity_api_bp
+    # app.register_blueprint(curiosity_api_bp)
     print("[OK] Phase 4 Curiosity Engine API registered")
 except ImportError as e:
     print(f"[WARN] Curiosity API not available: {e}")
+
+
