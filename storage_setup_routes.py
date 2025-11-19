@@ -82,9 +82,9 @@ def google_oauth_start():
 def google_oauth_callback():
     '''Handle Google OAuth callback'''
     try:
-    from google_auth_oauthlib.flow import Flow
-    from googleapiclient.discovery import build
-    from googleapiclient.http import MediaInMemoryUpload
+        from google_auth_oauthlib.flow import Flow
+        from googleapiclient.discovery import build
+        from googleapiclient.http import MediaInMemoryUpload
     except ImportError:
         return render_template('storage_setup/oauth_unavailable.html', provider='Google Drive'), 503
 
