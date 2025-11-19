@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Folder Setup - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #34A853 0%, #0F9D58 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 700px;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .icon { font-size: 100px; text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 36px; text-align: center; margin-bottom: 20px; color: #333; }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        .steps {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .step {
+            display: flex;
+            align-items: start;
+            margin: 15px 0;
+        }
+        .step-num {
+            background: #34A853;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .step-text { color: #555; line-height: 1.6; }
+        .big-button {
+            background: #34A853;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .big-button:hover { background: #2d8e47; }
+        .big-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .status.show { display: block; }
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .info-box h3 { margin-bottom: 10px; color: #856404; }
+        .info-box p { color: #856404; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">💻</div>
+        <h1>Local Folder Storage</h1>
+        <div class="subtitle">
+            Store everything on your computer. You can sync to cloud services yourself if you want.
+        </div>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    Click "Choose Folder" below
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    Browser will ask for permission - click "Allow"
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    Semptify will create a <code>.semptify</code> folder inside with your secure token
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">
+                    Done! You can optionally sync this folder to Dropbox/Drive using their desktop apps
+                </div>
+            </div>
+        </div>
+
+        <button class="big-button" id="chooseBtn">
+            📁 Choose Folder
+        </button>
+
+        <div class="status" id="status"></div>
+
+        <div class="info-box">
+            <h3>💡 Want cloud sync?</h3>
+            <p>
+                After setup, you can:<br>
+                • Install Dropbox/Google Drive desktop app<br>
+                • Move your Semptify folder into Dropbox/Drive folder<br>
+                • It will auto-sync across all your devices!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const chooseBtn = document.getElementById('chooseBtn');
+        const status = document.getElementById('status');
+
+        chooseBtn.addEventListener('click', async () => {
+            try {
+                // Check if File System Access API is supported
+                if (!('showDirectoryPicker' in window)) {
+                    throw new Error('Your browser does not support folder access. Try Chrome, Edge, or Opera.');
+                }
+
+                // Ask user to choose a folder
+                const dirHandle = await window.showDirectoryPicker({
+                    mode: 'readwrite'
+                });
+
+                chooseBtn.disabled = true;
+                chooseBtn.textContent = '⏳ Setting up...';
+
+                // Create .semptify folder
+                const semptifyFolder = await dirHandle.getDirectoryHandle('.semptify', { create: true });
+
+                // Generate token
+                const token = generateToken();
+                const tokenHash = await sha256(token);
+
+                // Create token file
+                const tokenFile = await semptifyFolder.getFileHandle('auth_token.json', { create: true });
+                const writable = await tokenFile.createWritable();
+                const tokenData = {
+                    token_hash: tokenHash,
+                    created_at: new Date().toISOString(),
+                    storage_type: 'local',
+                    folder_name: dirHandle.name
+                };
+                await writable.write(JSON.stringify(tokenData, null, 2));
+                await writable.close();
+
+                // Store folder handle for future use (permission persists)
+                localStorage.setItem('semptify_storage_type', 'local');
+                localStorage.setItem('semptify_folder_name', dirHandle.name);
+                localStorage.setItem('semptify_user_token', token);
+
+                // Show success
+                status.className = 'status success show';
+                status.innerHTML = `
+                    <strong>✅ Setup complete!</strong><br>
+                    Folder: <code>${dirHandle.name}</code><br>
+                    Your token: <code>${token}</code><br>
+                    <small>(Save this token - you'll need it to access your data)</small><br>
+                    <small>Redirecting...</small>
+                `;
+
+                setTimeout(() => {
+                    window.location.href = `/welcome?user_token=${token}`;
+                }, 3000);
+
+            } catch (e) {
+                status.className = 'status error show';
+                status.innerHTML = `
+                    <strong>❌ Error:</strong> ${e.message}<br>
+                    <small>Make sure you grant permission when the browser asks.</small>
+                `;
+                chooseBtn.disabled = false;
+                chooseBtn.innerHTML = '📁 Choose Folder';
+            }
+        });
+
+        function generateToken() {
+            const array = new Uint8Array(16);
+            crypto.getRandomValues(array);
+            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+    </script>
+</body>
+</html>

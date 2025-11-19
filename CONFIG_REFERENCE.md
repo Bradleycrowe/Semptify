@@ -177,3 +177,29 @@ taskkill /PID <pid> /F
 - `RENDER_QUICK_START.md` - Render deployment guide
 - `DEPLOYMENT_CHECKLIST.md` - Pre-deploy checklist
 - `.github/copilot-instructions.md` - Project conventions
+
+## Render Deploy: OAuth Storage
+
+- Environment:
+  - FLASK_SECRET_KEY: Strong random string for session signing (required).
+  - GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET: From Google Cloud Console → Credentials.
+  - DROPBOX_APP_KEY / DROPBOX_APP_SECRET: From Dropbox App Console → App settings.
+  - FORCE_HTTPS=1: Ensures correct HTTPS redirects behind Render’s proxy.
+- Authorized Redirect URIs:
+  - Google: https://<your-render-domain>/oauth/google/callback
+  - Dropbox: https://<your-render-domain>/oauth/dropbox/callback
+  - Keep local dev URIs for testing:
+    - Google: http://127.0.0.1:5001/oauth/google/callback
+    - Dropbox: http://127.0.0.1:5001/oauth/dropbox/callback
+- App Behavior:
+  - Redirect helpers (_google_redirect_uri, _dropbox_redirect_uri) honor X-Forwarded-Proto and FORCE_HTTPS.
+  - On success, the app creates /.semptify in the user’s cloud drive and writes uth_token.enc (encrypted), then redirects to /welcome?user_token=....
+- Scopes & Security:
+  - Google uses https://www.googleapis.com/auth/drive.file (create/read files it creates).
+  - Dropbox uses offline tokens with PKCE; CSRF protected via Flask session.
+  - Tokens and files are user-owned; Semptify stores no documents server-side.
+- Troubleshooting:
+  - 403 (Google): Publish the OAuth app or add test users.
+  - redirect_uri mismatch: Ensure URIs in provider consoles exactly match the deployed domain.
+  - CSRF error (Dropbox): Ensure FLASK_SECRET_KEY is set; cookies enabled.
+  - HTTPS loops: Set FORCE_HTTPS=1 on Render.

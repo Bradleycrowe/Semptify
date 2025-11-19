@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Cloud Storage Setup - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC05 75%, #EA4335 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 18px; }
+        .content { padding: 40px; }
+        .step {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #4285F4;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .step-title { font-size: 20px; font-weight: 600; }
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4285F4;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        .instructions li { margin: 8px 0; }
+        .link-button {
+            display: inline-block;
+            background: #4285F4;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .link-button:hover { background: #357ae8; }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #4285F4;
+        }
+        .upload-area {
+            border: 3px dashed #4285F4;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            background: #f0f7ff;
+            border-color: #357ae8;
+        }
+        .upload-icon { font-size: 48px; margin-bottom: 10px; }
+        .upload-text { font-size: 16px; color: #666; }
+        .hidden { display: none; }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        .status.testing {
+            background: #cce5ff;
+            border: 1px solid #b8daff;
+            color: #004085;
+            display: block;
+        }
+        .test-button {
+            background: #34A853;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .test-button:hover { background: #2d8e47; }
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .json-preview {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 15px;
+            max-height: 150px;
+            overflow: auto;
+        }
+        .auto-detect {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .auto-detect.show { display: block; }
+        .check { color: #34A853; font-size: 20px; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Google Cloud Storage Setup</h1>
+            <p>One JSON file. Automatic setup. Done in 60 seconds.</p>
+        </div>
+        
+        <div class="content">
+            <!-- Step 1: Create Service Account -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Create Service Account</div>
+                </div>
+                <div class="instructions">
+                    <ol>
+                        <li>Go to <strong>IAM & Admin → Service Accounts</strong></li>
+                        <li>Click <strong>+ CREATE SERVICE ACCOUNT</strong></li>
+                        <li>Name: <code>semptify-storage</code></li>
+                        <li>Click <strong>CREATE AND CONTINUE</strong></li>
+                        <li>Grant role: <strong>Storage Admin</strong></li>
+                        <li>Click <strong>DONE</strong></li>
+                    </ol>
+                </div>
+                <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" class="link-button">
+                    �� Open Google Cloud Console
+                </a>
+            </div>
+
+            <!-- Step 2: Download JSON Key -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Download JSON Key</div>
+                </div>
+                <div class="instructions">
+                    <ol>
+                        <li>Click your service account</li>
+                        <li>Go to <strong>KEYS</strong> tab</li>
+                        <li>Click <strong>ADD KEY → Create new key</strong></li>
+                        <li>Select <strong>JSON</strong></li>
+                        <li>Click <strong>CREATE</strong> (file downloads automatically)</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Step 3: Upload or Paste JSON -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Upload or Paste JSON Key</div>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">
+                        <strong>Click to select file</strong> or drag and drop<br>
+                        <span style="font-size: 14px; color: #999;">Accepts .json files</span>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" accept=".json" class="hidden">
+
+                <div style="text-align: center; margin: 20px 0; color: #999;">— OR —</div>
+
+                <label style="font-weight: 600; display: block; margin-bottom: 8px;">
+                    Paste JSON content:
+                </label>
+                <textarea id="jsonInput" placeholder='Paste your service account JSON here...
+
+Example:
+{
+  "type": "service_account",
+  "project_id": "your-project",
+  "private_key_id": "...",
+  "private_key": "...",
+  "client_email": "...",
+  ...
+}'></textarea>
+
+                <div class="auto-detect" id="autoDetect">
+                    <span class="check">✅</span>
+                    <strong>Valid JSON detected!</strong>
+                    <div class="json-preview" id="jsonPreview"></div>
+                </div>
+
+                <button class="test-button" id="testButton" disabled>
+                    Test Connection & Create Storage
+                </button>
+
+                <div class="status" id="status"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const jsonInput = document.getElementById('jsonInput');
+        const autoDetect = document.getElementById('autoDetect');
+        const jsonPreview = document.getElementById('jsonPreview');
+        const testButton = document.getElementById('testButton');
+        const status = document.getElementById('status');
+
+        let serviceAccountData = null;
+
+        // File upload handlers
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f0f7ff';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.json')) {
+                handleFile(file);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                jsonInput.value = e.target.result;
+                validateJSON(e.target.result);
+            };
+            reader.readAsText(file);
+        }
+
+        // Auto-validate on paste
+        jsonInput.addEventListener('input', () => {
+            validateJSON(jsonInput.value);
+        });
+
+        function validateJSON(text) {
+            try {
+                const data = JSON.parse(text);
+                
+                // Check required fields
+                const required = ['type', 'project_id', 'private_key', 'client_email'];
+                const missing = required.filter(f => !data[f]);
+                
+                if (missing.length > 0) {
+                    throw new Error(`Missing: ${missing.join(', ')}`);
+                }
+                
+                if (data.type !== 'service_account') {
+                    throw new Error('Must be a service_account key');
+                }
+                
+                // Valid!
+                serviceAccountData = data;
+                autoDetect.classList.add('show');
+                testButton.disabled = false;
+                
+                // Show preview
+                jsonPreview.textContent = `Project: ${data.project_id}\nEmail: ${data.client_email}\nKey ID: ${data.private_key_id || 'N/A'}`;
+                
+            } catch (e) {
+                serviceAccountData = null;
+                autoDetect.classList.remove('show');
+                testButton.disabled = true;
+            }
+        }
+
+        // Test connection
+        testButton.addEventListener('click', async () => {
+            if (!serviceAccountData) return;
+            
+            testButton.disabled = true;
+            testButton.innerHTML = '<span class="spinner"></span> Testing connection...';
+            status.className = 'status testing';
+            status.textContent = '🔄 Creating bucket and testing GCS connection...';
+            
+            try {
+                const response = await fetch('/api/storage/test-gcs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        service_account_json: JSON.stringify(serviceAccountData)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store credentials in localStorage
+                    localStorage.setItem('semptify_storage_credentials', JSON.stringify(result.credentials));
+                    localStorage.setItem('semptify_user_token', result.token);
+                    
+                    status.className = 'status success';
+                    status.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Storage bucket created and tested!<br>
+                        Your token: <code>${result.token}</code><br>
+                        <small>Redirecting to welcome page...</small>
+                    `;
+                    
+                    setTimeout(() => {
+                        window.location.href = `/welcome?user_token=${result.token}`;
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(result.error || 'Connection test failed');
+                }
+                
+            } catch (e) {
+                status.className = 'status error';
+                status.innerHTML = `
+                    <strong>❌ Error:</strong> ${e.message}<br>
+                    <small>Check your service account permissions and try again.</small>
+                `;
+                testButton.disabled = false;
+                testButton.textContent = 'Retry Test Connection';
+            }
+        });
+    </script>
+</body>
+</html>

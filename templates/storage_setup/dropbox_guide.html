@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Dropbox - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #0061FF 0%, #0041AB 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .dropbox-logo {
+            font-size: 80px;
+            margin-bottom: 30px;
+        }
+        h1 { font-size: 36px; margin-bottom: 20px; color: #333; }
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        .benefits {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .benefit {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            color: #555;
+        }
+        .benefit-icon {
+            width: 24px;
+            height: 24px;
+            background: #0061FF;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .dropbox-btn {
+            background: #0061FF;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .dropbox-btn:hover {
+            background: #0041AB;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,97,255,0.3);
+        }
+        .security-note {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            color: #1565c0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .loading.show { display: block; }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0061FF;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dropbox-logo">📦</div>
+        
+        <h1>Connect Dropbox</h1>
+        <div class="subtitle">
+            Use your Dropbox account to securely store your Semptify data in your own cloud storage.
+        </div>
+
+        <div class="benefits">
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>No Semptify signup - use your Dropbox account</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>2GB+ free storage in your Dropbox</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>Auto-sync across all your devices</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>You control access - revoke anytime</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>Encrypted storage in hidden folder</div>
+            </div>
+        </div>
+
+        <button class="dropbox-btn" id="connectBtn">
+            📦 Connect Dropbox
+        </button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #666;">Connecting to Dropbox...</p>
+        </div>
+
+        <div class="security-note">
+            🔒 <strong>Your privacy matters.</strong><br>
+            Semptify only requests access to create and read files in a hidden <code>.semptify</code> folder. 
+            Your token is encrypted and stored in YOUR Dropbox - we never see it.
+        </div>
+    </div>
+
+    <script>
+        const connectBtn = document.getElementById('connectBtn');
+        const loading = document.getElementById('loading');
+
+        connectBtn.addEventListener('click', async () => {
+            connectBtn.disabled = true;
+            loading.classList.add('show');
+
+            // Redirect to Dropbox OAuth
+            window.location.href = '/oauth/dropbox/start';
+        });
+    </script>
+</body>
+</html>

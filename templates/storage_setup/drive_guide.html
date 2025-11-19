@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Google Drive - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC05 75%, #EA4335 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .google-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+        }
+        h1 { font-size: 36px; margin-bottom: 20px; color: #333; }
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        .benefits {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .benefit {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            color: #555;
+        }
+        .benefit-icon {
+            width: 24px;
+            height: 24px;
+            background: #34A853;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .google-btn {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            transition: all 0.3s;
+            color: #333;
+        }
+        .google-btn:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        .google-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .security-note {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            color: #2e7d32;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285F4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="google-logo" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        
+        <h1>Sign in with Google</h1>
+        <div class="subtitle">
+            Use your Google account to securely store your Semptify data in your own Google Drive.
+        </div>
+
+        <div class="benefits">
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>No Semptify signup - use your Google account</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>15GB free storage in your Drive</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>Auto-sync across all your devices</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>You control access - revoke anytime</div>
+            </div>
+            <div class="benefit">
+                <div class="benefit-icon">✓</div>
+                <div>Encrypted storage in hidden folder</div>
+            </div>
+        </div>
+
+        <button class="google-btn" id="connectBtn">
+            <svg class="google-icon" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Sign in with Google
+        </button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #666;">Connecting to Google...</p>
+        </div>
+
+        <div class="security-note">
+            🔒 <strong>Your privacy matters.</strong><br>
+            Semptify only requests access to create and read files in a hidden <code>.semptify</code> folder. 
+            Your token is encrypted and stored in YOUR Drive - we never see it.
+        </div>
+    </div>
+
+    <script>
+        const connectBtn = document.getElementById('connectBtn');
+        const loading = document.getElementById('loading');
+
+        connectBtn.addEventListener('click', async () => {
+            connectBtn.disabled = true;
+            loading.classList.add('show');
+
+            // Redirect to Google OAuth
+            window.location.href = '/oauth/google/start';
+        });
+    </script>
+</body>
+</html>

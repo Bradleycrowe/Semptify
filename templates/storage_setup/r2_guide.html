@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2 Storage Setup - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .wizard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .wizard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .wizard-header h1 { color: #667eea; margin-bottom: 10px; }
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .step {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .step.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .step-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .step-instructions {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .step-instructions ol {
+            margin-left: 20px;
+        }
+        .step-instructions li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .credential-display {
+            background: #fff;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .credential-display.captured {
+            border-color: #4caf50;
+            background: #f0fff0;
+        }
+        .credential-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #666;
+            margin: 10px 0;
+        }
+        .credential-value.filled {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .status-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .open-cloudflare-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #f6821f;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        .open-cloudflare-btn:hover {
+            background: #e5710f;
+            transform: translateY(-2px);
+        }
+        .testing {
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="wizard-card">
+            <div class="wizard-header">
+                <h1>🚀 R2 Storage Setup</h1>
+                <p>Connect your Cloudflare R2 storage in 3 easy copies</p>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <!-- Step 1: Account ID -->
+            <div class="step active" id="step1">
+                <h2 class="step-title">Step 1 of 3: Copy Account ID</h2>
+                
+                <div class="step-instructions">
+                    <p><strong>First time? Sign up for free:</strong></p>
+                    <ol>
+                        <li>Visit <a href="https://dash.cloudflare.com/sign-up" target="_blank">Cloudflare Sign Up</a></li>
+                        <li>Create free account (requires email verification)</li>
+                        <li>Go to R2 Object Storage in dashboard</li>
+                    </ol>
+                    <p style="margin-top: 15px;"><strong>To get your Account ID:</strong></p>
+                    <ol>
+                        <li>Log in to Cloudflare Dashboard</li>
+                        <li>Look in the sidebar → You'll see "Account ID"</li>
+                        <li><strong>Copy it</strong> (that's all!)</li>
+                    </ol>
+                </div>
+
+                <a href="https://dash.cloudflare.com/" target="_blank" class="open-cloudflare-btn">
+                    Open Cloudflare Dashboard →
+                </a>
+
+                <div class="credential-display" id="accountIdDisplay">
+                    <div class="status-icon">📋</div>
+                    <p>Waiting for Account ID...</p>
+                    <p class="credential-value" id="accountIdValue">Will appear here when copied</p>
+                </div>
+            </div>
+
+            <!-- Step 2: Access Key ID -->
+            <div class="step" id="step2">
+                <h2 class="step-title">Step 2 of 3: Copy Access Key ID</h2>
+                
+                <div class="step-instructions">
+                    <p><strong>Create R2 API Token:</strong></p>
+                    <ol>
+                        <li>In Cloudflare Dashboard → R2 Object Storage</li>
+                        <li>Click "Manage R2 API Tokens"</li>
+                        <li>Click "Create API Token"</li>
+                        <li>Give it a name (e.g., "Semptify")</li>
+                        <li>Permissions: Object Read & Write</li>
+                        <li>Click "Create API Token"</li>
+                        <li><strong>Copy the Access Key ID</strong></li>
+                    </ol>
+                </div>
+
+                <div class="credential-display" id="accessKeyDisplay">
+                    <div class="status-icon">📋</div>
+                    <p>Waiting for Access Key ID...</p>
+                    <p class="credential-value" id="accessKeyValue">Will appear here when copied</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Secret Access Key -->
+            <div class="step" id="step3">
+                <h2 class="step-title">Step 3 of 3: Copy Secret Access Key</h2>
+                
+                <div class="step-instructions">
+                    <p><strong>Almost done!</strong></p>
+                    <ol>
+                        <li>On the same screen where you created the token</li>
+                        <li>You'll see "Secret Access Key" displayed</li>
+                        <li><strong>Copy it</strong> (this is shown only once!)</li>
+                    </ol>
+                    <p style="color: #c62828; margin-top: 15px;">⚠️ Cloudflare only shows this once - make sure to copy it!</p>
+                </div>
+
+                <div class="credential-display" id="secretKeyDisplay">
+                    <div class="status-icon">📋</div>
+                    <p>Waiting for Secret Access Key...</p>
+                    <p class="credential-value" id="secretKeyValue">Will appear here when copied</p>
+                </div>
+            </div>
+
+            <!-- Testing Step -->
+            <div class="step" id="stepTesting">
+                <div class="testing">
+                    <h2 class="step-title">Testing Connection...</h2>
+                    <div class="spinner"></div>
+                    <p>Verifying your R2 credentials</p>
+                </div>
+            </div>
+
+            <div id="errorMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let clipboardMonitor;
+        let capturedCredentials = {
+            account_id: null,
+            access_key_id: null,
+            secret_access_key: null
+        };
+        let currentStep = 1;
+        let lastClipboardValue = '';
+
+        // Start monitoring clipboard
+        async function startMonitoring() {
+            clipboardMonitor = setInterval(async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    
+                    if (text && text !== lastClipboardValue) {
+                        lastClipboardValue = text;
+                        handleClipboardChange(text);
+                    }
+                } catch (err) {
+                    console.log('Clipboard access pending...');
+                }
+            }, 500);
+        }
+
+        function handleClipboardChange(text) {
+            const trimmed = text.trim();
+            
+            if (currentStep === 1) {
+                // Validate Account ID (32 hex characters)
+                if (/^[a-f0-9]{32}$/i.test(trimmed)) {
+                    capturedCredentials.account_id = trimmed;
+                    showCaptured('accountIdDisplay', 'accountIdValue', trimmed);
+                    advanceStep();
+                }
+            } else if (currentStep === 2) {
+                // Validate Access Key ID (typically 20 characters)
+                if (trimmed.length === 20 && /^[A-Za-z0-9]+$/.test(trimmed)) {
+                    capturedCredentials.access_key_id = trimmed;
+                    showCaptured('accessKeyDisplay', 'accessKeyValue', trimmed);
+                    advanceStep();
+                }
+            } else if (currentStep === 3) {
+                // Validate Secret Access Key (typically 40 characters)
+                if (trimmed.length === 40 && /^[A-Za-z0-9+\/=]+$/.test(trimmed)) {
+                    capturedCredentials.secret_access_key = trimmed;
+                    showCaptured('secretKeyDisplay', 'secretKeyValue', trimmed);
+                    advanceStep();
+                }
+            }
+        }
+
+        function showCaptured(displayId, valueId, value) {
+            const display = document.getElementById(displayId);
+            const valueEl = document.getElementById(valueId);
+            
+            display.classList.add('captured');
+            display.querySelector('.status-icon').textContent = '✅';
+            display.querySelector('p').textContent = 'Captured!';
+            
+            valueEl.textContent = value.substring(0, 10) + '...' + value.substring(value.length - 10);
+            valueEl.classList.add('filled');
+        }
+
+        function advanceStep() {
+            if (currentStep < 4) {
+                setTimeout(() => {
+                    document.getElementById(\step\).classList.remove('active');
+                    currentStep++;
+                    
+                    if (currentStep === 4) {
+                        testConnection();
+                    } else {
+                        document.getElementById(\step\).classList.add('active');
+                    }
+                    
+                    updateProgress();
+                }, 1000);
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        async function testConnection() {
+            document.getElementById('stepTesting').classList.add('active');
+            clearInterval(clipboardMonitor);
+            
+            try {
+                const response = await fetch('/api/storage/test-r2', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(capturedCredentials)
+                });
+                
+                const result = await response.json();
+                
+                if (result.ok) {
+                    // Store credentials in localStorage (encrypted in production)
+                    localStorage.setItem('semptify_credentials', result.credentials);
+                    localStorage.setItem('semptify_token', result.user_token);
+                    
+                    // Redirect to welcome page
+                    window.location.href = '/welcome?token=' + result.user_token;
+                } else {
+                    showError(result.error || 'Connection test failed');
+                }
+            } catch (err) {
+                showError('Network error: ' + err.message);
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('stepTesting').classList.remove('active');
+            document.getElementById('errorMessage').innerHTML =                 <div class="error">
+                    <strong>❌ Connection Failed</strong>
+                    <p>\</p>
+                    <button onclick="location.reload()" style="margin-top: 10px; padding: 10px 20px; background: #c62828; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Try Again
+                    </button>
+                </div>
+            \;
+        }
+
+        // Request clipboard permission and start monitoring
+        navigator.clipboard.readText()
+            .then(() => startMonitoring())
+            .catch(() => {
+                alert('Please allow clipboard access to use the automatic setup wizard');
+                startMonitoring(); // Try anyway
+            });
+    </script>
+</body>
+</html>
