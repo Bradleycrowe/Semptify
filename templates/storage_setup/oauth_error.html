@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Google OAuth Error</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 40px; max-width: 780px; }
+    .box { border: 2px solid #b00020; background:#fff5f5; padding:24px; border-radius:8px; }
+    h1 { margin-top:0; color:#b00020; }
+    code { background:#f3f3f3; padding:2px 4px; border-radius:4px; }
+    .actions a { display:inline-block; margin:8px 8px 0 0; padding:10px 16px; background:#004b8d; color:#fff; text-decoration:none; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>⚠ Google Sign-In Failed</h1>
+    <p>We couldn't complete Google Drive setup. This is usually caused by one of the following:</p>
+    <ul>
+      <li>Redirect URI not added in Google Cloud Console</li>
+      <li>OAuth consent screen not published</li>
+      <li>App still using HTTP (should enforce HTTPS)</li>
+      <li>Expired or reused authorization code</li>
+    </ul>
+    <p><strong>Details (sanitized):</strong></p>
+    <pre>{{ error_message }}</pre>
+    <div class="actions">
+      <a href="/setup/drive/guide">↩ Retry Setup</a>
+      <a href="/setup">Storage Options</a>
+      <a href="/oauth/google/health" target="_blank">Health Check</a>
+    </div>
+    <p style="margin-top:24px;font-size:0.9em;color:#555">If this persists, provide the health check JSON and the approximate time of failure to support.</p>
+  </div>
+</body>
+</html>
