@@ -1,0 +1,151 @@
+{% extends "base_unified.html" %}
+
+{% block title %}Document Vault - Semptify{% endblock %}
+
+{% block extra_style %}
+<style>
+    .upload-zone {
+        border: 3px dashed var(--semptify-maroon);
+        border-radius: 8px;
+        padding: 3rem;
+        text-align: center;
+        background: rgba(128, 0, 0, 0.05);
+        transition: all 0.3s;
+    }
+    .upload-zone:hover {
+        background: rgba(128, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    .doc-card {
+        border-left: 4px solid var(--semptify-gold);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-vault"></i> Document Vault</h2>
+    <div>
+        <span class="badge bg-secondary me-2">
+            <i class="fas fa-folder"></i> {{ documents|length if documents else 0 }} documents
+        </span>
+    </div>
+</div>
+
+<!-- Learning Recommendations (Phase 3) -->
+{% if learning_recommendations %}
+<div class="alert alert-info">
+    <strong><i class="fas fa-graduation-cap"></i> Recommended Learning:</strong>
+    Based on your recent upload, check out:
+    {% for module in learning_recommendations %}
+        <a href="/learning?module={{ module }}" class="alert-link">{{ module }}</a>{% if not loop.last %}, {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Upload Zone -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="POST" action="/vault/upload" enctype="multipart/form-data">
+            <input type="hidden" name="user_token" value="{{ user_token }}">
+            
+            <div class="upload-zone">
+                <i class="fas fa-cloud-upload-alt fa-4x text-semptify mb-3"></i>
+                <h4>Upload Document</h4>
+                <p class="text-muted">Drag & drop or click to select files</p>
+                
+                <div class="row justify-content-center mt-4">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label">Document Type</label>
+                            <select class="form-select" name="doc_type" required>
+                                <option value="lease_agreement">Lease Agreement</option>
+                                <option value="eviction_notice">Eviction Notice</option>
+                                <option value="repair_request">Repair Request</option>
+                                <option value="rent_receipt">Rent Receipt</option>
+                                <option value="inspection_report">Inspection Report</option>
+                                <option value="photo">Photo Evidence</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input class="form-control form-control-lg" type="file" name="file" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notes (optional)</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Any context or details..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-semptify btn-lg w-100">
+                            <i class="fas fa-upload"></i> Upload & Secure
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Auto-Event Notification (Phase 2) -->
+{% if auto_event_created %}
+<div class="alert alert-success alert-dismissible fade show">
+    <strong><i class="fas fa-robot"></i> Smart Timeline Updated:</strong>
+    We automatically created a timeline event for your upload.
+    <a href="/calendar?user_token={{ user_token }}" class="alert-link">View timeline</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<!-- Document List -->
+<div class="row">
+    {% if documents %}
+        {% for doc in documents %}
+        <div class="col-md-4 mb-3">
+            <div class="card doc-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">
+                            <i class="fas fa-file-{{ doc.icon|default('alt') }}"></i>
+                            {{ doc.type|replace('_', ' ')|title }}
+                        </h5>
+                        {% if doc.certified %}
+                            <span class="badge badge-semptify" title="Cryptographically certified">
+                                <i class="fas fa-certificate"></i>
+                            </span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text text-muted small">
+                        <i class="fas fa-calendar-alt"></i> {{ doc.upload_date }}<br>
+                        <i class="fas fa-file"></i> {{ doc.filename }}
+                    </p>
+                    {% if doc.linked_to_event %}
+                        <div class="mb-2">
+                            <span class="badge bg-info">
+                                <i class="fas fa-link"></i> Linked to timeline
+                            </span>
+                        </div>
+                    {% endif %}
+                    <div class="d-grid gap-2">
+                        <a href="/vault/download/{{ doc.id }}?user_token={{ user_token }}" class="btn btn-sm btn-outline-semptify">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                        <a href="/vault/attest/{{ doc.id }}?user_token={{ user_token }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-stamp"></i> Certificate
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-folder-open fa-3x mb-3"></i>
+                <p>No documents yet. Upload your first document to get started.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

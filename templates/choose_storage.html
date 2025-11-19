@@ -40,43 +40,46 @@
     <form id="storageForm" action="/storage-setup" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         
-        <div class="storage-options">
-            <label class="storage-option" data-provider="r2">
-                <input type="radio" name="provider" value="r2" required>
+                <div class="storage-options">
+            <label class="storage-option" data-provider="google_drive">
+                <input type="radio" name="provider" value="google_drive" required>
                 <div class="option-header">
-                    <span class="option-icon">☁️</span>
-                    <span class="option-title">Cloudflare R2</span>
+                    <span class="option-icon">🟦</span>
+                    <span class="option-title">Google Drive</span>
                     <span class="badge">Recommended</span>
                 </div>
                 <ul class="option-features">
-                    <li>Zero egress fees</li>
-                    <li>S3-compatible storage</li>
-                    <li>Fast global delivery</li>
-                    <li>Generous free tier</li>
+                    <li>One encrypted file (.semptify/calendar.enc)</li>
+                    <li>OAuth keeps token hidden (no manual keys)</li>
+                    <li>Tamper-proof doc IDs & chain-of-custody</li>
+                    <li>Works across devices automatically</li>
+                    <li>Hidden .semptify folder created on first connect</li>
                 </ul>
-                <div class="option-note">Best for most users - reliable and cost-effective</div>
+                <div class="option-note">Fast setup. No developer console complexity for users.</div>
             </label>
 
-            <label class="storage-option" data-provider="gcs">
-                <input type="radio" name="provider" value="gcs">
+            <label class="storage-option" data-provider="dropbox">
+                <input type="radio" name="provider" value="dropbox">
                 <div class="option-header">
-                    <span class="option-icon">🔷</span>
-                    <span class="option-title">Google Cloud Storage</span>
+                    <span class="option-icon">📦</span>
+                    <span class="option-title">Dropbox</span>
                 </div>
                 <ul class="option-features">
-                    <li>Enterprise-grade security</li>
-                    <li>Advanced compliance tools</li>
-                    <li>Global infrastructure</li>
-                    <li>Integrated with Google services</li>
+                    <li>Desktop sync + encrypted single file</li>
+                    <li>Hidden .semptify folder isolates evidence</li>
+                    <li>Tamper detection & certificates baked in</li>
+                    <li>No passwords stored locally</li>
+                    <li>Cross-device continuity out of the box</li>
                 </ul>
-                <div class="option-note">Ideal for enterprise deployments</div>
+                <div class="option-note">Great if you already use Dropbox sync.</div>
             </label>
         </div>
 
         <div class="storage-cta">
             <button type="submit" class="btn-continue" id="continueBtn" disabled>Continue with Selected Provider</button>
         </div>
-    </form>
+            
+</form>
 </div>
 
 <script>
@@ -88,5 +91,22 @@ document.querySelectorAll('.storage-option').forEach(option => {
         document.getElementById('continueBtn').disabled = false;
     });
 });
+
+document.getElementById('continueBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    const selected = document.querySelector('input[name="provider"]:checked');
+    if (selected) {
+        const provider = selected.value;
+        if (provider === 'google_drive') {
+            window.location.href = '/oauth/google/start';
+        } else if (provider === 'dropbox') {
+            window.location.href = '/oauth/dropbox/start';
+        }
+    }
+});
 </script>
 {% endblock %}
+
+
+
+

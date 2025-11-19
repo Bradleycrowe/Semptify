@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block page_title %}Semptify Action Dashboard{% endblock %}
+{% block extra_head %}
+<style>
+  :root {
+    --theme-urgent: #dc2626;
+    --theme-warning: #f59e0b;
+    --theme-safe: #059669;
+    --theme-dark: #18181b;
+    --theme-surface: #27272a;
+    --theme-border: #3f3f46;
+    --theme-text: #fafafa;
+  }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--theme-dark) !important; color: var(--theme-text) !important; }
+  .header { background: var(--theme-surface) !important; border-bottom: 1px solid var(--theme-border) !important; }
+  .header .logo, .header .nav-bar a { color: var(--theme-text) !important; text-shadow: none !important; }
+  .user-info { color: var(--theme-text) !important; }
+  main { padding-top: 140px !important; }
+  .alert-banner { background: var(--theme-urgent); color: white; padding: 10px 20px; font-size: 13px; font-weight: 600; text-align: center; letter-spacing: 0.5px; position: fixed; top: 0; left: 0; right: 0; z-index: 2000; text-transform: uppercase; }
+  .status-row { display: flex; gap: 16px; margin-bottom: 32px; max-width: 1600px; margin-left: auto; margin-right: auto; }
+  .status-card { flex: 1; background: var(--theme-surface); border: 1px solid var(--theme-border); padding: 20px; border-radius: 4px; border-left: 4px solid; }
+  .status-card.urgent { border-left-color: var(--theme-urgent); }
+  .status-card.warning { border-left-color: var(--theme-warning); }
+  .status-card.safe { border-left-color: var(--theme-safe); }
+  .status-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; margin-bottom: 8px; font-weight: 700; }
+  .status-card .value { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+  .status-card .desc { font-size: 13px; color: #71717a; }
+  .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1600px; margin: 0 auto; }
+  .action-card { background: var(--theme-surface); border: 1px solid var(--theme-border); padding: 24px; border-radius: 4px; position: relative; }
+  .action-card .priority { position: absolute; top: 12px; right: 12px; font-size: 11px; padding: 4px 10px; border-radius: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: var(--theme-warning); color: var(--theme-dark); }
+  .action-card h3 { font-size: 18px; margin-bottom: 8px; font-weight: 700; color: var(--theme-text); }
+  .action-card p { font-size: 14px; color: #a1a1aa; margin-bottom: 16px; line-height: 1.5; }
+  .action-card a { display: inline-block; padding: 10px 18px; background: var(--theme-text); color: var(--theme-dark); text-decoration: none; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 2px; transition: background 0.2s; }
+  .action-card a:hover { background: #d4d4d8; }
+  @media (max-width: 768px) {
+    .status-row { flex-direction: column; }
+    .actions-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="alert-banner">⚠️ ACTION REQUIRED: Document Everything, Know Your Rights</div>
+<div class="status-row">
+  <div class="status-card urgent">
+    <div class="label">Active Tools</div>
+    <div class="value">{{ cards|length if cards else 0 }}</div>
+    <div class="desc">Protection systems ready</div>
+  </div>
+  <div class="status-card warning">
+    <div class="label">Your Rights</div>
+    <div class="value">100%</div>
+    <div class="desc">Fully protected by law</div>
+  </div>
+  <div class="status-card safe">
+    <div class="label">Status</div>
+    <div class="value">Secured</div>
+    <div class="desc">All evidence backed up</div>
+  </div>
+</div>
+<h2 style="margin-bottom: 20px; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; max-width: 1600px; margin-left: auto; margin-right: auto;">Available Actions</h2>
+<div class="actions-grid">
+  {% for card in cards %}
+  <div class="action-card">
+    <span class="priority">Ready</span>
+    <h3>{{ card.title }}</h3>
+    <p>{{ card.description or 'Critical tool for tenant rights protection and documentation.' }}</p>
+    <a href="{{ card.route }}">Execute</a>
+  </div>
+  {% endfor %}
+  {% if not cards %}
+  <div class="action-card">
+    <span class="priority">Setup</span>
+    <h3>System Configuration Required</h3>
+    <p>Card metadata not loaded. Initialize system to activate all protection tools.</p>
+    <a href="/admin">Configure</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

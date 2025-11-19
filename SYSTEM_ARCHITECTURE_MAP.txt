@@ -1,0 +1,166 @@
+=================================================================
+SEMPTIFY UNIFIED SYSTEM ARCHITECTURE MAP
+=================================================================
+Generated: 2025-11-19 01:37:29
+
+PART 1: ALL BLUEPRINTS (Routes grouped by feature)
+=================================================================
+BLUEPRINT REGISTRATIONS IN Semptify.py:
+
+from preliminary_learning_routes import learning_module_bp
+from ledger_calendar_routes import ledger_calendar_bp
+from data_flow_routes import data_flow_bp
+from ledger_tracking_routes import ledger_tracking_bp
+from ledger_admin_routes import ledger_admin_bp
+from av_routes import av_routes_bp
+from learning_routes import learning_bp
+    from route_discovery_routes import route_discovery_bp, init_route_discovery_api
+    from main_dashboard_routes import main_dashboard_bp
+    app.register_blueprint(main_dashboard_bp)
+from blueprints.auth_bp import auth_bp
+from blueprints.ai_bp import ai_bp
+from blueprints.vault_bp import vault_bp
+app.register_blueprint(auth_bp)
+app.register_blueprint(ai_bp)
+app.register_blueprint(vault_bp)
+app.register_blueprint(ledger_calendar_bp)
+app.register_blueprint(data_flow_bp)
+app.register_blueprint(ledger_tracking_bp)
+app.register_blueprint(ledger_admin_bp)
+app.register_blueprint(av_routes_bp)
+app.register_blueprint(learning_bp)
+app.register_blueprint(learning_module_bp)  # Preliminary Learning Module - Info acquisition & fact-checking
+    app.register_blueprint(route_discovery_bp)
+    from complaint_filing_routes import complaint_filing_bp
+    app.register_blueprint(complaint_filing_bp)
+    from housing_programs_routes import housing_programs_bp
+    app.register_blueprint(housing_programs_bp)
+    from onboarding_routes import onboarding_bp
+    app.register_blueprint(onboarding_bp)
+    app.register_blueprint(complaint_templates)
+    app.register_blueprint(law_notes_actions)
+    app.register_blueprint(evidence_packet_builder)
+    app.register_blueprint(mn_check)
+    app.register_blueprint(attorney_trail)
+    from modules.office_module.backend_demo import office_bp
+    app.register_blueprint(office_bp)
+    from modules.communication_suite_bp import comm_suite_bp
+    app.register_blueprint(comm_suite_bp)
+#     from modules.register.register_bp import register_bp
+#     app.register_blueprint(register_bp)
+    from calendar_api import calendar_api_bp
+    app.register_blueprint(calendar_api_bp)
+    from calendar_master import calendar_master_bp
+    from calendar_timeline_routes import calendar_timeline_bp, calendar_bp
+    app.register_blueprint(calendar_timeline_bp)
+    app.register_blueprint(calendar_master_bp)
+    from doc_explorer_routes import doc_explorer_bp
+    app.register_blueprint(doc_explorer_bp)
+    from learning_dashboard_api import learning_dashboard_bp
+    app.register_blueprint(learning_dashboard_bp)
+    from themes_routes import themes_bp
+    app.register_blueprint(themes_bp)
+    from ollama_routes import ollama_bp
+    app.register_blueprint(ollama_bp)
+    from seed_api_routes import seed_api_bp
+    app.register_blueprint(seed_api_bp)
+    from journey_routes import journey_bp
+    app.register_blueprint(journey_bp)
+    from maintenance_routes import maintenance_bp
+    app.register_blueprint(maintenance_bp)
+    from storage_qualification import storage_qual_bp
+    app.register_blueprint(storage_qual_bp)
+    from packet_builder import packet_builder_bp
+    app.register_blueprint(packet_builder_bp)
+    from demo_routes import demo_bp
+    app.register_blueprint(demo_bp)
+    from storage_setup_routes import storage_setup_bp
+    app.register_blueprint(storage_setup_bp)
+    from migration_routes import migration_bp
+    app.register_blueprint(migration_bp)
+    from storage_autologin import storage_autologin_bp
+    app.register_blueprint(storage_autologin_bp)
+#     #     app.register_blueprint(vault_bp)
+    from veeper import veeper_bp
+    app.register_blueprint(veeper_bp)
+    from themes_routes import themes_bp
+    app.register_blueprint(themes_bp)
+    from admin.routes import admin_bp
+    app.register_blueprint(admin_bp)
+        app.register_blueprint(getattr(mod, m + "_bp"))
+#     app.register_blueprint(vault_blueprint)
+#     app.register_blueprint(vault_bp)
+    from tenant_narrative_module import tenant_narrative_bp
+    app.register_blueprint(tenant_narrative_bp)
+    from modules.public_exposure_module import public_exposure_bp
+    app.register_blueprint(public_exposure_bp)
+    app.register_blueprint(evidence_meta)
+#         app.register_blueprint(vault_bp)
+
+
+
+PART 2: ALL ENGINES (Business Logic)
+=================================================================
+- __init__.py
+- accuracy_engine.py
+- adaptive_intensity_engine.py
+- assumption_engine.py
+- attorney_finder_engine.py
+- calendar_timeline_engine.py
+- complaint_filing_engine.py
+- curiosity_engine.py
+- dashboard_engine.py
+- data_flow_engine.py
+- delivery_system_engine.py
+- health_check_engine.py
+- housing_journey_engine.py
+- housing_programs_engine.py
+- improvement_engine.py
+- intelligence_engine.py
+- jurisdiction_engine.py
+- learning_engine.py
+- ledger_calendar_engine.py
+- legal_advisor_engine.py
+- librarian_engine.py
+- maintenance_engine.py
+- meta_seed_engine.py
+- perspective_engine.py
+- prime_learning_engine.py
+- realtime_research_engine.py
+- reasoning_engine.py
+- rent_calculator_engine.py
+- seed_bootstrap_engine.py
+
+PART 3: INTEGRATION FILES (Connect systems)
+=================================================================
+BRIDGES:
+
+Name
+----
+calendar_vault_bridge.py
+curiosity_reasoning_bridge.py
+route_discovery_bridge.py
+
+
+ADAPTERS:
+
+Name
+----
+learning_adapter.py
+r2_database_adapter.py
+storage_adapter.py
+
+
+PART 4: API LAYERS (External integration)
+=================================================================
+
+Name
+----
+calendar_api.py
+calendar_vault_api.py
+dashboard_api_routes.py
+learning_dashboard_api.py
+seed_api_routes.py
+
+
+

@@ -1,0 +1,211 @@
+=================================================================
+SEMPTIFY GUI INVENTORY - ALL HTML FILES & ROUTES
+=================================================================
+
+TOTAL HTML FILES: 124
+
+=================================================================
+HOMEPAGE/LANDING PAGES (THE CONFUSION):
+=================================================================
+
+INDEX PAGES:
+  - templates\index_simple.html
+  - templates\index.backup.html
+  - templates\index.html
+  - templates\doc_explorer\index.html
+
+HOME PAGES:
+  - templates\dashboard_home.html
+  - templates\main_dashboard\home.html
+
+DASHBOARD PAGES:
+  - templates\dashboard_dynamic.html
+  - templates\dashboard_grid.html
+  - templates\dashboard_home.html
+  - templates\dashboard_simple.html
+  - templates\dashboard_theme_action.html
+  - templates\dashboard_theme_helpdesk.html
+  - templates\dashboard_theme_legal.html
+  - templates\dashboard_welcome.html
+  - templates\dashboard_widgets.html
+  - templates\learning_dashboard.html
+  - templates\ledger_calendar_dashboard.html
+  - templates\admin\dashboard.html
+  - templates\admin\feature_dashboard.html
+  - templates\themes\theme3_action_dashboard.html
+
+WELCOME PAGES:
+  - templates\dashboard_welcome.html
+  - templates\welcome.html
+  - templates\storage_setup\welcome.html
+
+=================================================================
+BASE TEMPLATES (LAYOUT SYSTEM):
+=================================================================
+
+  - base_auth.html
+  - base_page.html
+  - base.html
+
+=================================================================
+STORAGE SETUP (OAUTH FLOW):
+=================================================================
+
+  - templates\choose_storage.html
+  - templates\storage_required.html
+  - templates\storage_setup_card.html
+  - templates\admin\storage_db.html
+  - templates\storage_setup\choose_storage.html
+
+=================================================================
+VAULT (DOCUMENT MANAGEMENT):
+=================================================================
+
+  - templates\vault_login.html
+  - templates\vault_setup_required.html
+  - templates\vault.html
+
+=================================================================
+REGISTRATION/LOGIN (OLD SYSTEM):
+=================================================================
+
+  - templates\register_option1_navy.html
+  - templates\register_option2_forest.html
+  - templates\register_option3_burgundy.html
+  - templates\register_option4_slate.html
+  - templates\register_simple.html
+  - templates\register_success.html
+  - templates\register.html
+  - templates\login.html
+  - templates\vault_login.html
+  - templates\signin_simple.html
+
+=================================================================
+COMPLETE FILE LIST (ALL 124 HTML FILES):
+=================================================================
+
+  - templates\admin_learning.html
+  - templates\attorney_finder.html
+  - templates\law_notes\attorney_trail.html
+  - templates\pages\attorney.html
+  - templates\base_auth.html
+  - templates\base_page.html
+  - templates\base.html
+  - templates\calendar_vault\calendar_input.html
+  - templates\calendar_master.html
+  - templates\calendar_timeline_horizontal.html
+  - templates\calendar_timeline.html
+  - templates\cards.html
+  - templates\choose_storage.html
+  - templates\storage_setup\choose_storage.html
+  - templates\law_notes\complaint_template.html
+  - templates\admin\control_panel.html
+  - templates\pages\court_packet_detail.html
+  - templates\pages\court_packet.html
+  - templates\pages\courtroom.html
+  - templates\dashboard_dynamic.html
+  - templates\dashboard_grid.html
+  - templates\dashboard_home.html
+  - templates\dashboard_simple.html
+  - templates\dashboard_theme_action.html
+  - templates\dashboard_theme_helpdesk.html
+  - templates\dashboard_theme_legal.html
+  - templates\dashboard_welcome.html
+  - templates\dashboard_widgets.html
+  - templates\admin\dashboard.html
+  - templates\demand_letter.html
+  - templates\demo_reasoning.html
+  - templates\storage_setup\drive_guide.html
+  - templates\storage_setup\dropbox_guide.html
+  - templates\admin\email_panel.html
+  - templates\law_notes\evidence_metadata_cover.html
+  - templates\evidence_panel.html
+  - templates\pages\example_demo.html
+  - templates\law_notes\example_module.html
+  - templates\example_new_page.html
+  - templates\pages\example1.html
+  - templates\pages\originals\example1.html
+  - templates\admin\feature_dashboard.html
+  - templates\doc_explorer\feature_detail.html
+  - templates\doc_explorer\features.html
+  - templates\file_complaint.html
+  - templates\filing_packet.html
+  - templates\includes\footer.html
+  - templates\storage_setup\gcs_guide.html
+  - templates\pages\getting_started.html
+  - templates\includes\header.html
+  - templates\main_dashboard\home.html
+  - templates\housing_journey.html
+  - templates\housing_programs.html
+  - templates\admin\human_perspective.html
+  - templates\index_simple.html
+  - templates\index.backup.html
+  - templates\doc_explorer\index.html
+  - templates\index.html
+  - templates\doc_explorer\journey.html
+  - templates\law_notes\jurisdiction_checklist.html
+  - templates\pages\jurisdiction.html
+  - templates\pages\landlord_research.html
+  - templates\law_notes\law_notes_module.html
+  - templates\pages\laws.html
+  - templates\learning_dashboard.html
+  - templates\ledger_calendar_dashboard.html
+  - templates\ledger\ledger_view.html
+  - templates\storage_setup\local_guide.html
+  - templates\login.html
+  - templates\move_checklist.html
+  - templates\pages\move_in.html
+  - templates\modules\notice_card.html
+  - templates\pages\ocr.html
+  - templates\onboarding.html
+  - templates\doc_explorer\overview.html
+  - templates\personalized_plan.html
+  - templates\placeholder.html
+  - templates\preliminary_learning.html
+  - templates\pages\privacy.html
+  - templates\storage_setup\r2_guide.html
+  - templates\register_option1_navy.html
+  - templates\register_option2_forest.html
+  - templates\register_option3_burgundy.html
+  - templates\register_option4_slate.html
+  - templates\register_simple.html
+  - templates\register_success.html
+  - templates\register.html
+  - templates\rent_calculator.html
+  - templates\pages\research.html
+  - templates\resources.html
+  - templates\doc_explorer\search.html
+  - templates\admin\security_panel.html
+  - templates\seed_test.html
+  - templates\law_notes\semptify_all_modules.html
+  - templates\service_animal.html
+  - templates\settings.html
+  - templates\setup_situation.html
+  - templates\signin_simple.html
+  - templates\simple_timeline.html
+  - templates\pages\smart_inbox.html
+  - templates\admin\storage_db.html
+  - templates\storage_required.html
+  - templates\storage_setup_card.html
+  - templates\themes\theme1_legal_portal.html
+  - templates\themes\theme2_helpdesk.html
+  - templates\themes\theme3_action_dashboard.html
+  - templates\timeline_guest.html
+  - templates\timeline_ruler.html
+  - templates\timeline_simple_horizontal.html
+  - templates\timeline_unified.html
+  - templates\calendar_vault\timeline_viewer.html
+  - templates\token_recovery.html
+  - templates\unlock.html
+  - templates\user_setup.html
+  - templates\user_start.html
+  - templates\admin\users_panel.html
+  - templates\vault_login.html
+  - templates\vault_setup_required.html
+  - templates\vault.html
+  - templates\verify_code.html
+  - templates\pages\voice_capture.html
+  - templates\welcome.html
+  - templates\storage_setup\welcome.html
+  - templates\witness_statement.html
+

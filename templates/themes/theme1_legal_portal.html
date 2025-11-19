@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Semptify Legal Portal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1a2332;
+      --gold: #c9a961;
+      --light-bg: #f5f5f7;
+      --surface: #ffffff;
+      --border: #ddd;
+    }
+    body { font-family: 'Georgia', serif; background: var(--light-bg); color: #333; line-height: 1.6; }
+    .header { background: var(--navy); color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .logo { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+    .nav { display: flex; gap: 32px; }
+    .nav a { color: white; text-decoration: none; font-size: 15px; font-weight: 500; transition: color 0.2s; }
+    .nav a:hover { color: var(--gold); }
+    main { max-width: 1400px; margin: 100px auto 40px; padding: 0 40px; }
+    .hero { background: var(--surface); border: 1px solid var(--border); padding: 40px; margin-bottom: 40px; text-align: center; }
+    .hero h1 { font-size: 36px; margin-bottom: 12px; color: var(--navy); font-weight: 400; }
+    .hero p { font-size: 18px; color: #666; max-width: 700px; margin: 0 auto; }
+    .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .doc-card { background: var(--surface); border: 1px solid var(--border); padding: 32px; transition: box-shadow 0.2s; }
+    .doc-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .doc-card h3 { font-size: 20px; margin-bottom: 12px; color: var(--navy); font-weight: 600; }
+    .doc-card p { font-size: 15px; color: #555; margin-bottom: 20px; }
+    .btn { display: inline-block; padding: 12px 24px; background: var(--navy); color: white; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; transition: background 0.2s; }
+    .btn:hover { background: #2a3342; }
+    @media (max-width: 768px) {
+      .header { padding: 15px 20px; flex-direction: column; gap: 16px; }
+      .nav { gap: 20px; }
+      main { padding: 0 20px; margin-top: 140px; }
+      .hero { padding: 30px 20px; }
+      .hero h1 { font-size: 28px; }
+      .doc-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">SEMPTIFY Legal Portal</div>
+    <nav class="nav">
+      <a href="#documents">Documents</a>
+      <a href="#cases">Cases</a>
+      <a href="#resources">Resources</a>
+      <a href="#account">Account</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <h1>Tenant Rights Documentation System</h1>
+      <p>Professional document management for housing disputes. Secure, certified, and court-ready.</p>
+    </section>
+    <div class="doc-grid">
+      <div class="doc-card">
+        <h3>Document Vault</h3>
+        <p>Securely store lease agreements, notices, and correspondence with blockchain certification.</p>
+        <a href="#" class="btn">Access Vault</a>
+      </div>
+      <div class="doc-card">
+        <h3>Court Packets</h3>
+        <p>Generate formatted legal packets ready for filing. Includes all required exhibits and forms.</p>
+        <a href="#" class="btn">Build Packet</a>
+      </div>
+      <div class="doc-card">
+        <h3>Timeline Builder</h3>
+        <p>Construct chronological event timelines for your case with evidence cross-references.</p>
+        <a href="#" class="btn">Create Timeline</a>
+      </div>
+      <div class="doc-card">
+        <h3>Legal Library</h3>
+        <p>Access tenant law statutes, case precedents, and filing procedures for your jurisdiction.</p>
+        <a href="#" class="btn">Browse Library</a>
+      </div>
+      <div class="doc-card">
+        <h3>Complaint Generator</h3>
+        <p>Step-by-step wizard to draft formal complaints with proper legal formatting.</p>
+        <a href="#" class="btn">Start Complaint</a>
+      </div>
+      <div class="doc-card">
+        <h3>Evidence Tracker</h3>
+        <p>Catalog photos, recordings, and documents with metadata and chain-of-custody logs.</p>
+        <a href="#" class="btn">Track Evidence</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

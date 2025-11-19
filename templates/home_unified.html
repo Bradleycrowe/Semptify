@@ -1,0 +1,60 @@
+{% extends "base_unified.html" %}
+
+{% block title %}Semptify - Start Your Timeline{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-4 mb-4">Build Your Evidence Timeline</h1>
+        <p class="lead mb-4">
+            Document your housing situation, organize your evidence, and understand your rights.
+        </p>
+        <a href="/calendar?user_token={{ user_token }}" class="btn btn-semptify btn-lg">
+            <i class="fas fa-play-circle"></i> Start Your Timeline
+        </a>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar fa-3x mb-3" style="color: var(--semptify-maroon);"></i>
+                <h5>Timeline</h5>
+                <p class="text-muted">Track events chronologically. Document everything that happens.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-vault fa-3x mb-3" style="color: var(--semptify-gold);"></i>
+                <h5>Evidence Vault</h5>
+                <p class="text-muted">Securely store documents, photos, and proof. SHA-256 verified.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-graduation-cap fa-3x mb-3" style="color: var(--semptify-maroon);"></i>
+                <h5>Learn Your Rights</h5>
+                <p class="text-muted">Smart recommendations based on your situation.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-8 mx-auto">
+        <div class="alert alert-info">
+            <strong><i class="fas fa-magic"></i> Smart Features:</strong>
+            Upload a document → Timeline event auto-created. 
+            Create an event → We suggest what documents to upload.
+            Upload evidence → Relevant learning modules recommended.
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base_unified.html" %}
+
+{% block title %}Learning Center - Semptify{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-graduation-cap"></i> Learning Center</h2>
+    <div>
+        <span class="badge bg-secondary">
+            <i class="fas fa-check-circle"></i> {{ completed_modules|length if completed_modules else 0 }} completed
+        </span>
+    </div>
+</div>
+
+<!-- Document-Triggered Recommendations (Phase 3) -->
+{% if recommended_modules %}
+<div class="alert alert-primary">
+    <strong><i class="fas fa-star"></i> Recommended for You:</strong>
+    Based on your recent documents, these modules will help:
+    <ul class="mb-0 mt-2">
+        {% for module in recommended_modules %}
+        <li><a href="#module-{{ module.id }}" class="alert-link">{{ module.title }}</a> - {{ module.reason }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Journey Progress (Phase 5) -->
+{% if journey_stage %}
+<div class="card mb-4 border-semptify">
+    <div class="card-body">
+        <h5 class="card-title"><i class="fas fa-map-marked-alt"></i> Your Journey: {{ journey_stage|title }}</h5>
+        <div class="progress mb-3" style="height: 25px;">
+            <div class="progress-bar bg-semptify" role="progressbar" 
+                 style="width: {{ journey_progress }}%;" 
+                 aria-valuenow="{{ journey_progress }}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+                {{ journey_progress }}%
+            </div>
+        </div>
+        {% if next_milestone %}
+            <p class="mb-0">
+                <strong>Next milestone:</strong> {{ next_milestone.description }}
+                <span class="text-muted">({{ next_milestone.requirements }})</span>
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Learning Modules -->
+<div class="row">
+    {% set modules = [
+        {'id': 'tenant_rights', 'title': 'Tenant Rights 101', 'icon': 'balance-scale', 'duration': '15 min', 'level': 'Beginner'},
+        {'id': 'eviction_defense', 'title': 'Eviction Defense', 'icon': 'shield-alt', 'duration': '25 min', 'level': 'Intermediate'},
+        {'id': 'court_procedures', 'title': 'Court Procedures', 'icon': 'gavel', 'duration': '30 min', 'level': 'Intermediate'},
+        {'id': 'document_preservation', 'title': 'Document Preservation', 'icon': 'file-archive', 'duration': '20 min', 'level': 'Beginner'},
+        {'id': 'lease_understanding', 'title': 'Understanding Your Lease', 'icon': 'file-contract', 'duration': '20 min', 'level': 'Beginner'},
+        {'id': 'repair_remedies', 'title': 'Repair & Remedies', 'icon': 'tools', 'duration': '25 min', 'level': 'Intermediate'}
+    ] %}
+    
+    {% for module in modules %}
+    <div class="col-md-6 col-lg-4 mb-4" id="module-{{ module.id }}">
+        <div class="card h-100 {% if module.id in recommended_modules|map(attribute='id') %}border-warning{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <i class="fas fa-{{ module.icon }} fa-2x text-semptify"></i>
+                    </div>
+                    <div>
+                        {% if module.id in completed_modules %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check"></i> Completed
+                            </span>
+                        {% elif module.id in recommended_modules|map(attribute='id') %}
+                            <span class="badge bg-warning">
+                                <i class="fas fa-star"></i> Recommended
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <h5 class="card-title">{{ module.title }}</h5>
+                
+                <div class="mb-3">
+                    <span class="badge bg-secondary me-1">
+                        <i class="fas fa-clock"></i> {{ module.duration }}
+                    </span>
+                    <span class="badge bg-info">{{ module.level }}</span>
+                </div>
+                
+                <div class="d-grid">
+                    {% if module.id in completed_modules %}
+                        <a href="/learning/module/{{ module.id }}" class="btn btn-outline-semptify">
+                            <i class="fas fa-redo"></i> Review
+                        </a>
+                    {% else %}
+                        <a href="/learning/module/{{ module.id }}" class="btn btn-semptify">
+                            <i class="fas fa-play"></i> Start Learning
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Resources Section -->
+<div class="card mt-4">
+    <div class="card-header bg-semptify text-white">
+        <i class="fas fa-book"></i> Additional Resources
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6><i class="fas fa-link"></i> External Links</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#">Legal Aid Society</a></li>
+                    <li><a href="#">State Housing Authority</a></li>
+                    <li><a href="#">Tenant Union Directory</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-phone"></i> Hotlines</h6>
+                <ul class="list-unstyled">
+                    <li>Legal Aid: 1-800-XXX-XXXX</li>
+                    <li>Crisis Support: 211</li>
+                    <li>Fair Housing: 1-800-XXX-XXXX</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-file-download"></i> Downloads</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#">Tenant Rights Handbook (PDF)</a></li>
+                    <li><a href="#">Sample Letters (ZIP)</a></li>
+                    <li><a href="#">Inspection Checklist (PDF)</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

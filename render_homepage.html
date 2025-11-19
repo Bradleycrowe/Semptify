@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semptify – Tenant Protection Platform</title>
+  <style>
+    :root {
+      --bg-grad: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      --card-bg: #ffffff;
+      --card-shadow: 0 8px 28px rgba(0,0,0,0.18);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background: var(--bg-grad); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:60px 30px; color:#222; }
+    .shell { width:100%; max-width:1180px; }
+    .hero { text-align:center; margin-bottom:40px; color:#fff; }
+    .hero h1 { font-size:3rem; letter-spacing:-1px; margin-bottom:12px; }
+    .hero p { font-size:1.15rem; opacity:0.92; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:28px; }
+    .card { background:var(--card-bg); border-radius:var(--radius); padding:28px 26px 32px; position:relative; box-shadow:var(--card-shadow); display:flex; flex-direction:column; }
+    .card h2 { font-size:1.35rem; margin-bottom:10px; letter-spacing:-0.5px; }
+    .card p { line-height:1.5; font-size:0.95rem; margin-bottom:16px; }
+    .badge { position:absolute; top:-14px; left:20px; background:#fff; padding:6px 14px; border-radius:30px; font-size:0.7rem; font-weight:600; box-shadow:0 4px 14px rgba(0,0,0,0.18); letter-spacing:1px; color:#555; }
+    .actions { margin-top:auto; }
+    .btn { display:inline-block; background:#667eea; color:#fff; text-decoration:none; padding:12px 18px; border-radius:10px; font-weight:600; font-size:0.9rem; box-shadow:0 4px 14px rgba(102,126,234,0.4); transition:transform .15s, box-shadow .15s; }
+    .btn:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(102,126,234,0.55); }
+    .btn.secondary { background:#f0f4ff; color:#4a56a6; box-shadow:none; }
+    .meta-list { list-style:none; margin:0 0 14px; padding:0; }
+    .meta-list li { display:flex; align-items:flex-start; gap:8px; margin-bottom:6px; font-size:0.85rem; }
+    .meta-list li span { font-size:1rem; }
+    .subtle { color:#555; font-size:0.8rem; margin-top:10px; }
+    .footer { text-align:center; margin-top:50px; color:#ddd; font-size:0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="hero">
+      <h1>Semptify</h1>
+      <p>Your adaptive tenant rights protection and evidence platform.</p>
+    </div>
+
+    <div class="grid">
+      <!-- Explanation Card -->
+      <div class="card">
+        <div class="badge">CORE</div>
+        <h2>What Is Semptify?</h2>
+        <p>Semptify helps renters understand rights, preserve evidence, and respond to landlord situations with structured guidance. The system learns from each interaction to sharpen recommendations.</p>
+        <ul class="meta-list">
+          <li><span>🧠</span> Multi-step legal reasoning (risk, options, urgency)</li>
+          <li><span>📡</span> Passive jurisdiction assumptions (confirm anytime)</li>
+          <li><span>⚖️</span> Statute-aware recommendations (MN initial focus)</li>
+          <li><span>📈</span> Adaptive capability growth based on your needs</li>
+        </ul>
+        <div class="actions">
+          <a href="/setup" class="btn">Start Your Situation</a>
+          <a href="/pages/getting_started" class="btn secondary" style="margin-left:8px;">Learn More</a>
+        </div>
+      </div>
+
+      <!-- Storage / Evidence Card -->
+      <div class="card">
+        <div class="badge">EVIDENCE</div>
+        <h2>Secure Evidence Storage 🆓</h2>
+        <p><strong>FREE storage included</strong> - Store photos, videos, receipts, timelines and auto-generate notary-grade JSON certificates with hashes and timestamps. Build a defensible record before disputes escalate.</p>
+        <ul class="meta-list">
+          <li><span>🔐</span> Token-based access control</li>
+          <li><span>🗂️</span> Structured vault per user</li>
+          <li><span>📝</span> Integrity certificates (SHA-256 + metadata)</li>
+          <li><span>🕒</span> Timeline events merged with uploads</li>
+        </ul>
+        <div class="actions">
+          <a href="/vault" class="btn">Open Vault</a>
+          <a href="/notary" class="btn secondary" style="margin-left:8px;">View Certificates</a>
+        </div>
+      </div>
+
+      <!-- Knowledge / Library Card -->
+      <div class="card">
+        <div class="badge">LIBRARY</div>
+        <h2>Legal & Learning Library</h2>
+        <p>Browse curated guides: security deposits, habitability, retaliation, complaint filing, court packet assembly. Updated dynamically via learning + route discovery engines.</p>
+        <ul class="meta-list">
+          <li><span>📚</span> Topic clusters (rights, procedures, defenses)</li>
+          <li><span>🔍</span> Emerging pattern research integration</li>
+          <li><span>⚙️</span> Auto enrichment from usage signals</li>
+          <li><span>🧪</span> Experimental curiosity bridge suggestions</li>
+        </ul>
+        <div class="actions">
+          <a href="/pages/research" class="btn">Explore Library</a>
+          <a href="/cards" class="btn secondary" style="margin-left:8px;">Interactive Cards</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">© 2025 Semptify Platform – Early access build</div>
+  </div>
+</body>
+</html>
+
+

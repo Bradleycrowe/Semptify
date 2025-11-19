@@ -1,6 +1,14 @@
 {
-  "discovered_routes": {},
+  "discovered_routes": {
+    "/": {
+      "path": "/",
+      "endpoint": "index",
+      "methods": "GET",
+      "qualified": false,
+      "category": "system"
+    }
+  },
   "qualified_routes": [],
-  "last_updated": "2025-11-16T20:17:23.056887",
+  "last_updated": "2025-11-19T11:51:14.323867",
   "total_qualified": 0
 }

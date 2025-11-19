@@ -1,0 +1,521 @@
+{% extends 'base.html' %}
+{% block page_title %}Welcome to Semptify - Document Everything! - Semptify{% endblock %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">📋 Semptify</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link active" href="/">Home</a>
+                    <a class="nav-link" href="/timeline">Timeline</a>
+                    <a class="nav-link" href="/setup">Setup</a>
+                    <a class="nav-link" href="/settings">Settings</a>
+                    <a class="nav-link" href="/register">Register</a>
+                    <a class="nav-link" href="/settings">Settings</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Welcome Hero Section -->
+    <div class="hero-section bg-gradient-primary text-white py-5">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3">📋 Welcome to Semptify</h1>
+                    <p class="lead mb-4">"Document Everything!" - Your tenant-landlord documentation tool</p>
+                    <p class="fs-5 mb-4">
+                        Secure, simple document storage with timeline tracking for all your 
+                        tenant-landlord interactions, maintenance requests, and legal notices.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Presentation Section -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <!-- First-Time Setup Prompt -->
+                <div class="card shadow-lg border-0 mb-5" id="setup-prompt">
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <h2 class="mb-0">🚀 Get Started in 30 Seconds</h2>
+                        <p class="mb-0 mt-2">Choose your document storage and start documenting immediately</p>
+                    </div>
+                    <div class="card-body p-5">
+                        <div class="row g-4">
+                            
+                            <!-- Quick Setup Option -->
+                            <div class="col-md-6">
+                                <div class="setup-card h-100 p-4 border-2 border-success rounded bg-light">
+                                    <div class="text-center mb-3">
+                                        <div class="display-1 text-success">🔒</div>
+                                        <h4 class="text-success">Instant Setup</h4>
+                                        <span class="badge bg-success fs-6">RECOMMENDED</span>
+                                    </div>
+                                    <ul class="list-unstyled mb-4">
+                                        <li>✅ <strong>Zero configuration</strong></li>
+                                        <li>✅ <strong>Ready in seconds</strong></li>
+                                        <li>✅ <strong>1GB free storage</strong></li>
+                                        <li>✅ <strong>Bank-level encryption</strong></li>
+                                    </ul>
+                                    <div class="text-center">
+                                        <a href="/setup" class="btn btn-success btn-lg w-100">
+                                            🚀 Get Started Now
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Google Drive Option -->
+                            <div class="col-md-6">
+                                <div class="setup-card h-100 p-4 border-2 border-primary rounded">
+                                    <div class="text-center mb-3">
+                                        <div class="display-1">📁</div>
+                                        <h4 class="text-primary">Use Google Drive</h4>
+                                        <span class="badge bg-primary fs-6">POPULAR CHOICE</span>
+                                    </div>
+                                    <ul class="list-unstyled mb-4">
+                                        <li>✅ <strong>Your existing account</strong></li>
+                                        <li>✅ <strong>15GB free space</strong></li>
+                                        <li>✅ <strong>You control access</strong></li>
+                                        <li>✅ <strong>Familiar interface</strong></li>
+                                    </ul>
+                                    <div class="text-center">
+                                        <a href="/setup" class="btn btn-primary btn-lg w-100">
+                                            📁 Connect Google Drive
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alternative Access -->
+                        <div class="text-center mt-4 pt-4 border-top">
+                            <p class="text-muted">Already have an account?</p>
+                            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                                <a href="/timeline" class="btn btn-outline-secondary">
+                                    📋 View Timeline
+                                </a>
+                                <a href="/register" class="btn btn-outline-primary">
+                                    👤 Register Account
+                                </a>
+                                <a href="/settings" class="btn btn-outline-info">
+                                    ⚙️ Settings
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Overview -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow border-0">
+                            <div class="card-body text-center p-4">
+                                <div class="display-4 text-primary mb-3">📋</div>
+                                <h5>Document Everything</h5>
+                                <p class="text-muted">
+                                    Store maintenance requests, payment records, 
+                                    communications, and legal notices securely.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow border-0">
+                            <div class="card-body text-center p-4">
+                                <div class="display-4 text-success mb-3">⏱️</div>
+                                <h5>Timeline View</h5>
+                                <p class="text-muted">
+                                    Chronological timeline widget to quickly scroll 
+                                    through all your documented interactions.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow border-0">
+                            <div class="card-body text-center p-4">
+                                <div class="display-4 text-warning mb-3">🔒</div>
+                                <h5>Secure & Private</h5>
+                                <p class="text-muted">
+                                    Your documents are encrypted and you control 
+                                    where they're stored - maximum privacy.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Welcome Hero Section -->
+        <div class="hero-section bg-gradient-primary text-white py-5">
+            <div class="container">
+                <div class="row justify-content-center text-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-4 fw-bold mb-3">📋 Welcome to Semptify</h1>
+                        <p class="lead mb-4">"Document Everything!" - Your tenant-landlord documentation tool</p>
+                        <p class="fs-5 mb-4">
+                            Secure, simple document storage with timeline tracking for all your 
+                            tenant-landlord interactions, maintenance requests, and legal notices.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Presentation Section -->
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    
+                    <!-- First-Time Setup Prompt -->
+                    <div class="card shadow-lg border-0 mb-5" id="setup-prompt">
+                        <div class="card-header bg-success text-white text-center py-4">
+                            <h2 class="mb-0">🚀 Get Started in 30 Seconds</h2>
+                            <p class="mb-0 mt-2">Choose your document storage and start documenting immediately</p>
+                        </div>
+                        <div class="card-body p-5">
+                            <div class="row g-4">
+                                
+                                <!-- Cloudflare R2 Auto Setup -->
+                                <div class="col-md-6">
+                                    <div class="setup-card h-100 p-4 border-2 border-success rounded bg-light">
+                                        <div class="text-center mb-3">
+                                            <div class="display-1 text-success">🔒</div>
+                                            <h4 class="text-success">Cloudflare R2 - Instant Setup</h4>
+                                            <span class="badge bg-success fs-6">RECOMMENDED</span>
+                                        </div>
+                                        <ul class="list-unstyled mb-4">
+                                            <li>✅ <strong>Zero configuration</strong></li>
+                                            <li>✅ <strong>Ready in seconds</strong></li>
+                                            <li>✅ <strong>1GB free storage</strong></li>
+                                            <li>✅ <strong>Bank-level encryption</strong></li>
+                                            <li>✅ <strong>No egress fees</strong></li>
+                                        </ul>
+                                        <div class="text-center">
+                                            <a href="/setup" class="btn btn-success btn-lg w-100">
+                                                🚀 Auto Setup R2 Storage
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Google Drive Option -->
+                                <div class="col-md-6">
+                                    <div class="setup-card h-100 p-4 border-2 border-primary rounded">
+                                        <div class="text-center mb-3">
+                                            <div class="display-1">📁</div>
+                                            <h4 class="text-primary">Use Google Drive</h4>
+                                            <span class="badge bg-primary fs-6">POPULAR CHOICE</span>
+                                        </div>
+                                        <ul class="list-unstyled mb-4">
+                                            <li>✅ <strong>Your existing account</strong></li>
+                                            <li>✅ <strong>15GB free space</strong></li>
+                                            <li>✅ <strong>You control access</strong></li>
+                                            <li>✅ <strong>Familiar interface</strong></li>
+                                            <li>✅ <strong>Easy sharing</strong></li>
+                                        </ul>
+                                        <div class="text-center">
+                                            <a href="/setup" class="btn btn-primary btn-lg w-100">
+                                                📁 Connect Google Drive
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alternative Access -->
+                            <div class="text-center mt-4 pt-4 border-top">
+                                <p class="text-muted">Already have an account?</p>
+                                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                                    <a href="/timeline" class="btn btn-outline-secondary">
+                                        📋 View Timeline
+                                    </a>
+                                    <a href="/register" class="btn btn-outline-primary">
+                                        👤 Register Account
+                                    </a>
+                                    <a href="/settings" class="btn btn-outline-info">
+                                        ⚙️ Settings
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features Overview -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow border-0">
+                                <div class="card-body text-center p-4">
+                                    <div class="display-4 text-primary mb-3">📋</div>
+                                    <h5>Document Everything</h5>
+                                    <p class="text-muted">
+                                        Store maintenance requests, payment records, 
+                                        communications, and legal notices securely.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow border-0">
+                                <div class="card-body text-center p-4">
+                                    <div class="display-4 text-success mb-3">⏱️</div>
+                                    <h5>Timeline View</h5>
+                                    <p class="text-muted">
+                                        Chronological timeline widget to quickly scroll 
+                                        through all your documented interactions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow border-0">
+                                <div class="card-body text-center p-4">
+                                    <div class="display-4 text-warning mb-3">🔒</div>
+                                    <h5>Secure & Private</h5>
+                                    <p class="text-muted">
+                                        Your documents are encrypted and you control 
+                                        where they're stored - maximum privacy.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h2>Welcome to Semptify</h2>
+                    <p>Your comprehensive legal evidence management and court preparation system</p>
+                </div>
+
+                <!-- Quick Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #3498db;">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Evidence Captured</h3>
+                            <p class="stat-number">0</p>
+                            <p class="stat-label">Photos, videos, audio</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #2ecc71;">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Timeline Events</h3>
+                            <p class="stat-number">0</p>
+                            <p class="stat-label">Chronological records</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #e74c3c;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Deadlines</h3>
+                            <p class="stat-number">0</p>
+                            <p class="stat-label">Important dates</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #f39c12;">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Court Packets</h3>
+                            <p class="stat-number">0</p>
+                            <p class="stat-label">Ready for filing</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Grid -->
+                <div class="section-header">
+                    <h3>Quick Actions</h3>
+                    <p>Get started with essential tasks</p>
+                </div>
+                <div class="actions-grid">
+                    <button class="action-card" data-modal="witness-form">
+                        <i class="fas fa-user-tie"></i>
+                        <h4>Witness Statement</h4>
+                        <p>Record witness testimony</p>
+                    </button>
+                    <button class="action-card" data-modal="evidence-packet">
+                        <i class="fas fa-box"></i>
+                        <h4>Evidence Packet</h4>
+                        <p>Build court submission package</p>
+                    </button>
+                    <button class="action-card" data-modal="complaint">
+                        <i class="fas fa-file-alt"></i>
+                        <h4>Generate Complaint</h4>
+                        <p>Create formal complaint document</p>
+                    </button>
+                    <button class="action-card" data-modal="notary">
+                        <i class="fas fa-stamp"></i>
+                        <h4>Virtual Notary</h4>
+                        <p>Get documents notarized (RON)</p>
+                    </button>
+                    <button class="action-card" data-modal="court-file">
+                        <i class="fas fa-gavel"></i>
+                        <h4>Court Filing</h4>
+                        <p>Submit to court system</p>
+                    </button>
+                    <button class="action-card" data-modal="service-animal">
+                        <i class="fas fa-dog"></i>
+                        <h4>Service Animal</h4>
+                        <p>Service animal documentation</p>
+                    </button>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="section-header">
+                    <h3>Recent Activity</h3>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">📹</div>
+                        <div class="activity-details">
+                            <p class="activity-title">Evidence uploaded</p>
+                            <p class="activity-time">2 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">📝</div>
+                        <div class="activity-details">
+                            <p class="activity-title">Witness statement recorded</p>
+                            <p class="activity-time">Yesterday</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">✅</div>
+                        <div class="activity-details">
+                            <p class="activity-title">Calendar event: Deadline approaching</p>
+                            <p class="activity-time">3 days ago</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Evidence Page -->
+            <section id="page-evidence" class="page">
+                <div class="page-header">
+                    <h2>Evidence Gallery</h2>
+                    <p>Browse and manage all captured evidence</p>
+                    <button class="btn btn-primary" data-modal="evidence-packet">
+                        <i class="fas fa-plus"></i> New Evidence
+                    </button>
+                </div>
+                <div class="evidence-gallery">
+                    <p class="text-muted text-center" style="padding: 3rem;">No evidence captured yet</p>
+                </div>
+            </section>
+
+            <!-- Calendar Page -->
+            <section id="page-calendar" class="page">
+                <div class="page-header">
+                    <h2>Timeline & Calendar</h2>
+                    <p>Manage dates, deadlines, and case timeline</p>
+                </div>
+                <iframe src="/ledger-calendar" style="width: 100%; height: 600px; border: none; border-radius: 8px;"></iframe>
+            </section>
+
+            <!-- Tools Page -->
+            <section id="page-tools" class="page">
+                <div class="page-header">
+                    <h2>Legal Tools</h2>
+                    <p>Specialized tools to help build your case</p>
+                </div>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>Complaint Generator</h3>
+                        <p>Generate formal complaints with legal formatting</p>
+                        <button class="btn btn-outline" data-modal="complaint">
+                            <i class="fas fa-arrow-right"></i> Open
+                        </button>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fas fa-hourglass-start"></i>
+                        <h3>Statute Calculator</h3>
+                        <p>Calculate statute of limitations deadlines</p>
+                        <button class="btn btn-outline" data-modal="statute">
+                            <i class="fas fa-arrow-right"></i> Open
+                        </button>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fas fa-box"></i>
+                        <h3>Court Packet Builder</h3>
+                        <p>Assemble documents for court submission</p>
+                        <button class="btn btn-outline" data-modal="evidence-packet">
+                            <i class="fas fa-arrow-right"></i> Open
+                        </button>
+                    </div>
+                    <div class="tool-card">
+                        <i class="fas fa-balance-scale"></i>
+                        <h3>Rights Explorer</h3>
+                        <p>Explore your legal rights by scenario</p>
+                        <button class="btn btn-outline" data-modal="rights">
+                            <i class="fas fa-arrow-right"></i> Open
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Library Page -->
+            <section id="page-library" class="page">
+                <div class="page-header">
+                    <h2>Legal Library</h2>
+                    <p>Resources, templates, and legal information</p>
+                </div>
+                <div class="library-grid">
+                    <div class="lib-card">
+                        <h3>Know Your Rights</h3>
+                        <p>Essential information about your legal rights</p>
+                        <button class="btn btn-outline">Learn More</button>
+                    </div>
+                    <div class="lib-card">
+                        <h3>FAQ & Help</h3>
+                        <p>Common questions and troubleshooting</p>
+                        <button class="btn btn-outline">Browse</button>
+                    </div>
+                    <div class="lib-card">
+                        <h3>Templates</h3>
+                        <p>Reusable document and form templates</p>
+                        <button class="btn btn-outline">View</button>
+                    </div>
+                    <div class="lib-card">
+                        <h3>AI Copilot</h3>
+                        <p>Ask questions and get legal guidance</p>
+                        <button class="btn btn-outline">Chat</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal System -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+    <div id="modals-container"></div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+

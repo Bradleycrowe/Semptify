@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Semptify Dashboard{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --semptify-maroon: #500000;
+            --semptify-gold: #d4af37;
+        }
+        
+        .navbar-semptify {
+            background: linear-gradient(135deg, var(--semptify-maroon) 0%, #6b0000 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--semptify-gold) !important;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.85) !important;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: var(--semptify-gold) !important;
+        }
+        
+        .btn-semptify {
+            background: var(--semptify-maroon);
+            color: white;
+            border: 2px solid var(--semptify-gold);
+        }
+        
+        .btn-semptify:hover {
+            background: var(--semptify-gold);
+            color: var(--semptify-maroon);
+        }
+        
+        .dashboard-card {
+            border-left: 4px solid var(--semptify-gold);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .footer {
+            background: var(--semptify-maroon);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+    </style>
+    
+    {% block extra_style %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-semptify">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt me-2"></i>
+                Semptify
+            </a>
+            <span class="navbar-text text-white-50 small d-none d-md-inline ms-2">
+                Document Everything!
+            </span>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/journey">
+                            <i class="fas fa-map-marked-alt me-1"></i> Journey
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docs">
+                            <i class="fas fa-folder-open me-1"></i> Document Center
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/library">
+                            <i class="fas fa-book me-1"></i> Library
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/calendar">
+                            <i class="fas fa-calendar-alt me-1"></i> Calendar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/learning">
+                            <i class="fas fa-question-circle me-1"></i> Help
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content -->
+    <main class="container my-4">
+        {% block content %}
+        <!-- Dashboard Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6 col-lg-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-map-marked-alt fa-3x mb-3" style="color: var(--semptify-gold);"></i>
+                        <h5 class="card-title">Your Journey</h5>
+                        <p class="card-text small">Track your progress</p>
+                        <a href="/journey" class="btn btn-semptify btn-sm w-100">View Journey</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-folder-open fa-3x mb-3" style="color: var(--semptify-gold);"></i>
+                        <h5 class="card-title">Document Center</h5>
+                        <p class="card-text small">Organize & explore docs</p>
+                        <a href="/docs" class="btn btn-semptify btn-sm w-100">Open Center</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-book fa-3x mb-3" style="color: var(--semptify-gold);"></i>
+                        <h5 class="card-title">Library</h5>
+                        <p class="card-text small">Legal resources & info</p>
+                        <a href="/library" class="btn btn-semptify btn-sm w-100">Browse Library</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-alt fa-3x mb-3" style="color: var(--semptify-gold);"></i>
+                        <h5 class="card-title">Calendar</h5>
+                        <p class="card-text small">Important dates & events</p>
+                        <a href="/calendar" class="btn btn-semptify btn-sm w-100">View Calendar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-bolt text-warning me-2"></i> Quick Actions
+                        </h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="/vault" class="btn btn-outline-primary">
+                                <i class="fas fa-upload me-1"></i> Upload Document
+                            </a>
+                            <a href="/calendar" class="btn btn-outline-success">
+                                <i class="fas fa-plus me-1"></i> Add Event
+                            </a>
+                            <a href="/setup" class="btn btn-outline-info">
+                                <i class="fas fa-cog me-1"></i> Setup Storage
+                            </a>
+                            <a href="/learning" class="btn btn-outline-warning">
+                                <i class="fas fa-graduation-cap me-1"></i> Learn Rights
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <p class="mb-1"><strong>Semptify</strong> - Free Tenant Documentation Platform</p>
+            <p class="small mb-0">
+                <i class="fas fa-info-circle me-1"></i>
+                This is a documentation tool. We do not provide legal advice.
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

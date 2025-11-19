@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline & Rent History - Semptify</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --semptify-maroon: #500000;
+            --semptify-gold: #d4af37;
+        }
+        
+        .timeline-event {
+            border-left: 4px solid var(--semptify-gold);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .event-rent-payment {
+            border-left-color: #28a745;
+        }
+        
+        .event-rent-due {
+            border-left-color: #dc3545;
+        }
+        
+        .event-document {
+            border-left-color: #007bff;
+        }
+        
+        .rent-status-paid {
+            background: #d4edda;
+            color: #155724;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .rent-status-due {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .ledger-summary {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--semptify-gold);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    
+    <!-- Navigation (reuse from tenant_dashboard.html) -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: linear-gradient(135deg, var(--semptify-maroon) 0%, #6b0000 100%);">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt me-2"></i> SEMPTIFY
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                <a class="nav-link active" href="/calendar"><i class="fas fa-calendar"></i> Timeline</a>
+                <a class="nav-link" href="/ledger"><i class="fas fa-calculator"></i> Ledger</a>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="container py-4">
+        
+        <h2 class="mb-4"><i class="fas fa-calendar-alt me-2 text-warning"></i> Timeline & Rent History</h2>
+        
+        <!-- Ledger Summary -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="ledger-summary">
+                    <h4><i class="fas fa-calculator me-2"></i> Rent Payment Summary</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p class="mb-1 text-muted">Total Paid</p>
+                            <h3 class="text-success">${{ total_paid|default(0) }}</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1 text-muted">Outstanding</p>
+                            <h3 class="text-danger">${{ outstanding|default(0) }}</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1 text-muted">Next Due</p>
+                            <h3>{{ next_due_date|default('N/A') }}</h3>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1 text-muted">Payment History</p>
+                            <h3>{{ payment_count|default(0) }} payments</h3>
+                        </div>
+                    </div>
+                    <a href="/ledger" class="btn btn-outline-primary mt-2">
+                        <i class="fas fa-list me-2"></i> View Full Ledger
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Options -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary active" data-filter="all">
+                        <i class="fas fa-list"></i> All Events
+                    </button>
+                    <button type="button" class="btn btn-outline-success" data-filter="rent">
+                        <i class="fas fa-money-bill"></i> Rent Payments
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="documents">
+                        <i class="fas fa-file"></i> Documents
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" data-filter="maintenance">
+                        <i class="fas fa-wrench"></i> Maintenance
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Combined Timeline (Calendar Events + Ledger Payments) -->
+        <div class="row">
+            <div class="col-12">
+                <h5 class="mb-3">Complete Timeline</h5>
+                
+                <!-- Example: Rent Payment Event (from ledger) -->
+                <div class="timeline-event event-rent-payment">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6><i class="fas fa-money-check-alt me-2"></i> Rent Payment Received</h6>
+                            <p class="mb-1">Amount: <strong>$1,200.00</strong></p>
+                            <p class="mb-0 text-muted small">
+                                <i class="fas fa-calendar me-1"></i> November 1, 2025
+                                <span class="ms-3"><i class="fas fa-receipt me-1"></i> Receipt uploaded</span>
+                            </p>
+                        </div>
+                        <span class="rent-status-paid">PAID</span>
+                    </div>
+                </div>
+                
+                <!-- Example: Rent Due Event (auto-generated) -->
+                <div class="timeline-event event-rent-due">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6><i class="fas fa-exclamation-circle me-2"></i> Rent Due</h6>
+                            <p class="mb-1">Amount: <strong>$1,200.00</strong></p>
+                            <p class="mb-0 text-muted small">
+                                <i class="fas fa-calendar me-1"></i> December 1, 2025
+                                <span class="ms-3"><i class="fas fa-clock me-1"></i> Due in 12 days</span>
+                            </p>
+                        </div>
+                        <span class="rent-status-due">UPCOMING</span>
+                    </div>
+                </div>
+                
+                <!-- Example: Document Upload Event -->
+                <div class="timeline-event event-document">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6><i class="fas fa-file-upload me-2"></i> Document Uploaded</h6>
+                            <p class="mb-1">Eviction Notice</p>
+                            <p class="mb-0 text-muted small">
+                                <i class="fas fa-calendar me-1"></i> October 15, 2025
+                                <span class="ms-3"><i class="fas fa-certificate me-1"></i> Certified with SHA-256</span>
+                            </p>
+                        </div>
+                        <a href="/vault?doc_id=xyz" class="btn btn-sm btn-outline-primary">View Doc</a>
+                    </div>
+                </div>
+                
+                <!-- Integration Message -->
+                <div class="alert alert-info mt-4">
+                    <h6><i class="fas fa-info-circle me-2"></i> Calendar + Ledger Integration</h6>
+                    <p class="mb-0">
+                        This timeline automatically combines:
+                    </p>
+                    <ul class="mb-0">
+                        <li>Rent payments from your ledger</li>
+                        <li>Upcoming rent due dates</li>
+                        <li>Document uploads from vault</li>
+                        <li>Maintenance requests</li>
+                        <li>Court dates and notices</li>
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+        
+    </main>
+    
+    <script>
+        // Filter buttons
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.dataset.filter;
+                
+                // Update active button
+                document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter events (in real app, would fetch from API)
+                document.querySelectorAll('.timeline-event').forEach(event => {
+                    if (filter === 'all') {
+                        event.style.display = 'block';
+                    } else if (filter === 'rent') {
+                        event.style.display = event.classList.contains('event-rent-payment') || event.classList.contains('event-rent-due') ? 'block' : 'none';
+                    } else if (filter === 'documents') {
+                        event.style.display = event.classList.contains('event-document') ? 'block' : 'none';
+                    } else {
+                        event.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // In real implementation, fetch from /api/ledger-calendar/* endpoints
+        // and dynamically populate timeline
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

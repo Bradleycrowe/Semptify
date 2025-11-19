@@ -1,0 +1,327 @@
+=================================================================
+DATA FLOW MAP - HOW INFORMATION FLOWS BETWEEN FUNCTIONS
+=================================================================
+
+VISUALIZATION: Each function shares data with others to make the system smarter and faster
+
+┌─────────────────────────────────────────────────────────────────┐
+│                         USER ACTIONS                            │
+│  (Clicks, Uploads, Adds Events, Asks Questions)                │
+└──────────────────┬──────────────────────────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    CALENDAR / TIMELINE                          │
+│  File: calendar_timeline_routes.py, calendar_api.py            │
+│  Stores: Events with dates (move-in, repair, notice)           │
+│                                                                 │
+│  SHARES WITH:                                                   │
+│  → Vault: "What documents match this date?"                     │
+│  → Learning: "What does user need to know about this event?"    │
+│  → Curiosity: "What should we ask next?"                        │
+│  → Intelligence: "What's the risk level?"                       │
+└──────────┬────────────┬────────────┬────────────┬──────────────┘
+           │            │            │            │
+           ▼            ▼            ▼            ▼
+    ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
+    │  VAULT   │  │ LEARNING │  │CURIOSITY │  │INTELLIG. │
+    └──────────┘  └──────────┘  └──────────┘  └──────────┘
+
+=================================================================
+DETAILED FLOW #1: CALENDAR → VAULT (Document Timeline)
+=================================================================
+
+CURRENT: User adds calendar event separately from uploading document
+PROBLEM: Documents and events aren't connected automatically
+
+ENHANCED WITH DATA SHARING:
+
+1. User adds calendar event: "Repair request - Oct 15"
+   calendar_api.py stores: {
+     event_id: "evt_001",
+     type: "repair_request",
+     date: "2025-10-15",
+     description: "Broken heater"
+   }
+
+2. calendar_vault_bridge.py ACTIVATES:
+   → Checks: Does user have documents for this date?
+   → If NO: Suggests "Upload photos of the issue"
+   → If YES: Auto-links documents to event
+
+3. User uploads photo to vault
+   vault_bp.py receives upload, calls bridge:
+   bridge.link_to_calendar_event(
+     document_id="doc_123",
+     event_id="evt_001"
+   )
+
+4. RESULT:
+   ✓ Photo automatically tagged with event
+   ✓ Timeline shows document thumbnail
+   ✓ JSON certificate includes event reference
+   ✓ No manual linking needed
+
+SPEED GAIN: 3 steps → 1 step (upload auto-links)
+EASIER: User doesn't think about organizing, system does it
+
+=================================================================
+DETAILED FLOW #2: VAULT → LEARNING (Smart Education)
+=================================================================
+
+CURRENT: User uploads document, learning happens separately
+PROBLEM: System doesn't know what user needs to learn
+
+ENHANCED WITH DATA SHARING:
+
+1. User uploads document: "Eviction notice"
+   vault_bp.py analyzes:
+   - Filename: "30_day_notice.pdf"
+   - Content type: PDF
+   - OCR text: "You have 30 days to vacate"
+
+2. vault_bp.py SHARES with learning_adapter.py:
+   adapter.document_uploaded({
+     type: "eviction_notice",
+     urgency: "high",
+     user_id: "user_123"
+   })
+
+3. learning_engine.py RESPONDS:
+   → Searches knowledge base
+   → Finds: "Eviction defenses", "How to respond"
+   → Prioritizes: "You have rights - here's what to do NOW"
+
+4. learning_adapter.py TRIGGERS journey_routes.py:
+   → Starts "Eviction Defense Journey"
+   → Step 1: "Understand your rights"
+   → Step 2: "Check notice legality"
+   → Step 3: "Prepare response"
+
+5. RESULT:
+   ✓ User immediately sees relevant education
+   ✓ Journey auto-starts based on their situation
+   ✓ No searching or guessing needed
+
+SPEED GAIN: User finds help in 0 steps (proactive)
+EASIER: System knows what they need before they ask
+
+=================================================================
+DETAILED FLOW #3: LEARNING → CURIOSITY (Smart Questions)
+=================================================================
+
+CURRENT: System asks generic questions
+PROBLEM: Questions don't match user's situation
+
+ENHANCED WITH DATA SHARING:
+
+1. User reads learning module: "Security Deposits"
+   learning_routes.py tracks:
+   - Module: "security_deposit_laws"
+   - Time spent: 5 minutes
+   - Completed: Yes
+
+2. learning_engine.py SHARES with curiosity_engine.py:
+   curiosity.user_learned({
+     topic: "security_deposits",
+     user_id: "user_123",
+     context: "move_out_soon"
+   })
+
+3. curiosity_engine.py THINKS:
+   → User learned about deposits
+   → Are they moving out?
+   → Check calendar for move-out date
+   → Check vault for move-in inspection photos
+
+4. curiosity_engine.py ASKS:
+   "I see you learned about security deposits. 
+   Do you have your move-in inspection report?
+   You'll need it to compare with move-out condition."
+
+5. IF user says NO:
+   → Suggests: "Create a move-out inspection checklist now"
+   → Adds calendar event: "Final walkthrough"
+   → Prepares vault folder: "Move-out evidence"
+
+6. RESULT:
+   ✓ Question is perfectly timed and relevant
+   ✓ System anticipates user's next need
+   ✓ Proactive help, not reactive
+
+SPEED GAIN: User doesn't have to think "what's next?"
+EASIER: System guides them through the process
+
+=================================================================
+DETAILED FLOW #4: ALL SYSTEMS → INTELLIGENCE (Risk Assessment)
+=================================================================
+
+CURRENT: User has to figure out urgency themselves
+PROBLEM: Legal situations are complex, deadlines are critical
+
+ENHANCED WITH DATA SHARING:
+
+1. CALENDAR shares: "Notice received - 30 days"
+2. VAULT shares: "Eviction notice uploaded"
+3. LEARNING shares: "User hasn't read eviction defense yet"
+4. CURIOSITY shares: "User hasn't answered questions about lease"
+
+5. intelligence_engine.py ANALYZES:
+   risk_level = calculate_risk({
+     notice_type: "eviction",
+     days_remaining: 30,
+     user_knowledge: "low",
+     documents_ready: "no",
+     legal_area: "mn_eviction_law"
+   })
+   
+   RESULT: risk_level = "HIGH - URGENT ACTION NEEDED"
+
+6. intelligence_engine.py COORDINATES:
+   → Tells calendar: "Highlight deadline in RED"
+   → Tells learning: "Push urgent modules to top"
+   → Tells curiosity: "Ask critical questions first"
+   → Tells journey: "Fast-track eviction defense path"
+
+7. USER SEES:
+   🚨 Dashboard: "URGENT: 30 days to respond"
+   📚 "Start here: How to fight eviction"
+   ✅ "First step: Review your lease"
+   📅 "Deadline: Dec 15 - File response"
+
+SPEED GAIN: System prioritizes everything automatically
+EASIER: User knows exactly what to do first
+
+=================================================================
+DETAILED FLOW #5: CURIOSITY → CALENDAR (Proactive Events)
+=================================================================
+
+CURRENT: User has to remember to add important dates
+PROBLEM: Miss deadlines = lose rights
+
+ENHANCED WITH DATA SHARING:
+
+1. curiosity_engine.py detects pattern:
+   - User uploaded eviction notice (30 day)
+   - Notice dated: Nov 15
+   - User hasn't added court date
+
+2. curiosity_engine.py CALCULATES:
+   - 30 days from Nov 15 = Dec 15
+   - Need to file response 5 days before = Dec 10
+   - Court hearing likely = Dec 20
+
+3. curiosity_engine.py SHARES with calendar_api.py:
+   calendar.suggest_events([
+     {
+       title: "DEADLINE: File eviction response",
+       date: "2025-12-10",
+       type: "legal_deadline",
+       priority: "critical"
+     },
+     {
+       title: "Estimated court hearing",
+       date: "2025-12-20",
+       type: "court_date",
+       priority: "high"
+     }
+   ])
+
+4. USER SEES:
+   "I noticed you have 30 days to respond. I've added these dates to your calendar:"
+   [Dec 10 - DEADLINE]  [Dec 20 - Court]
+   "Does this look right? I can adjust if needed."
+
+5. RESULT:
+   ✓ Critical deadlines auto-added
+   ✓ User doesn't have to calculate
+   ✓ System prevents missed deadlines
+
+SPEED GAIN: 0 manual calendar work needed
+EASIER: System does the legal math for them
+
+=================================================================
+FLOW MAP SUMMARY - SHARED DATA MAKES EVERYTHING FASTER
+=================================================================
+
+INFORMATION SHARED:              BENEFIT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Calendar → Vault                 Auto-link documents to timeline
+Calendar → Learning              Context-aware education  
+Calendar → Intelligence          Risk assessment with dates
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Vault → Calendar                 Suggest events from uploads
+Vault → Learning                 Proactive education
+Vault → Intelligence             Document-based risk scoring
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Learning → Curiosity             Smart follow-up questions
+Learning → Journey               Auto-start relevant paths
+Learning → Intelligence          Knowledge-based prioritization
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Curiosity → Calendar             Proactive deadline tracking
+Curiosity → Vault                Suggest missing documents
+Curiosity → Learning             Request specific education
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Intelligence → ALL               Coordinate priority & urgency
+Journey → ALL                    Guide user through complex paths
+Storage → ALL                    User identity without passwords
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+=================================================================
+TECHNICAL: HOW DATA IS SHARED (FILES TO CONNECT)
+=================================================================
+
+METHOD 1: Bridge Files (already exist, just strengthen)
+- calendar_vault_bridge.py: bidirectional sync
+- curiosity_reasoning_bridge.py: question generation
+- Add: learning_curiosity_bridge.py (new)
+- Add: intelligence_coordinator.py (new)
+
+METHOD 2: Event System (new)
+- Every action emits event: "document_uploaded", "event_added"
+- All engines subscribe to events they care about
+- Loose coupling = easy to add new features
+
+METHOD 3: Shared Context (new)
+- User session stores: current_event, recent_uploads, active_journey
+- All routes access same context
+- Real-time coordination
+
+=================================================================
+SPEED & EASE COMPARISON
+=================================================================
+
+WITHOUT DATA SHARING (CURRENT):
+1. Add calendar event (manual)
+2. Upload document (manual)  
+3. Link document to event (manual)
+4. Search for learning material (manual)
+5. Figure out what to do next (manual)
+6. Remember deadlines (manual)
+TOTAL: 6 manual steps, user does all the thinking
+
+WITH DATA SHARING (ENHANCED):
+1. Upload document
+   → System auto-adds calendar event
+   → System auto-suggests learning
+   → System auto-calculates deadlines  
+   → System auto-asks next question
+   → System auto-tracks progress
+TOTAL: 1 action, system does all the thinking
+
+SPEED: 6x faster
+EASE: 95% less cognitive load
+
+=================================================================
+NEXT: SHOULD I IMPLEMENT THIS?
+=================================================================
+
+I can start connecting these systems phase by phase.
+Which flow do you want to see working first?
+
+1. Calendar ↔ Vault (document timeline)
+2. Vault → Learning (smart education)
+3. Curiosity everywhere (smart questions)
+4. Intelligence coordinator (risk assessment)
+5. All of them together
+
