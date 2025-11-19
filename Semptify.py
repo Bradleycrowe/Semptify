@@ -367,13 +367,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Storage auto-unlock not available: {e}")
 
-# Vault (User Storage) - Document storage in user's Drive/Dropbox only
-try:
-# OLD - duplicate vault registration
-#     app.register_blueprint(vault_bp)
-#     print("[OK] Vault (user storage) registered")
-except ImportError as e:
-    print(f"[WARN] Vault (user storage) not available: {e}")
+# OLD - duplicate vault registration try/except block
+# try:
+#     # OLD - duplicate vault registration
+#     #     app.register_blueprint(vault_bp)
+#     #     print("[OK] Vault (user storage) registered")
+# except ImportError as e:
+#     print(f"[WARN] Vault (user storage) not available: {e}")
 # Veeper - Local-only AI for token recovery (phone/email verification)
 try:
     from veeper import veeper_bp
@@ -2893,7 +2893,6 @@ pass
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)), debug=False, use_reloader=False)
-
 
 
 
