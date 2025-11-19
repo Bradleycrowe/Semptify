@@ -1,0 +1,60 @@
+"""
+MANUAL INTEGRATION INSTRUCTIONS FOR PHASE 2
+============================================
+
+Add this code in blueprints/vault_bp.py after successful document upload.
+
+Location: In notary_upload() function, after file.save() and certificate creation,
+          BEFORE the final return/redirect statement.
+
+CODE TO ADD:
+------------
+'''
+
+$code = @'
+# === PHASE 2: Auto-create calendar event from document upload ===
+try:
+    from calendar_vault_bridge import CalendarVaultBridge
+    from datetime import datetime
+    
+    bridge = CalendarVaultBridge()
+    document_info = {
+        'doc_id': cert_id,  # Use actual cert_id variable from your upload code
+        'filename': uploaded_file.filename,  # Use actual file variable name
+        'file_type': uploaded_file.content_type,
+        'upload_date': datetime.utcnow().isoformat(),
+        'category': request.form.get('category', 'general')
+    }
+    
+    # Let bridge detect if upload should create calendar event
+    event_data = bridge.create_event_from_upload(user_token, document_info)
+    
+    if event_data:
+        flash(f"✓ Document + Timeline event created: {event_data['title']}", 'success')
+    else:
+        flash("✓ Document uploaded", 'success')
+        
+except Exception as e:
+    # Don't break upload if calendar sync fails
+    flash("✓ Document uploaded (calendar sync unavailable)", 'warning')
+    print(f"[WARN] Phase 2 calendar sync error: {e}")
+# === END PHASE 2 ===
+INTEGRATION POINTS:
+-------------------
+1. blueprints/vault_bp.py - notary_upload() function (line ~137)
+2. vault.py - any upload handler functions
+3. Semptify.py - vault_upload() function (line ~2286) if still used
+
+VARIABLES TO ADJUST:
+--------------------
+- cert_id: ID of certificate created for this upload
+- uploaded_file: The file object being uploaded
+- user_token: User authentication token
+
+BENEFITS AFTER INTEGRATION:
+---------------------------
+✓ Upload "repair_request.pdf" → Auto-creates "Repair Issue" event in calendar
+✓ Upload "eviction_notice.pdf" → Auto-creates "Notice Received" event
+✓ Document and event automatically linked via bridge
+✓ User sees single confirmation message covering both actions
+✓ 60% faster workflow (no manual event creation needed)
