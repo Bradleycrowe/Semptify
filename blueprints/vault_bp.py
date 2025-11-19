@@ -138,7 +138,35 @@ def notary_upload():
     """Upload document for notarization."""
     token = request.form.get('user_token')
     if not token:
-        return "Unauthorized", 401
+        
+
+    # === PHASE 2: Auto-create calendar event from upload ===
+    try:
+        from calendar_vault_bridge import CalendarVaultBridge
+        from datetime import datetime
+        
+        bridge = CalendarVaultBridge()
+        document_info = {
+            'doc_id': cert_id,
+            'filename': uploaded_file.filename if hasattr(uploaded_file, 'filename') else 'document',
+            'file_type': uploaded_file.content_type if hasattr(uploaded_file, 'content_type') else 'unknown',
+            'upload_date': datetime.utcnow().isoformat(),
+            'category': request.form.get('category', 'general')
+        }
+        
+        event_data = bridge.create_event_from_upload(user_token, document_info)
+        
+        if event_data:
+            flash(f"✓ Document uploaded + Timeline event auto-created: {event_data['title']}", 'success')
+        else:
+            flash("✓ Document uploaded to vault", 'success')
+    except Exception as e:
+        # Don't break upload if calendar integration fails
+        flash("✓ Document uploaded (calendar sync unavailable)", 'warning')
+        print(f"[WARN] Calendar sync failed: {e}")
+    # === END PHASE 2 ===
+
+    return "Unauthorized", 401
     
     file = request.files.get('file')
     if not file:
