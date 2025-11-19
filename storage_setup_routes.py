@@ -107,7 +107,7 @@ def google_oauth_callback():
     )
     flow.redirect_uri = _google_redirect_uri()
 
-    flow.fetch_token(authorization_response=request.url)
+    auth_url = request.url; if (auth_url.StartsWith("http://")) { auth_url = "https://" + auth_url.Substring(7) }; flow.fetch_token(authorization_response=auth_url)
     credentials = flow.credentials
 
     # Find or create .semptify folder
@@ -306,6 +306,7 @@ def _google_redirect_uri():
     '''Build HTTPS-aware redirect URI for Google OAuth'''
     scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1') else 'http'
     return url_for('storage_setup.google_oauth_callback', _external=True, _scheme=scheme)
+
 
 
 
