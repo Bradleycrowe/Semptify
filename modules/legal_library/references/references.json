@@ -1,0 +1,429 @@
+{
+  "generated": "2025-11-19",
+  "references": [
+    {
+      "id": "fed-ecfr-24cfr5",
+      "jurisdiction": "Federal",
+      "layer": "Regulation",
+      "title": "24 CFR Part 5 — General HUD Program Requirements",
+      "citation": "24 CFR Part 5",
+      "url": "https://www.ecfr.gov/current/title-24/part-5",
+      "scope": [
+        "Definitions",
+        "Nondiscrimination",
+        "Income",
+        "Verification"
+      ],
+      "summary": "Cross-cutting HUD rules for program eligibility, definitions, and verification.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "HUD",
+        "Cross-cutting"
+      ]
+    },
+    {
+      "id": "fed-ecfr-24cfr247",
+      "jurisdiction": "Federal",
+      "layer": "Regulation",
+      "title": "24 CFR Part 247 — Evictions from certain subsidized housing",
+      "citation": "24 CFR Part 247",
+      "url": "https://www.ecfr.gov/current/title-24/part-247",
+      "scope": [
+        "Eviction",
+        "Subsidized Housing",
+        "Procedures"
+      ],
+      "summary": "Establishes grounds and procedures for evictions in HUD-subsidized projects.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "Eviction",
+        "PBRA"
+      ]
+    },
+    {
+      "id": "fed-ecfr-24cfr966",
+      "jurisdiction": "Federal",
+      "layer": "Regulation",
+      "title": "24 CFR Part 966 — Public Housing Lease and Grievance",
+      "citation": "24 CFR Part 966",
+      "url": "https://www.ecfr.gov/current/title-24/part-966",
+      "scope": [
+        "Leases",
+        "Grievance",
+        "Public Housing"
+      ],
+      "summary": "Lease terms, tenant rights, and grievance procedures for public housing authorities.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "Public Housing",
+        "Lease"
+      ]
+    },
+    {
+      "id": "fed-ecfr-24cfr982",
+      "jurisdiction": "Federal",
+      "layer": "Regulation",
+      "title": "24 CFR Part 982 — Housing Choice Voucher Program",
+      "citation": "24 CFR Part 982",
+      "url": "https://www.ecfr.gov/current/title-24/part-982",
+      "scope": [
+        "Voucher",
+        "Leases",
+        "Inspections",
+        "Portability"
+      ],
+      "summary": "Core HCV rules for admissions, lease-up, HAP contracts, HQS, and portability.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "HCV",
+        "Section 8"
+      ]
+    },
+    {
+      "id": "fed-epa-lead-disclosure",
+      "jurisdiction": "Federal",
+      "layer": "Rule/Guidance",
+      "title": "Lead disclosure requirements for rentals",
+      "citation": "Lead-Based Paint Disclosure Rule",
+      "url": "https://www.epa.gov/lead/real-estate-professionals",
+      "scope": [
+        "Lead",
+        "Disclosures",
+        "Pre-1978 Housing"
+      ],
+      "summary": "Landlords must disclose known lead paint hazards in pre-1978 rentals with EPA pamphlet.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "EPA",
+        "Health"
+      ]
+    },
+    {
+      "id": "fed-doj-fair-housing-enforcement",
+      "jurisdiction": "Federal",
+      "layer": "Enforcement",
+      "title": "DOJ Civil Rights — Housing enforcement",
+      "citation": "Fair Housing Act enforcement",
+      "url": "https://www.justice.gov/crt/housing-and-civil-enforcement-section",
+      "scope": [
+        "Discrimination",
+        "Enforcement"
+      ],
+      "summary": "DOJ enforces fair housing laws against discriminatory practices in rental markets.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "DOJ",
+        "Fair Housing"
+      ]
+    },
+    {
+      "id": "fed-hud-fheo",
+      "jurisdiction": "Federal",
+      "layer": "Program",
+      "title": "HUD Fair Housing and Equal Opportunity",
+      "citation": "Fair Housing Act (Title VIII)",
+      "url": "https://www.hud.gov/program_offices/fair_housing_equal_opp",
+      "scope": [
+        "Complaints",
+        "Protected Classes",
+        "Guidance"
+      ],
+      "summary": "HUD FHEO portal for complaints, guidance, and fair housing resources.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "HUD",
+        "FHEO"
+      ]
+    },
+    {
+      "id": "hud-hcv-eligibility",
+      "jurisdiction": "Federal",
+      "layer": "Program",
+      "title": "HUD Housing Choice Voucher Program",
+      "citation": "HCV Guidebook",
+      "url": "https://www.hud.gov/program_offices/public_indian_housing/programs/hcv",
+      "scope": [
+        "Eligibility",
+        "Admissions",
+        "Leases",
+        "HAP"
+      ],
+      "summary": "Eligibility, admissions, and leasing processes for vouchers.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "HUD",
+        "Voucher"
+      ]
+    },
+    {
+      "id": "hud-pbra",
+      "jurisdiction": "Federal",
+      "layer": "Program",
+      "title": "HUD Project-Based Rental Assistance",
+      "citation": "PBRA Resources",
+      "url": "https://www.hud.gov/program_offices/housing/mfh/pbcr",
+      "scope": [
+        "Contracts",
+        "Compliance",
+        "Rent"
+      ],
+      "summary": "PBRA compliance, contract renewals, and rent setting resources.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "HUD",
+        "PBRA"
+      ]
+    },
+    {
+      "id": "hud-sec202",
+      "jurisdiction": "Federal",
+      "layer": "Program",
+      "title": "HUD Section 202 — Supportive Housing for the Elderly",
+      "citation": "Section 202",
+      "url": "https://www.hud.gov/program_offices/housing/mfh/progdesc/eld202",
+      "scope": [
+        "Eligibility",
+        "Capital Advance",
+        "Rental Assistance"
+      ],
+      "summary": "Funding and rules for elderly supportive housing.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "HUD",
+        "Elderly"
+      ]
+    },
+    {
+      "id": "hud-sec811",
+      "jurisdiction": "Federal",
+      "layer": "Program",
+      "title": "HUD Section 811 — Supportive Housing for Persons with Disabilities",
+      "citation": "Section 811",
+      "url": "https://www.hud.gov/program_offices/housing/mfh/progdesc/disab811",
+      "scope": [
+        "Eligibility",
+        "Rental Assistance",
+        "Integrated Housing"
+      ],
+      "summary": "Funding and qualification rules for disability-focused housing.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "HUD",
+        "Disability"
+      ]
+    },
+    {
+      "id": "usda-rd-mfh",
+      "jurisdiction": "Federal",
+      "layer": "Program",
+      "title": "USDA Rural Development — Multi-Family Housing",
+      "citation": "RD MFH",
+      "url": "https://www.rd.usda.gov/programs-services/multi-family-housing-programs",
+      "scope": [
+        "Eligibility",
+        "Loans",
+        "Rental Assistance"
+      ],
+      "summary": "RD programs for rural rental housing and assistance.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "USDA",
+        "Rural"
+      ]
+    },
+    {
+      "id": "mn-housing-program-directory",
+      "jurisdiction": "Minnesota",
+      "layer": "Program",
+      "title": "Minnesota Housing — Program Directory",
+      "citation": "Program Directory",
+      "url": "https://www.mnhousing.gov/sites/Satellite?c=Page&childpagename=MNHousing%2FMNHSubLayout&cid=1358904990303&pagename=MNHousing%2FWrapper",
+      "scope": [
+        "Rental Assistance",
+        "Development Finance",
+        "Compliance"
+      ],
+      "summary": "State-level funding, rules, and qualifications for Minnesota programs.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "Minnesota",
+        "Funding"
+      ]
+    },
+    {
+      "id": "mn-stat-504b",
+      "jurisdiction": "Minnesota",
+      "layer": "Statute",
+      "title": "Minnesota Statutes Ch. 504B — Landlord and Tenant",
+      "citation": "Minn. Stat. ch. 504B",
+      "url": "https://www.revisor.mn.gov/statutes/cite/504B",
+      "scope": [
+        "Leases",
+        "Deposits",
+        "Habitability",
+        "Eviction"
+      ],
+      "summary": "Comprehensive landlord-tenant law for Minnesota, including lease terms, repairs, and eviction procedures.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "State",
+        "Minnesota"
+      ]
+    },
+    {
+      "id": "mn-courts-housing",
+      "jurisdiction": "Minnesota",
+      "layer": "Court Resource",
+      "title": "Minnesota Judicial Branch — Housing",
+      "citation": "Court Help",
+      "url": "https://www.mncourts.gov/Help-Topics/Housing.aspx",
+      "scope": [
+        "Eviction",
+        "Forms",
+        "Procedure"
+      ],
+      "summary": "Court help topics, forms, and process guidance for housing and eviction cases.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "Courts",
+        "Forms"
+      ]
+    },
+    {
+      "id": "mn-mdh-healthy-homes",
+      "jurisdiction": "Minnesota",
+      "layer": "Guidance",
+      "title": "Minnesota Department of Health — Healthy Homes",
+      "citation": "MDH Housing Guidance",
+      "url": "https://www.health.state.mn.us/communities/environment/healthyhomes/index.html",
+      "scope": [
+        "Mold",
+        "Lead",
+        "Indoor Air",
+        "Radon"
+      ],
+      "summary": "Health guidance relevant to rental habitability, including mold and lead hazards.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "Health",
+        "Habitability"
+      ]
+    },
+    {
+      "id": "mn-housing-programs",
+      "jurisdiction": "Minnesota",
+      "layer": "Program",
+      "title": "Minnesota Housing — Program Directory",
+      "citation": "Program Directory",
+      "url": "https://www.mnhousing.gov/sites/Satellite?c=Page&childpagename=MNHousing%2FMNHSubLayout&cid=1358904990303&pagename=MNHousing%2FWrapper",
+      "scope": [
+        "Rent Assistance",
+        "Development",
+        "Compliance"
+      ],
+      "summary": "Directory of state rental assistance and development finance programs, with rules and qualifications.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "Funding",
+        "Programs"
+      ]
+    },
+    {
+      "id": "irs-pub-527",
+      "jurisdiction": "Federal",
+      "layer": "Tax Guidance",
+      "title": "IRS Publication 527 — Residential Rental Property",
+      "citation": "Pub 527",
+      "url": "https://www.irs.gov/forms-pubs/about-publication-527",
+      "scope": [
+        "Income",
+        "Expenses",
+        "Depreciation",
+        "Vacation Homes"
+      ],
+      "summary": "Primary reference for reporting rental income, expenses, and depreciation.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "IRS",
+        "Tax"
+      ]
+    },
+    {
+      "id": "irs-topic-414",
+      "jurisdiction": "Federal",
+      "layer": "Tax Guidance",
+      "title": "IRS Topic No. 414 — Rental Income and Expenses",
+      "citation": "Topic 414",
+      "url": "https://www.irs.gov/taxtopics/tc414",
+      "scope": [
+        "Income",
+        "Deductible Expenses"
+      ],
+      "summary": "Defines taxable rental income and deductible expenses for landlords.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "IRS",
+        "Tax"
+      ]
+    },
+    {
+      "id": "irs-topic-415",
+      "jurisdiction": "Federal",
+      "layer": "Tax Guidance",
+      "title": "IRS Topic No. 415 — Renting Residential and Vacation Property",
+      "citation": "Topic 415",
+      "url": "https://www.irs.gov/taxtopics/tc415",
+      "scope": [
+        "Personal Use",
+        "Allocation",
+        "Limits"
+      ],
+      "summary": "Rules for mixed-use properties and vacation rentals.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "IRS",
+        "Vacation"
+      ]
+    },
+    {
+      "id": "irs-pub-946",
+      "jurisdiction": "Federal",
+      "layer": "Tax Guidance",
+      "title": "IRS Publication 946 — How to Depreciate Property",
+      "citation": "Pub 946",
+      "url": "https://www.irs.gov/forms-pubs/about-publication-946",
+      "scope": [
+        "MACRS",
+        "Recovery Periods",
+        "Methods"
+      ],
+      "summary": "Depreciation methods and recovery periods for residential rental property.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "IRS",
+        "Depreciation"
+      ]
+    },
+    {
+      "id": "irs-lihtc-section42",
+      "jurisdiction": "Federal",
+      "layer": "Tax Credit",
+      "title": "Low-Income Housing Tax Credit (Section 42) — IRS",
+      "citation": "26 U.S.C. § 42 resources",
+      "url": "https://www.irs.gov/businesses/small-businesses-self-employed/low-income-housing-credit",
+      "scope": [
+        "Compliance",
+        "Allocations",
+        "Recapture"
+      ],
+      "summary": "Compliance and administration references for LIHTC projects.",
+      "last_updated": "2025-11-19",
+      "tags": [
+        "LIHTC",
+        "IRS"
+      ]
+    }
+  ],
+  "version": "0.1.0",
+  "total_entries": 22
+}
