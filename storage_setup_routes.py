@@ -44,7 +44,10 @@ def welcome():
 @storage_setup_bp.route('/oauth/google/start', methods=['GET'])
 def google_oauth_start():
     '''Initiate Google OAuth flow'''
-    from google_auth_oauthlib.flow import Flow
+    try:
+        from google_auth_oauthlib.flow import Flow
+    except ImportError:
+        return render_template('storage_setup/oauth_unavailable.html', provider='Google Drive'), 503
 
     client_id = os.getenv('GOOGLE_CLIENT_ID')
     client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
@@ -78,9 +81,13 @@ def google_oauth_start():
 @storage_setup_bp.route('/oauth/google/callback', methods=['GET'])
 def google_oauth_callback():
     '''Handle Google OAuth callback'''
+    try:
     from google_auth_oauthlib.flow import Flow
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaInMemoryUpload
+    except ImportError:
+        return render_template('storage_setup/oauth_unavailable.html', provider='Google Drive'), 503
+
 
     # Verify state
     if request.args.get('state') != session.get('oauth_state'):
@@ -299,5 +306,8 @@ def _google_redirect_uri():
     '''Build HTTPS-aware redirect URI for Google OAuth'''
     scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1') else 'http'
     return url_for('storage_setup.google_oauth_callback', _external=True, _scheme=scheme)
+
+
+
 
 
