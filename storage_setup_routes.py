@@ -217,7 +217,7 @@ def google_oauth_callback():
         json.dump(users, f, indent=2)
 
     print('[OAUTH][Google] Success folder_id=' + folder_id)
-    return redirect('/welcome')
+    return redirect(f'/welcome?user_token={user_token}')
 
 # ============================================================================
 # DROPBOX OAUTH
@@ -352,9 +352,64 @@ def dropbox_oauth_callback():
 
     session['dropbox_access_token'] = oauth_result.access_token
 
-    return redirect('/welcome')
+    return redirect(f'/welcome?user_token={user_token}')
 
 # ============================================================================
+
+# ============================================================================
+# HEALTH CHECK ENDPOINTS
+# ============================================================================
+
+@storage_setup_bp.route('/oauth/google/health', methods=['GET'])
+def google_oauth_health():
+    """Diagnostic endpoint for Google OAuth setup"""
+    import json
+    health = {
+        'client_id_present': bool(os.getenv('GOOGLE_CLIENT_ID')),
+        'client_secret_present': bool(os.getenv('GOOGLE_CLIENT_SECRET')),
+        'redirect_uri': _google_redirect_uri(),
+        'session_has_state': 'oauth_state' in session,
+        'session_state_value': session.get('oauth_state', 'NOT_SET')[:10] + '...' if session.get('oauth_state') else 'NOT_SET',
+        'libraries': {},
+        'https_enforced': request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1',
+        'flask_secret_key_set': bool(app.secret_key and app.secret_key != 'dev-secret')
+    }
+    try:
+        from google_auth_oauthlib.flow import Flow
+        health['libraries']['google_auth_oauthlib'] = True
+    except ImportError:
+        health['libraries']['google_auth_oauthlib'] = False
+    try:
+        from googleapiclient.discovery import build
+        health['libraries']['googleapiclient'] = True
+    except ImportError:
+        health['libraries']['googleapiclient'] = False
+    
+    return json.dumps(health, indent=2), 200, {'Content-Type': 'application/json'}
+
+@storage_setup_bp.route('/oauth/dropbox/health', methods=['GET'])
+def dropbox_oauth_health():
+    """Diagnostic endpoint for Dropbox OAuth setup"""
+    import json
+    health = {
+        'app_key_present': bool(os.getenv('DROPBOX_APP_KEY')),
+        'app_secret_present': bool(os.getenv('DROPBOX_APP_SECRET')),
+        'redirect_uri': request.url_root.rstrip('/') + '/oauth/dropbox/callback',
+        'session_has_state': 'dropbox_oauth_state' in session,
+        'session_state_value': session.get('dropbox_oauth_state', 'NOT_SET')[:10] + '...' if session.get('dropbox_oauth_state') else 'NOT_SET',
+        'session_redirect_uri': session.get('dropbox_redirect_uri', 'NOT_SET'),
+        'libraries': {},
+        'https_enforced': request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1',
+        'flask_secret_key_set': bool(app.secret_key and app.secret_key != 'dev-secret')
+    }
+    try:
+        from dropbox import DropboxOAuth2Flow
+        health['libraries']['dropbox'] = True
+    except ImportError:
+        health['libraries']['dropbox'] = False
+    
+    return json.dumps(health, indent=2), 200, {'Content-Type': 'application/json'}
+
 # HELPERS
 # ============================================================================
 
