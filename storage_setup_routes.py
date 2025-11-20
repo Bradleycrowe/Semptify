@@ -218,13 +218,15 @@ def google_oauth_callback():
         json.dump(users, f, indent=2)
 
     print('[OAUTH][Google] Success folder_id=' + folder_id)
-    return redirect(f'/welcome?user_token={user_token}')
+    session['user_token'] = user_token
+    session['authenticated'] = True
+    session['storage_type'] = 'dropbox'
+    return redirect('/drepo')
 
 # ============================================================================
 # DROPBOX OAUTH
 # ============================================================================
 
-@storage_setup_bp.route('/oauth/dropbox/start', methods=['GET'])
 @storage_setup_bp.route('/oauth/dropbox/start', methods=['GET'])
 def dropbox_oauth_start():
     '''Initiate Dropbox OAuth flow with automatic redirect'''
@@ -354,7 +356,10 @@ def dropbox_oauth_callback():
 
     session['dropbox_access_token'] = oauth_result.access_token
 
-    return redirect(f'/welcome?user_token={user_token}')
+    session['user_token'] = user_token
+    session['authenticated'] = True
+    session['storage_type'] = 'dropbox'
+    return redirect('/drepo')
 
 # ============================================================================
 
@@ -396,10 +401,7 @@ def dropbox_oauth_health():
     health = {
         'app_key_present': bool(os.getenv('DROPBOX_APP_KEY')),
         'app_secret_present': bool(os.getenv('DROPBOX_APP_SECRET')),
-        redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
-        if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
-            redirect_uri = redirect_uri.replace('http://', 'https://')
-        'redirect_uri': redirect_uri,
+        'redirect_uri': request.url_root.rstrip('/') + '/oauth/dropbox/callback',
         'session_has_state': 'dropbox_oauth_state' in session,
         'session_state_value': session.get('dropbox_oauth_state', 'NOT_SET')[:10] + '...' if session.get('dropbox_oauth_state') else 'NOT_SET',
         'session_redirect_uri': session.get('dropbox_redirect_uri', 'NOT_SET'),
@@ -447,3 +449,11 @@ def vault_ui():
     return render_template('vault_unified.html', 
                           user_token=user_token, 
                           storage_provider=storage_type)
+
+
+@storage_setup_bp.route('/drepo', methods=['GET'])
+def document_repo_ui():
+    """Alias for vault-ui - 'Drepo' (Document Repo), dontcha know!"""
+    return vault_ui()
+
+
