@@ -393,12 +393,13 @@ def google_oauth_health():
 def dropbox_oauth_health():
     """Diagnostic endpoint for Dropbox OAuth setup"""
     import json
+    redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
+    if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
+        redirect_uri = redirect_uri.replace('http://', 'https://')
+    
     health = {
         'app_key_present': bool(os.getenv('DROPBOX_APP_KEY')),
         'app_secret_present': bool(os.getenv('DROPBOX_APP_SECRET')),
-        redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
-        if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
-            redirect_uri = redirect_uri.replace('http://', 'https://')
         'redirect_uri': redirect_uri,
         'session_has_state': 'dropbox_oauth_state' in session,
         'session_state_value': session.get('dropbox_oauth_state', 'NOT_SET')[:10] + '...' if session.get('dropbox_oauth_state') else 'NOT_SET',
@@ -447,3 +448,4 @@ def vault_ui():
     return render_template('vault_unified.html', 
                           user_token=user_token, 
                           storage_provider=storage_type)
+
