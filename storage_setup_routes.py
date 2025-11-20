@@ -121,21 +121,39 @@ def google_oauth_callback():
     flow.redirect_uri = redirect_uri
 
     try:
-        print('[OAUTH][Google] Fetching token via code redirect_uri=', redirect_uri)
+        print(f'[OAUTH][Google] START token fetch: code={code[:15]}..., redirect_uri={redirect_uri}')
+        print(f'[OAUTH][Google] token_uri={flow.client_config.get("token_uri")}')
         flow.fetch_token(code=code)
+        print('[OAUTH][Google] Primary fetch SUCCESS')
     except Exception as e:
         import traceback
-        print('[OAUTH][Google][WARN] Code fetch failed:', e)
+        print(f'[OAUTH][Google][ERROR] === PRIMARY TOKEN FETCH FAILED ===')
+        print(f'[OAUTH][Google][ERROR] Type: {type(e).__name__}')
+        print(f'[OAUTH][Google][ERROR] Message: {str(e)}')
+        print(f'[OAUTH][Google][ERROR] Code (first 15 chars): {code[:15]}...')
+        print(f'[OAUTH][Google][ERROR] Redirect URI used: {redirect_uri}')
+        full_tb = traceback.format_exc()
+        print(f'[OAUTH][Google][ERROR] Traceback:
+{full_tb}')
         auth_url = request.url
         if auth_url.startswith('http://'):
             auth_url = 'https://' + auth_url[7:]
         try:
-            print('[OAUTH][Google] Fallback fetch_token authorization_response=', auth_url)
+            print(f'[OAUTH][Google] FALLBACK: authorization_response={auth_url}')
             flow.fetch_token(authorization_response=auth_url)
+            print('[OAUTH][Google] Fallback fetch SUCCESS')
         except Exception as e2:
-            tb = traceback.format_exc()[:2000]
-            print('[OAUTH][Google][ERROR] Fallback failed:', e2, tb)
-            return render_template('storage_setup/oauth_unavailable.html', provider='Google Drive'), 502
+            print(f'[OAUTH][Google][ERROR] === FALLBACK ALSO FAILED ===')
+            print(f'[OAUTH][Google][ERROR] Type: {type(e2).__name__}')
+            print(f'[OAUTH][Google][ERROR] Message: {str(e2)}')
+            full_tb2 = traceback.format_exc()
+            print(f'[OAUTH][Google][ERROR] Fallback traceback:
+{full_tb2}')
+            
+            error_detail = f"{type(e2).__name__}: {str(e2)[:200]}"
+            return render_template('storage_setup/oauth_error.html', 
+                                 error_message=error_detail,
+                                 provider='Google Drive'), 500
 
     credentials = flow.credentials
 
