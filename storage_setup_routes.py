@@ -428,3 +428,22 @@ def _google_redirect_uri():
 
 
 
+
+
+@storage_setup_bp.route('/vault-ui', methods=['GET'])
+def vault_ui():
+    """Vault UI page - uses cloud storage authentication"""
+    # Check if authenticated by storage_autologin middleware
+    from flask import g
+    user_token = getattr(g, 'user_token', None)
+    storage_client = getattr(g, 'storage_client', None)
+    
+    if not user_token or not storage_client:
+        # Not authenticated, show error
+        return render_template('vault_setup_required.html'), 401
+    
+    # Authenticated! Show vault UI
+    storage_type = getattr(g, 'storage_type', 'unknown')
+    return render_template('vault_unified.html', 
+                          user_token=user_token, 
+                          storage_provider=storage_type)
