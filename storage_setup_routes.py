@@ -396,7 +396,10 @@ def dropbox_oauth_health():
     health = {
         'app_key_present': bool(os.getenv('DROPBOX_APP_KEY')),
         'app_secret_present': bool(os.getenv('DROPBOX_APP_SECRET')),
-        'redirect_uri': request.url_root.rstrip('/') + '/oauth/dropbox/callback',
+        redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
+        if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
+            redirect_uri = redirect_uri.replace('http://', 'https://')
+        'redirect_uri': redirect_uri,
         'session_has_state': 'dropbox_oauth_state' in session,
         'session_state_value': session.get('dropbox_oauth_state', 'NOT_SET')[:10] + '...' if session.get('dropbox_oauth_state') else 'NOT_SET',
         'session_redirect_uri': session.get('dropbox_redirect_uri', 'NOT_SET'),
