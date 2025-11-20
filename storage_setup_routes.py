@@ -75,6 +75,7 @@ def google_oauth_start():
         prompt='consent'
     )
 
+    session.permanent = True
     session['oauth_state'] = state
     return redirect(authorization_url)
 
@@ -238,6 +239,7 @@ def dropbox_oauth_start():
 
     # Generate CSRF state parameter
     state = secrets.token_urlsafe(32)
+    session.permanent = True
     session['dropbox_oauth_state'] = state
 
     # Build redirect URI with HTTPS enforcement
