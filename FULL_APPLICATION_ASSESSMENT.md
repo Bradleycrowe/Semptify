@@ -264,7 +264,7 @@
 
 ---
 
-## �� RECOMMENDATIONS
+##    RECOMMENDATIONS
 
 ### Immediate Actions
 1. **Fix base.html blueprint names** (3 broken url_for calls)

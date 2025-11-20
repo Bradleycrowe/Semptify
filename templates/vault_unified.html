@@ -1,6 +1,6 @@
 {% extends "base_unified.html" %}
 
-{% block title %}Document Vault - Semptify{% endblock %}
+{% block title %}Document Repo - Semptify{% endblock %}
 
 {% block extra_style %}
 <style>
@@ -24,7 +24,12 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-vault"></i> Document Vault</h2>
+    <div>
+    {% if session.get('display_name') %}
+    <p class="mb-2 text-muted">Hi {{ session.get('display_name') }}, welcome back! 👋</p>
+    {% endif %}
+    <h2><i class="fas fa-folder-open"></i> Document Repo</h2>
+</div>
     <div>
         <span class="badge bg-secondary me-2">
             <i class="fas fa-folder"></i> {{ documents|length if documents else 0 }} documents
@@ -46,7 +51,7 @@
 <!-- Upload Zone -->
 <div class="card mb-4">
     <div class="card-body">
-        <form method="POST" action="/vault/upload" enctype="multipart/form-data">
+        <form method="POST" action="/Drepo/upload" enctype="multipart/form-data">
             <input type="hidden" name="user_token" value="{{ user_token }}">
             
             <div class="upload-zone">
@@ -67,19 +72,31 @@
                                 <option value="photo">Photo Evidence</option>
                                 <option value="other">Other</option>
                             </select>
-                        </div>
+                            <button class="btn btn-sm btn-outline-info" onclick="analyzeDoc('{{ doc.id }}')">
+                            <i class="fas fa-brain"></i> Analyze
+                        </button>
+                    </div>
                         
                         <div class="mb-3">
                             <input class="form-control form-control-lg" type="file" name="file" required>
-                        </div>
+                            <button class="btn btn-sm btn-outline-info" onclick="analyzeDoc('{{ doc.id }}')">
+                            <i class="fas fa-brain"></i> Analyze
+                        </button>
+                    </div>
                         
                         <div class="mb-3">
                             <label class="form-label">Notes (optional)</label>
                             <textarea class="form-control" name="notes" rows="2" placeholder="Any context or details..."></textarea>
-                        </div>
+                            <button class="btn btn-sm btn-outline-info" onclick="analyzeDoc('{{ doc.id }}')">
+                            <i class="fas fa-brain"></i> Analyze
+                        </button>
+                    </div>
                         
                         <button type="submit" class="btn btn-semptify btn-lg w-100">
                             <i class="fas fa-upload"></i> Upload & Secure
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" onclick="analyzeDoc('{{ doc.id }}')">
+                            <i class="fas fa-brain"></i> Analyze
                         </button>
                     </div>
                 </div>
@@ -115,6 +132,9 @@
                                 <i class="fas fa-certificate"></i>
                             </span>
                         {% endif %}
+                        <button class="btn btn-sm btn-outline-info" onclick="analyzeDoc('{{ doc.id }}')">
+                            <i class="fas fa-brain"></i> Analyze
+                        </button>
                     </div>
                     <p class="card-text text-muted small">
                         <i class="fas fa-calendar-alt"></i> {{ doc.upload_date }}<br>
@@ -125,15 +145,21 @@
                             <span class="badge bg-info">
                                 <i class="fas fa-link"></i> Linked to timeline
                             </span>
-                        </div>
+                            <button class="btn btn-sm btn-outline-info" onclick="analyzeDoc('{{ doc.id }}')">
+                            <i class="fas fa-brain"></i> Analyze
+                        </button>
+                    </div>
                     {% endif %}
                     <div class="d-grid gap-2">
-                        <a href="/vault/download/{{ doc.id }}?user_token={{ user_token }}" class="btn btn-sm btn-outline-semptify">
+                        <a href="/Drepo/download/{{ doc.id }}?user_token={{ user_token }}" class="btn btn-sm btn-outline-semptify">
                             <i class="fas fa-download"></i> Download
                         </a>
-                        <a href="/vault/attest/{{ doc.id }}?user_token={{ user_token }}" class="btn btn-sm btn-outline-secondary">
+                        <a href="/Drepo/attest/{{ doc.id }}?user_token={{ user_token }}" class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-stamp"></i> Certificate
                         </a>
+                        <button class="btn btn-sm btn-outline-info" onclick="analyzeDoc('{{ doc.id }}')">
+                            <i class="fas fa-brain"></i> Analyze
+                        </button>
                     </div>
                 </div>
             </div>
@@ -148,4 +174,62 @@
         </div>
     {% endif %}
 </div>
+<!-- Connection Status & Help Overlay Added -->
+<div id="connection-status" class="mb-3">
+  {% if storage_provider == 'google_drive' %}
+    <span class="badge bg-success"><i class="fab fa-google-drive"></i> Connected to Google Drive</span>
+  {% elif storage_provider == 'dropbox' %}
+    <span class="badge bg-primary"><i class="fab fa-dropbox"></i> Connected to Dropbox</span>
+  {% else %}
+    <span class="badge bg-dark"><i class="fas fa-plug"></i> Connected</span>
+  {% endif %}
+  <button class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleHelp()"><i class="fas fa-shield-alt"></i> Help & Privacy</button>
+</div>
+
+<div id="helpOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000;">
+  <div style="max-width:640px; margin:60px auto; background:#fff; padding:32px; border-radius:14px; box-shadow:0 8px 40px rgba(0,0,0,0.3); position:relative;">
+    <button onclick="toggleHelp()" style="position:absolute; top:12px; right:12px; border:none; background:#eee; border-radius:50%; width:34px; height:34px; font-weight:bold;">×</button>
+    <h3 style="margin-top:0;">Semptify: Tenant Documenting Toolbox</h3><p>Semptify is a tenants documenting toolbox. In any tenancy, document everything. Our timeline view of tenancy events will help you in protecting your home.</p><p>Your documents stay entirely in <strong>your</strong> storage. Semptify never sells data, never shows ads, and never exposes internal IDs—just tools to help your housing situation.</p>
+    <ul style="line-height:1.6;">
+      <li>No signup forms – storage connection is enough.</li>
+      <li>No tracking analytics – minimal operational logs only.</li>
+      <li>You can disconnect anytime by revoking storage access.</li>
+      <li>Coming soon: quick evidence capture & timeline builder.</li>
+    </ul>
+    <p style="font-size:0.9rem; color:#666;">If this helps even one person, it's doing its job.</p>
+  </div>
+</div>
+<!-- AI Analysis Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-brain"></i> Document Analysis</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="analysisContent">
+        <div class="text-center">
+          <div class="spinner-border text-semptify" role="status">
+            <span class="visually-hidden">Analyzing...</span>
+          </div>
+          <p class="mt-2">Extracting insights...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-semptify" id="addToTimelineBtn" style="display:none;">Add to Timeline</button>
+        <button type="button" class="btn btn-outline-primary" id="addContactsBtn" style="display:none;">Add Contacts</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function toggleHelp(){
+  const el = document.getElementById('helpOverlay');
+  el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+}
+</script>
 {% endblock %}
+
+
+
