@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Complete - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 700px;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        h1 {
+            color: #2d3748;
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+        .id-box {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border: 3px solid #F59E0B;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .id-label {
+            color: #92400E;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .id-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #78350F;
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+        .temp-id {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .temp-id strike {
+            text-decoration: line-through;
+        }
+        .warning-box {
+            background: #FEE2E2;
+            border-left: 4px solid #DC2626;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .warning-box strong {
+            color: #991B1B;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .warning-box p {
+            color: #7F1D1D;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .btn {
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .btn-secondary {
+            background: #F3F4F6;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+        .continue-btn {
+            grid-column: 1 / -1;
+            background: #10B981;
+            color: white;
+            font-size: 18px;
+            padding: 18px;
+        }
+        .continue-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .info-text {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>Setup Complete!</h1>
+        <p class="subtitle">Your storage is connected and ready to go, dontcha know!</p>
+
+        <div class="id-box">
+            <div class="id-label">Your Permanent ID</div>
+            <div class="id-value">{{ user_token }}</div>
+            {% if temp_user_id %}
+            <div class="temp-id">
+                <strike>{{ temp_user_id }}</strike> → <strong>{{ user_token }}</strong>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Save This Number!</strong>
+            <p>
+                This is your <strong>permanent ID</strong> for accessing Semptify. 
+                You'll need it if you ever log in from a different device or your session expires.
+                It's stored securely in your {{ storage_provider }}, but save a copy somewhere safe!
+            </p>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="copyToClipboard()">
+                📋 Copy ID
+            </button>
+            <button class="btn btn-secondary" onclick="downloadAsText()">
+                💾 Download
+            </button>
+            <button class="btn btn-primary continue-btn" onclick="window.location.href='/drepo'">
+                Continue to Document Repo →
+            </button>
+        </div>
+
+        <p class="info-text">
+            {% if display_name %}
+                <strong>Hey {{ display_name }}!</strong><br>
+            {% endif %}
+            Your documents are stored in <strong>{{ storage_provider }}</strong>. 
+            Don't delete the <code>.semptify</code> folder - it contains your configuration!
+        </p>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const token = '{{ user_token }}';
+            navigator.clipboard.writeText(token).then(() => {
+                const btn = event.target;
+                btn.innerHTML = '✅ Copied!';
+                btn.style.background = '#10B981';
+                btn.style.color = 'white';
+                setTimeout(() => {
+                    btn.innerHTML = '📋 Copy ID';
+                    btn.style.background = '#F3F4F6';
+                    btn.style.color = '#374151';
+                }, 2000);
+            });
+        }
+
+        function downloadAsText() {
+            const token = '{{ user_token }}';
+            const content = `Semptify Permanent ID\n\nYour ID: ${token}\n\nGenerated: ${new Date().toLocaleString()}\n\nKeep this safe! You'll need it to access Semptify.`;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `semptify-id-${token}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            event.target.innerHTML = '✅ Downloaded!';
+            event.target.style.background = '#10B981';
+            event.target.style.color = 'white';
+            setTimeout(() => {
+                event.target.innerHTML = '💾 Download';
+                event.target.style.background = '#F3F4F6';
+                event.target.style.color = '#374151';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
