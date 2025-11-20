@@ -3,7 +3,7 @@ Storage Setup Routes - User-Owned Storage Only
 OAuth-based setup for Google Drive and Dropbox
 Users store their own data; Semptify never stores user documents
 """
-from flask import Blueprint, render_template, request, redirect, session, url_for
+from flask import Blueprint, render_template, request, redirect, session, url_for, current_app
 import os
 import secrets
 import json
@@ -374,7 +374,7 @@ def google_oauth_health():
         'session_state_value': session.get('oauth_state', 'NOT_SET')[:10] + '...' if session.get('oauth_state') else 'NOT_SET',
         'libraries': {},
         'https_enforced': request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1',
-        'flask_secret_key_set': bool(app.secret_key and app.secret_key != 'dev-secret')
+        'flask_secret_key_set': bool(current_app.secret_key and current_app.secret_key != 'dev-secret')
     }
     try:
         from google_auth_oauthlib.flow import Flow
@@ -402,7 +402,7 @@ def dropbox_oauth_health():
         'session_redirect_uri': session.get('dropbox_redirect_uri', 'NOT_SET'),
         'libraries': {},
         'https_enforced': request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1',
-        'flask_secret_key_set': bool(app.secret_key and app.secret_key != 'dev-secret')
+        'flask_secret_key_set': bool(current_app.secret_key and current_app.secret_key != 'dev-secret')
     }
     try:
         from dropbox import DropboxOAuth2Flow
