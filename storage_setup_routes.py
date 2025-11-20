@@ -217,8 +217,12 @@ def google_oauth_callback():
     with open(users_file, 'w') as f:
         json.dump(users, f, indent=2)
 
-    print('[OAUTH][Google] Success folder_id=' + folder_id)
-    return redirect(f'/welcome?user_token={user_token}')
+    # Store token in session for automatic vault access
+    session['user_token'] = user_token
+    session['authenticated'] = True
+    session['storage_type'] = 'google_drive'
+    print('[OAUTH][Google] Success folder_id=' + folder_id + ' | Auto-login enabled')
+    return redirect('/vault-ui')  # Direct to vault, no welcome page
 
 # ============================================================================
 # DROPBOX OAUTH
@@ -353,8 +357,13 @@ def dropbox_oauth_callback():
         json.dump(users, f, indent=2)
 
     session['dropbox_access_token'] = oauth_result.access_token
-
-    return redirect(f'/welcome?user_token={user_token}')
+    
+    # Store token in session for automatic vault access
+    session['user_token'] = user_token
+    session['authenticated'] = True
+    session['storage_type'] = 'dropbox'
+    print('[OAUTH][Dropbox] Success | Auto-login enabled')
+    return redirect('/vault-ui')  # Direct to vault, no welcome page
 
 # ============================================================================
 
