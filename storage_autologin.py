@@ -130,13 +130,13 @@ def check_storage_auth():
                 pass
         
         # Couldn't auto-login, redirect to setup
-        if request.path not in ('/setup', '/welcome'):
+        if request.path not in ('/setup', '/welcome', '/vault'):
             return redirect('/setup')
     
     except FileNotFoundError:
-        # No auth_token.enc, need to run setup
-        if request.path not in ('/setup', '/welcome', '/', '/index'):
-            return redirect('/setup')
+        # No auth_token.enc, show unlock page
+        if request.path not in ('/setup', '/welcome', '/unlock', '/', '/index'):
+            return redirect(url_for('storage_autologin.unlock', next=request.path))
 
 @storage_autologin_bp.route('/unlock', methods=['GET', 'POST'])
 def unlock():
