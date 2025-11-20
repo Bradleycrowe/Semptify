@@ -1566,11 +1566,6 @@ def about():
     """About Semptify."""
     return render_template('placeholder.html'), 503
 
-@app.route('/privacy')
-def privacy():
-    """Privacy policy."""
-    return render_template('placeholder.html'), 503
-
 @app.route('/terms')
 def terms():
     """Terms of service."""
@@ -2960,3 +2955,4 @@ try:
     print('[OK] Legal pages registered (/privacy)')
 except Exception as e:
     print(f'[WARN] Legal pages not available: {e}')
+
