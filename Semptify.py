@@ -2944,10 +2944,15 @@ except ImportError as e:
 
 
 
-# Apply ProxyFix to trust X-Forwarded-Proto/Host from Render
+# Legal pages (Privacy Policy for OAuth compliance)
 try:
-    from werkzeug.middleware.proxy_fix import ProxyFix
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-    print("[OK] ProxyFix applied (x_proto=1, x_host=1)")
+    from flask import Blueprint
+    legal_bp = Blueprint('legal', __name__)
+    @legal_bp.route('/privacy')
+    def privacy_policy():
+        from flask import render_template
+        return render_template('legal/privacy.html')
+    app.register_blueprint(legal_bp)
+    print('[OK] Legal pages registered (/privacy)')
 except Exception as e:
-    print(f"[WARN] ProxyFix not applied: {e}")
+    print(f'[WARN] Legal pages not available: {e}')
