@@ -217,18 +217,16 @@ def google_oauth_callback():
     with open(users_file, 'w') as f:
         json.dump(users, f, indent=2)
 
-    # Store token in session for automatic vault access
+    print('[OAUTH][Google] Success folder_id=' + folder_id)
     session['user_token'] = user_token
     session['authenticated'] = True
-    session['storage_type'] = 'google_drive'
-    print('[OAUTH][Google] Success folder_id=' + folder_id + ' | Auto-login enabled')
-    return redirect('/vault-ui')  # Direct to vault, no welcome page
+    session['storage_type'] = 'dropbox'
+    return redirect('/drepo')
 
 # ============================================================================
 # DROPBOX OAUTH
 # ============================================================================
 
-@storage_setup_bp.route('/oauth/dropbox/start', methods=['GET'])
 @storage_setup_bp.route('/oauth/dropbox/start', methods=['GET'])
 def dropbox_oauth_start():
     '''Initiate Dropbox OAuth flow with automatic redirect'''
@@ -357,13 +355,11 @@ def dropbox_oauth_callback():
         json.dump(users, f, indent=2)
 
     session['dropbox_access_token'] = oauth_result.access_token
-    
-    # Store token in session for automatic vault access
+
     session['user_token'] = user_token
     session['authenticated'] = True
     session['storage_type'] = 'dropbox'
-    print('[OAUTH][Dropbox] Success | Auto-login enabled')
-    return redirect('/vault-ui')  # Direct to vault, no welcome page
+    return redirect('/drepo')
 
 # ============================================================================
 
@@ -402,14 +398,10 @@ def google_oauth_health():
 def dropbox_oauth_health():
     """Diagnostic endpoint for Dropbox OAuth setup"""
     import json
-    redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
-    if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
-        redirect_uri = redirect_uri.replace('http://', 'https://')
-    
     health = {
         'app_key_present': bool(os.getenv('DROPBOX_APP_KEY')),
         'app_secret_present': bool(os.getenv('DROPBOX_APP_SECRET')),
-        'redirect_uri': redirect_uri,
+        'redirect_uri': request.url_root.rstrip('/') + '/oauth/dropbox/callback',
         'session_has_state': 'dropbox_oauth_state' in session,
         'session_state_value': session.get('dropbox_oauth_state', 'NOT_SET')[:10] + '...' if session.get('dropbox_oauth_state') else 'NOT_SET',
         'session_redirect_uri': session.get('dropbox_redirect_uri', 'NOT_SET'),
@@ -459,24 +451,9 @@ def vault_ui():
                           storage_provider=storage_type)
 
 
+@storage_setup_bp.route('/drepo', methods=['GET'])
+def document_repo_ui():
+    """Alias for vault-ui - 'Drepo' (Document Repo), dontcha know!"""
+    return vault_ui()
 
-# SUCCESS ROUTE - Disabled (user doesn't need to see token)
-# Kept for debugging/future use if needed
-# @storage_setup_bp.route('/setup/success', methods=['GET'])
-# def setup_success():
-#     """Success page showing temp → permanent ID conversion"""
-#     user_token = session.get('user_token')
-#     temp_user_id = session.get('temp_user_id')
-#     display_name = session.get('display_name')
-#     storage_type = session.get('storage_type', 'your storage')
-#     
-#     if not user_token:
-#         return redirect('/setup')
-#     
-#     storage_provider = 'Google Drive' if storage_type == 'google_drive' else 'Dropbox'
-#     
-#     return render_template('storage_setup/success.html',
-#                           user_token=user_token,
-#                           temp_user_id=temp_user_id,
-#                           display_name=display_name,
-#                           storage_provider=storage_provider)
+
