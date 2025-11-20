@@ -240,20 +240,40 @@ def dropbox_oauth_start():
     session['dropbox_auth_flow'] = {'app_key': app_key, 'app_secret': app_secret}
     return render_template('storage_setup/dropbox_auth.html', authorize_url=authorize_url)
 
-@storage_setup_bp.route('/oauth/dropbox/callback', methods=['GET', 'POST'])
+@storage_setup_bp.route('/oauth/dropbox/callback', methods=['GET'])
 def dropbox_oauth_callback():
-    '''Handle Dropbox OAuth callback'''
+    '''Handle Dropbox OAuth callback (automatic redirect)'''
     import dropbox
+    from dropbox import DropboxOAuth2Flow
 
-    auth_code = request.form.get('auth_code') or request.args.get('code')
+    # Validate state parameter
+    state_param = request.args.get('state')
+    expected_state = session.get('dropbox_oauth_state')
+    if state_param != expected_state:
+        print(f'[OAUTH][Dropbox][ERROR] State mismatch')
+        return render_template('storage_setup/oauth_error.html', 
+                             error_message='Invalid state parameter',
+                             provider='Dropbox'), 400
+
+    auth_code = request.args.get('code')
     if not auth_code:
-        return 'No authorization code provided', 400
+        error = request.args.get('error_description', 'No authorization code provided')
+        print(f'[OAUTH][Dropbox][ERROR] {error}')
+        return render_template('storage_setup/oauth_error.html', 
+                             error_message=error,
+                             provider='Dropbox'), 400
 
     app_key = os.getenv('DROPBOX_APP_KEY')
     app_secret = os.getenv('DROPBOX_APP_SECRET')
+    redirect_uri = session.get('dropbox_redirect_uri')
 
-    from dropbox import DropboxOAuth2FlowNoRedirect
-    auth_flow = DropboxOAuth2FlowNoRedirect(app_key, app_secret)
+    auth_flow = DropboxOAuth2Flow(
+        app_key, 
+        app_secret,
+        redirect_uri,
+        session,
+        'dropbox_auth_flow'
+    )
 
     try:
         oauth_result = auth_flow.finish(auth_code)
