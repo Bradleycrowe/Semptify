@@ -460,21 +460,23 @@ def vault_ui():
 
 
 
-@storage_setup_bp.route('/setup/success', methods=['GET'])
-def setup_success():
-    """Success page showing temp → permanent ID conversion"""
-    user_token = session.get('user_token')
-    temp_user_id = session.get('temp_user_id')
-    display_name = session.get('display_name')
-    storage_type = session.get('storage_type', 'your storage')
-    
-    if not user_token:
-        return redirect('/setup')
-    
-    storage_provider = 'Google Drive' if storage_type == 'google_drive' else 'Dropbox'
-    
-    return render_template('storage_setup/success.html',
-                          user_token=user_token,
-                          temp_user_id=temp_user_id,
-                          display_name=display_name,
-                          storage_provider=storage_provider)
+# SUCCESS ROUTE - Disabled (user doesn't need to see token)
+# Kept for debugging/future use if needed
+# @storage_setup_bp.route('/setup/success', methods=['GET'])
+# def setup_success():
+#     """Success page showing temp → permanent ID conversion"""
+#     user_token = session.get('user_token')
+#     temp_user_id = session.get('temp_user_id')
+#     display_name = session.get('display_name')
+#     storage_type = session.get('storage_type', 'your storage')
+#     
+#     if not user_token:
+#         return redirect('/setup')
+#     
+#     storage_provider = 'Google Drive' if storage_type == 'google_drive' else 'Dropbox'
+#     
+#     return render_template('storage_setup/success.html',
+#                           user_token=user_token,
+#                           temp_user_id=temp_user_id,
+#                           display_name=display_name,
+#                           storage_provider=storage_provider)
