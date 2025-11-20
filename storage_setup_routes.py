@@ -238,7 +238,7 @@ def dropbox_oauth_start():
     authorize_url = auth_flow.start()
     
     session['dropbox_auth_flow'] = {'app_key': app_key, 'app_secret': app_secret}
-    return render_template('storage_setup/dropbox_auth.html', authorize_url=authorize_url)
+    return redirect(authorize_url)
 
 @storage_setup_bp.route('/oauth/dropbox/callback', methods=['GET'])
 def dropbox_oauth_callback():
