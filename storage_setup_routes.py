@@ -224,9 +224,11 @@ def google_oauth_callback():
 # ============================================================================
 
 @storage_setup_bp.route('/oauth/dropbox/start', methods=['GET'])
+@storage_setup_bp.route('/oauth/dropbox/start', methods=['GET'])
 def dropbox_oauth_start():
-    '''Initiate Dropbox OAuth flow'''
-    from dropbox import DropboxOAuth2FlowNoRedirect
+    '''Initiate Dropbox OAuth flow with automatic redirect'''
+    import secrets
+    from dropbox import DropboxOAuth2Flow
 
     app_key = os.getenv('DROPBOX_APP_KEY')
     app_secret = os.getenv('DROPBOX_APP_SECRET')
@@ -234,12 +236,28 @@ def dropbox_oauth_start():
     if not app_key or not app_secret:
         return 'Dropbox OAuth not configured. Set DROPBOX_APP_KEY and DROPBOX_APP_SECRET env vars.', 500
 
-    auth_flow = DropboxOAuth2FlowNoRedirect(app_key, app_secret)
-    authorize_url = auth_flow.start()
-    
-    session['dropbox_auth_flow'] = {'app_key': app_key, 'app_secret': app_secret}
-    return redirect(authorize_url)
+    # Generate CSRF state parameter
+    state = secrets.token_urlsafe(32)
+    session['dropbox_oauth_state'] = state
 
+    # Build redirect URI with HTTPS enforcement
+    redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
+    if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
+        redirect_uri = redirect_uri.replace('http://', 'https://')
+
+    session['dropbox_redirect_uri'] = redirect_uri
+
+    # Create OAuth flow with automatic redirect
+    auth_flow = DropboxOAuth2Flow(
+        consumer_key=app_key,
+        consumer_secret=app_secret,
+        redirect_uri=redirect_uri,
+        session={},
+        csrf_token_session_key='dropbox_oauth_state'
+    )
+
+    authorize_url = auth_flow.start()
+    return redirect(authorize_url)
 @storage_setup_bp.route('/oauth/dropbox/callback', methods=['GET'])
 def dropbox_oauth_callback():
     '''Handle Dropbox OAuth callback (automatic redirect)'''
