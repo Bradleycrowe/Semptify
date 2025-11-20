@@ -1,0 +1,279 @@
+# SEMPTIFY OAUTH FLOW - COMPLETE FLOW CHART
+# ============================================
+
+## ENTRY POINTS
+┌─────────────────────────────────────────────────────────────────────┐
+│ ENTRY POINTS (User starts here)                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ 1. /register → Register new user → /register (POST)                 │
+│    ├─ Success: register_success.html (shows one-time token)         │
+│    │   └─ Link: /vault?user_token={token}                           │
+│    └─ Error: register.html (form with errors)                       │
+│                                                                      │
+│ 2. / or /index → Landing page                                       │
+│    └─ Link: /setup                                                  │
+│                                                                      │
+│ 3. /vault-login → Token entry page                                  │
+│    └─ Enter token → /vault?user_token={token}                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+## STORAGE SETUP FLOW
+┌─────────────────────────────────────────────────────────────────────┐
+│ STORAGE SETUP                                                        │
+├─────────────────────────────────────────────────────────────────────┤
+│ /setup                                                               │
+│ ├─ GET: choose_storage.html                                         │
+│ │   ├─ Button: "Google Drive" → /oauth/google/start                │
+│ │   └─ Button: "Dropbox" → /oauth/dropbox/start                    │
+│ └─ Middleware: storage_autologin checks session/cloud storage       │
+└─────────────────────────────────────────────────────────────────────┘
+
+## GOOGLE OAUTH FLOW
+┌─────────────────────────────────────────────────────────────────────┐
+│ GOOGLE DRIVE OAUTH                                                   │
+├─────────────────────────────────────────────────────────────────────┤
+│ /oauth/google/start                                                  │
+│ ├─ Generates state (CSRF token)                                     │
+│ ├─ Stores in session['oauth_state']                                 │
+│ ├─ Builds authorization URL                                         │
+│ └─ Redirects to: accounts.google.com/o/oauth2/auth                  │
+│                                                                      │
+│ [USER AUTHORIZES ON GOOGLE.COM]                                     │
+│                                                                      │
+│ /oauth/google/callback?code={code}&state={state}                    │
+│ ├─ Validates state parameter against session                        │
+│ ├─ Exchanges code for access token                                  │
+│ ├─ Creates DriveClient                                              │
+│ ├─ Creates .semptify folder in Drive                                │
+│ ├─ Generates 12-digit user_token                                    │
+│ ├─ Encrypts token → auth_token.enc (uploads to Drive)               │
+│ ├─ Hashes token → token_hash.txt (uploads to Drive)                 │
+│ ├─ Stores token_hash in security/users.json (ephemeral!)            │
+│ ├─ Stores credentials in session['drive_credentials']               │
+│ ├─ Stores folder_id in session['drive_folder_id']                   │
+│ └─ Redirects to: /welcome?user_token={user_token}                   │
+│                                                                      │
+│ ERROR PATHS:                                                         │
+│ ├─ State mismatch → oauth_error.html (provider=Google Drive)        │
+│ ├─ Code exchange fails → oauth_error.html (with error details)      │
+│ ├─ Missing credentials → "Google OAuth not configured" (500)        │
+│ └─ Libraries missing → oauth_unavailable.html                       │
+│                                                                      │
+│ HEALTH CHECK:                                                        │
+│ /oauth/google/health → JSON diagnostics                             │
+│ ├─ client_id_present, client_secret_present                         │
+│ ├─ redirect_uri, session_has_state                                  │
+│ ├─ libraries (google_auth_oauthlib, googleapiclient)                │
+│ ├─ https_enforced, flask_secret_key_set                             │
+│ └─ Used for debugging OAuth issues                                  │
+└─────────────────────────────────────────────────────────────────────┘
+
+## DROPBOX OAUTH FLOW
+┌─────────────────────────────────────────────────────────────────────┐
+│ DROPBOX OAUTH                                                        │
+├─────────────────────────────────────────────────────────────────────┤
+│ /oauth/dropbox/start                                                 │
+│ ├─ Generates state (CSRF token)                                     │
+│ ├─ Stores in session['dropbox_oauth_state']                         │
+│ ├─ Builds redirect_uri with HTTPS enforcement                       │
+│ ├─ Stores redirect_uri in session['dropbox_redirect_uri']           │
+│ ├─ Creates DropboxOAuth2Flow (automatic redirect)                   │
+│ └─ Redirects to: www.dropbox.com/oauth2/authorize                   │
+│                                                                      │
+│ [USER AUTHORIZES ON DROPBOX.COM]                                    │
+│                                                                      │
+│ /oauth/dropbox/callback?code={code}&state={state}                   │
+│ ├─ Validates state parameter against session                        │
+│ ├─ Exchanges code for access token                                  │
+│ ├─ Creates DropboxClient                                            │
+│ ├─ Creates .semptify folder in Dropbox                              │
+│ ├─ Generates 12-digit user_token                                    │
+│ ├─ Encrypts token → auth_token.enc (uploads to Dropbox)             │
+│ ├─ Hashes token → token_hash.txt (uploads to Dropbox)               │
+│ ├─ Stores token_hash in security/users.json (ephemeral!)            │
+│ ├─ Stores access_token in session['dropbox_access_token']           │
+│ └─ Redirects to: /welcome?user_token={user_token}                   │
+│                                                                      │
+│ ERROR PATHS:                                                         │
+│ ├─ State mismatch → oauth_error.html (provider=Dropbox)             │
+│ ├─ Code exchange fails → oauth_error.html (with error details)      │
+│ ├─ Missing credentials → "Dropbox OAuth not configured" (500)       │
+│ └─ Libraries missing → oauth_unavailable.html                       │
+│                                                                      │
+│ HEALTH CHECK:                                                        │
+│ /oauth/dropbox/health → JSON diagnostics                            │
+│ ├─ app_key_present, app_secret_present                              │
+│ ├─ redirect_uri, session_has_state, session_redirect_uri            │
+│ ├─ libraries (dropbox)                                              │
+│ ├─ https_enforced, flask_secret_key_set                             │
+│ └─ Used for debugging OAuth issues                                  │
+└─────────────────────────────────────────────────────────────────────┘
+
+## POST-OAUTH SUCCESS
+┌─────────────────────────────────────────────────────────────────────┐
+│ SUCCESS PAGE                                                         │
+├─────────────────────────────────────────────────────────────────────┤
+│ /welcome?user_token={user_token}                                    │
+│ ├─ GET: welcome.html                                                │
+│ │   ├─ Shows: "Setup Complete!"                                    │
+│ │   ├─ Displays storage provider (Google Drive or Dropbox)         │
+│ │   ├─ Warning: Don't delete .semptify folder                      │
+│ │   └─ Button: "Go to Vault" → /vault?user_token={user_token}     │
+│ └─ Detects provider from session:                                   │
+│     ├─ session['drive_credentials'] → "Google Drive"               │
+│     └─ session['dropbox_access_token'] → "Dropbox"                 │
+└─────────────────────────────────────────────────────────────────────┘
+
+## VAULT ACCESS
+┌─────────────────────────────────────────────────────────────────────┐
+│ VAULT (Main Application)                                            │
+├─────────────────────────────────────────────────────────────────────┤
+│ /vault?user_token={user_token}                                      │
+│ ├─ BEFORE_REQUEST: storage_autologin middleware runs                │
+│ │   ├─ Checks session for drive_credentials or dropbox_access_token│
+│ │   ├─ Creates storage_client (DriveClient or DropboxClient)       │
+│ │   ├─ Downloads auth_token.enc from cloud storage                 │
+│ │   ├─ Downloads token_hash.txt from cloud storage                 │
+│ │   ├─ Decrypts auth_token.enc using token_hash as key             │
+│ │   ├─ Validates user_token matches decrypted token                │
+│ │   ├─ Sets g.user_token, g.storage_client, g.storage_type         │
+│ │   └─ Sets session['auto_authorized'] = True                      │
+│ │                                                                   │
+│ │   ERROR PATHS:                                                    │
+│ │   ├─ No session → Redirects to /setup                            │
+│ │   ├─ auth_token.enc not found → Redirects to /unlock             │
+│ │   ├─ Decryption fails → Redirects to /setup                      │
+│ │   └─ Token mismatch → Redirects to /setup                        │
+│ │                                                                   │
+│ ├─ VAULT ROUTE HANDLER:                                             │
+│ │   ├─ Extracts token from query/header/form                       │
+│ │   ├─ Calls validate_user_token(token)                            │
+│ │   │   └─ Checks security/users.json (EPHEMERAL on Render!)       │
+│ │   ├─ If valid: Returns vault page or {"ok": true}                │
+│ │   └─ If invalid: Returns {"error": "unauthorized"}, 401          │
+│ │                                                                   │
+│ └─ CURRENT ISSUE:                                                    │
+│     └─ validate_user_token() checks security/users.json which       │
+│        doesn't persist on Render deployment → Always unauthorized   │
+└─────────────────────────────────────────────────────────────────────┘
+
+## UNLOCK FLOW
+┌─────────────────────────────────────────────────────────────────────┐
+│ UNLOCK (Re-authentication)                                          │
+├─────────────────────────────────────────────────────────────────────┤
+│ /unlock                                                              │
+│ ├─ GET: Shows unlock form                                           │
+│ │   └─ User enters their 12-digit token                            │
+│ ├─ POST: Validates token                                            │
+│ │   ├─ Extracts token from form                                    │
+│ │   ├─ Gets storage_client from session                            │
+│ │   ├─ Downloads auth_token.enc from cloud                         │
+│ │   ├─ Decrypts using provided token                               │
+│ │   ├─ If successful: Sets g.user_token, redirects to next_url     │
+│ │   └─ If fails: Shows error on unlock form                        │
+│ └─ Used when: Session expired or auth_token.enc missing from server │
+└─────────────────────────────────────────────────────────────────────┘
+
+## ERROR PAGES
+┌─────────────────────────────────────────────────────────────────────┐
+│ ERROR TEMPLATES                                                      │
+├─────────────────────────────────────────────────────────────────────┤
+│ oauth_error.html (Generic OAuth failure)                            │
+│ ├─ Shows provider-specific branding (Google Drive or Dropbox)       │
+│ ├─ Common causes list (URI mismatch, consent screen, HTTPS, etc.)   │
+│ ├─ Displays sanitized error_message                                 │
+│ ├─ Buttons:                                                          │
+│ │   ├─ "Retry Setup" → /oauth/{provider}/start                     │
+│ │   ├─ "Storage Options" → /setup                                  │
+│ │   └─ "Health Check" → /oauth/{provider}/health                   │
+│ └─ Used for: State mismatch, token exchange failures, etc.          │
+│                                                                      │
+│ oauth_unavailable.html (Libraries missing)                          │
+│ ├─ Shows when OAuth libraries not installed                         │
+│ ├─ Offers local storage option                                      │
+│ └─ Link back to setup                                               │
+└─────────────────────────────────────────────────────────────────────┘
+
+## SESSION DATA
+┌─────────────────────────────────────────────────────────────────────┐
+│ SESSION VARIABLES (Flask session)                                   │
+├─────────────────────────────────────────────────────────────────────┤
+│ Google OAuth:                                                        │
+│ ├─ oauth_state: CSRF token for validation                           │
+│ ├─ drive_credentials: OAuth tokens (access, refresh)                │
+│ └─ drive_folder_id: ID of .semptify folder in Drive                 │
+│                                                                      │
+│ Dropbox OAuth:                                                       │
+│ ├─ dropbox_oauth_state: CSRF token for validation                   │
+│ ├─ dropbox_redirect_uri: HTTPS callback URL                         │
+│ └─ dropbox_access_token: OAuth access token                         │
+│                                                                      │
+│ Session Config (Semptify.py):                                       │
+│ ├─ SESSION_COOKIE_SECURE: HTTPS only (if FORCE_HTTPS=1)             │
+│ ├─ SESSION_COOKIE_HTTPONLY: Prevent JS access                       │
+│ ├─ SESSION_COOKIE_SAMESITE: 'Lax' (CSRF protection)                 │
+│ ├─ PERMANENT_SESSION_LIFETIME: 3600 seconds (1 hour)                │
+│ └─ session.permanent = True (set in OAuth start routes)             │
+└─────────────────────────────────────────────────────────────────────┘
+
+## CLOUD STORAGE FILES
+┌─────────────────────────────────────────────────────────────────────┐
+│ FILES IN USER'S CLOUD STORAGE (.semptify folder)                    │
+├─────────────────────────────────────────────────────────────────────┤
+│ auth_token.enc                                                       │
+│ ├─ Encrypted user token with metadata                               │
+│ ├─ Format: {token: "260221595156", created_at: "...", storage_type}│
+│ ├─ Encrypted with user's token as key (PBKDF2HMAC + AES-256)        │
+│ └─ Used for: Authentication across sessions/devices                 │
+│                                                                      │
+│ token_hash.txt                                                       │
+│ ├─ SHA-256 hash of user token                                       │
+│ ├─ Used as decryption key for auth_token.enc                        │
+│ └─ Enables auto-login without storing plain token                   │
+│                                                                      │
+│ User documents (PDFs, images, etc.)                                 │
+│ └─ Uploaded via /vault/upload                                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+## CURRENT PROBLEMS & SOLUTIONS
+┌─────────────────────────────────────────────────────────────────────┐
+│ KNOWN ISSUES                                                         │
+├─────────────────────────────────────────────────────────────────────┤
+│ PROBLEM 1: "Invalid state parameter"                                │
+│ ├─ Cause: Session not persisting between OAuth start and callback   │
+│ ├─ Root cause: Missing FLASK_SECRET_KEY in Render environment       │
+│ └─ Solution: Add FLASK_SECRET_KEY env var in Render                 │
+│                                                                      │
+│ PROBLEM 2: "Unauthorized" at /vault                                 │
+│ ├─ Cause: validate_user_token() checks security/users.json          │
+│ ├─ Root cause: Render filesystem is ephemeral (file doesn't persist)│
+│ └─ Solution Options:                                                 │
+│     ├─ A) Use g.user_token set by storage_autologin middleware      │
+│     ├─ B) Store token hashes in database instead of JSON file       │
+│     └─ C) Validate against cloud storage only (auth_token.enc)      │
+│                                                                      │
+│ PROBLEM 3: Auto-deploy not working                                  │
+│ ├─ Cause: GitHub webhook not configured                             │
+│ └─ Solution: Set up webhook or use manual deploy                    │
+│                                                                      │
+│ PROBLEM 4: Health endpoints return 500                              │
+│ ├─ Cause: Trying to access app.secret_key without importing         │
+│ └─ Solution: Use current_app.secret_key (FIXED)                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+## IMMEDIATE NEXT STEPS
+┌─────────────────────────────────────────────────────────────────────┐
+│ TO FIX VAULT UNAUTHORIZED ISSUE                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ 1. Add FLASK_SECRET_KEY to Render environment variables             │
+│    └─ Example: FLASK_SECRET_KEY=random-32-char-string               │
+│                                                                      │
+│ 2. Fix vault route to use cloud storage authentication:             │
+│    ├─ Check g.user_token first (set by storage_autologin)           │
+│    └─ Fall back to cloud storage decryption, not users.json         │
+│                                                                      │
+│ 3. Manual deploy on Render with "Clear build cache"                 │
+│                                                                      │
+│ 4. Test complete flow:                                              │
+│    /oauth/dropbox/start → authorize → /welcome → /vault             │
+└─────────────────────────────────────────────────────────────────────┘
