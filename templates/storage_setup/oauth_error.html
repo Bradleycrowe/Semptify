@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Google OAuth Error</title>
+  <title>{{ provider }} OAuth Error</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     body { font-family: system-ui, Arial, sans-serif; margin: 40px; max-width: 780px; }
@@ -14,20 +14,25 @@
 </head>
 <body>
   <div class="box">
-    <h1>⚠ Google Sign-In Failed</h1>
-    <p>We couldn't complete Google Drive setup. This is usually caused by one of the following:</p>
+    <h1>⚠ {{ provider }} OAuth Failed</h1>
+    <p>We couldn't complete {{ provider }} setup. This is usually caused by one of the following:</p>
     <ul>
-      <li>Redirect URI not added in Google Cloud Console</li>
+      <li>Redirect URI not registered in OAuth app console</li>
       <li>OAuth consent screen not published</li>
-      <li>App still using HTTP (should enforce HTTPS)</li>
+      <li>App enforcing HTTPS but request came via HTTP</li>
       <li>Expired or reused authorization code</li>
+      <li>Session expired between authorization and callback</li>
     </ul>
     <p><strong>Details (sanitized):</strong></p>
     <pre>{{ error_message }}</pre>
     <div class="actions">
-      <a href="/setup/drive/guide">↩ Retry Setup</a>
+      <a href="/oauth/{{ provider.lower().replace(' ', '_') }}/start">↩ Retry Setup</a>
       <a href="/setup">Storage Options</a>
+      {% if provider == "Google Drive" %}
       <a href="/oauth/google/health" target="_blank">Health Check</a>
+      {% elif provider == "Dropbox" %}
+      <a href="/oauth/dropbox/health" target="_blank">Health Check</a>
+      {% endif %}
     </div>
     <p style="margin-top:24px;font-size:0.9em;color:#555">If this persists, provide the health check JSON and the approximate time of failure to support.</p>
   </div>
