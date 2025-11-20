@@ -2943,3 +2943,16 @@ except ImportError as e:
     print(f"[WARN] Curiosity API not available: {e}")
 
 
+
+# Legal pages (Privacy Policy for OAuth compliance)
+try:
+    from flask import Blueprint
+    legal_bp = Blueprint('legal', __name__)
+    @legal_bp.route('/privacy')
+    def privacy_policy():
+        from flask import render_template
+        return render_template('legal/privacy.html')
+    app.register_blueprint(legal_bp)
+    print('[OK] Legal pages registered (/privacy)')
+except Exception as e:
+    print(f'[WARN] Legal pages not available: {e}')
