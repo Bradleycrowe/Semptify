@@ -396,7 +396,10 @@ def dropbox_oauth_health():
     health = {
         'app_key_present': bool(os.getenv('DROPBOX_APP_KEY')),
         'app_secret_present': bool(os.getenv('DROPBOX_APP_SECRET')),
-        'redirect_uri': request.url_root.rstrip('/') + '/oauth/dropbox/callback',
+        redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
+        if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
+            redirect_uri = redirect_uri.replace('http://', 'https://')
+        'redirect_uri': redirect_uri,
         'session_has_state': 'dropbox_oauth_state' in session,
         'session_state_value': session.get('dropbox_oauth_state', 'NOT_SET')[:10] + '...' if session.get('dropbox_oauth_state') else 'NOT_SET',
         'session_redirect_uri': session.get('dropbox_redirect_uri', 'NOT_SET'),
@@ -425,3 +428,22 @@ def _google_redirect_uri():
 
 
 
+
+
+@storage_setup_bp.route('/vault-ui', methods=['GET'])
+def vault_ui():
+    """Vault UI page - uses cloud storage authentication"""
+    # Check if authenticated by storage_autologin middleware
+    from flask import g
+    user_token = getattr(g, 'user_token', None)
+    storage_client = getattr(g, 'storage_client', None)
+    
+    if not user_token or not storage_client:
+        # Not authenticated, show error
+        return render_template('vault_setup_required.html'), 401
+    
+    # Authenticated! Show vault UI
+    storage_type = getattr(g, 'storage_type', 'unknown')
+    return render_template('vault_unified.html', 
+                          user_token=user_token, 
+                          storage_provider=storage_type)
