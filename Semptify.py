@@ -2829,7 +2829,37 @@ def _compat_pre_requests():
         from flask import redirect
         return redirect('/admin')
 
-    # Notary routes handled by actual route handlers below, not here
+    
+    # Storage autologin middleware
+    if session.get('user_token') and session.get('authenticated'):
+        g.user_token = session['user_token']
+        g.storage_type = session.get('storage_type', 'unknown')
+        
+        # Create storage client based on type
+        if g.storage_type == 'google_drive' and 'drive_credentials' in session:
+            try:
+                from google_auth_oauthlib.flow import Flow
+                from googleapiclient.discovery import build
+                from googleapiclient.http import MediaInMemoryUpload
+                
+                creds_dict = session['drive_credentials']
+                # Simplified client creation for middleware
+                g.storage_client = 'google_drive_client_placeholder'
+            except Exception as e:
+                print(f'Storage middleware: Failed to create Google Drive client: {e}')
+                g.storage_client = None
+                
+        elif g.storage_type == 'dropbox' and 'dropbox_access_token' in session:
+            try:
+                import dropbox
+                dbx = dropbox.Dropbox(session['dropbox_access_token'])
+                g.storage_client = 'dropbox_client_placeholder'
+            except Exception as e:
+                print(f'Storage middleware: Failed to create Dropbox client: {e}')
+                g.storage_client = None
+        else:
+            g.storage_client = None
+# Notary routes handled by actual route handlers below, not here
     # (removed duplicate auth logic that was short-circuiting)
 
 
