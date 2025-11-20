@@ -80,109 +80,146 @@ def google_oauth_start():
 
 @storage_setup_bp.route('/oauth/google/callback', methods=['GET'])
 def google_oauth_callback():
-    """Handle Google OAuth callback with full diagnostics and graceful failure."""
-    from flask import render_template
-    import os, json, secrets, traceback
+    """Handle Google OAuth callback (secure, with diagnostics and fallback)"""
     try:
         from google_auth_oauthlib.flow import Flow
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaInMemoryUpload
-    except Exception as e:
-        print('[OAUTH][Google][IMPORT-ERROR]', e)
+    except ImportError:
+        print('[OAUTH][Google] Libraries missing')
         return render_template('storage_setup/oauth_unavailable.html', provider='Google Drive'), 503
-    try:
-        state_param = request.args.get('state')
-        expected_state = session.get('oauth_state')
-        if state_param != expected_state:
-            print('[OAUTH][Google][STATE-MISMATCH] got=', state_param, 'expected=', expected_state)
-            return render_template('storage_setup/oauth_error.html', error_message='State mismatch. Retry authentication.'), 400
-        code = request.args.get('code')
-        if not code:
-            return render_template('storage_setup/oauth_error.html', error_message='Missing authorization code.'), 400
-        client_id = os.getenv('GOOGLE_CLIENT_ID')
-        client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-        if not client_id or not client_secret:
-            return render_template('storage_setup/oauth_error.html', error_message='Server missing GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET.'), 500
-        redirect_uri = _google_redirect_uri()
-        if redirect_uri.startswith('http://'):
-            redirect_uri = 'https://' + redirect_uri[7:]
-        flow = Flow.from_client_config({
-            'web': {
-                'client_id': client_id,
-                'client_secret': client_secret,
-                'redirect_uris': [redirect_uri],
-                'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
-                'token_uri': 'https://oauth2.googleapis.com/token'
-            }
-        }, scopes=['https://www.googleapis.com/auth/drive.file'])
-        flow.redirect_uri = redirect_uri
-        try:
-            flow.fetch_token(code=code)
-        except Exception as primary_err:
-            print('[OAUTH][Google][PRIMARY_FETCH_FAIL]', primary_err)
-            auth_url = request.url
-            if auth_url.startswith('http://'):
-                auth_url = 'https://' + auth_url[7:]
-            try:
-                flow.fetch_token(authorization_response=auth_url)
-            except Exception as fallback_err:
-                tb = traceback.format_exc()[:1200]
-                msg = f'Token exchange failed: {fallback_err}\n{tb}'
-                print('[OAUTH][Google][FALLBACK_FAIL]', msg)
-                return render_template('storage_setup/oauth_error.html', error_message='Google token exchange failed. Please retry.'), 502
-        credentials = flow.credentials
-        drive_service = build('drive', 'v3', credentials=credentials)
-        query = "name='.semptify' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-        files = drive_service.files().list(q=query, spaces='drive', fields='files(id,name)').execute().get('files', [])
-        if files:
-            folder_id = files[0]['id']
-        else:
-            folder = drive_service.files().create(body={'name': '.semptify','mimeType': 'application/vnd.google-apps.folder'}, fields='id').execute()
-            folder_id = folder['id']
-        session['drive_credentials'] = {
-            'token': credentials.token,
-            'refresh_token': getattr(credentials, 'refresh_token', None),
-            'scopes': credentials.scopes
+
+    if request.args.get('state') != session.get('oauth_state'):
+        print('[OAUTH][Google][ERROR] State mismatch', request.args.get('state'), session.get('oauth_state'))
+        return 'Invalid state parameter', 400
+
+    code = request.args.get('code')
+    if not code:
+        print('[OAUTH][Google][ERROR] Missing code param')
+        return 'Missing authorization code', 400
+
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+    if not client_id or not client_secret:
+        print('[OAUTH][Google][ERROR] Missing client credentials')
+        return 'Google OAuth not configured', 500
+
+    redirect_uri = _google_redirect_uri()
+    # Force https scheme
+    if redirect_uri.startswith('http://'):
+        redirect_uri = 'https://' + redirect_uri[7:]
+
+    flow = Flow.from_client_config({
+        'web': {
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'redirect_uris': [redirect_uri],
+            'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
+            'token_uri': 'https://oauth2.googleapis.com/token'
         }
-        session['drive_folder_id'] = folder_id
-        class DriveClient:
-            def __init__(self, credentials):
-                self.service = build('drive', 'v3', credentials=credentials)
-                self.folder_id = session.get('drive_folder_id')
-            def upload(self, path, content):
-                filename = path.split('/')[-1]
-                media = MediaInMemoryUpload(content.encode() if isinstance(content, str) else content)
-                q = f"name='{filename}' and '{self.folder_id}' in parents and trashed=false"
-                existing = self.service.files().list(q=q, fields='files(id)').execute().get('files', [])
-                if existing:
-                    self.service.files().update(fileId=existing[0]['id'], media_body=media).execute()
-                else:
-                    meta = {'name': filename, 'parents': [self.folder_id]}
-                    self.service.files().create(body=meta, media_body=media).execute()
-        drive_client = DriveClient(credentials)
-        user_token = ''.join(secrets.choice('0123456789') for _ in range(12))
-        from calendar_storage import EncryptedCalendarStorage
-        from security import _hash_token
-        token_data = {'token': user_token,'created_at': datetime.utcnow().isoformat(),'storage_type':'google_drive'}
-        storage = EncryptedCalendarStorage(drive_client, user_token)
-        encrypted_token = storage.encrypt_data(token_data)
-        drive_client.upload('auth_token.enc', encrypted_token)
-        drive_client.upload('token_hash.txt', _hash_token(user_token))
-        users_file = 'security/users.json'
-        os.makedirs('security', exist_ok=True)
-        users = {}
-        if os.path.exists(users_file):
-            with open(users_file,'r') as f:
-                users = json.load(f)
-        users[_hash_token(user_token)] = {'created_at': datetime.utcnow().isoformat(),'storage':'google_drive'}
-        with open(users_file,'w') as f:
-            json.dump(users,f,indent=2)
-        print('[OAUTH][Google][SUCCESS] folder_id=' + folder_id)
-        return redirect('/welcome')
+    }, scopes=['https://www.googleapis.com/auth/drive.file'])
+    flow.redirect_uri = redirect_uri
+
+    try:
+        print(f'[OAUTH][Google] START token fetch: code={code[:15]}..., redirect_uri={redirect_uri}')
+        print(f'[OAUTH][Google] token_uri={flow.client_config.get("token_uri")}')
+        flow.fetch_token(code=code)
+        print('[OAUTH][Google] Primary fetch SUCCESS')
     except Exception as e:
-        tb = traceback.format_exc()[:1000]
-        print('[OAUTH][Google][UNCAUGHT]', e, tb)
-        return render_template('storage_setup/oauth_error.html', error_message='Unhandled OAuth error. Retry.'), 500
+        import traceback
+        print(f'[OAUTH][Google][ERROR] === PRIMARY TOKEN FETCH FAILED ===')
+        print(f'[OAUTH][Google][ERROR] Type: {type(e).__name__}')
+        print(f'[OAUTH][Google][ERROR] Message: {str(e)}')
+        print(f'[OAUTH][Google][ERROR] Code (first 15 chars): {code[:15]}...')
+        print(f'[OAUTH][Google][ERROR] Redirect URI used: {redirect_uri}')
+        full_tb = traceback.format_exc()
+        print(f'[OAUTH][Google][ERROR] Traceback:
+{full_tb}')
+        auth_url = request.url
+        if auth_url.startswith('http://'):
+            auth_url = 'https://' + auth_url[7:]
+        try:
+            print(f'[OAUTH][Google] FALLBACK: authorization_response={auth_url}')
+            flow.fetch_token(authorization_response=auth_url)
+            print('[OAUTH][Google] Fallback fetch SUCCESS')
+        except Exception as e2:
+            print(f'[OAUTH][Google][ERROR] === FALLBACK ALSO FAILED ===')
+            print(f'[OAUTH][Google][ERROR] Type: {type(e2).__name__}')
+            print(f'[OAUTH][Google][ERROR] Message: {str(e2)}')
+            full_tb2 = traceback.format_exc()
+            print(f'[OAUTH][Google][ERROR] Fallback traceback:
+{full_tb2}')
+            
+            error_detail = f"{type(e2).__name__}: {str(e2)[:200]}"
+            return render_template('storage_setup/oauth_error.html', 
+                                 error_message=error_detail,
+                                 provider='Google Drive'), 500
+
+    credentials = flow.credentials
+
+    drive_service = build('drive', 'v3', credentials=credentials)
+    query = "name='.semptify' and mimeType='application/vnd.google-apps.folder' and trashed=false"
+    results = drive_service.files().list(q=query, spaces='drive', fields='files(id,name)').execute()
+    files = results.get('files', [])
+    if files:
+        folder_id = files[0]['id']
+    else:
+        folder_metadata = {'name': '.semptify', 'mimeType': 'application/vnd.google-apps.folder'}
+        folder = drive_service.files().create(body=folder_metadata, fields='id').execute()
+        folder_id = folder['id']
+
+    session['drive_credentials'] = {
+        'token': credentials.token,
+        'refresh_token': getattr(credentials, 'refresh_token', None),
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+    session['drive_folder_id'] = folder_id
+
+    class DriveClient:
+        def __init__(self, credentials):
+            self.service = build('drive', 'v3', credentials=credentials)
+            self.folder_id = session.get('drive_folder_id')
+        def upload(self, path, content):
+            filename = path.split('/')[-1]
+            media = MediaInMemoryUpload(content.encode() if isinstance(content, str) else content)
+            q = f"name='{filename}' and '{self.folder_id}' in parents and trashed=false"
+            r = self.service.files().list(q=q, fields='files(id)').execute()
+            existing = r.get('files', [])
+            if existing:
+                self.service.files().update(fileId=existing[0]['id'], media_body=media).execute()
+            else:
+                meta = {'name': filename, 'parents': [self.folder_id]}
+                self.service.files().create(body=meta, media_body=media).execute()
+
+    drive_client = DriveClient(credentials)
+    user_token = ''.join(secrets.choice('0123456789') for _ in range(12))
+
+    from calendar_storage import EncryptedCalendarStorage
+    from security import _hash_token
+    token_data = {'token': user_token, 'created_at': datetime.utcnow().isoformat(), 'storage_type': 'google_drive'}
+    storage = EncryptedCalendarStorage(drive_client, user_token)
+    encrypted_token = storage.encrypt_data(token_data)
+    drive_client.upload('auth_token.enc', encrypted_token)
+
+    token_hash_str = _hash_token(user_token)
+    drive_client.upload('token_hash.txt', token_hash_str)
+
+    token_hash = _hash_token(user_token)
+    os.makedirs('security', exist_ok=True)
+    users_file = 'security/users.json'
+    users = {}
+    if os.path.exists(users_file):
+        with open(users_file, 'r') as f:
+            users = json.load(f)
+    users[token_hash] = {'created_at': datetime.utcnow().isoformat(), 'storage': 'google_drive'}
+    with open(users_file, 'w') as f:
+        json.dump(users, f, indent=2)
+
+    print('[OAUTH][Google] Success folder_id=' + folder_id)
+    return redirect('/welcome')
 
 # ============================================================================
 # DROPBOX OAUTH
@@ -282,33 +319,6 @@ def dropbox_oauth_callback():
     return redirect('/welcome')
 
 # ============================================================================
-@storage_setup_bp.route('/oauth/google/health', methods=['GET'])
-def google_oauth_health():
-    """Diagnostics for Google OAuth readiness"""
-    import importlib, os, json
-    status = {
-        'client_id_present': bool(os.getenv('GOOGLE_CLIENT_ID')),
-        'client_secret_present': bool(os.getenv('GOOGLE_CLIENT_SECRET')),
-        'redirect_uri': _google_redirect_uri(),
-        'session_state': session.get('oauth_state') is not None,
-        'libraries': {
-            'google_auth_oauthlib': False,
-            'googleapiclient': False
-        }
-    }
-    try:
-        importlib.import_module('google_auth_oauthlib.flow')
-        status['libraries']['google_auth_oauthlib'] = True
-    except Exception:
-        pass
-    try:
-        importlib.import_module('googleapiclient.discovery')
-        status['libraries']['googleapiclient'] = True
-    except Exception:
-        pass
-    scheme_forced = status['redirect_uri'].startswith('https://')
-    status['https_enforced'] = scheme_forced or os.getenv('FORCE_HTTPS') == '1'
-    return json.dumps(status), 200, {'Content-Type': 'application/json'}
 # HELPERS
 # ============================================================================
 
@@ -316,9 +326,6 @@ def _google_redirect_uri():
     '''Build HTTPS-aware redirect URI for Google OAuth'''
     scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https' or os.getenv('FORCE_HTTPS') == '1') else 'http'
     return url_for('storage_setup.google_oauth_callback', _external=True, _scheme=scheme)
-
-
-
 
 
 
