@@ -133,8 +133,7 @@ def google_oauth_callback():
         print(f'[OAUTH][Google][ERROR] Code (first 15 chars): {code[:15]}...')
         print(f'[OAUTH][Google][ERROR] Redirect URI used: {redirect_uri}')
         full_tb = traceback.format_exc()
-        print(f'[OAUTH][Google][ERROR] Traceback:
-{full_tb}')
+        print(f'[OAUTH][Google][ERROR] Traceback:\n{full_tb}')
         auth_url = request.url
         if auth_url.startswith('http://'):
             auth_url = 'https://' + auth_url[7:]
@@ -147,8 +146,7 @@ def google_oauth_callback():
             print(f'[OAUTH][Google][ERROR] Type: {type(e2).__name__}')
             print(f'[OAUTH][Google][ERROR] Message: {str(e2)}')
             full_tb2 = traceback.format_exc()
-            print(f'[OAUTH][Google][ERROR] Fallback traceback:
-{full_tb2}')
+            print(f'[OAUTH][Google][ERROR] Fallback traceback:\n{full_tb2}')
             
             error_detail = f"{type(e2).__name__}: {str(e2)[:200]}"
             return render_template('storage_setup/oauth_error.html', 
