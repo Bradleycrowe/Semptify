@@ -221,7 +221,7 @@ def google_oauth_callback():
     session['user_token'] = user_token
     session['authenticated'] = True
     session['storage_type'] = 'dropbox'
-    return redirect('/drepo')
+      return redirect(url_for('storage_setup.welcome', user_token=user_token))
 
 # ============================================================================
 # DROPBOX OAUTH
@@ -359,7 +359,7 @@ def dropbox_oauth_callback():
     session['user_token'] = user_token
     session['authenticated'] = True
     session['storage_type'] = 'dropbox'
-    return redirect('/drepo')
+      return redirect(url_for('storage_setup.welcome', user_token=user_token))
 
 # ============================================================================
 
