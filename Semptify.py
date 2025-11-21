@@ -2710,6 +2710,7 @@ def _build_evidence_prompt(prompt, location, timestamp, form_type, form_data):
 # Compatibility: ensure vault blueprint endpoint exists and provide pre-request handlers
 @app.before_request
 def _compat_pre_requests():
+      global g
     # Provide simple auth gating for /vault and /notary endpoints using the security helpers
     # Vault/Notary auth: require a valid user token for any /vault or /notary path
     if request.path.startswith('/vault') or request.path.startswith('/notary'):
@@ -2833,6 +2834,7 @@ def _compat_pre_requests():
         # Create storage client based on type
         if g.storage_type == 'google_drive' and 'drive_credentials' in session:
             try:
+      global g
                 from google_auth_oauthlib.flow import Flow
                 from googleapiclient.discovery import build
                 from googleapiclient.http import MediaInMemoryUpload
@@ -2985,4 +2987,5 @@ try:
     print('[OK] Legal pages registered (/privacy)')
 except Exception as e:
     print(f'[WARN] Legal pages not available: {e}')
+
 
