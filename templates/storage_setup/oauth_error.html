@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ provider }} OAuth Error</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 40px; max-width: 780px; }
+    .box { border: 2px solid #b00020; background:#fff5f5; padding:24px; border-radius:8px; }
+    h1 { margin-top:0; color:#b00020; }
+    code { background:#f3f3f3; padding:2px 4px; border-radius:4px; }
+    .actions a { display:inline-block; margin:8px 8px 0 0; padding:10px 16px; background:#004b8d; color:#fff; text-decoration:none; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>⚠ {{ provider }} OAuth Failed</h1>
+    <p>We couldn't complete {{ provider }} setup. This is usually caused by one of the following:</p>
+    <ul>
+      <li>Redirect URI not registered in OAuth app console</li>
+      <li>OAuth consent screen not published</li>
+      <li>App enforcing HTTPS but request came via HTTP</li>
+      <li>Expired or reused authorization code</li>
+      <li>Session expired between authorization and callback</li>
+    </ul>
+    <p><strong>Details (sanitized):</strong></p>
+    <pre>{{ error_message }}</pre>
+    <div class="actions">
+      <a href="/oauth/{{ provider.lower().replace(' ', '_') }}/start">↩ Retry Setup</a>
+      <a href="/setup">Storage Options</a>
+      {% if provider == "Google Drive" %}
+      <a href="/oauth/google/health" target="_blank">Health Check</a>
+      {% elif provider == "Dropbox" %}
+      <a href="/oauth/dropbox/health" target="_blank">Health Check</a>
+      {% endif %}
+    </div>
+    <p style="margin-top:24px;font-size:0.9em;color:#555">If this persists, provide the health check JSON and the approximate time of failure to support.</p>
+  </div>
+</body>
+</html>

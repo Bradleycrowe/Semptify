@@ -73,7 +73,7 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY") or os.getenv("FLASK_SECRET") or "
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('FORCE_HTTPS') == '1' or os.getenv('SESSION_COOKIE_SECURE') == '1'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour
+app.config['PERMANENT_SESSION_LIFETIME'] = 7 * 24 * 60 * 60  # 7 days (604800 seconds)
 # Dev: make changes show immediately
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -1566,11 +1566,6 @@ def about():
     """About Semptify."""
     return render_template('placeholder.html'), 503
 
-@app.route('/privacy')
-def privacy():
-    """Privacy policy."""
-    return render_template('placeholder.html'), 503
-
 @app.route('/terms')
 def terms():
     """Terms of service."""
@@ -2990,3 +2985,4 @@ try:
     print('[OK] Legal pages registered (/privacy)')
 except Exception as e:
     print(f'[WARN] Legal pages not available: {e}')
+
