@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Semptify{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fb; }
+        
+        /* Navigation Bar */
+        .navbar { background: #1976d2; color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .navbar-brand { font-size: 24px; font-weight: 700; text-decoration: none; color: white; }
+        .navbar-menu { display: flex; gap: 24px; align-items: center; }
+        .navbar-link { color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; transition: background 0.2s; }
+        .navbar-link:hover { background: rgba(255,255,255,0.1); }
+        .navbar-link.active { background: rgba(255,255,255,0.2); font-weight: 600; }
+        
+        /* Breadcrumbs */
+        .breadcrumbs { background: white; padding: 12px 24px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .breadcrumb-item { color: #666; }
+        .breadcrumb-item a { color: #1976d2; text-decoration: none; }
+        .breadcrumb-item a:hover { text-decoration: underline; }
+        .breadcrumb-separator { color: #999; }
+        
+        /* Main Content */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
+        .page-header { margin-bottom: 32px; }
+        .page-title { font-size: 32px; font-weight: 700; color: #333; margin-bottom: 8px; }
+        .page-subtitle { font-size: 16px; color: #666; }
+        
+        /* Cards */
+        .card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px; }
+        .card-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #333; }
+        
+        /* Buttons */
+        .btn { display: inline-block; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-primary { background: #1976d2; color: white; }
+        .btn-primary:hover { background: #1565c0; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .btn-secondary:hover { background: #d0d0d0; }
+        
+        /* Footer */
+        .footer { background: #333; color: white; padding: 32px 24px; text-align: center; margin-top: 80px; }
+        .footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 16px; }
+        .footer-link { color: #aaa; text-decoration: none; }
+        .footer-link:hover { color: white; }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">📋 Semptify</a>
+        <div class="navbar-menu">
+            <a href="/" class="navbar-link {% if request.path == '/' %}active{% endif %}">Home</a>
+            <a href="/setup" class="navbar-link {% if request.path.startswith('/setup') %}active{% endif %}">Setup</a>
+            <a href="/vault" class="navbar-link {% if request.path.startswith('/vault') %}active{% endif %}">Vault</a>
+            <a href="/calendar" class="navbar-link {% if request.path.startswith('/calendar') %}active{% endif %}">Timeline</a>
+            <a href="/docs" class="navbar-link {% if request.path.startswith('/docs') %}active{% endif %}">Docs</a>
+            <a href="/register" class="navbar-link {% if request.path.startswith('/register') %}active{% endif %}">Register</a>
+        </div>
+    </nav>
+    
+    <!-- Breadcrumbs -->
+    {% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <span class="breadcrumb-item"><a href="/">Home</a></span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-item">{% block breadcrumb_current %}Current Page{% endblock %}</span>
+    </div>
+    {% endblock %}
+    
+    <!-- Main Content -->
+    <div class="container">
+        {% block content %}
+        <!-- Page content goes here -->
+        {% endblock %}
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/privacy" class="footer-link">Privacy</a>
+            <a href="/docs" class="footer-link">Documentation</a>
+            <a href="/admin" class="footer-link">Admin</a>
+        </div>
+        <p>© 2025 Semptify - A Tenant's Document Toolbox</p>
+        <p style="color: #666; font-size: 12px; margin-top: 8px;">Document everything!</p>
+    </footer>
+</body>
+</html>
