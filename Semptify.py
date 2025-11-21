@@ -1,12 +1,12 @@
-import os
-from dotenv import load_dotenv
-load_dotenv()  # Load .env file
-
-
-import os
-
-
-import os
+  init_learning(data_dir=os.path.join(os.getcwd(), "data"))
+  # Prime the AI with initial knowledge
+  prime_file = os.path.join(os.getcwd(), "data", "learning_patterns.json")
+  if not os.path.exists(prime_file) or os.path.getsize(prime_file) < 100:
+      print("[INFO] Priming AI with initial knowledge...")
+      seed = create_seed_data()
+      with open(prime_file, "w") as f:
+          json.dump(seed, f, indent=2)
+      print("[OK] AI primed with initial patterns")
 import json
 import time
 import uuid
