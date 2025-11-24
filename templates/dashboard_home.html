@@ -1,55 +1,249 @@
-{% include "includes/navbar.html" %}
 {% extends "base_auth.html" %}
-{% block title %}Dashboard • Semptify{% endblock %}
-{% block head %}
-<style>
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; }
-  .card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; box-shadow:0 8px 20px rgba(0,0,0,0.06); display:flex; flex-direction:column; }
-  .card h3 { margin:0 0 6px; font-size:1.1rem; }
-  .card p { margin:0 0 14px; color:#6b7280; font-size:0.9rem; }
-  .card a { align-self:flex-start; background:#667eea; color:#fff; text-decoration:none; padding:10px 14px; border-radius:10px; font-weight:700; font-size:0.9rem; }
-  .welcome { margin-bottom:16px; }
-@media (min-width: 1600px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-</style>
-{% endblock %}
+
+{% block title %}Semptify - Tenant Rights Protection Platform{% endblock %}
+
 {% block content %}
-  <div class="welcome">
-    <h2>Welcome back</h2>
-    <p style="color:#6b7280;">Quick actions to manage your case and evidence.</p>
-  </div>
-  <div class="grid">
-    <div class="card">
-      <h3>Evidence Vault</h3>
-      <p>Upload photos, videos, and documents. All notarized automatically.</p>
-      <a href="/vault">Open Vault →</a>
+<div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+    
+    <!-- Welcome Header -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h1 style="margin: 0 0 1rem 0; font-size: 2.5rem; font-weight: 700;">Welcome to Semptify</h1>
+        <p style="font-size: 1.2rem; line-height: 1.6; margin: 0 0 1rem 0; opacity: 0.95;">
+            Your comprehensive tenant rights protection platform. Document evidence, track timelines, file complaints, and understand your rights.
+        </p>
+        <p style="font-size: 1rem; line-height: 1.5; opacity: 0.9; margin: 0;">
+            Adaptive system that meets you where you are—from just looking around to full case preparation.
+        </p>
     </div>
-    <div class="card">
-      <h3>Journey & Guidance</h3>
-      <p>Answer a few questions to get statute-aware steps.</p>
-      <a href="/housing_journey">Start Journey →</a>
+
+    <!-- About Semptify -->
+    <div style="background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h2 style="color: #2c3e50; margin-top: 0; margin-bottom: 1rem; font-size: 1.8rem;">What is Semptify?</h2>
+        
+        <p style="color: #34495e; line-height: 1.7; font-size: 1.05rem; margin-bottom: 1rem;">
+            Semptify helps renters document housing disputes, organize evidence, and take action. Whether dealing with habitability issues, 
+            unfair evictions, or lease violations—we provide tools to protect your rights. The platform adapts to your <strong>intensity level</strong>: 
+            just browsing for information (low intensity), gathering evidence (medium), or preparing for court (high intensity).
+        </p>
+        
+        <div style="background: #f8f9fa; border-left: 4px solid #3498db; padding: 1rem; margin: 1.5rem 0; border-radius: 4px;">
+            <h3 style="margin-top: 0; color: #2c3e50; font-size: 1.2rem;">🔐 Privacy & Multi-User Support</h3>
+            <p style="color: #34495e; line-height: 1.6; margin: 0;">
+                Each user gets a unique anonymous token—no personal info required. Your documents are encrypted with your token. 
+                Multiple users can use Semptify simultaneously with complete data isolation. Perfect for roommates or housing advocates.
+            </p>
+        </div>
     </div>
-    <div class="card">
-      <h3>Timeline</h3>
-      <p>See events, uploads, and actions in chronological order.</p>
-      <a href="/timeline">View Timeline →</a>
+
+    <!-- NEW USER ONBOARDING FLOW -->
+    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.15);">
+        <h2 style="margin-top: 0; color: white; font-size: 1.8rem;">🎯 New User? Start Here</h2>
+        <p style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem; opacity: 0.95;">
+            Follow these steps to set up your Semptify account and prepare your case:
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            
+            <!-- Step 1: Register -->
+            <div style="background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="background: #e74c3c; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem;">1</div>
+                <h3 style="margin: 0 0 0.75rem 0; font-size: 1.2rem; color: #2c3e50;">Register & Get Token</h3>
+                <p style="color: #7f8c8d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                    Get your anonymous user token in 30 seconds. No email required—just save your token securely!
+                </p>
+                <a href="/register" style="display: inline-block; background: #e74c3c; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">
+                    Register Now →
+                </a>
+            </div>
+
+            <!-- Step 2: Setup Storage -->
+            <div style="background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="background: #f39c12; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem;">2</div>
+                <h3 style="margin: 0 0 0.75rem 0; font-size: 1.2rem; color: #2c3e50;">Configure Storage</h3>
+                <p style="color: #7f8c8d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                    Set up encrypted cloud storage (R2) or local storage. Your data stays private and secure.
+                </p>
+                <a href="/settings" style="display: inline-block; background: #f39c12; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">
+                    Setup Storage →
+                </a>
+            </div>
+
+            <!-- Step 3: Tell Your Story -->
+            <div style="background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="background: #27ae60; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem;">3</div>
+                <h3 style="margin: 0 0 0.75rem 0; font-size: 1.2rem; color: #2c3e50;">Start Your Journey</h3>
+                <p style="color: #7f8c8d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                    Tell us about your situation. The intensity engine adapts to your needs—browse, document, or prepare for court.
+                </p>
+                <a href="/housing_journey" style="display: inline-block; background: #27ae60; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">
+                    Begin Journey →
+                </a>
+            </div>
+
+            <!-- Step 4: Upload Evidence -->
+            <div style="background: rgba(255,255,255,0.95); color: #2c3e50; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="background: #3498db; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem;">4</div>
+                <h3 style="margin: 0 0 0.75rem 0; font-size: 1.2rem; color: #2c3e50;">Document Evidence</h3>
+                <p style="color: #7f8c8d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                    Upload photos, videos, emails, and documents to your encrypted vault. Auto-generates timeline.
+                </p>
+                <a href="/vault" style="display: inline-block; background: #3498db; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">
+                    Open Vault →
+                </a>
+            </div>
+
+        </div>
     </div>
-    <div class="card">
-      <h3>File a Complaint</h3>
-      <p>Generate court-ready packets and guidance tailored to your jurisdiction.</p>
-      <a href="/file-complaint">Begin Filing →</a>
+
+    <!-- CORE FEATURES (organized by workflow) -->
+    <h2 style="color: #2c3e50; margin-bottom: 1.5rem; font-size: 1.8rem;">📌 Core Features</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Timeline -->
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">📅</div>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 0.5rem;">Timeline</h3>
+            <p style="color: #7f8c8d; line-height: 1.5; margin-bottom: 1rem;">
+                Auto-populated chronological view of all events and evidence uploads
+            </p>
+            <a href="/timeline" style="display: inline-block; background: #9b59b6; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                View Timeline →
+            </a>
+        </div>
+
+        <!-- Calendar -->
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🗓️</div>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 0.5rem;">Calendar</h3>
+            <p style="color: #7f8c8d; line-height: 1.5; margin-bottom: 1rem;">
+                Track rent due dates, court dates, inspections, and deadlines
+            </p>
+            <a href="/calendar" style="display: inline-block; background: #f39c12; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Open Calendar →
+            </a>
+        </div>
+
+        <!-- Rent Ledger -->
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🧾</div>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 0.5rem;">Rent Ledger</h3>
+            <p style="color: #7f8c8d; line-height: 1.5; margin-bottom: 1rem;">
+                Track payments, receipts, and proof of payment history
+            </p>
+            <a href="/ledger" style="display: inline-block; background: #16a085; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                View Ledger →
+            </a>
+        </div>
+
+        <!-- File Complaint -->
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">⚖️</div>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 0.5rem;">File Complaint</h3>
+            <p style="color: #7f8c8d; line-height: 1.5; margin-bottom: 1rem;">
+                Guided complaint filing—generates court-ready packets
+            </p>
+            <a href="/file-complaint" style="display: inline-block; background: #e74c3c; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Begin Filing →
+            </a>
+        </div>
+
+        <!-- Housing Programs -->
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🏘️</div>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 0.5rem;">Housing Programs</h3>
+            <p style="color: #7f8c8d; line-height: 1.5; margin-bottom: 1rem;">
+                Find rental assistance, emergency housing, and legal aid
+            </p>
+            <a href="/housing-programs" style="display: inline-block; background: #8e44ad; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Browse Programs →
+            </a>
+        </div>
+
+        <!-- AI Copilot -->
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🤖</div>
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 0.5rem;">AI Copilot</h3>
+            <p style="color: #7f8c8d; line-height: 1.5; margin-bottom: 1rem;">
+                AI assistance for document analysis and case guidance
+            </p>
+            <a href="/api/copilot" style="display: inline-block; background: #34495e; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Launch Copilot →
+            </a>
+        </div>
+
     </div>
-    <div class="card">
-      <h3>Programs & Help</h3>
-      <p>Explore housing programs and assistance options in your area.</p>
-      <a href="/housing-programs">Browse Programs →</a>
+
+    <!-- ADVANCED TOOLS -->
+    <h2 style="color: #2c3e50; margin-bottom: 1.5rem; margin-top: 3rem; font-size: 1.8rem;">🛠️ Advanced Tools</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">📋</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Court Packet Builder</h4>
+            <a href="/tools/court-packet-builder" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Open Builder →</a>
+        </div>
+
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">📝</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Witness Statement</h4>
+            <a href="/resources/witness_statement" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Create Statement →</a>
+        </div>
+
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">✉️</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Certified Mail</h4>
+            <a href="/certified_post" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Track Mail →</a>
+        </div>
+
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">🏛️</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Court Clerk Info</h4>
+            <a href="/court_clerk" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">View Info →</a>
+        </div>
+
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">🔖</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Vault Certificates</h4>
+            <a href="/vault/certificates" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">View Certificates →</a>
+        </div>
+
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">📚</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Resources Library</h4>
+            <a href="/resources" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Browse Resources →</a>
+        </div>
+
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">⚙️</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Settings</h4>
+            <a href="/settings" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Configure →</a>
+        </div>
+
+        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.75rem;">🔐</div>
+            <h4 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Admin Panel</h4>
+            <a href="/admin" style="color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Access Admin →</a>
+        </div>
+
     </div>
-    <div class="card">
-      <h3>Settings</h3>
-      <p>Manage storage, token, and preferences.</p>
-      <a href="/settings">Open Settings →</a>
+
+    <!-- Intensity Engine Explanation -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-top: 2rem;">
+        <h2 style="margin-top: 0; color: white; font-size: 1.6rem;">⚡ Adaptive Intensity Engine</h2>
+        <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 1rem; opacity: 0.95;">
+            Semptify adapts to <strong>your situation intensity</strong>:
+        </p>
+        <ul style="line-height: 1.8; margin: 0; padding-left: 1.5rem;">
+            <li><strong>Low Intensity:</strong> Just browsing for information? Use resources, read guides, explore options.</li>
+            <li><strong>Medium Intensity:</strong> Documenting issues? Upload evidence to vault, track timeline, organize documents.</li>
+            <li><strong>High Intensity:</strong> Preparing for court? File complaints, build court packets, coordinate with legal aid.</li>
+        </ul>
+        <p style="font-size: 0.95rem; line-height: 1.6; margin-top: 1rem; margin-bottom: 0; opacity: 0.9;">
+            The system learns from your actions and adapts modules to your needs. Start anywhere—Semptify meets you where you are.
+        </p>
     </div>
-  </div>
+
+</div>
 {% endblock %}
-
-
-
