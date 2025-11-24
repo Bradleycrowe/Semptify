@@ -200,7 +200,7 @@ def court_packet_builder():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('dashboard_home.html')
 
 @app.route('/admin')
 def admin():
