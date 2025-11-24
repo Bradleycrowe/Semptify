@@ -1,3 +1,4 @@
+from datetime import datetime
 # main_dashboard_routes.py - Production-ready homepage matching Render deployment
 from flask import Blueprint, render_template, session, request, redirect, url_for
 
@@ -9,7 +10,8 @@ def home():
     user_token = request.args.get('user_token') or session.get('user_token')
     storage_qualified = session.get('qualified', False)
     
-    return render_template('main_dashboard/home.html',
+    return render_template('dashboard_home.html',
+                           datetime=datetime,
                            admin_token=request.args.get('admin_token', ''),
                          user_token=user_token,
                          storage_qualified=storage_qualified)
