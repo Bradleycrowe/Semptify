@@ -1,38 +1,28 @@
-{% extends 'base.html' %}
-{% block page_title %}Document Vault - Semptify{% endblock %}
-{% block content %}
-
-    
-    <h1>📁 Document Vault</h1>
-    <p>Secure storage for your documents and evidence. All files are encrypted and accessible only with your unique token.</p>
-    
-    <div class="upload-form">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document Vault - Semptify</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Document Vault</h1>
+        <p>Secure document storage for user {{ user_id }}</p>
+        
         <h2>Upload Document</h2>
-        <form action="/vault/upload" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="user_token" value="{{ user_token if user_token else '' }}">
+        <form method="POST" enctype="multipart/form-data">
             <input type="file" name="file" required>
-            <input type="submit" value="Upload">
+            <button type="submit">Upload</button>
         </form>
-    </div>
-
-    <h2>Your Documents</h2>
-    <ul class="file-list">
-        {% if files %}
-            {% for file in files %}
-            <li>
-                📄 {{ file.name }} ({{ file.size }})
-                <a href="/vault/download/{{ file.name }}?user_token={{ user_token }}">Download</a>
-            </li>
-            {% endfor %}
+        
+        <h2>Your Documents</h2>
+        <ul>
+        {% for doc in documents %}
+            <li>{{ doc }}</li>
         {% else %}
-            <li>No documents uploaded yet.</li>
-        {% endif %}
-    </ul>
-
-    {% if user %}
-    <p style="margin-top: 2rem; color: #666; font-size: 0.9rem;">
-        Logged in as: {{ user.name or user.id }}
-    </p>
-    {% endif %}
-
-{% endblock %}
+            <li>No documents yet</li>
+        {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

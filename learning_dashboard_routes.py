@@ -8,7 +8,8 @@ from engines.learning_engine import LearningEngine
 from engines.adaptive_intensity_engine import AdaptiveIntensityEngine
 from engines.curiosity_engine import CuriosityEngine
 from learning_adapter import LearningAdapter
-from user_database import _get_db
+from user_database import _get_db  # Only for logging actions
+from semptify_core import get_context  # Context Data System
 from datetime import datetime, timedelta
 import json
 
@@ -63,18 +64,11 @@ def get_dashboard_data():
     intensity = get_intensity_engine()
     curiosity = get_curiosity_engine()
     
-    # Get user profile from database
-    conn = _get_db()
-    cursor = conn.cursor()
+    # Get context from Context Data System
+    context = get_context(str(user_id))
     
-    cursor.execute('''
-        SELECT u.*, lp.*
-        FROM users u
-        LEFT JOIN user_learning_profiles lp ON u.user_id = lp.user_id
-        WHERE u.user_id = ?
-    ''', (user_id,))
-    
-    user_row = cursor.fetchone()
+    # Extract user data
+    user_row = context.user if context and context.user else None
     
     if not user_row:
         # Demo data for testing
@@ -419,3 +413,4 @@ def format_stage(stage: str) -> str:
 def format_action(action: str) -> str:
     """Format action name for display"""
     return action.replace('_', ' ').title()
+

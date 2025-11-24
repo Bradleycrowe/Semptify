@@ -41,9 +41,9 @@ class R2DatabaseAdapter:
             self.enabled = True
             self._restore_from_r2()
             atexit.register(self._backup_to_r2)
-            print(f"✓ R2 database persistence enabled (bucket: {self.bucket})")
+            print(f"OK: R2 database persistence enabled (bucket: {self.bucket})")
         else:
-            print("⚠ R2 not configured - using local-only database (ephemeral)")
+            print("WARN: R2 not configured - using local-only database (ephemeral)")
     
     def _init_r2(self):
         """Initialize R2 connection."""
@@ -61,11 +61,11 @@ class R2DatabaseAdapter:
                 endpoint_url=f'https://{account_id}.r2.cloudflarestorage.com',
                 aws_access_key_id=os.getenv('R2_ACCESS_KEY_ID'),
                 aws_secret_access_key=os.getenv('R2_SECRET_ACCESS_KEY'),
-                region_name='auto'
+                region_name='us-east-1'
             )
             return True
         except Exception as e:
-            print(f"⚠ R2 init failed: {e}")
+            print(f"WARN: R2 init failed: {e}")
             return False
     
     def _restore_from_r2(self):
@@ -80,12 +80,12 @@ class R2DatabaseAdapter:
             # Download to local path
             os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
             self.s3_client.download_file(self.bucket, R2_DB_KEY, DB_PATH)
-            print(f"✓ Restored database from R2 ({R2_DB_KEY})")
+            print(f"OK: Restored database from R2 ({R2_DB_KEY})")
             
         except self.s3_client.exceptions.NoSuchKey:
-            print("ℹ No existing database in R2 - starting fresh")
+            print("INFO: No existing database in R2 - starting fresh")
         except Exception as e:
-            print(f"⚠ Failed to restore from R2: {e}")
+            print(f"WARN: Failed to restore from R2: {e}")
     
     def _backup_to_r2(self):
         """Upload current database to R2."""
@@ -95,9 +95,9 @@ class R2DatabaseAdapter:
         try:
             self.s3_client.upload_file(DB_PATH, self.bucket, R2_DB_KEY)
             self.last_sync = time.time()
-            print(f"✓ Backed up database to R2 ({R2_DB_KEY})")
+            print(f"OK: Backed up database to R2 ({R2_DB_KEY})")
         except Exception as e:
-            print(f"⚠ Failed to backup to R2: {e}")
+            print(f"WARN: Failed to backup to R2: {e}")
     
     def sync_if_needed(self):
         """Periodic sync to R2 (call this in background task or after writes)."""
@@ -137,3 +137,6 @@ def sync_database_to_r2():
 # After any significant write operation:
 #   from r2_database_adapter import sync_database_to_r2
 #   sync_database_to_r2()
+
+
+

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Workflow Wizard | Brad''s GUI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: ''Segoe UI'', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .wizard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 30px;
+            left: 50px;
+            right: 50px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            z-index: 1;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: #22c55e;
+            transition: width 0.5s;
+            width: 0%;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 4px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+
+        .step.completed .step-circle {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .step.active .step-circle {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .step.active .step-title,
+        .step.completed .step-title {
+            color: #fff;
+        }
+
+        /* Wizard Content */
+        .wizard-content {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 40px;
+            min-height: 500px;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-header {
+            margin-bottom: 30px;
+        }
+
+        .step-header h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .step-header .subtitle {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.6;
+        }
+
+        /* Thinking Process Box */
+        .thought-process {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .thought-process-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .thought-process-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .thought-process ul {
+            margin: 10px 0 10px 20px;
+        }
+
+        .thought-process li {
+            margin: 8px 0;
+        }
+
+        /* Action Cards */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-card.selected {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .action-card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .action-card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .action-card-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.5;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .action-card.selected .checkmark {
+            display: flex;
+        }
+
+        /* Navigation Buttons */
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Checklist */
+        .checklist {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: start;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .checklist-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .checklist-item.checked .checklist-checkbox {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .checklist-text {
+            flex: 1;
+        }
+
+        .checklist-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .checklist-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Example Box */
+        .example-box {
+            background: rgba(168, 85, 247, 0.2);
+            border-left: 4px solid #a855f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .example-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #c4b5fd;
+        }
+
+        .example-content {
+            font-size: 14px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="header">
+            <h1>🎯 Case Management Wizard</h1>
+            <p>Step-by-step guide to building your eviction defense case</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-line">
+                    <div class="progress-line-fill" id="progress-fill"></div>
+                </div>
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-title">Client Info</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-title">Gather Evidence</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-title">Build Timeline</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-title">Analyze</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-circle">5</div>
+                    <div class="step-title">Take Action</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wizard Content -->
+        <div class="wizard-content">
+            <!-- Step 1: Client Information -->
+            <div class="step-content active" id="step-1">
+                <div class="step-header">
+                    <h2>📋 Step 1: Gather Client Information</h2>
+                    <div class="subtitle">
+                        First, we need basic information about your client and their situation.
+                    </div>
+                </div>
+
+                <div class="thought-process">
+                    <div class="thought-process-title">
+                        �� Why this matters
+                    </div>
+                    <div class="thought-process-content">
+                        <strong>Human reasoning:</strong> Before we can help someone defend against eviction, we need to understand their situation. Think of this like a doctor taking medical history before treatment.<br><br>
+                        <strong>What we''re establishing:</strong>
+                        <ul>
+                            <li>Who is the client? (for documents and court filings)</li>
+                            <li>How can we reach them? (critical for deadlines)</li>
+                            <li>Where is the property? (determines jurisdiction)</li>
+                            <li>What''s the case status? (determines urgency)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="checklist">
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">Client''s full legal name</div>
+                            <div class="checklist-desc">As it appears on lease and court documents</div>
+                        </div>
+                    </div>
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">Contact information</div>
+                            <div class="checklist-desc">Phone or email for urgent communications</div>
+                        </div>
+                    </div>
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">Property address</div>
+                            <div class="checklist-desc">The rental unit (not mailing address)</div>
+                        </div>
+                    </div>
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">Court case number (if filed)</div>
+                            <div class="checklist-desc">Format: 62-CV-YY-####  for Dakota County</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">�� Real Example:</div>
+                    <div class="example-content">
+                        "Jane Smith, lives at 123 Oak Street, Eagan MN. Received eviction notice on Nov 1st. Case number 62-CV-25-5678. Best reached at 555-123-4567. Eviction is for non-payment but apartment has had heat issues since October."
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="navigateStep(2)">
+                    Continue: Gather Evidence →
+                </button>
+            </div>
+
+            <!-- Step 2: Gather Evidence -->
+            <div class="step-content" id="step-2">
+                <div class="step-header">
+                    <h2>📁 Step 2: Gather Evidence Documents</h2>
+                    <div class="subtitle">
+                        Collect and upload documentation that supports your case.
+                    </div>
+                </div>
+
+                <div class="thought-process">
+                    <div class="thought-process-title">
+                        💭 Why this matters
+                    </div>
+                    <div class="thought-process-content">
+                        <strong>Human reasoning:</strong> In court, facts matter more than feelings. Documents are proof. Think of this like building a case file that tells your story through evidence.<br><br>
+                        <strong>Priority order:</strong>
+                        <ol>
+                            <li><strong>Notice documents</strong> (proves proper service, identifies defects)</li>
+                            <li><strong>Lease agreement</strong> (shows terms, obligations)</li>
+                            <li><strong>Payment records</strong> (receipts, cancelled checks, bank statements)</li>
+                            <li><strong>Communication records</strong> (texts, emails with landlord)</li>
+                            <li><strong>Habitability evidence</strong> (photos, inspection reports, repair requests)</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="action-grid">
+                    <div class="action-card" onclick="selectDocument(this, ''notice'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">📩</div>
+                        <div class="action-card-title">Eviction Notice</div>
+                        <div class="action-card-desc">
+                            The eviction notice you received. Critical for checking service requirements.
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectDocument(this, ''lease'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">📄</div>
+                        <div class="action-card-title">Lease Agreement</div>
+                        <div class="action-card-desc">
+                            Your rental agreement showing terms and landlord obligations.
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectDocument(this, ''payments'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">💵</div>
+                        <div class="action-card-title">Payment Records</div>
+                        <div class="action-card-desc">
+                            Receipts, checks, bank statements showing rent payments.
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectDocument(this, ''communications'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">💬</div>
+                        <div class="action-card-title">Communications</div>
+                        <div class="action-card-desc">
+                            Texts, emails, letters with landlord about repairs or issues.
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectDocument(this, ''photos'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">📸</div>
+                        <div class="action-card-title">Photos/Videos</div>
+                        <div class="action-card-desc">
+                            Visual evidence of property conditions, damages, or defects.
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectDocument(this, ''inspections'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">🔍</div>
+                        <div class="action-card-title">Inspection Reports</div>
+                        <div class="action-card-desc">
+                            Official inspections by city, health dept, or third parties.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">💡 What judges look for:</div>
+                    <div class="example-content">
+                        Dated documents showing a clear pattern. Example: "Tenant reported mold on Oct 5 (photo + email). Landlord ignored. Tenant reported again Oct 12 (text). Still no response. City inspector confirmed mold Oct 20 (inspection report). Eviction filed Oct 25 (notice) - possible retaliation!"
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button class="btn btn-secondary" onclick="navigateStep(1)">
+                        ← Back
+                    </button>
+                    <button class="btn btn-primary" onclick="navigateStep(3)">
+                        Continue: Build Timeline →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Build Timeline -->
+            <div class="step-content" id="step-3">
+                <div class="step-header">
+                    <h2>📅 Step 3: Build a Timeline</h2>
+                    <div class="subtitle">
+                        Document key events in chronological order.
+                    </div>
+                </div>
+
+                <div class="thought-process">
+                    <div class="thought-process-title">
+                        💭 Why this matters
+                    </div>
+                    <div class="thought-process-content">
+                        <strong>Human reasoning:</strong> Courts understand stories. A timeline turns scattered events into a coherent narrative showing cause and effect.<br><br>
+                        <strong>What makes a strong timeline:</strong>
+                        <ul>
+                            <li>Starts with move-in date or when problems began</li>
+                            <li>Shows pattern of complaints and landlord responses (or lack thereof)</li>
+                            <li>Documents all notice dates and service methods</li>
+                            <li>Reveals timing that suggests retaliation or improper procedures</li>
+                            <li>Connects to your evidence documents</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="checklist">
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">When did problems start?</div>
+                            <div class="checklist-desc">Habitability issues, payment disputes, etc.</div>
+                        </div>
+                    </div>
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">When did you report problems?</div>
+                            <div class="checklist-desc">Dates of complaints to landlord</div>
+                        </div>
+                    </div>
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">When was eviction notice served?</div>
+                            <div class="checklist-desc">Critical for service requirement deadlines</div>
+                        </div>
+                    </div>
+                    <div class="checklist-item" onclick="toggleChecklistItem(this)">
+                        <div class="checklist-checkbox">✓</div>
+                        <div class="checklist-text">
+                            <div class="checklist-title">When is the court hearing?</div>
+                            <div class="checklist-desc">Determines your deadline to respond</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">💡 Timeline showing retaliation:</div>
+                    <div class="example-content">
+                        • Oct 5: Tenant reports broken furnace (email)<br>
+                        • Oct 12: Temp drops to 55°F, tenant calls again (text)<br>
+                        • Oct 15: Tenant calls city inspector<br>
+                        • Oct 18: City issues violation notice to landlord<br>
+                        • Oct 25: Landlord serves eviction notice (7 days after complaint!)<br>
+                        <br>
+                        <strong>Pattern suggests:</strong> Retaliation defense (§504B.285)
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button class="btn btn-secondary" onclick="navigateStep(2)">
+                        ← Back
+                    </button>
+                    <button class="btn btn-primary" onclick="navigateStep(4)">
+                        Continue: Analyze Case →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Analyze -->
+            <div class="step-content" id="step-4">
+                <div class="step-header">
+                    <h2>🔍 Step 4: Analyze Your Case</h2>
+                    <div class="subtitle">
+                        Identify defenses and strategic options based on the evidence.
+                    </div>
+                </div>
+
+                <div class="thought-process">
+                    <div class="thought-process-title">
+                        💭 Why this matters
+                    </div>
+                    <div class="thought-process-content">
+                        <strong>Human reasoning:</strong> Not all defenses apply to every case. We analyze your specific facts to identify the strongest legal arguments.<br><br>
+                        <strong>What AI looks for:</strong>
+                        <ul>
+                            <li>Service defects (§504B.321) - Was notice proper? 7+ days?</li>
+                            <li>Retaliation (§504B.285) - Eviction within 90 days of complaint?</li>
+                            <li>Habitability (§504B.161) - Serious property defects?</li>
+                            <li>Discrimination - Protected class issues?</li>
+                            <li>Procedural errors - Missing info on notice?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="analysis-results">
+                    <h3 style="margin-bottom: 20px;">📊 Preliminary Analysis</h3>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">
+                        Based on documents and timeline, here are potential defenses:
+                    </p>
+
+                    <div class="action-grid">
+                        <div class="action-card">
+                            <div class="action-card-icon">⚖️</div>
+                            <div class="action-card-title">Service Review</div>
+                            <div class="action-card-desc">
+                                Check if eviction notice meets 7-day requirement and proper service method (§504B.321)
+                            </div>
+                        </div>
+                        <div class="action-card">
+                            <div class="action-card-icon">🛡️</div>
+                            <div class="action-card-title">Retaliation Check</div>
+                            <div class="action-card-desc">
+                                Analyze timeline for complaints within 90 days before eviction filing (§504B.285)
+                            </div>
+                        </div>
+                        <div class="action-card">
+                            <div class="action-card-icon">🏠</div>
+                            <div class="action-card-title">Habitability Issues</div>
+                            <div class="action-card-desc">
+                                Review photos and reports for serious property defects (§504B.161)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">💡 How defenses work together:</div>
+                    <div class="example-content">
+                        <strong>Primary Defense:</strong> Motion to Dismiss (improper service)<br>
+                        <strong>Backup Defense:</strong> Counterclaim for Retaliation<br>
+                        <strong>Alternative:</strong> Rent Escrow (habitability)<br>
+                        <strong>Post-case:</strong> Motion for Expungement if dismissed<br>
+                        <br>
+                        <em>Strategy: Start strong (dismiss), have backup (counterclaim), protect record (expungement)</em>
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button class="btn btn-secondary" onclick="navigateStep(3)">
+                        ← Back
+                    </button>
+                    <button class="btn btn-primary" onclick="navigateStep(5)">
+                        Continue: Take Action →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5: Take Action -->
+            <div class="step-content" id="step-5">
+                <div class="step-header">
+                    <h2>🚀 Step 5: Take Action</h2>
+                    <div class="subtitle">
+                        File motions, prepare for court, or negotiate resolution.
+                    </div>
+                </div>
+
+                <div class="thought-process">
+                    <div class="thought-process-title">
+                        💭 Why this matters
+                    </div>
+                    <div class="thought-process-content">
+                        <strong>Human reasoning:</strong> Analysis is worthless without action. Based on your evidence and defenses, here are concrete steps to take.<br><br>
+                        <strong>Priority actions:</strong>
+                        <ol>
+                            <li>File strongest defense motion ASAP (beat deadlines)</li>
+                            <li>Prepare backup defenses in case primary fails</li>
+                            <li>Gather any missing evidence identified in analysis</li>
+                            <li>Consider settlement if appropriate</li>
+                            <li>Plan for court hearing (what to say, what to bring)</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="action-grid">
+                    <div class="action-card" onclick="selectAction(this, ''motion'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">📝</div>
+                        <div class="action-card-title">File Motion</div>
+                        <div class="action-card-desc">
+                            Use Dakota County templates to file Motion to Dismiss, Continue, or Escrow
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectAction(this, ''counterclaim'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">⚔️</div>
+                        <div class="action-card-title">File Counterclaim</div>
+                        <div class="action-card-desc">
+                            Offensive defense for retaliation or habitability violations
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectAction(this, ''negotiate'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">🤝</div>
+                        <div class="action-card-title">Negotiate Settlement</div>
+                        <div class="action-card-desc">
+                            Work out agreement with landlord to avoid court
+                        </div>
+                    </div>
+                    <div class="action-card" onclick="selectAction(this, ''prepare'')">
+                        <div class="checkmark">✓</div>
+                        <div class="action-card-icon">📋</div>
+                        <div class="action-card-title">Prepare for Hearing</div>
+                        <div class="action-card-desc">
+                            Organize evidence, practice testimony, prepare questions
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">💡 Recommended next steps:</div>
+                    <div class="example-content" id="recommended-actions">
+                        1. <strong>File Motion to Dismiss</strong> (improper service detected)<br>
+                        2. <strong>Prepare Counterclaim</strong> (retaliation timeline suggestive)<br>
+                        3. <strong>Gather more photos</strong> (strengthen habitability claim)<br>
+                        4. <strong>Schedule court prep session</strong> (hearing in 10 days)<br>
+                        5. <strong>Research case law</strong> (similar cases in Dakota County)
+                    </div>
+                </div>
+
+                <div class="wizard-nav">
+                    <button class="btn btn-secondary" onclick="navigateStep(4)">
+                        ← Back
+                    </button>
+                    <button class="btn btn-primary" onclick="completeWizard()">
+                        Complete Wizard ✓
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedDocuments = new Set();
+        let selectedActions = new Set();
+
+        function navigateStep(step) {
+            // Hide current step
+            document.querySelector(`.step-content.active`).classList.remove(''active'');
+            document.querySelector(`.step.active`).classList.remove(''active'');
+
+            // Mark previous steps as completed
+            for (let i = 1; i < step; i++) {
+                document.querySelector(`.step[data-step="${i}"]`).classList.add(''completed'');
+            }
+
+            // Show new step
+            document.getElementById(`step-${step}`).classList.add(''active'');
+            document.querySelector(`.step[data-step="${step}"]`).classList.add(''active'');
+
+            // Update progress bar
+            const progress = ((step - 1) / 4) * 100;
+            document.getElementById(''progress-fill'').style.width = `${progress}%`;
+
+            currentStep = step;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: ''smooth'' });
+        }
+
+        function toggleChecklistItem(element) {
+            element.classList.toggle(''checked'');
+        }
+
+        function selectDocument(card, docType) {
+            card.classList.toggle(''selected'');
+            if (card.classList.contains(''selected'')) {
+                selectedDocuments.add(docType);
+            } else {
+                selectedDocuments.delete(docType);
+            }
+        }
+
+        function selectAction(card, actionType) {
+            card.classList.toggle(''selected'');
+            if (card.classList.contains(''selected'')) {
+                selectedActions.add(actionType);
+            } else {
+                selectedActions.delete(actionType);
+            }
+        }
+
+        function completeWizard() {
+            alert(''Wizard complete! Returning to Brad\''s Dashboard with your case analysis...'');
+            window.location.href = ''/brad'';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Orchestrator — Semptify</title>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f4f6fb; margin: 0; padding: 30px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { display:flex; align-items:center; gap:20px; margin-bottom: 20px; }
+    .card { background: white; padding: 18px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+    .agents-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 12px; margin-top: 12px; }
+    .agent { padding: 12px; border-radius: 8px; border: 1px solid #e6e9f2; display:flex; flex-direction:column; gap:8px; }
+    button { padding: 10px 16px; border-radius:8px; border: none; cursor:pointer; }
+    .primary { background: #4f46e5; color: white; }
+    .muted { background: #eef2ff; color:#444; }
+    pre { background: #0b1220; color: #bcd; padding: 12px; border-radius:8px; overflow:auto }
+  </style>
+</head>
+<body>
+  {% include 'includes/navbar.html' %}
+  <div class="container">
+    <header>
+      <div style="flex:1">
+        <h1>AI Orchestrator</h1>
+        <p class="muted">Spin up multi-agent teams and let them coordinate on prompts — test orchestration, evidence workflows, or document assembly.</p>
+      </div>
+      <div>
+        <button class="primary" onclick="seedAgents()">Seed Agents</button>
+      </div>
+    </header>
+
+    <div class="card">
+      <div style="display:flex; gap:12px; margin-bottom:12px; align-items:center">
+        <input id="prompt" placeholder="Ask the team to do something — e.g., Prepare courtroom-ready evidence checklist" style="flex:1; padding:10px; border-radius:8px; border:1px solid #e6e9f2">
+        <button class="primary" onclick="runOrchestration()">Run</button>
+      </div>
+
+      <div>
+        <strong>Pick agents</strong>
+        <div class="agents-grid" id="agentsGrid">
+          {% for a in agents %}
+          <label class="agent">
+            <input type="checkbox" name="agent" value="{{ a.id }}"> <strong>{{ a.role }}</strong>
+            <div style="font-size:12px; color:#666">{{ a.description }}</div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 420px; gap:14px">
+      <div class="card" id="outputCard">
+        <h3>Conversation Log</h3>
+        <div id="logArea"><em>No run yet</em></div>
+      </div>
+
+      <div class="card">
+        <h3>Quick Tools</h3>
+        <p><button onclick="downloadConversation()" class="muted">Download JSON</button></p>
+        <pre id="outJson">{}</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function seedAgents(){
+      const res = await fetch('/ai/orchestrator/agents/seed', {method:'POST'});
+      if(res.ok) { alert('Seeded agents'); location.reload(); }
+      else alert('Seed failed');
+    }
+
+    async function runOrchestration(){
+      const prompt = document.getElementById('prompt').value.trim();
+      const checks = Array.from(document.querySelectorAll('input[name="agent"]:checked')).map(c=>c.value);
+      if(!prompt) return alert('Enter a prompt');
+      const res = await fetch('/ai/orchestrator/run', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({prompt, agents: checks})});
+      const data = await res.json();
+      document.getElementById('logArea').innerText = JSON.stringify(data.timeline, null, 2);
+      document.getElementById('outJson').innerText = JSON.stringify(data, null, 2);
+    }
+
+    function downloadConversation(){
+      const txt = document.getElementById('outJson').innerText;
+      const blob = new Blob([txt], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='orchestrator.json'; a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

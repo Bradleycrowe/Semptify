@@ -1,0 +1,10 @@
+\n.tl-item{padding:6px 8px;border-left:3px solid var(--accent);margin:6px 0;background:rgba(255,255,255,0.05);border-radius:4px;}\n.tl-date{font-size:11px;color:var(--text-secondary);}\n.tl-desc{font-size:12px;color:var(--text-secondary);}
+
+.settings-container { padding:24px; }
+.settings-section { margin-bottom:20px; }
+.config-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+.config-item { padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; }
+.config-label { font-weight:600; margin-bottom:6px; }
+.config-value { font-size:15px; margin:4px 0; color:var(--accent); }
+.config-status { display:inline-block; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:600; margin-top:6px; }
+.config-hint { font-size:12px; color:var(--text-secondary); margin-top:6px; }

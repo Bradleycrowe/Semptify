@@ -1,183 +1,86 @@
-# ============================================================
-# Semptify Production Web Server Startup Script (PowerShell)
-# Starts Flask with Waitress WSGI server
-# ============================================================
+# Production Server Startup for Semptify
+param([int]$Port = 8080, [switch]$CheckOnly)
+$ErrorActionPreference = "Continue"
 
-param(
-    [int]$Port = 8080,
-    [string]$Host = "0.0.0.0",
-    [int]$Threads = 4,
-    [string]$Environment = "production"
-)
+function Write-Step { param($msg) Write-Host "`n🔹 $msg" -ForegroundColor Cyan }
+function Write-Success { param($msg) Write-Host "   ✅ $msg" -ForegroundColor Green }
+function Write-Warning { param($msg) Write-Host "   ⚠️  $msg" -ForegroundColor Yellow }
 
-# ============================================================
-# CONFIGURATION
-# ============================================================
+Write-Host "`n╔═══════════════════════════════════════════════╗" -ForegroundColor Green
+Write-Host "║   �� SEMPTIFY PRODUCTION SERVER 🚀           ║" -ForegroundColor Green
+Write-Host "╚═══════════════════════════════════════════════╝`n" -ForegroundColor Green
 
-$ErrorActionPreference = "Stop"
-$ProgressPreference = "SilentlyContinue"
-
-$scriptName = "Semptify Production Server"
-$pythonScript = "start_production.py"
-$venvPath = ".\.venv"
-$venvActivate = "$venvPath\Scripts\Activate.ps1"
-
-# ============================================================
-# FUNCTIONS
-# ============================================================
-
-function Write-Header {
-    param([string]$Message)
-    Write-Host ""
-    Write-Host ("=" * 60) -ForegroundColor Cyan
-    Write-Host $Message -ForegroundColor Cyan -NoNewline
-    Write-Host ("=" * 60) -ForegroundColor Cyan
-    Write-Host ""
-}
-
-function Write-Success {
-    param([string]$Message)
-    Write-Host "✓ $Message" -ForegroundColor Green
-}
-
-function Write-Error-Message {
-    param([string]$Message)
-    Write-Host "✗ $Message" -ForegroundColor Red
-}
-
-function Write-Warning-Message {
-    param([string]$Message)
-    Write-Host "⚠ $Message" -ForegroundColor Yellow
-}
-
-function Write-Info {
-    param([string]$Message)
-    Write-Host "ℹ $Message" -ForegroundColor Blue
-}
-
-# ============================================================
-# STARTUP CHECKS
-# ============================================================
-
-Write-Header " $scriptName Startup "
-
-# Check if Python is installed
-Write-Info "Checking Python installation..."
-try {
-    $pythonVersion = python --version 2>&1
-    Write-Success "Python found: $pythonVersion"
-} catch {
-    Write-Error-Message "Python not found. Please install Python 3.8+"
+Write-Step "Validating production environment..."
+$pythonPath = ".\.venv\Scripts\python.exe"
+if (!(Test-Path $pythonPath)) {
+    Write-Host "   ❌ Virtual environment not found" -ForegroundColor Red
     exit 1
 }
+Write-Success "Python ready"
 
-# Check if virtual environment exists
-Write-Info "Checking virtual environment..."
-if (-not (Test-Path $venvPath)) {
-    Write-Warning-Message "Virtual environment not found at $venvPath"
-    Write-Host "Creating virtual environment..." -ForegroundColor Yellow
-    python -m venv $venvPath
-    Write-Success "Virtual environment created"
-} else {
-    Write-Success "Virtual environment found"
-}
-
-# Activate virtual environment
-Write-Info "Activating virtual environment..."
-& $venvActivate
-
-# Check if requirements are installed
-Write-Info "Checking dependencies..."
-$requiredPackages = @("flask", "waitress", "requests")
-$missingPackages = @()
-
-foreach ($package in $requiredPackages) {
-    try {
-        $null = python -m pip show $package 2>&1
-        Write-Success "Package installed: $package"
-    } catch {
-        $missingPackages += $package
-    }
-}
-
-if ($missingPackages.Count -gt 0) {
-    Write-Warning-Message "Missing packages: $($missingPackages -join ', ')"
-    Write-Host "Installing requirements..." -ForegroundColor Yellow
-    pip install -q -r requirements.txt
-    Write-Success "Requirements installed"
-} else {
-    Write-Success "All required packages are installed"
-}
-
-# Check required directories
-Write-Info "Checking required directories..."
-$dirs = @("uploads", "logs", "security", "copilot_sync", "final_notices", "data")
-foreach ($dir in $dirs) {
-    if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-        Write-Success "Created directory: $dir"
+# Check Waitress
+try {
+    $waitressCheck = & $pythonPath -c "import waitress; print('OK')" 2>&1
+    if ($waitressCheck -match "OK") {
+        Write-Success "Waitress WSGI server installed"
     } else {
-        Write-Success "Directory exists: $dir"
+        throw "Not installed"
     }
-}
-
-# ============================================================
-# ENVIRONMENT VARIABLES
-# ============================================================
-
-Write-Info "Setting environment variables..."
-
-# Set Flask environment
-$env:FLASK_ENV = $Environment
-$env:FLASK_DEBUG = "0"
-
-# Set server configuration
-$env:SEMPTIFY_PORT = $Port
-$env:SEMPTIFY_HOST = $Host
-$env:SEMPTIFY_THREADS = $Threads
-
-# Security
-if (-not $env:FLASK_SECRET) {
-    Write-Warning-Message "FLASK_SECRET not set. Using development default."
-    $env:FLASK_SECRET = "dev-secret-change-in-production"
-}
-
-# Ensure security mode is set
-if (-not $env:SECURITY_MODE) {
-    $env:SECURITY_MODE = "enforced"
-    Write-Info "SECURITY_MODE set to: enforced"
-}
-
-Write-Success "Environment variables configured"
-
-# ============================================================
-# STARTUP INFO
-# ============================================================
-
-Write-Header " SERVER CONFIGURATION "
-
-Write-Host "Host:                $Host"
-Write-Host "Port:                $Port"
-Write-Host "Threads:             $Threads"
-Write-Host "Environment:         $Environment"
-Write-Host "Python:              $pythonVersion"
-Write-Host "Working Directory:   $(Get-Location)"
-Write-Host ""
-
-# ============================================================
-# START SERVER
-# ============================================================
-
-Write-Header " STARTING SEMPTIFY PRODUCTION SERVER "
-
-Write-Host "🚀 Server starting at http://$($Host):$Port" -ForegroundColor Green
-Write-Host "   Press Ctrl+C to stop" -ForegroundColor Cyan
-Write-Host ""
-
-# Start the production server
-try {
-    & python $pythonScript
 } catch {
-    Write-Error-Message "Failed to start server: $_"
-    exit 1
+    Write-Warning "Installing Waitress..."
+    & $pythonPath -m pip install waitress --quiet
+    Write-Success "Waitress installed"
 }
+
+# Create directories
+$dirs = @("uploads", "logs", "security", "data", "data/brad_clients", "uploads/vault")
+foreach ($dir in $dirs) {
+    if (!(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+}
+Write-Success "Directories ready"
+
+# Database
+if (!(Test-Path "users.db")) {
+    Write-Warning "Initializing database..."
+    & $pythonPath -c "from user_database import init_database, init_remember_tokens_table; init_database(); init_remember_tokens_table()"
+    Write-Success "Database initialized"
+} else {
+    Write-Success "Database ready"
+}
+
+# AI check
+Write-Step "Checking AI providers..."
+$aiCount = 0
+if ($env:OPENAI_API_KEY) { 
+    Write-Success "OpenAI configured"
+    $aiCount++
+}
+try {
+    Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 1 -ErrorAction Stop | Out-Null
+    Write-Success "Ollama running"
+    $aiCount++
+} catch {}
+if ($aiCount -eq 0) { Write-Warning "No AI providers" }
+
+if ($CheckOnly) {
+    Write-Host "`n✅ Production ready!`n" -ForegroundColor Green
+    exit 0
+}
+
+# Production config
+$env:SECURITY_MODE = "open"
+$env:PORT = $Port
+$env:FLASK_ENV = "production"
+
+Write-Step "Starting production server..."
+$localIp = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notmatch '^(127\.|169\.254\.)' } | Select-Object -First 1).IPAddress
+Write-Host "`n   📍 Binding: 0.0.0.0:$Port" -ForegroundColor Gray
+Write-Host "   🌐 Local:   http://localhost:$Port" -ForegroundColor Cyan
+Write-Host "   🌐 Network: http://${localIp}:$Port" -ForegroundColor Cyan
+Write-Host "   🎯 Brad:    http://localhost:$Port/brad" -ForegroundColor Cyan
+Write-Host "`n   ⚙️  Threads: 4 | Timeout: 120s" -ForegroundColor Gray
+Write-Host "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "🚀 Server starting... (Ctrl+C to stop)" -ForegroundColor Green
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n" -ForegroundColor DarkGray
+
+& $pythonPath run_prod.py

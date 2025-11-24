@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Payments - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .payments-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-card .amount {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .subtext {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .payment-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-paid {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .status-overdue {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .payment-history {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .payment-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4CAF50;
+            transition: all 0.3s;
+        }
+
+        .payment-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .payment-item.overdue {
+            border-left-color: #f44336;
+        }
+
+        .payment-item.pending {
+            border-left-color: #ff9800;
+        }
+
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .payment-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .payment-amount {
+            font-size: 20px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .payment-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .payment-description {
+            color: #ccc;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .payment-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .upcoming-payments {
+            margin-bottom: 30px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ccc;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Calendar Payments</h1>
+            <p>Track rent payments, fees, and financial obligations</p>
+        </div>
+
+        <div class="payments-container">
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>Monthly Rent</h3>
+                    <div class="amount">,250</div>
+                    <div class="subtext">Due Dec 1</div>
+                </div>
+                <div class="summary-card">
+                    <h3>This Month Paid</h3>
+                    <div class="amount">,450</div>
+                    <div class="subtext">2 payments</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Outstanding</h3>
+                    <div class="amount">,250</div>
+                    <div class="subtext">1 payment</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Late Fees</h3>
+                    <div class="amount"></div>
+                    <div class="subtext">Current</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="quick-action-btn">💳 Pay Rent Now</button>
+                <button class="quick-action-btn">📄 Download Receipt</button>
+                <button class="quick-action-btn">📊 View Ledger</button>
+                <button class="quick-action-btn">📞 Contact Landlord</button>
+            </div>
+
+            <div class="upcoming-payments">
+                <div class="section-title">
+                    <span>📅</span>
+                    Upcoming Payments
+                </div>
+
+                <div class="payment-item pending">
+                    <div class="payment-header">
+                        <div class="payment-title">Monthly Rent - December 2025</div>
+                        <div class="payment-amount">,250.00</div>
+                    </div>
+                    <div class="payment-meta">
+                        <span>Due: December 1, 2025</span>
+                        <span>Property: 123 Main St, Minneapolis</span>
+                    </div>
+                    <div class="payment-description">
+                        Standard monthly rent payment. Payment must be received by 5:00 PM on due date to avoid late fees.
+                    </div>
+                    <div class="payment-actions">
+                        <button class="btn btn-primary">Pay Now</button>
+                        <button class="btn btn-secondary">Set Reminder</button>
+                        <button class="btn btn-secondary">View Details</button>
+                    </div>
+                </div>
+
+                <div class="payment-item">
+                    <div class="payment-header">
+                        <div class="payment-title">Security Deposit Refund</div>
+                        <div class="payment-amount">,250.00</div>
+                    </div>
+                    <div class="payment-meta">
+                        <span>Expected: December 15, 2025</span>
+                        <span>Status: Processing</span>
+                    </div>
+                    <div class="payment-description">
+                        Full security deposit refund pending move-out inspection approval and final walkthrough completion.
+                    </div>
+                    <div class="payment-actions">
+                        <button class="btn btn-secondary">View Details</button>
+                        <button class="btn btn-secondary">Contact Landlord</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-history">
+                <div class="section-title">
+                    <span>📋</span>
+                    Payment History
+                </div>
+
+                <div class="payment-item">
+                    <div class="payment-header">
+                        <div class="payment-title">Monthly Rent - November 2025</div>
+                        <div class="payment-amount">,250.00</div>
+                    </div>
+                    <div class="payment-meta">
+                        <span>Paid: November 1, 2025</span>
+                        <span>Method: Bank Transfer</span>
+                        <span class="payment-status status-paid">Paid</span>
+                    </div>
+                    <div class="payment-description">
+                        Monthly rent payment processed successfully. Receipt available for download.
+                    </div>
+                    <div class="payment-actions">
+                        <button class="btn btn-secondary">Download Receipt</button>
+                        <button class="btn btn-secondary">View Details</button>
+                    </div>
+                </div>
+
+                <div class="payment-item">
+                    <div class="payment-header">
+                        <div class="payment-title">Utility Reimbursement</div>
+                        <div class="payment-amount">.50</div>
+                    </div>
+                    <div class="payment-meta">
+                        <span>Paid: October 28, 2025</span>
+                        <span>Method: Check</span>
+                        <span class="payment-status status-paid">Paid</span>
+                    </div>
+                    <div class="payment-description">
+                        Reimbursement for electricity and water utilities for October 2025.
+                    </div>
+                    <div class="payment-actions">
+                        <button class="btn btn-secondary">Download Receipt</button>
+                        <button class="btn btn-secondary">View Details</button>
+                    </div>
+                </div>
+
+                <div class="payment-item">
+                    <div class="payment-header">
+                        <div class="payment-title">Monthly Rent - October 2025</div>
+                        <div class="payment-amount">,250.00</div>
+                    </div>
+                    <div class="payment-meta">
+                        <span>Paid: October 1, 2025</span>
+                        <span>Method: Bank Transfer</span>
+                        <span class="payment-status status-paid">Paid</span>
+                    </div>
+                    <div class="payment-description">
+                        Monthly rent payment processed successfully. Receipt available for download.
+                    </div>
+                    <div class="payment-actions">
+                        <button class="btn btn-secondary">Download Receipt</button>
+                        <button class="btn btn-secondary">View Details</button>
+                    </div>
+                </div>
+
+                <div class="payment-item overdue">
+                    <div class="payment-header">
+                        <div class="payment-title">Late Fee - September Rent</div>
+                        <div class="payment-amount">.00</div>
+                    </div>
+                    <div class="payment-meta">
+                        <span>Due: September 5, 2025</span>
+                        <span>Status: Overdue</span>
+                        <span class="payment-status status-overdue">Overdue</span>
+                    </div>
+                    <div class="payment-description">
+                        Late fee incurred for September rent payment received after due date.
+                    </div>
+                    <div class="payment-actions">
+                        <button class="btn btn-danger">Pay Now</button>
+                        <button class="btn btn-secondary">Dispute Fee</button>
+                        <button class="btn btn-secondary">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quick action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert(Action "" clicked - Functionality coming soon!);
+            });
+        });
+
+        // Payment action buttons
+        document.querySelectorAll('.payment-actions .btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert(Action "" clicked - Functionality coming soon!);
+            });
+        });
+    </script>
+</body>
+</html>

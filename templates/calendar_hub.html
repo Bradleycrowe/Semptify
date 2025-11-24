@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar & Evidence Timeline - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; }
+        .page-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 10px; }
+        .page-subtitle { font-size: 16px; color: #718096; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .card-title { font-size: 20px; font-weight: 600; color: #2d3748; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .card-icon { font-size: 24px; }
+        .card-description { font-size: 14px; color: #718096; margin-bottom: 16px; line-height: 1.6; }
+        .card-button { display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; transition: opacity 0.2s; }
+        .card-button:hover { opacity: 0.9; }
+        .section-header { font-size: 24px; font-weight: 600; color: #2d3748; margin: 40px 0 20px 0; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    {% include "includes/navbar.html" %}
+    
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">📅 Calendar & Evidence Timeline</h1>
+            <p class="page-subtitle">Track deadlines, upload evidence, and manage your case timeline</p>
+        </div>
+
+        <h2 class="section-header">Timeline Management</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📆</span>Calendar View</div>
+                <div class="card-description">Interactive calendar showing all your important dates, hearings, and deadlines in one place.</div>
+                <a href="/calendar/view" class="card-button">Open Calendar</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">⏱️</span>Timeline Assistant</div>
+                <div class="card-description">Visual timeline of your case events with AI-powered suggestions for next steps.</div>
+                <a href="/timeline/assistant" class="card-button">View Timeline</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🔔</span>Deadline Tracker</div>
+                <div class="card-description">Never miss a court date or filing deadline with automatic reminders and notifications.</div>
+                <a href="/calendar/deadlines" class="card-button">Track Deadlines</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">Evidence & Document Vault</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📤</span>Upload Evidence</div>
+                <div class="card-description">Securely upload photos, videos, documents, and other evidence with automatic timestamping and certification.</div>
+                <a href="/vault" class="card-button">Upload Files</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🎥</span>Audio/Video Capture</div>
+                <div class="card-description">Record video or audio evidence directly from your device with built-in notarization.</div>
+                <a href="/vault/capture" class="card-button">Start Recording</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📋</span>Evidence Ledger</div>
+                <div class="card-description">Complete log of all uploaded evidence with chain-of-custody tracking and court-ready certificates.</div>
+                <a href="/calendar/ledger" class="card-button">View Ledger</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">✉️</span>Certified Delivery</div>
+                <div class="card-description">Send certified digital documents with proof of delivery and read receipts.</div>
+                <a href="/vault/certified_post" class="card-button">Send Document</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🏛️</span>Court Clerk Submit</div>
+                <div class="card-description">Prepare and submit documents directly to court clerk with proper formatting and notarization.</div>
+                <a href="/vault/court_clerk" class="card-button">Submit to Court</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🔐</span>Notary Services</div>
+                <div class="card-description">Digital notarization for your documents with legally recognized timestamps and signatures.</div>
+                <a href="/vault/notary" class="card-button">Get Notarized</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">Rent & Payment Tracking</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title"><span class="card-icon">💵</span>Rent Ledger</div>
+                <div class="card-description">Track rent payments, late fees, and payment history with automatic calculations.</div>
+                <a href="/calendar/rent-ledger" class="card-button">View Ledger</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📊</span>Payment Calendar</div>
+                <div class="card-description">Visual calendar showing rent due dates, payment history, and upcoming obligations.</div>
+                <a href="/calendar/payments" class="card-button">Payment Schedule</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

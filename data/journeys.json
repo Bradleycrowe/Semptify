@@ -1,0 +1,58 @@
+{
+  "journeys": [
+    {
+      "id": "onboarding",
+      "title": "Onboarding: Start your first case",
+      "description": "Guided 5-step onboarding to add a client, create case, add evidence, and get help.",
+      "steps": [
+        {
+          "id": "add_client",
+          "title": "Add first client",
+          "done": false
+        },
+        {
+          "id": "create_case",
+          "title": "Fill case details",
+          "done": false
+        },
+        {
+          "id": "upload_evidence",
+          "title": "Upload evidence files",
+          "done": false
+        },
+        {
+          "id": "review_journey",
+          "title": "Review case timeline & deadlines",
+          "done": false
+        },
+        {
+          "id": "find_help",
+          "title": "Find legal help",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "evidence_collection",
+      "title": "Evidence collection",
+      "description": "Collection checklist for courtroom-ready evidence.",
+      "steps": [
+        {
+          "id": "gather_photos",
+          "title": "Take photos of issue",
+          "done": false
+        },
+        {
+          "id": "record_audio",
+          "title": "Record audio notes",
+          "done": false
+        },
+        {
+          "id": "create_notary",
+          "title": "Create notary certificate",
+          "done": false
+        }
+      ]
+    }
+  ]
+}

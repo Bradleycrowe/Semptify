@@ -1,84 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Witness Statement - Semptify</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        h1 { color: #333; }
-        .form-section { background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; }
-        label { display: block; margin: 1rem 0 0.5rem; font-weight: 500; }
-        input, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-        textarea { min-height: 150px; }
-        button { background: #007bff; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; margin-top: 1rem; }
-        button:hover { background: #0056b3; }
-    </style>
-    <script src="{{ url_for('static', filename='js/evidence-system.js') }}"></script>
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/evidence-system.css">
 </head>
 <body>
-    <h1>📝 Witness Statement</h1>
-    <p>Document what you witnessed with detailed information and supporting evidence.</p>
-
-    <form id="witness-form" method="POST" action="/resources/witness_statement_save">
-        <div class="form-section">
-            <h2>Witness Information</h2>
-            <label>Your Name:
-                <input type="text" name="witness_name" required>
-                <small style="color: #666;">ℹ️ Who saw or heard this? Include yourself if you were there.</small>
-            </label>
-            <label>Contact Information:
-                <input type="text" name="witness_contact">
-                <small style="color: #666;">ℹ️ Email or phone (optional but helpful for verification)</small>
-            </label>
-            <label>Date of Incident:
-                <input type="date" name="incident_date" required>
-                <small style="color: #666;">ℹ️ When did this happen? Be as specific as possible (date and time).</small>
-            </label>
-            <label>Location:
-                <input type="text" name="incident_location" required>
-                <small style="color: #666;">ℹ️ Where exactly did it happen? (Apartment 2B, hallway, parking lot, etc.)</small>
-            </label>
-        </div>
-
-        <div class="form-section">
-            <h2>Statement</h2>
-            <label>What did you witness? (Be as detailed as possible):
-                <textarea name="statement" required placeholder="Describe what you saw, heard, or experienced. Include times, people involved, and any relevant context."></textarea>
-                <small style="color: #666;">ℹ️ Write it like you're telling a friend—step by step, in order. Start with what you were doing before it happened.</small>
-            </label>
-        </div>
-
-        <!-- Include Evidence Collection Panel -->
-        {% include 'evidence_panel.html' %}
-
-        <button type="submit">Submit Statement</button>
-    </form>
-
-    <p style="margin-top: 2rem;">
-        <a href="/resources">&larr; Back to Resources</a>
-    </p>
-
-    <script>
-        // Voice Commands support
-        const voiceCommands = {
-            'start recording': () => document.getElementById('toggle-audio')?.click(),
-            'take photo': () => document.getElementById('capture-photo')?.click(),
-            'save location': () => document.getElementById('capture-location')?.click(),
-            'ask ai': () => SemptifyEvidenceCollector?.askAI('witness statement context')
-        };
-
-        // Start Recording button (alias for audio recording)
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('witness-form');
-            if (form) {
-                const startRecordingBtn = document.createElement('button');
-                startRecordingBtn.type = 'button';
-                startRecordingBtn.textContent = '🎤 Start Recording';
-                startRecordingBtn.onclick = () => document.getElementById('toggle-audio')?.click();
-                form.querySelector('.form-section:last-of-type')?.appendChild(startRecordingBtn);
-            }
-        });
-    </script>
+    <div class="container">
+        <h1>Witness Statement Form</h1>
+        <div id="evidence-panel"></div>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <textarea name="statement" rows="10" required></textarea>
+            <button type="submit">Submit Statement</button>
+        </form>
+    </div>
+    <script src="/static/js/evidence-system.js"></script>
 </body>
 </html>

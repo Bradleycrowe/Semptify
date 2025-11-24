@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rights Explorer - Know Your Tenant Rights</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .explorer-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .rights-display {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .right-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .right-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2196F3;
+        }
+
+        .right-description {
+            color: #ddd;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .right-citation {
+            font-size: 12px;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .action-item {
+            background: rgba(255, 152, 0, 0.2);
+            border-left-color: #ff9800;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .action-title {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .disclaimer {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .disclaimer h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer p {
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include "includes/navbar.html" %}
+
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Rights Explorer</h1>
+            <p>Discover your tenant rights based on your specific situation</p>
+        </div>
+
+        <div class="explorer-section">
+            <h2 style="margin-bottom: 20px; font-size: 24px;">Tell us about your situation</h2>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+
+            <!-- Question 1: State -->
+            <div class="question-card" id="question-1">
+                <div class="question">🏛️ Which state do you live in?</div>
+                <div class="options">
+                    <button class="option-btn" onclick="selectOption(1, 'CA', 'California')">California</button>
+                    <button class="option-btn" onclick="selectOption(1, 'TX', 'Texas')">Texas</button>
+                    <button class="option-btn" onclick="selectOption(1, 'NY', 'New York')">New York</button>
+                    <button class="option-btn" onclick="selectOption(1, 'FL', 'Florida')">Florida</button>
+                    <button class="option-btn" onclick="selectOption(1, 'IL', 'Illinois')">Illinois</button>
+                    <button class="option-btn" onclick="selectOption(1, 'PA', 'Pennsylvania')">Pennsylvania</button>
+                    <button class="option-btn" onclick="selectOption(1, 'OH', 'Ohio')">Ohio</button>
+                    <button class="option-btn" onclick="selectOption(1, 'GA', 'Georgia')">Georgia</button>
+                    <button class="option-btn" onclick="selectOption(1, 'NC', 'North Carolina')">North Carolina</button>
+                    <button class="option-btn" onclick="selectOption(1, 'MI', 'Michigan')">Michigan</button>
+                    <button class="option-btn" onclick="selectOption(1, 'NJ', 'New Jersey')">New Jersey</button>
+                    <button class="option-btn" onclick="selectOption(1, 'VA', 'Virginia')">Virginia</button>
+                    <button class="option-btn" onclick="selectOption(1, 'WA', 'Washington')">Washington</button>
+                    <button class="option-btn" onclick="selectOption(1, 'AZ', 'Arizona')">Arizona</button>
+                    <button class="option-btn" onclick="selectOption(1, 'MA', 'Massachusetts')">Massachusetts</button>
+                    <button class="option-btn" onclick="selectOption(1, 'TN', 'Tennessee')">Tennessee</button>
+                    <button class="option-btn" onclick="selectOption(1, 'IN', 'Indiana')">Indiana</button>
+                    <button class="option-btn" onclick="selectOption(1, 'MO', 'Missouri')">Missouri</button>
+                    <button class="option-btn" onclick="selectOption(1, 'MD', 'Maryland')">Maryland</button>
+                    <button class="option-btn" onclick="selectOption(1, 'WI', 'Wisconsin')">Wisconsin</button>
+                    <button class="option-btn" onclick="selectOption(1, 'CO', 'Colorado')">Colorado</button>
+                    <button class="option-btn" onclick="selectOption(1, 'MN', 'Minnesota')">Minnesota</button>
+                    <button class="option-btn" onclick="selectOption(1, 'SC', 'South Carolina')">South Carolina</button>
+                    <button class="option-btn" onclick="selectOption(1, 'AL', 'Alabama')">Alabama</button>
+                    <button class="option-btn" onclick="selectOption(1, 'LA', 'Louisiana')">Louisiana</button>
+                    <button class="option-btn" onclick="selectOption(1, 'KY', 'Kentucky')">Kentucky</button>
+                    <button class="option-btn" onclick="selectOption(1, 'OR', 'Oregon')">Oregon</button>
+                    <button class="option-btn" onclick="selectOption(1, 'OK', 'Oklahoma')">Oklahoma</button>
+                    <button class="option-btn" onclick="selectOption(1, 'CT', 'Connecticut')">Connecticut</button>
+                    <button class="option-btn" onclick="selectOption(1, 'UT', 'Utah')">Utah</button>
+                    <button class="option-btn" onclick="selectOption(1, 'IA', 'Iowa')">Iowa</button>
+                    <button class="option-btn" onclick="selectOption(1, 'NV', 'Nevada')">Nevada</button>
+                    <button class="option-btn" onclick="selectOption(1, 'AR', 'Arkansas')">Arkansas</button>
+                    <button class="option-btn" onclick="selectOption(1, 'MS', 'Mississippi')">Mississippi</button>
+                    <button class="option-btn" onclick="selectOption(1, 'KS', 'Kansas')">Kansas</button>
+                    <button class="option-btn" onclick="selectOption(1, 'NM', 'New Mexico')">New Mexico</button>
+                    <button class="option-btn" onclick="selectOption(1, 'NE', 'Nebraska')">Nebraska</button>
+                    <button class="option-btn" onclick="selectOption(1, 'WV', 'West Virginia')">West Virginia</button>
+                    <button class="option-btn" onclick="selectOption(1, 'ID', 'Idaho')">Idaho</button>
+                    <button class="option-btn" onclick="selectOption(1, 'HI', 'Hawaii')">Hawaii</button>
+                    <button class="option-btn" onclick="selectOption(1, 'NH', 'New Hampshire')">New Hampshire</button>
+                    <button class="option-btn" onclick="selectOption(1, 'ME', 'Maine')">Maine</button>
+                    <button class="option-btn" onclick="selectOption(1, 'RI', 'Rhode Island')">Rhode Island</button>
+                    <button class="option-btn" onclick="selectOption(1, 'MT', 'Montana')">Montana</button>
+                    <button class="option-btn" onclick="selectOption(1, 'DE', 'Delaware')">Delaware</button>
+                    <button class="option-btn" onclick="selectOption(1, 'SD', 'South Dakota')">South Dakota</button>
+                    <button class="option-btn" onclick="selectOption(1, 'ND', 'North Dakota')">North Dakota</button>
+                    <button class="option-btn" onclick="selectOption(1, 'AK', 'Alaska')">Alaska</button>
+                    <button class="option-btn" onclick="selectOption(1, 'VT', 'Vermont')">Vermont</button>
+                    <button class="option-btn" onclick="selectOption(1, 'WY', 'Wyoming')">Wyoming</button>
+                </div>
+            </div>
+
+            <!-- Question 2: Housing Type -->
+            <div class="question-card hidden" id="question-2">
+                <div class="question">🏠 What type of housing do you have?</div>
+                <div class="options">
+                    <button class="option-btn" onclick="selectOption(2, 'apartment', 'Apartment')">Apartment</button>
+                    <button class="option-btn" onclick="selectOption(2, 'house', 'House')">House</button>
+                    <button class="option-btn" onclick="selectOption(2, 'mobile-home', 'Mobile Home')">Mobile Home</button>
+                    <button class="option-btn" onclick="selectOption(2, 'room', 'Room for Rent')">Room for Rent</button>
+                    <button class="option-btn" onclick="selectOption(2, 'other', 'Other')">Other</button>
+                </div>
+            </div>
+
+            <!-- Question 3: Current Issue -->
+            <div class="question-card hidden" id="question-3">
+                <div class="question">🚨 What's your main concern right now?</div>
+                <div class="options">
+                    <button class="option-btn" onclick="selectOption(3, 'eviction', 'Facing Eviction')">Facing Eviction</button>
+                    <button class="option-btn" onclick="selectOption(3, 'rent-increase', 'Rent Increase')">Rent Increase</button>
+                    <button class="option-btn" onclick="selectOption(3, 'repairs', 'Repairs Needed')">Repairs Needed</button>
+                    <button class="option-btn" onclick="selectOption(3, 'retaliation', 'Retaliation')">Retaliation</button>
+                    <button class="option-btn" onclick="selectOption(3, 'discrimination', 'Discrimination')">Discrimination</button>
+                    <button class="option-btn" onclick="selectOption(3, 'deposit', 'Security Deposit')">Security Deposit</button>
+                    <button class="option-btn" onclick="selectOption(3, 'privacy', 'Privacy Issues')">Privacy Issues</button>
+                    <button class="option-btn" onclick="selectOption(3, 'other', 'Other Issue')">Other Issue</button>
+                </div>
+            </div>
+
+            <!-- Question 4: Urgency -->
+            <div class="question-card hidden" id="question-4">
+                <div class="question">⏰ How urgent is this situation?</div>
+                <div class="options">
+                    <button class="option-btn" onclick="selectOption(4, 'immediate', 'Immediate (24-48 hours)')">Immediate (24-48 hours)</button>
+                    <button class="option-btn" onclick="selectOption(4, 'soon', 'Soon (1 week)')">Soon (1 week)</button>
+                    <button class="option-btn" onclick="selectOption(4, 'month', 'Within a month')">Within a month</button>
+                    <button class="option-btn" onclick="selectOption(4, 'planning', 'Just planning ahead')">Just planning ahead</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="rights-display hidden" id="rights-display">
+            <h2 style="margin-bottom: 20px; font-size: 24px;">📋 Your Rights & Next Steps</h2>
+            <div id="rights-content">
+                <!-- Rights will be populated here -->
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <h3>⚠️ Important Disclaimer</h3>
+            <p>This tool provides general information about tenant rights and is not legal advice. Laws vary by jurisdiction and your specific situation may be different. Always consult with a qualified attorney or legal aid organization for advice specific to your case.</p>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 4;
+        let userAnswers = {};
+
+        function selectOption(questionNum, value, displayText) {
+            // Remove selected class from all options in current question
+            const currentCard = document.getElementById(question-);
+            const options = currentCard.querySelectorAll('.option-btn');
+            options.forEach(opt => opt.classList.remove('selected'));
+
+            // Add selected class to clicked option
+            event.target.classList.add('selected');
+
+            // Store answer
+            userAnswers[q] = { value, displayText };
+
+            // Move to next question or show results
+            setTimeout(() => {
+                if (questionNum < totalQuestions) {
+                    showNextQuestion(questionNum + 1);
+                } else {
+                    showRights();
+                }
+            }, 500);
+        }
+
+        function showNextQuestion(nextNum) {
+            // Hide current question
+            document.getElementById(question-).classList.add('hidden');
+
+            // Show next question
+            const nextCard = document.getElementById(question-);
+            nextCard.classList.remove('hidden');
+            nextCard.classList.add('fade-in');
+
+            currentQuestion = nextNum;
+
+            // Update progress
+            const progress = (currentQuestion / totalQuestions) * 100;
+            document.getElementById('progress-fill').style.width = ${progress}%;
+        }
+
+        function showRights() {
+            // Hide questions
+            for (let i = 1; i <= totalQuestions; i++) {
+                document.getElementById(question-).classList.add('hidden');
+            }
+
+            // Show results
+            document.getElementById('rights-display').classList.remove('hidden');
+            document.getElementById('rights-display').classList.add('fade-in');
+
+            // Complete progress
+            document.getElementById('progress-fill').style.width = '100%';
+
+            // Generate rights content
+            const rightsContent = generateRightsContent(userAnswers);
+            document.getElementById('rights-content').innerHTML = rightsContent;
+        }
+
+        function generateRightsContent(answers) {
+            const state = answers.q1?.value || 'CA';
+            const housingType = answers.q2?.value || 'apartment';
+            const issue = answers.q3?.value || 'repairs';
+            const urgency = answers.q4?.value || 'soon';
+
+            let content = '';
+
+            // Basic tenant rights that apply everywhere
+            content += 
+                <div class="right-item">
+                    <div class="right-title">🏠 Right to Habitable Housing</div>
+                    <div class="right-description">Your landlord must maintain your rental unit in a habitable condition, including proper heating, plumbing, and structural components.</div>
+                    <div class="right-citation">Universal tenant right - based on housing codes in all states</div>
+                </div>
+
+                <div class="right-item">
+                    <div class="right-title">🔒 Right to Quiet Enjoyment</div>
+                    <div class="right-description">You have the right to peacefully enjoy your rental unit without unreasonable interference from your landlord.</div>
+                    <div class="right-citation">Implied in all residential leases</div>
+                </div>
+            ;
+
+            // State-specific rights
+            if (state === 'CA') {
+                content += 
+                    <div class="right-item">
+                        <div class="right-title">💰 Rent Control Protections</div>
+                        <div class="right-description">California has strong rent control laws. Landlords can only increase rent by a maximum amount annually, and must provide proper notice.</div>
+                        <div class="right-citation">California Civil Code § 1946-1954.05</div>
+                    </div>
+                ;
+            } else if (state === 'NY') {
+                content += 
+                    <div class="right-item">
+                        <div class="right-title">📝 Required Notice for Entry</div>
+                        <div class="right-description">New York landlords must provide reasonable notice (usually 24 hours) before entering your apartment, except in emergencies.</div>
+                        <div class="right-citation">NY Real Property Law § 235-b</div>
+                    </div>
+                ;
+            }
+
+            // Issue-specific rights
+            if (issue === 'eviction') {
+                content += 
+                    <div class="action-item">
+                        <div class="action-title">🚨 Immediate Action Required</div>
+                        <div class="right-description">If you're facing eviction, you typically have 5-30 days to respond depending on your state. Do not ignore eviction notices - they have strict deadlines.</div>
+                        <div class="right-citation">State-specific eviction laws</div>
+                    </div>
+
+                    <div class="right-item">
+                        <div class="right-title">⚖️ Right to Due Process</div>
+                        <div class="right-description">You have the right to a hearing before an eviction can take place. Landlords cannot lock you out or remove your belongings without a court order.</div>
+                        <div class="right-citation">14th Amendment Due Process Clause</div>
+                    </div>
+                ;
+            } else if (issue === 'repairs') {
+                content += 
+                    <div class="right-item">
+                        <div class="right-title">🔧 Repair Request Rights</div>
+                        <div class="right-description">You can request repairs in writing and may be entitled to withhold rent or repair and deduct in some states if the landlord fails to make necessary repairs.</div>
+                        <div class="right-citation">State habitability laws</div>
+                    </div>
+                ;
+            } else if (issue === 'rent-increase') {
+                content += 
+                    <div class="right-item">
+                        <div class="right-title">💵 Rent Increase Notice Requirements</div>
+                        <div class="right-description">Landlords must provide proper written notice before increasing rent. The notice period varies by state (typically 30-60 days).</div>
+                        <div class="right-citation">State landlord-tenant laws</div>
+                    </div>
+                ;
+            }
+
+            // Urgency-based recommendations
+            if (urgency === 'immediate') {
+                content += 
+                    <div class="action-item">
+                        <div class="action-title">🚨 Seek Immediate Legal Help</div>
+                        <div class="right-description">For urgent situations, contact your local legal aid society, tenant's rights organization, or private attorney immediately. Time is critical.</div>
+                    </div>
+                ;
+            }
+
+            // Next steps
+            content += 
+                <div class="right-item">
+                    <div class="right-title">📞 Get Professional Help</div>
+                    <div class="right-description">Contact your local tenant's rights organization or legal aid society for free or low-cost assistance specific to your situation.</div>
+                </div>
+
+                <div class="right-item">
+                    <div class="right-title">📝 Document Everything</div>
+                    <div class="right-description">Keep detailed records of all communications, notices, and issues. Take photos of any problems with your rental unit.</div>
+                </div>
+            ;
+
+            return content;
+        }
+    </script>
+</body>
+</html>

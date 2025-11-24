@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; }
+        .page-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 10px; }
+        .page-subtitle { font-size: 16px; color: #718096; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .card-title { font-size: 20px; font-weight: 600; color: #2d3748; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .card-icon { font-size: 24px; }
+        .card-description { font-size: 14px; color: #718096; margin-bottom: 16px; line-height: 1.6; }
+        .card-button { display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; transition: opacity 0.2s; }
+        .card-button:hover { opacity: 0.9; }
+        .section-header { font-size: 24px; font-weight: 600; color: #2d3748; margin: 40px 0 20px 0; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    {% include "includes/navbar.html" %}
+    
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">🛠️ Tools</h1>
+            <p class="page-subtitle">AI assistants, utilities, and power features for your case</p>
+        </div>
+
+        <h2 class="section-header">AI & Intelligence</h2>
+        <div class="cards-grid">            <div class="card">
+                <div class="card-title"><span class="card-icon">🤝</span>AI Orchestrator</div>
+                <div class="card-description">Run multi-agent workflows — Legal Analyst, Evidence Collector, Notary and more coordinate to produce court-ready outputs.</div>
+                <a href="/ai/orchestrator" class="card-button">Open Orchestrator</a>
+            </div>
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🤖</span>AI Copilot</div>
+                <div class="card-description">Chat with AI about your case, get legal research help, and receive personalized suggestions.</div>
+                <a href="/api/copilot" class="card-button">Open Copilot</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🧠</span>Local AI (Ollama)</div>
+                <div class="card-description">Privacy-first AI using local models - your data never leaves your device.</div>
+                <a href="/api/ollama/chat" class="card-button">Use Local AI</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">💡</span>Reasoning Demo</div>
+                <div class="card-description">See how AI analyzes your case with step-by-step reasoning and legal citations.</div>
+                <a href="/demo/reasoning" class="card-button">View Demo</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🎯</span>Situation Analyzer</div>
+                <div class="card-description">AI-powered case assessment - understand your legal situation and next steps.</div>
+                <a href="/tools/situation" class="card-button">Analyze Case</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">Document Tools</h2>
+        <div class="cards-grid">            <div class="card">
+                <div class="card-title"><span class="card-icon">🤝</span>AI Orchestrator</div>
+                <div class="card-description">Run multi-agent workflows — Legal Analyst, Evidence Collector, Notary and more coordinate to produce court-ready outputs.</div>
+                <a href="/ai/orchestrator" class="card-button">Open Orchestrator</a>
+            </div>
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📦</span>Packet Builder</div>
+                <div class="card-description">Assemble court-ready document packets with automatic formatting and organization.</div>
+                <a href="/api/packet-builder" class="card-button">Build Packet</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">⚖️</span>Complaint Generator</div>
+                <div class="card-description">Generate legal complaints with proper formatting and required sections.</div>
+                <a href="/complaint" class="card-button">Create Complaint</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📄</span>Motion Writer</div>
+                <div class="card-description">Draft court motions using templates and AI assistance.</div>
+                <a href="/tools/motion" class="card-button">Write Motion</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🔍</span>Document Explorer</div>
+                <div class="card-description">Browse, search, and organize all your case documents in one place.</div>
+                <a href="/docs" class="card-button">Explore Docs</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">System Utilities</h2>
+        <div class="cards-grid">            <div class="card">
+                <div class="card-title"><span class="card-icon">🤝</span>AI Orchestrator</div>
+                <div class="card-description">Run multi-agent workflows — Legal Analyst, Evidence Collector, Notary and more coordinate to produce court-ready outputs.</div>
+                <a href="/ai/orchestrator" class="card-button">Open Orchestrator</a>
+            </div>
+            <div class="card">
+                <div class="card-title"><span class="card-icon">☁️</span>Storage Status</div>
+                <div class="card-description">Check cloud storage health, sync status, and available space.</div>
+                <a href="/storage/status" class="card-button">View Status</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🔧</span>Maintenance</div>
+                <div class="card-description">System maintenance tools, database cleanup, and diagnostics.</div>
+                <a href="/maintenance" class="card-button">Open Maintenance</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📊</span>Metrics Dashboard</div>
+                <div class="card-description">System performance, health checks, and usage statistics.</div>
+                <a href="/metrics" class="card-button">View Metrics</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🗺️</span>Route Discovery</div>
+                <div class="card-description">Explore all available features and API endpoints in the system.</div>
+                <a href="/api/discovery" class="card-button">Discover Routes</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">Calculators & Estimators</h2>
+        <div class="cards-grid">            <div class="card">
+                <div class="card-title"><span class="card-icon">🤝</span>AI Orchestrator</div>
+                <div class="card-description">Run multi-agent workflows — Legal Analyst, Evidence Collector, Notary and more coordinate to produce court-ready outputs.</div>
+                <a href="/ai/orchestrator" class="card-button">Open Orchestrator</a>
+            </div>
+            <div class="card">
+                <div class="card-title"><span class="card-icon">💰</span>Rent Calculator</div>
+                <div class="card-description">Calculate rent owed, late fees, prorated amounts, and payment schedules.</div>
+                <a href="/tools/rent-calculator" class="card-button">Calculate Rent</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📈</span>Case Timeline</div>
+                <div class="card-description">Estimate case duration, key milestones, and deadline projections.</div>
+                <a href="/tools/timeline-estimate" class="card-button">Estimate Timeline</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

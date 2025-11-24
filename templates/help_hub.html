@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 40px; }
+        .page-header { text-align: center; color: white; margin-bottom: 40px; }
+        .page-header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .page-header p { font-size: 1.2em; opacity: 0.9; }
+        .section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .section h2 { color: #667eea; margin-bottom: 20px; font-size: 1.8em; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; padding: 20px; color: white; text-decoration: none; display: block; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+        .card h3 { font-size: 1.3em; margin-bottom: 10px; }
+        .card p { opacity: 0.9; line-height: 1.5; }
+        .emergency-banner { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center; }
+        .emergency-banner h2 { font-size: 2em; margin-bottom: 10px; }
+        .emergency-banner .hotline { font-size: 1.5em; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    {% include "includes/navbar.html" %}
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>🆘 Help Center</h1>
+            <p>Crisis resources, support services, and emergency contacts</p>
+        </div>
+
+        <div class="emergency-banner">
+            <h2>⚠️ In Crisis? Get Help Now</h2>
+            <div class="hotline">988 - National Suicide & Crisis Lifeline</div>
+            <div class="hotline">911 - Emergency Services</div>
+            <p>If you or someone you know is in immediate danger, call 911</p>
+        </div>
+
+        <div class="section">
+            <h2>📞 Crisis Hotlines</h2>
+            <div class="grid">
+                <a href="tel:988" class="card">
+                    <h3>988 Suicide & Crisis Lifeline</h3>
+                    <p>24/7 free and confidential support for people in distress. Call or text 988.</p>
+                </a>
+                <a href="sms:741741" class="card">
+                    <h3>Crisis Text Line</h3>
+                    <p>Text HOME to 741741 for 24/7 crisis support via text message.</p>
+                </a>
+                <a href="tel:1-800-662-4357" class="card">
+                    <h3>SAMHSA National Helpline</h3>
+                    <p>1-800-662-HELP (4357) - Treatment referral for substance abuse and mental health.</p>
+                </a>
+                <a href="tel:1-800-799-7233" class="card">
+                    <h3>Domestic Violence Hotline</h3>
+                    <p>1-800-799-SAFE (7233) - 24/7 support for victims of domestic violence.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏠 Housing & Tenant Support</h2>
+            <div class="grid">
+                <a href="tel:211" class="card">
+                    <h3>United Way 211</h3>
+                    <p>Dial 211 for housing assistance, rental help, emergency shelters, and local resources.</p>
+                </a>
+                <a href="/attorney_finder" class="card">
+                    <h3>Find Legal Help</h3>
+                    <p>Search for attorneys and legal aid organizations in your area.</p>
+                </a>
+                <a href="/housing_programs" class="card">
+                    <h3>Housing Programs</h3>
+                    <p>Rental assistance programs, Section 8, emergency housing vouchers.</p>
+                </a>
+                <a href="/library/habitability" class="card">
+                    <h3>Tenant Rights</h3>
+                    <p>Know your rights regarding habitability, repairs, privacy, and security deposits.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🍲 Food & Basic Needs</h2>
+            <div class="grid">
+                <a href="https://www.foodbanks.net" target="_blank" class="card">
+                    <h3>Food Banks</h3>
+                    <p>Find local food banks and pantries near you for emergency food assistance.</p>
+                </a>
+                <a href="https://www.benefits.gov" target="_blank" class="card">
+                    <h3>SNAP Benefits (Food Stamps)</h3>
+                    <p>Apply for nutrition assistance through the Supplemental Nutrition Assistance Program.</p>
+                </a>
+                <a href="tel:211" class="card">
+                    <h3>Utility Assistance</h3>
+                    <p>Call 211 for help with electricity, gas, water, and heating bills.</p>
+                </a>
+                <a href="https://www.211.org" target="_blank" class="card">
+                    <h3>Community Resources</h3>
+                    <p>Find clothing banks, transportation help, medical care, and more via 211.org.</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>�� Mental Health & Counseling</h2>
+            <div class="grid">
+                <a href="https://findtreatment.samhsa.gov" target="_blank" class="card">
+                    <h3>Find Treatment</h3>
+                    <p>SAMHSA treatment locator for mental health and substance abuse services.</p>
+                </a>
+                <a href="https://www.nami.org/Help" target="_blank" class="card">
+                    <h3>NAMI Helpline</h3>
+                    <p>National Alliance on Mental Illness - support, education, and advocacy.</p>
+                </a>
+                <a href="https://www.mentalhealth.gov" target="_blank" class="card">
+                    <h3>MentalHealth.gov</h3>
+                    <p>Information on mental health conditions, treatments, and how to get help.</p>
+                </a>
+                <a href="tel:1-877-726-4727" class="card">
+                    <h3>Veterans Crisis Line</h3>
+                    <p>1-877-726-4727 - 24/7 support for veterans and their families.</p>
+                </a>
+            </div>
+        </section>
+
+        <div class="section">
+            <h2>📚 Using Semptify</h2>
+            <div class="grid">
+                <a href="/" class="card">
+                    <h3>Quick Start Guide</h3>
+                    <p>New to Semptify? Learn how to get started with your case.</p>
+                </a>
+                <a href="/calendar" class="card">
+                    <h3>Calendar & Evidence</h3>
+                    <p>Track your case timeline and upload evidence documents.</p>
+                </a>
+                <a href="/library" class="card">
+                    <h3>Legal Library</h3>
+                    <p>Research eviction law, tenant rights, and court procedures.</p>
+                </a>
+                <a href="/tools" class="card">
+                    <h3>AI Tools</h3>
+                    <p>Use AI Copilot, document builder, and case analysis tools.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,188 @@
+{% extends "modern_gui/base.html" %}
+
+{% block title %}Semptify - Complaint Filing{% endblock %}
+{% block header_title %}File Complaint{% endblock %}
+
+{% block content %}
+<div class="progress-steps">
+    <div class="progress-line">
+        <div class="progress-fill" style="width: 33%;"></div>
+    </div>
+    <div class="progress-step active">
+        <div class="progress-circle">1</div>
+        <div class="progress-text">Basic Info</div>
+    </div>
+    <div class="progress-step">
+        <div class="progress-circle">2</div>
+        <div class="progress-text">Details</div>
+    </div>
+    <div class="progress-step">
+        <div class="progress-circle">3</div>
+        <div class="progress-text">Review</div>
+    </div>
+</div>
+
+<form id="complaintForm">
+    <div class="form-section">
+        <h2 style="margin-bottom: 24px;">Landlord Information</h2>
+        
+        <div class="form-group">
+            <label class="form-label">
+                Landlord Name
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Full legal name of property owner or management company</span>
+                </span>
+            </label>
+            <input type="text" 
+                   class="form-input" 
+                   data-autofill="landlord_name" 
+                   data-context="complaint"
+                   placeholder="e.g., John Smith or ABC Property Management">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                Property Address
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Full address of rental property including unit number</span>
+                </span>
+            </label>
+            <input type="text" 
+                   class="form-input" 
+                   data-autofill="property_address" 
+                   data-context="complaint"
+                   placeholder="e.g., 123 Main St, Apt 4B">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" 
+                   class="form-input" 
+                   data-autofill="city" 
+                   data-context="complaint"
+                   placeholder="e.g., Minneapolis">
+        </div>
+        
+        <h2 style="margin: 40px 0 24px;">Issue Type</h2>
+        
+        <div class="checkbox-container">
+            <div class="checkbox-box">
+                <span class="checkbox-check">✓</span>
+            </div>
+            <input type="checkbox" name="issue_maintenance" style="display:none">
+            <label class="checkbox-label">
+                Maintenance Issues
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Repairs needed, broken appliances, etc.</span>
+                </span>
+            </label>
+        </div>
+        
+        <div class="checkbox-container">
+            <div class="checkbox-box">
+                <span class="checkbox-check">✓</span>
+            </div>
+            <input type="checkbox" name="issue_habitability" style="display:none">
+            <label class="checkbox-label">
+                Habitability Concerns
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Heat, water, mold, pests, unsafe conditions</span>
+                </span>
+            </label>
+        </div>
+        
+        <div class="checkbox-container">
+            <div class="checkbox-box">
+                <span class="checkbox-check">✓</span>
+            </div>
+            <input type="checkbox" name="issue_lease" style="display:none">
+            <label class="checkbox-label">Lease Violations</label>
+        </div>
+        
+        <div class="checkbox-container">
+            <div class="checkbox-box">
+                <span class="checkbox-check">✓</span>
+            </div>
+            <input type="checkbox" name="issue_deposit" style="display:none">
+            <label class="checkbox-label">
+                Security Deposit Dispute
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Deposit not returned, improper deductions</span>
+                </span>
+            </label>
+        </div>
+        
+        <h2 style="margin: 40px 0 24px;">Options</h2>
+        
+        <div class="toggle-container">
+            <div class="toggle-switch">
+                <div class="toggle-knob"></div>
+                <input type="hidden" name="urgent" value="0">
+            </div>
+            <label class="toggle-label">
+                Mark as Urgent
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Immediate health/safety concerns requiring priority response</span>
+                </span>
+            </label>
+        </div>
+        
+        <div class="toggle-container">
+            <div class="toggle-switch">
+                <div class="toggle-knob"></div>
+                <input type="hidden" name="legal_rep" value="0">
+            </div>
+            <label class="toggle-label">
+                I have legal representation
+            </label>
+        </div>
+        
+        <div class="toggle-container">
+            <div class="toggle-switch">
+                <div class="toggle-knob"></div>
+                <input type="hidden" name="attach_photos" value="0">
+            </div>
+            <label class="toggle-label">
+                Attach photo evidence
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Include photos of damage, violations, or conditions</span>
+                </span>
+            </label>
+        </div>
+        
+        <div class="form-group" style="margin-top: 40px;">
+            <label class="form-label">
+                Describe the Issue
+                <span class="tooltip-wrapper">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-content">Detailed description: what happened, when, attempts to resolve</span>
+                </span>
+            </label>
+            <textarea class="form-input" 
+                      rows="6" 
+                      data-autofill="issue_description" 
+                      data-context="complaint"
+                      placeholder="Describe the problem, when it started, what you've done to address it..."></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 16px; margin-top: 32px;">
+            <button type="button" class="btn btn-secondary">Save Draft</button>
+            <button type="submit" class="btn btn-primary">Continue to Details →</button>
+        </div>
+    </div>
+</form>
+
+<script>
+document.getElementById('complaintForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    alert('Form submitted! (This is a demo)');
+});
+</script>
+{% endblock %}

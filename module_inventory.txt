@@ -1,75 +1,206 @@
-# Module Inventory
+COMPLETE SEMPTIFY MODULE INVENTORY
+======================================================================
+Generated: 2025-11-22
+Total Modules: 183
 
-## Working Modules
+BLUEPRINTS (Routes)
+----------------------------------------------------------------------
+_backup_storage_setup_routes.py
+attorney_finder_routes.py
+av_routes.py
+brad_gui_routes.py
+brad_integration_routes.py
+calendar_hub_routes.py
+calendar_storage_routes.py
+calendar_timeline_routes.py
+calendar_vault_ui_routes.py
+complaint_filing_routes.py
+dakota_eviction_library_routes.py
+dashboard_api_routes.py
+data_flow_routes.py
+demo_routes.py
+doc_explorer_routes.py
+feature_admin_routes.py
+housing_programs_routes.py
+improvement_routes.py
+journey_routes.py
+learning_dashboard_routes.py
+learning_routes.py
+ledger_admin_routes.py
+ledger_calendar_routes.py
+ledger_routes.py
+ledger_tracking_routes.py
+legal_routes.py
+library_routes.py
+main_dashboard_routes.py
+maintenance_routes.py
+migration_routes.py
+modern_gui_routes.py
+ollama_routes.py
+onboarding_routes.py
+preliminary_learning_routes.py
+profile_routes.py
+rent_calculator_routes.py
+route_discovery_routes.py
+seed_api_routes.py
+seed_bootstrap_routes.py
+storage_setup_routes.py
+storage_status_routes.py
+test_all_routes.py
+themes_routes.py
 
-1. **attorney_trail**
-   - **Status**: Integrated and functional.
-   - **Purpose**: Provides a step-by-step guide for attorneys.
-   - **Route**: `/law_notes/attorney_trail`
+ENGINES (Business Logic)
+----------------------------------------------------------------------
+doc_explorer_engine.py
 
-2. **complaint_templates**
-   - **Status**: Integrated and functional.
-   - **Purpose**: Generates complaint templates based on jurisdiction and type.
-   - **Route**: `/law_notes/complaint_template`
+APIs
+----------------------------------------------------------------------
+calendar_api.py
+calendar_vault_api.py
+learning_dashboard_api.py
 
-3. **mn_jurisdiction_checklist**
-   - **Status**: Functional.
-   - **Purpose**: Provides a checklist for Minnesota jurisdiction.
-   - **Route**: `/mn_checklist`
+MODELS
+----------------------------------------------------------------------
+cards_model.py
+document_model.py
 
-4. **law_notes_actions**
-   - **Status**: Functional.
-   - **Purpose**: Provides various actions related to legal notes, such as generating demand letters, uploading evidence, and exporting packets.
-   - **Routes**:
-     - `/check_broker`
-     - `/file_broker_complaint`
-     - `/generate_demand_letter`
-     - `/identify_owner`
-     - `/file_owner_complaint`
-     - `/attach_evidence_packet`
-     - `/upload_evidence`
-     - `/group_evidence`
-     - `/export_evidence_packet`
-     - `/export_multilingual`
+CORE SYSTEM
+----------------------------------------------------------------------
+app.py
+security.py
+Semptify.py
+user_database.py
 
-## Modules Pending Integration
+ALL OTHER MODULES (Alphabetical)
+----------------------------------------------------------------------
+adaptive_registration.py
+ai_dev_assistant.py
+apply_phase2_vault.py
+av_capture.py
+calendar_master.py
+calendar_storage.py
+calendar_ui.py
+calendar_vault_bridge.py
+check_db.py
+check_oauth_setup.py
+clipboard_monitor.py
+config_eagan_mn.py
+contextual_help.py
+court_packet_wizard.py
+create_admin_token.py
+create_ui_templates.py
+curiosity_reasoning_bridge.py
+dashboard_components.py
+debug_registration.py
+debug_rights.py
+demo_curiosity.py
+doc_id_generator.py
+doc_ingest.py
+document_processor.py
+email_service.py
+engine_generator.py
+feature_registry.py
+feature_status_middleware.py
+find_uploads.py
+generate_admin_token.py
+generate_icon.py
+gui_components.py
+human_perspective.py
+integrated_tenant_support.py
+journey_automation.py
+jurisdiction_detector.py
+kickstart_learning.py
+learning_adapter.py
+ledger_config.py
+ledger_tracking.py
+legal_conflict_resolver.py
+local_ai_config.py
+location_intelligence.py
+maintenance_smoke.py
+metrics.py
+midri_mcro_module.py
+ocr_manager.py
+ocr_service.py
+official_sources.py
+packet_builder.py
+patch_vault_bp.py
+persistent_auth.py
+PHASE2_INTEGRATION_GUIDE.py
+preliminary_learning.py
+profile_manager.py
+quick_login.py
+r2_database_adapter.py
+r2_direct_test.py
+r2_profile_storage.py
+r2_provisioning.py
+r2_storage_layer.py
+r2_test.py
+readyz.py
+reasoning_engine_simple.py
+reasoning_system.py
+register_new.py
+register.py
+ron_providers.py
+route_discovery_bridge.py
+route_discovery.py
+run_comprehensive_tests.py
+run_dev_ssl.py
+run_prod.py
+run_semptify_gui.py
+scaffold.py
+seed_clients.py
+seed_core.py
+seed_manager.py
+semptify_blueprint_saver.py
+semptify_core.py
+semptify_ui.py
+SemptifyAppGUI.py
+SemptifyCleanupGUI.py
+SemptifyStartApp.py
+setup_test_user.py
+situation_analyzer.py
+smart_autofill.py
+smart_inbox.py
+smart_suggestions.py
+start_production.py
+storage_adapter.py
+storage_autologin.py
+storage_manager.py
+storage_qualification.py
+storage_setup_routes_OLD.py
+storage_token_auth.py
+tenant_journey.py
+tenant_narrative_module.py
+test_dashboard_scenarios.py
+test_debug.py
+test_enhanced.py
+test_housing_integration.py
+test_integration.py
+test_jurisdiction.py
+test_ollama_integration.py
+test_phase2_bridge.py
+test_r2_connection.py
+test_r2_status.py
+test_reasoning_integration.py
+test_reasoning_simple.py
+test_reasoning.py
+test_resend_r2.py
+test_scenarios.py
+test_seed_growth.py
+test_simple_reasoning.py
+test_situation_integration.py
+test_storage_tiers.py
+test_your_case.py
+user_bucket_simulator.py
+user_registration.py
+validated_engine_generator.py
+VAULT_INTEGRATION_EXAMPLE.py
+vault_learning_bridge.py
+vault_user_storage.py
+vault.py
+veeper.py
+verify_monitoring.py
+voice_capture.py
+weather_and_time.py
+wsgi.py
 
-1. **office_module**
-   - **Files**:
-     - `backend_demo.py`
-     - `ai_orchestrator.py`
-   - **Purpose**: Backend and AI orchestration functionalities.
-   - **Status**: Requires integration.
-
-2. **verify_module**
-   - **Files**:
-     - `verify_module.py`
-     - `verify_schema.json`
-   - **Purpose**: Verification-related functionalities.
-   - **Status**: Requires exploration and integration.
-
-3. **evidence_packet_builder**
-   - **Purpose**: Builds evidence packets.
-   - **Status**: Requires exploration.
-
-4. **evidence_metadata**
-   - **Purpose**: Manages metadata for evidence.
-   - **Status**: Requires exploration.
-
-## Modules in Idea/Concept Stage
-
-1. **public_exposure_module**
-   - **Purpose**: Controlled public campaign composer.
-   - **Status**: Conceptual.
-
-2. **greed_watch_dashboard**
-   - **Purpose**: Monitors landlord patterns and metrics.
-   - **Status**: Conceptual.
-
-3. **backend_offensive_bundle**
-   - **Purpose**: CLI for enforcement modules.
-   - **Status**: Conceptual.
-
-4. **gui_offensive_bundle**
-   - **Purpose**: Unified GUI shell for multiple modules.
-   - **Status**: Conceptual.

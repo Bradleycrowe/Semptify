@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; }
+        .page-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .page-header { margin-bottom: 30px; }
+        .page-title { font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 10px; }
+        .page-subtitle { font-size: 16px; color: #718096; }
+        .search-box { margin-bottom: 30px; }
+        .search-input { width: 100%; padding: 15px 20px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 8px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .card-title { font-size: 20px; font-weight: 600; color: #2d3748; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .card-icon { font-size: 24px; }
+        .card-description { font-size: 14px; color: #718096; margin-bottom: 16px; line-height: 1.6; }
+        .card-button { display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; transition: opacity 0.2s; }
+        .card-button:hover { opacity: 0.9; }
+        .section-header { font-size: 24px; font-weight: 600; color: #2d3748; margin: 40px 0 20px 0; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    {% include "includes/navbar.html" %}
+    
+    <div class="page-container">
+        <div class="page-header">
+            <h1 class="page-title">📚 Legal Library</h1>
+            <p class="page-subtitle">Minnesota tenant rights, eviction laws, and legal resources</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Search laws, guides, and resources...">
+        </div>
+
+        <h2 class="section-header">Eviction Law</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title"><span class="card-icon">⚖️</span>MN Eviction Process</div>
+                <div class="card-description">Complete guide to Minnesota eviction procedures, timelines, and tenant rights at each step.</div>
+                <a href="/library/eviction-process" class="card-button">Read Guide</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📜</span>Eviction Statutes</div>
+                <div class="card-description">Minnesota Statutes Chapter 504B - full text of landlord-tenant laws.</div>
+                <a href="/library/mn-statutes-504b" class="card-button">View Statutes</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🛡️</span>Defenses to Eviction</div>
+                <div class="card-description">Legal defenses you can raise in eviction court, with examples and case law.</div>
+                <a href="/library/eviction-defenses" class="card-button">Learn Defenses</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📋</span>Summons & Complaint</div>
+                <div class="card-description">How to respond to an eviction summons, filing deadlines, and sample answers.</div>
+                <a href="/library/eviction-summons" class="card-button">Respond Guide</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">Tenant Rights</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🔑</span>Right to Habitable Housing</div>
+                <div class="card-description">Your rights to safe, livable housing and landlord repair obligations.</div>
+                <a href="/library/habitability" class="card-button">Read Rights</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🚪</span>Right to Privacy</div>
+                <div class="card-description">Notice requirements for landlord entry, illegal lockouts, and privacy protections.</div>
+                <a href="/library/privacy-rights" class="card-button">Learn More</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">💵</span>Security Deposits</div>
+                <div class="card-description">Rules for deposit returns, deductions, interest, and dispute resolution.</div>
+                <a href="/library/security-deposits" class="card-button">Deposit Guide</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">⛔</span>Retaliation Protection</div>
+                <div class="card-description">Protection from retaliation after reporting code violations or requesting repairs.</div>
+                <a href="/library/retaliation" class="card-button">Know Your Rights</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">Court Procedures</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🏛️</span>Going to Court</div>
+                <div class="card-description">What to expect at your eviction hearing, courtroom etiquette, and presenting evidence.</div>
+                <a href="/library/court-procedures" class="card-button">Court Guide</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📝</span>Filing Motions</div>
+                <div class="card-description">How to file motions for continuance, discovery, or dismissal in eviction cases.</div>
+                <a href="/library/filing-motions" class="card-button">Motion Guide</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">👥</span>Jury Trial Rights</div>
+                <div class="card-description">When you can demand a jury trial in eviction and how to request one.</div>
+                <a href="/library/jury-trial" class="card-button">Learn About Juries</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📄</span>Appeal Process</div>
+                <div class="card-description">How to appeal an eviction judgment to district court.</div>
+                <a href="/library/appeals" class="card-button">Appeal Guide</a>
+            </div>
+        </div>
+
+        <h2 class="section-header">Resources & Forms</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📑</span>Sample Documents</div>
+                <div class="card-description">Templates for answers, motions, affidavits, and other court documents.</div>
+                <a href="/library/sample-documents" class="card-button">View Templates</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">📖</span>Legal Dictionary</div>
+                <div class="card-description">Definitions of legal terms commonly used in eviction cases.</div>
+                <a href="/library/legal-dictionary" class="card-button">Browse Terms</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🔗</span>External Resources</div>
+                <div class="card-description">Links to Minnesota courts, legal aid organizations, and government resources.</div>
+                <a href="/library/external-links" class="card-button">Explore Links</a>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="card-icon">🎓</span>Case Law Database</div>
+                <div class="card-description">Search Minnesota appellate decisions on landlord-tenant issues.</div>
+                <a href="/library/case-law" class="card-button">Search Cases</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

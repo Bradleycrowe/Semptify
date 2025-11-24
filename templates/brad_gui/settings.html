@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html><head><title>Brad Settings</title><style>body{font-family:Segoe UI;background:#0e1e2e;color:#fff;padding:32px;} .panel{background:#1f3348;padding:20px;border-radius:8px;max-width:900px;margin:0 auto;} .kv{display:grid;grid-template-columns:180px 1fr;gap:6px;} code{background:#132738;padding:2px 6px;border-radius:4px;}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;margin-left:6px;} .ok{background:#0b5;}.warn{background:#c90;}.err{background:#c33;}
+</style></head><body>
+<div class="panel">
+<h1>Settings (Lite)</h1>
+<div class="kv">
+<div>R2 Connected:</div><div id="r2_status">loading...</div>
+<div>Bucket:</div><div id="r2_bucket">'+$env:R2_BUCKET_NAME+'</div>
+<div>Endpoint:</div><div><code>'+$env:R2_ENDPOINT_URL+'</code></div>
+</div>
+<script>fetch('/storage/status').then(r=>r.json()).then(d=>{const el=document.getElementById('r2_status'); if(d.provider.includes('R2')||d.provider.includes('Cloudflare')){el.innerHTML='YES <span class="badge ok">OK</span>'} else {el.innerHTML='NO <span class="badge err">NOT CONFIGURED</span>'}}).catch(()=>{document.getElementById('r2_status').innerHTML='ERR <span class="badge err">FAIL</span>'});</script>
+</div>
+</body></html>

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "default": {
+      "id": "default",
+      "name": "My Case",
+      "description": "Default case profile",
+      "created_at": "2025-11-21T16:41:07.350147",
+      "color": "#4A90E2"
+    }
+  }
+}

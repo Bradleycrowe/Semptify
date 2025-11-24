@@ -1,0 +1,59 @@
+{% extends "brad_gui/layout_brad.html" %}
+{% block content %}
+<div class="settings-container" style="max-width:900px;margin:0 auto;padding:24px;">
+  <h1>Settings</h1>
+  
+  <div class="settings-section panel" style="margin-bottom:20px;">
+    <h2>Storage Configuration</h2>
+    <div class="config-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;">
+      <div class="config-item">
+        <div class="config-label">R2 Storage</div>
+        <div class="config-status badge-{{ 'healthy' if config.r2_configured else 'error' }}">{{ 'CONFIGURED' if config.r2_configured else 'NOT CONFIGURED' }}</div>
+        <div class="config-hint">Cloudflare R2 primary storage</div>
+      </div>
+      <div class="config-item">
+        <div class="config-label">Google Drive</div>
+        <div class="config-status badge-{{ 'healthy' if config.gdrive_configured else 'error' }}">{{ 'CONFIGURED' if config.gdrive_configured else 'NOT CONFIGURED' }}</div>
+        <div class="config-hint">Backup storage via 1semptify@gmail.com</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section panel" style="margin-bottom:20px;">
+    <h2>AI Provider</h2>
+    <div class="config-item">
+      <div class="config-label">Current Provider</div>
+      <div class="config-value">{{ config.ai_provider or 'not_configured' }}</div>
+      <div class="config-status badge-{{ 'healthy' if config.ai_key_set else 'warning' }}">{{ 'API KEY SET' if config.ai_key_set else 'KEY MISSING' }}</div>
+      <div class="config-hint">Supported: openai, azure, ollama, groq</div>
+    </div>
+  </div>
+
+  <div class="settings-section panel">
+    <h2>Storage Health</h2>
+    <div id="settings-storage-health">Loading...</div>
+  </div>
+
+  <div class="settings-section panel" style="margin-top:20px;">
+    <h2>Configuration Reference</h2>
+    <p style="font-size:14px;color:var(--text-secondary);">See <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;">config.env.template</code> for all environment variables.</p>
+    <p style="font-size:14px;color:var(--text-secondary);margin-top:8px;">Docs: <a href="/admin" style="color:var(--accent);">Admin Portal</a></p>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadSettingsHealth(){
+  try{
+    const r=await fetch("/brad/api/storage/health");
+    const h=await r.json();
+    const el=document.getElementById("settings-storage-health");
+    el.innerHTML=Object.entries(h).map(([k,v])=>`<div style="margin:8px 0;"><strong>${k}:</strong> <span class="storage-badge badge-${v}">${v.toUpperCase()}</span></div>`).join("");
+  }catch(e){console.error(e);}
+}
+document.addEventListener("DOMContentLoaded",loadSettingsHealth);
+</script>
+{% endblock %}
+
+
+

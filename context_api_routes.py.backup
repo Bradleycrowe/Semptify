@@ -1,0 +1,101 @@
+"""
+Context API Routes - Access the Context Data System via REST API
+"""
+
+from flask import Blueprint, jsonify, request
+from semptify_core import get_context, add_document, search_documents
+from security import validate_user_token
+import os
+from dataclasses import asdict
+import traceback
+
+context_api_bp = Blueprint('context_api', __name__, url_prefix='/api/context')
+
+@context_api_bp.route('/<user_id>', methods=['GET'])
+def get_user_context(user_id):
+    """Get complete context ring for user"""
+    try:
+        # Validate user token (skip in open mode)
+        security_mode = os.environ.get('SECURITY_MODE', 'enforced')
+        if security_mode != 'open':
+            token = request.args.get('user_token') or request.headers.get('X-User-Token')
+            if not validate_user_token(token, user_id):
+                return jsonify({'error': 'Invalid token'}), 401
+        
+        # Get context
+        context = get_context(user_id)
+        
+        # Convert to dict
+        context_dict = asdict(context)
+        
+        return jsonify(context_dict), 200
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 404
+    except Exception as e:
+        return jsonify({'error': 'Internal error', 'details': str(e)}), 500
+
+@context_api_bp.route('/<user_id>/documents', methods=['GET'])
+def get_user_documents(user_id):
+    """Get user's documents with context"""
+    try:
+        token = request.args.get('user_token') or request.headers.get('X-User-Token')
+        if not validate_user_token(token, user_id):
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        context = get_context(user_id)
+        docs = [asdict(doc) for doc in context.documents]
+        
+        return jsonify({
+            'count': len(docs),
+            'documents': docs,
+            'case_strength': context.overall_strength
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@context_api_bp.route('/<user_id>/next-steps', methods=['GET'])
+def get_next_steps(user_id):
+    """Get intelligent next steps"""
+    try:
+        token = request.args.get('user_token') or request.headers.get('X-User-Token')
+        if not validate_user_token(token, user_id):
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        context = get_context(user_id)
+        
+        return jsonify({
+            'next_steps': context.next_steps,
+            'urgent_actions': context.urgent_actions,
+            'suggestions': context.suggestions,
+            'case_strength': context.overall_strength
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@context_api_bp.route('/<user_id>/search', methods=['GET'])
+def search_user_documents(user_id):
+    """Search documents with context"""
+    try:
+        token = request.args.get('user_token') or request.headers.get('X-User-Token')
+        if not validate_user_token(token, user_id):
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        query = request.args.get('q', '')
+        if not query:
+            return jsonify({'error': 'Query required'}), 400
+        
+        results = search_documents(user_id, query)
+        docs = [asdict(doc) for doc in results]
+        
+        return jsonify({
+            'query': query,
+            'count': len(docs),
+            'results': docs
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+

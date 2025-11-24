@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .saved-notice {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .panel-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .panel-card h2 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .toggle-group {
+            margin-bottom: 15px;
+        }
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .toggle-row label {
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            flex: 1;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status-enabled {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-disabled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .select-row {
+            margin-bottom: 15px;
+        }
+        .select-row label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+        .select-row select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: #f3f4f6;
+        }
+        .nav-links a:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎛️ Admin Control Panel</h1>
+            <p>Manage Semptify settings without terminal commands</p>
+            <div class="nav-links">
+                <a href="?admin_token={{ admin_token }}">⚙️ Settings</a>
+                <a href="{{ url_for('admin_panel.manage_users', admin_token=admin_token) }}">👥 Users</a>
+                <a href="/metrics?admin_token={{ admin_token }}">📊 Metrics</a>
+                <a href="/">🏠 Home</a>
+            </div>
+        </div>
+
+        {% if request.args.get('saved') %}
+        <div class="saved-notice" style="display: block;">
+            ✅ Settings saved successfully!
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('admin_panel.update_config') }}">
+            <input type="hidden" name="admin_token" value="{{ admin_token }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="panel-grid">
+                <!-- User Verification -->
+                <div class="panel-card">
+                    <h2>👤 User Verification</h2>
+                    <div class="toggle-group">
+                        <div class="toggle-row">
+                            <label for="email_enabled">Email Verification
+                                <span class="status-badge status-enabled">READY</span>
+                            </label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="email_enabled" name="email_enabled" 
+                                       {% if config.user_verification.email_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="phone_enabled">Phone Verification
+                                <span class="status-badge status-disabled">NOT READY</span>
+                            </label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="phone_enabled" name="phone_enabled" disabled
+                                       {% if config.user_verification.phone_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="require_verification">Require Verification</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="require_verification" name="require_verification"
+                                       {% if config.user_verification.require_verification %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration -->
+                <div class="panel-card">
+                    <h2>📝 User Registration</h2>
+                    <div class="toggle-group">
+                        <div class="toggle-row">
+                            <label for="allow_registration">Allow Registration</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="allow_registration" name="allow_registration"
+                                       {% if config.registration.allow_registration %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="require_email">Require Email</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="require_email" name="require_email"
+                                       {% if config.registration.require_email %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="manual_approval_required">Manual Approval Required</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="manual_approval_required" name="manual_approval_required"
+                                       {% if config.registration.manual_approval_required %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storage Settings -->
+                <div class="panel-card">
+                    <h2>💾 Storage Settings</h2>
+                    <div class="toggle-group">
+                        <div class="toggle-row">
+                            <label for="allow_system_storage">Allow System Storage</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="allow_system_storage" name="allow_system_storage"
+                                       {% if config.storage.allow_system_storage %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="allow_user_storage">Allow User Storage</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="allow_user_storage" name="allow_user_storage"
+                                       {% if config.storage.allow_user_storage %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="select-row">
+                            <label for="default_backend">Default Storage Backend</label>
+                            <select id="default_backend" name="default_backend">
+                                <option value="local" {% if config.storage.default_backend == 'local' %}selected{% endif %}>Local (uploads/)</option>
+                                <option value="r2" {% if config.storage.default_backend == 'r2' %}selected{% endif %}>Cloudflare R2</option>
+                                <option value="google" {% if config.storage.default_backend == 'google' %}selected{% endif %}>Google Drive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="panel-card">
+                    <h2>🔒 Security Settings</h2>
+                    <div class="toggle-group">
+                        <div class="select-row">
+                            <label for="security_mode">Security Mode</label>
+                            <select id="security_mode" name="security_mode">
+                                <option value="open" {% if config.security.security_mode == 'open' %}selected{% endif %}>Open (Development)</option>
+                                <option value="enforced" {% if config.security.security_mode == 'enforced' %}selected{% endif %}>Enforced (Production)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="rate_limiting_enabled">Rate Limiting</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="rate_limiting_enabled" name="rate_limiting_enabled"
+                                       {% if config.security.rate_limiting_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="csrf_enabled">CSRF Protection</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="csrf_enabled" name="csrf_enabled"
+                                       {% if config.security.csrf_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="force_https">Force HTTPS</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="force_https" name="force_https"
+                                       {% if config.security.force_https %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Toggles -->
+                <div class="panel-card">
+                    <h2>✨ Feature Toggles</h2>
+                    <div class="toggle-group">
+                        <div class="toggle-row">
+                            <label for="vault_enabled">Document Vault</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="vault_enabled" name="vault_enabled"
+                                       {% if config.features.vault_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="complaint_filing_enabled">Complaint Filing</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="complaint_filing_enabled" name="complaint_filing_enabled"
+                                       {% if config.features.complaint_filing_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="timeline_enabled">Timeline</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="timeline_enabled" name="timeline_enabled"
+                                       {% if config.features.timeline_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="ai_assistance_enabled">AI Assistance</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="ai_assistance_enabled" name="ai_assistance_enabled"
+                                       {% if config.features.ai_assistance_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-row">
+                            <label for="learning_engine_enabled">Learning Engine</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="learning_engine_enabled" name="learning_engine_enabled"
+                                       {% if config.features.learning_engine_enabled %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">💾 Save All Settings</button>
+                    <button type="button" class="btn btn-secondary" onclick="location.reload()">🔄 Reset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Auto-hide saved notice after 3 seconds
+        setTimeout(() => {
+            const notice = document.querySelector('.saved-notice');
+            if (notice) notice.style.display = 'none';
+        }, 3000);
+    </script>
+</body>
+</html>

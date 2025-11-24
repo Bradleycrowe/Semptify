@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "C:\Semptify\Semptify\Semptify.py", line 21, in <module>
+    from user_database import (
+    ...<3 lines>...
+    )
+  File "C:\Semptify\Semptify\user_database.py", line 624, in <module>
+    _r2_adapter = init_r2_database()
+  File "C:\Semptify\Semptify\r2_database_adapter.py", line 126, in init_r2_database
+    return get_r2_adapter()
+  File "C:\Semptify\Semptify\r2_database_adapter.py", line 120, in get_r2_adapter
+    _r2_db_adapter = R2DatabaseAdapter()
+  File "C:\Semptify\Semptify\r2_database_adapter.py", line 46, in __init__
+    print("\u26a0 R2 not configured - using local-only database (ephemeral)")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u26a0' in position 0: character maps to <undefined>

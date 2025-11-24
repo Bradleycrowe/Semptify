@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Tools & Utilities - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .tool-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .tool-description {
+            color: #ccc;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .tool-features {
+            margin-bottom: 25px;
+        }
+
+        .tool-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tool-features li {
+            padding: 5px 0;
+            color: #ddd;
+        }
+
+        .tool-features li:before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .tool-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .status-live {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-coming {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .quick-actions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .quick-actions h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .action-btn {
+            display: block;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    {% include "includes/navbar.html" %}
+
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Legal Tools & Utilities</h1>
+            <p>Powerful tools to protect your tenant rights and build your case</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">AI Agents</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Legal Tools</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Available</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free</div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>🚀 Quick Start Actions</h2>
+            <div class="actions-grid">
+                <a href="/ai/orchestrator" class="action-btn">🤖 Launch AI Legal Team</a>
+                <a href="/calendar" class="action-btn">📅 Open Calendar Hub</a>
+                <a href="/vault" class="action-btn">🔒 Upload Evidence</a>
+                <a href="/register" class="action-btn">📝 Start New Case</a>
+                <a href="/library" class="action-btn">📚 Browse Legal Library</a>
+                <a href="/brad" class="action-btn">👥 Client Management</a>
+            </div>
+        </div>
+
+        <div class="tools-grid">
+            <!-- AI Orchestrator -->
+            <div class="tool-card">
+                <span class="tool-icon">🤖</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">AI Legal Team Orchestrator</div>
+                <div class="tool-description">
+                    Multi-agent AI coordination system with specialized legal, evidence, and notary agents working together to analyze your case and provide comprehensive guidance.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>5 specialized AI agents</li>
+                        <li>Sequential agent coordination</li>
+                        <li>Real-time conversation context</li>
+                        <li>Automated journey seeding</li>
+                    </ul>
+                </div>
+                <a href="/ai/orchestrator" class="btn btn-primary">Launch AI Team</a>
+            </div>
+
+            <!-- Calendar Hub -->
+            <div class="tool-card">
+                <span class="tool-icon">📅</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">Case Management Hub</div>
+                <div class="tool-description">
+                    Complete calendar system for tenant rights cases. Track deadlines, manage payments, view interactive timelines, and stay organized throughout your legal journey.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Deadline tracking with alerts</li>
+                        <li>Payment history management</li>
+                        <li>Interactive calendar views</li>
+                        <li>Evidence timeline integration</li>
+                    </ul>
+                </div>
+                <a href="/calendar" class="btn btn-primary">Open Calendar Hub</a>
+            </div>
+
+            <!-- Evidence Vault -->
+            <div class="tool-card">
+                <span class="tool-icon">🔒</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">Secure Evidence Vault</div>
+                <div class="tool-description">
+                    Upload and store evidence with automatic notary-grade JSON certificates. SHA-256 verified integrity with timestamps and court-ready documentation.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Cryptographic integrity certificates</li>
+                        <li>Timeline auto-population</li>
+                        <li>Advanced search and organization</li>
+                        <li>Certified digital notary</li>
+                    </ul>
+                </div>
+                <a href="/vault" class="btn btn-primary">Open Evidence Vault</a>
+            </div>
+
+            <!-- Complaint Generator -->
+            <div class="tool-card">
+                <span class="tool-icon">📄</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">Complaint Generator</div>
+                <div class="tool-description">
+                    Generate formal legal complaints tailored to your jurisdiction and specific situation. Step-by-step wizard creates court-ready documents.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Jurisdiction-aware templates</li>
+                        <li>Step-by-step complaint builder</li>
+                        <li>Court packet assembly</li>
+                        <li>Legal review integration</li>
+                    </ul>
+                </div>
+                <a href="/file-complaint" class="btn btn-primary">File Complaint</a>
+            </div>
+
+            <!-- Statute Calculator -->
+            <div class="tool-card">
+                <span class="tool-icon">⏱️</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">Statute Calculator</div>
+                <div class="tool-description">
+                    Calculate important legal deadlines including statutes of limitations, appeal periods, and filing requirements for your specific case type.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Jurisdiction-specific calculations</li>
+                        <li>Multiple deadline types</li>
+                        <li>Calendar integration</li>
+                        <li>Automatic reminders</li>
+                    </ul>
+                </div>
+                <a href="/tools/statute-calculator" class="btn btn-primary">Calculate Deadlines</a>
+            </div>
+
+            <!-- Rights Explorer -->
+            <div class="tool-card">
+                <span class="tool-icon">⚖️</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">Rights Explorer</div>
+                <div class="tool-description">
+                    Interactive tool to explore legal rights
+                </div>
+                <a href="/tools/rights-explorer" class="btn btn-primary">Explore Rights</a>
+            </div>
+<!-- Court Packet Builder -->
+            <div class="tool-card">
+                <span class="tool-icon">🏛️</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">Court Packet Builder</div>
+                <div class="tool-description">
+                    Assemble complete court filing packets
+                </div>
+                <a href="/tools/court-packet-builder" class="btn btn-primary">Build Packet</a>
+            </div>
+<!-- Client Management -->
+            <div class="tool-card">
+                <span class="tool-icon">👥</span>
+                <div class="tool-status status-live">Live</div>
+                <div class="tool-title">Client Management</div>
+                <div class="tool-description">
+                    Manage client information, track case progress, and maintain organized records for multiple tenant cases and legal matters.
+                </div>
+                <div class="tool-features">
+                    <ul>
+                        <li>Client profile management</li>
+                        <li>Case progress tracking</li>
+                        <li>Document organization</li>
+                        <li>Communication logs</li>
+                    </ul>
+                </div>
+                <a href="/brad" class="btn btn-primary">Open Client Management</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
+
+

@@ -73,7 +73,10 @@ def _get_storage_client():
 def check_storage_auth():
     """Auto-detect storage and authorize if token present"""
     # Skip for static, setup, OAuth, and unlock routes
-    if request.path.startswith(('/static/', '/setup', '/oauth/', '/unlock')):
+    if request.path.startswith(('/static/', '/setup', '/oauth/', '/unlock', '/brad')):
+        return
+    # Allow brad GUI with override
+    if request.path.startswith('/brad') and os.getenv('PERSISTENCE_OVERRIDE'):
         return
     
     # Check if already authorized
@@ -87,6 +90,9 @@ def check_storage_auth():
     storage_client, storage_type = _get_storage_client()
     
     if not storage_client:
+        # No storage connected but PERSISTENCE_OVERRIDE set - allow
+        if os.getenv("PERSISTENCE_OVERRIDE"):
+            return
         # No storage connected, redirect to setup
         if request.path not in ('/', '/index', '/home'):
             return redirect('/setup')
@@ -153,4 +159,6 @@ def unlock():
     storage_client, storage_type = _get_storage_client()
     
     return render_template('unlock.html', next_url=next_url, storage_type=storage_type)
+
+
 

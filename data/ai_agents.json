@@ -1,0 +1,9 @@
+{
+  "agents": [
+    {"id": "legal", "role": "Legal Analyst", "description": "Summarize eviction law and craft pleadings", "provider": "local"},
+    {"id": "evidence", "role": "Evidence Collector", "description": "Checklist and photo/audio guidance for evidence capture", "provider": "local"},
+    {"id": "notary", "role": "Notary", "description": "Create notary JSON certificates and chain-of-custody guidance", "provider": "local"},
+    {"id": "packet", "role": "Packet Builder", "description": "Assemble packets, checklists, and court forms", "provider": "local"},
+    {"id": "summarizer", "role": "Summarizer", "description": "Condense timeline & evidence into a one-page narrative", "provider": "local"}
+  ]
+}

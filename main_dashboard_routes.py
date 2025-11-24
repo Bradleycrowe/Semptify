@@ -10,6 +10,7 @@ def home():
     storage_qualified = session.get('qualified', False)
     
     return render_template('main_dashboard/home.html',
+                           admin_token=request.args.get('admin_token', ''),
                          user_token=user_token,
                          storage_qualified=storage_qualified)
 

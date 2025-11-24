@@ -1,0 +1,467 @@
+COMPLETE SEMPTIFY MODULE INVENTORY WITH CATEGORIZATION
+=======================================================
+Generated: 2025-11-22
+Total Python Modules: 183
+
+══════════════════════════════════════════════════════
+FLASK BLUEPRINTS (42 Route Modules)
+══════════════════════════════════════════════════════
+attorney_finder_routes.py - Find free legal aid attorneys
+av_routes.py - Audio/video capture routes
+brad_gui_routes.py - Client manager (Brad Crowe, Dena Sazama)
+calendar_hub_routes.py - Unified calendar/vault hub (NEW)
+calendar_storage_routes.py - Calendar data persistence
+calendar_timeline_routes.py - Timeline visualization
+calendar_vault_ui_routes.py - Vault UI integration
+complaint_filing_routes.py - Court complaint generator
+dakota_eviction_library_routes.py - MN eviction law library
+dashboard_api_routes.py - Main dashboard API
+data_flow_routes.py - Data flow visualization
+demo_routes.py - Demo/reasoning examples
+doc_explorer_routes.py - Document browser
+housing_programs_routes.py - Rental assistance finder
+journey_routes.py - Case progression tracking
+learning_dashboard_routes.py - Educational content
+legal_routes.py - Legal resources
+library_routes.py - Law library main routes
+main_dashboard_routes.py - Homepage
+maintenance_routes.py - System maintenance
+migration_routes.py - Data migration tools
+modern_gui_routes.py - Modern UI components
+ollama_routes.py - Local LLM integration
+onboarding_routes.py - New user wizard
+profile_routes.py - User profiles
+rent_calculator_routes.py - Rent/payment calculator
+route_discovery_routes.py - System introspection
+seed_api_routes.py - Growth/seed tracking
+storage_setup_routes.py - Cloud storage configuration
+storage_status_routes.py - Storage health checks
+themes_routes.py - UI themes
+
+══════════════════════════════════════════════════════
+ENGINES (Business Logic - Core Intelligence)
+══════════════════════════════════════════════════════
+doc_explorer_engine.py - Document search/indexing
+assumption_engine.py - Reasoning assumptions
+attorney_finder_engine.py - Legal aid matching
+calendar_timeline_engine.py - Timeline generation
+complaint_filing_engine.py - Complaint assembly
+curiosity_engine.py - Adaptive learning system
+dashboard_engine.py - Dashboard data aggregation
+data_flow_engine.py - Data pipeline orchestration
+delivery_system_engine.py - Document delivery
+eviction_defense.py - Eviction defense strategies
+health_check_engine.py - System health monitoring
+housing_journey_engine.py - Case progression logic
+housing_programs_engine.py - Assistance program matching
+improvement_engine.py - System improvement suggestions
+intelligence_engine.py - AI coordination
+jurisdiction_engine.py - Court jurisdiction detection
+legal_advisor_engine.py - Legal advice generation
+librarian_engine.py - Library content management
+maintenance_engine.py - Automated maintenance tasks
+meta_seed_engine.py - Meta-learning for seed system
+perspective_engine.py - Multi-perspective analysis
+prime_learning_engine.py - Learning data priming
+realtime_research_engine.py - Live legal research
+reasoning_engine_simple.py - Basic reasoning
+reasoning_engine.py - Advanced reasoning with citations
+rent_calculator_engine.py - Rent calculation logic
+seed_bootstrap_engine.py - Bootstrap seed data
+situation_analyzer.py - Case situation analysis
+validated_engine_generator.py - Engine code generation
+
+══════════════════════════════════════════════════════
+AI MODELS & PROVIDERS
+══════════════════════════════════════════════════════
+SUPPORTED AI PROVIDERS:
+- OpenAI (GPT-4, GPT-3.5)
+- Azure OpenAI
+- Ollama (Local LLMs: Llama, Mistral, Phi, etc.)
+- Anthropic Claude (via API)
+
+AI INTEGRATION MODULES:
+ollama_routes.py - Local LLM API
+local_ai_config.py - AI configuration
+ai_dev_assistant.py - Development AI helper
+reasoning_system.py - Multi-model reasoning
+reasoning_fallback.py - Fallback when AI unavailable
+official_sources.py - AI source validation
+
+AI-POWERED FEATURES:
+- curiosity_engine.py - Learns user patterns
+- intelligence_engine.py - Coordinates multiple AIs
+- legal_advisor_engine.py - AI legal analysis
+- realtime_research_engine.py - Live case research
+- situation_analyzer.py - Case assessment
+- smart_suggestions.py - Contextual recommendations
+- smart_autofill.py - Form auto-completion
+
+══════════════════════════════════════════════════════
+APIs & SERVICES
+══════════════════════════════════════════════════════
+calendar_api.py - Calendar CRUD operations
+calendar_vault_api.py - Vault API integration
+learning_dashboard_api.py - Learning content API
+delivery_api.py - Document delivery API
+email_service.py - Email notifications
+ocr_service.py - Optical character recognition
+temp_access_service.py - Temporary access tokens
+
+══════════════════════════════════════════════════════
+DATA MODELS
+══════════════════════════════════════════════════════
+cards_model.py - UI card components
+document_model.py - Document structure
+feature_registry.py - Feature flag registry
+
+══════════════════════════════════════════════════════
+CORE SYSTEM FILES
+══════════════════════════════════════════════════════
+Semptify.py - Main Flask application (2000+ lines)
+app.py - Alternative entry point
+security.py - Auth, tokens, rate limiting, CSRF
+user_database.py - SQLite user management
+storage_manager.py - Tiered cloud storage (R2/GDrive/Local)
+storage_enforcer.py - Persistence requirement enforcement
+storage_autologin.py - Storage connection middleware
+metrics.py - Prometheus metrics, health checks
+readyz.py - Readiness probe
+
+══════════════════════════════════════════════════════
+STORAGE & PERSISTENCE
+══════════════════════════════════════════════════════
+storage_manager.py - Main storage orchestration
+r2_storage_layer.py - Cloudflare R2 integration
+r2_database_adapter.py - R2 database persistence
+r2_profile_storage.py - User profile storage
+r2_provisioning.py - R2 setup automation
+storage_adapter.py - Generic storage interface
+storage_qualification.py - Storage tier selection
+storage_token_auth.py - Storage authentication
+db_persistence.py - Database backup/restore
+vault_user_storage.py - User vault storage
+
+══════════════════════════════════════════════════════
+AUTHENTICATION & SECURITY
+══════════════════════════════════════════════════════
+security.py - Core security module
+user_database.py - User accounts
+persistent_auth.py - Remember me tokens
+storage_token_auth.py - Storage access tokens
+temp_access_service.py - Temporary URLs
+generate_admin_token.py - Admin token generation
+create_admin_token.py - Token creation utility
+hash_token.py - Token hashing
+quick_login.py - Fast login mechanism
+veeper.py - Token recovery via phone/email
+
+CURRENT SECURITY MODE:
+- FORCE_OPEN_SECURITY=1 (All auth bypassed for development)
+- No registration required
+- No tokens required
+- Admin routes accessible
+
+══════════════════════════════════════════════════════
+DOCUMENT & EVIDENCE VAULT
+══════════════════════════════════════════════════════
+vault.py - Main vault logic
+vault_bp.py - Vault blueprint
+patch_vault_bp.py - Vault enhancements
+vault_learning_bridge.py - Learning integration
+vault_user_storage.py - User vault storage
+calendar_vault_api.py - Calendar integration
+calendar_vault_ui_routes.py - UI routes
+calendar_vault_bridge.py - Bridge logic
+av_capture.py - Audio/video capture
+av_routes.py - A/V routes
+voice_capture.py - Voice recording
+doc_id_generator.py - Unique document IDs
+evidence_metadata.py - Evidence tracking
+evidence_packet_builder.py - Court packets
+VAULT_INTEGRATION_EXAMPLE.py - Integration guide
+
+══════════════════════════════════════════════════════
+LEGAL & COURT SYSTEMS
+══════════════════════════════════════════════════════
+COMPLAINT FILING:
+complaint_filing_engine.py - Complaint generation
+complaint_filing_routes.py - Complaint routes
+complaint_generator.py - Template generator
+complaint_templates.py - Legal templates
+court_packet_wizard.py - Court packet builder
+packet_builder.py - Generic packet assembly
+subpoena_builder.py - Subpoena generation
+motion_writer.py - Motion drafting
+
+LEGAL RESEARCH:
+dakota_eviction_library_routes.py - MN eviction law
+library_routes.py - Law library
+legal_routes.py - Legal resources
+legal_advisor_engine.py - AI legal advisor
+legal_conflict_resolver.py - Conflict resolution
+librarian_engine.py - Library management
+realtime_research_engine.py - Live research
+
+JURISDICTION & COURT:
+jurisdiction_detector.py - Court detection
+jurisdiction_engine.py - Jurisdiction rules
+mn_jurisdiction_checklist.py - MN specific rules
+attorney_finder_engine.py - Find attorneys
+attorney_trail.py - Attorney history
+law_notes_actions.py - Legal action tracking
+
+══════════════════════════════════════════════════════
+CALENDAR & TIMELINE
+══════════════════════════════════════════════════════
+calendar_hub_routes.py - Unified hub (NEW)
+calendar_master.py - Master calendar view
+calendar_timeline_engine.py - Timeline generation
+calendar_timeline_routes.py - Timeline routes
+calendar_ui.py - Calendar UI components
+calendar_api.py - Calendar API
+calendar_storage.py - Calendar persistence
+calendar_storage_routes.py - Storage routes
+calendar_vault_bridge.py - Vault integration
+tenant_journey.py - Tenant timeline
+
+══════════════════════════════════════════════════════
+RENT & PAYMENT TRACKING
+══════════════════════════════════════════════════════
+rent_calculator_engine.py - Rent calculations
+rent_calculator_routes.py - Calculator routes
+rent_calculator.py - Calculator logic
+ledger_calendar_engine.py - Ledger timeline
+ledger_calendar_routes.py - Ledger routes
+ledger_tracking_routes.py - Payment tracking
+ledger_tracking.py - Tracking logic
+ledger_routes.py - Main ledger routes
+ledger_admin_routes.py - Admin ledger
+ledger_config.py - Ledger configuration
+
+══════════════════════════════════════════════════════
+CLIENT MANAGEMENT (BRAD GUI)
+══════════════════════════════════════════════════════
+brad_gui_routes.py - Client CRUD interface
+brad_integration_routes.py - External integrations
+profile_manager.py - Client profiles
+profile_routes.py - Profile API
+user_bucket_simulator.py - Multi-user simulation
+seed_clients.py - Client seeding (Brad Crowe #1, Dena Sazama #2)
+
+CLIENT DATA:
+- Client #1: Brad Crowe (user#1, DOC-BC-001)
+- Client #2: Dena Sazama (user#2, DOC-DS-002)
+- Document IDs, user numbers, activation states
+
+══════════════════════════════════════════════════════
+LEARNING & ADAPTIVE SYSTEMS
+══════════════════════════════════════════════════════
+curiosity_engine.py - Self-learning system
+curiosity_reasoning_bridge.py - Reasoning integration
+learning_engine.py - Core learning logic
+learning_routes.py - Learning routes
+learning_dashboard_api.py - Dashboard API
+learning_dashboard_routes.py - Dashboard routes
+learning_adapter.py - Adapter pattern
+preliminary_learning.py - Initial learning
+preliminary_learning_routes.py - Routes
+prime_learning_engine.py - Learning priming
+meta_seed_engine.py - Meta-learning
+kickstart_learning.py - Learning bootstrap
+seed_core.py - Seed data core
+seed_manager.py - Seed management
+seed_api_routes.py - Seed API
+seed_bootstrap_engine.py - Bootstrap logic
+contextual_help.py - Context-aware help
+
+══════════════════════════════════════════════════════
+UI & FRONTEND
+══════════════════════════════════════════════════════
+dashboard_components.py - Dashboard widgets
+gui_components.py - GUI components
+cards_model.py - Card-based UI
+modern_gui_routes.py - Modern UI
+themes_routes.py - Theme selection
+terminal_theme.py - Terminal styling
+SemptifyAppGUI.py - Desktop GUI
+SemptifyCleanupGUI.py - Cleanup GUI
+SemptifyStartApp.py - Startup GUI
+generate_icon.py - Icon generation
+create_ui_templates.py - Template generator
+
+══════════════════════════════════════════════════════
+COMMUNICATION & MESSAGING
+══════════════════════════════════════════════════════
+communication_suite_bp.py - Communication suite
+email_service.py - Email sending
+smart_inbox.py - Intelligent inbox
+tenant_narrative_module.py - Narrative generation
+delivery_system_engine.py - Document delivery
+delivery_api.py - Delivery API
+
+══════════════════════════════════════════════════════
+HOUSING & SERVICES
+══════════════════════════════════════════════════════
+housing_programs_engine.py - Find rental assistance
+housing_programs_routes.py - Program routes
+housing_journey_engine.py - Case progression
+housing_journey.py - Journey tracking
+attorney_finder_engine.py - Legal aid
+attorney_finder_routes.py - Attorney routes
+location_intelligence.py - Location services
+weather_and_time.py - Context info
+integrated_tenant_support.py - Integrated support
+
+══════════════════════════════════════════════════════
+ONBOARDING & USER JOURNEY
+══════════════════════════════════════════════════════
+onboarding_routes.py - New user wizard
+journey_routes.py - Journey routes
+journey_automation.py - Journey automation
+housing_journey_engine.py - Journey logic
+tenant_journey.py - Tenant timeline
+user_registration.py - Registration logic
+adaptive_registration.py - Smart registration
+register_new.py - New registration system
+register.py - Legacy registration
+setup_test_user.py - Test user creation
+
+══════════════════════════════════════════════════════
+UTILITIES & HELPERS
+══════════════════════════════════════════════════════
+doc_ingest.py - Document import
+document_processor.py - Document processing
+ocr_manager.py - OCR coordination
+ocr_service.py - OCR service
+clipboard_monitor.py - Clipboard watching
+smart_autofill.py - Form autofill
+smart_suggestions.py - Contextual suggestions
+human_perspective.py - Human-centric design
+situation_analyzer.py - Situation assessment
+route_discovery.py - Route introspection
+route_discovery_bridge.py - Discovery bridge
+feature_registry.py - Feature management
+feature_status_middleware.py - Feature flags
+scaffold.py - Code scaffolding
+engine_generator.py - Engine code gen
+validated_engine_generator.py - Validated gen
+
+══════════════════════════════════════════════════════
+TESTING & DEBUG
+══════════════════════════════════════════════════════
+test_all_routes.py - Route testing
+test_dashboard_scenarios.py - Dashboard tests
+test_housing_integration.py - Housing tests
+test_integration.py - Integration tests
+test_jurisdiction.py - Jurisdiction tests
+test_ollama_integration.py - Ollama tests
+test_phase2_bridge.py - Phase 2 tests
+test_r2_connection.py - R2 connection tests
+test_reasoning_integration.py - Reasoning tests
+test_scenarios.py - Scenario tests
+test_storage_tiers.py - Storage tests
+test_your_case.py - Case testing
+run_comprehensive_tests.py - Full test suite
+debug_registration.py - Registration debug
+debug_rights.py - Rights debug
+check_db.py - Database check
+check_oauth_setup.py - OAuth verification
+maintenance_smoke.py - Smoke tests
+verify_monitoring.py - Monitoring verification
+
+══════════════════════════════════════════════════════
+PRODUCTION & DEPLOYMENT
+══════════════════════════════════════════════════════
+run_prod.py - Production runner (waitress)
+run_dev_ssl.py - HTTPS development
+start_production.py - Production start
+Semptify.py - Main app
+app.py - Alt entry point
+wsgi.py - WSGI interface
+metrics.py - Prometheus metrics
+readyz.py - Health checks
+
+══════════════════════════════════════════════════════
+CONFIGURATION & SETUP
+══════════════════════════════════════════════════════
+config_eagan_mn.py - Eagan, MN config
+local_ai_config.py - AI configuration
+ledger_config.py - Ledger settings
+storage_setup_routes.py - Storage setup wizard
+r2_provisioning.py - R2 auto-provision
+PHASE2_INTEGRATION_GUIDE.py - Integration docs
+
+══════════════════════════════════════════════════════
+MAINTENANCE & MONITORING
+══════════════════════════════════════════════════════
+maintenance_routes.py - Maintenance UI
+maintenance_engine.py - Maintenance logic
+health_check_engine.py - Health monitoring
+metrics.py - Metrics collection
+readyz.py - Readiness probe
+verify_monitoring.py - Monitor verification
+improvement_engine.py - Self-improvement
+improvement_routes.py - Improvement UI
+
+══════════════════════════════════════════════════════
+MIGRATION & DATA TOOLS
+══════════════════════════════════════════════════════
+migration_routes.py - Data migration
+r2_database_adapter.py - R2 DB adapter
+apply_phase2_vault.py - Phase 2 migration
+patch_vault_bp.py - Vault patches
+find_uploads.py - Upload discovery
+upload_docs.py - Document uploader
+
+══════════════════════════════════════════════════════
+SPECIAL MODULES & MACROS
+══════════════════════════════════════════════════════
+midri_mcro_module.py - Midri macro system
+public_exposure_module.py - Public exposure tools
+ron_providers.py - Remote Online Notarization
+semptify_blueprint_saver.py - Blueprint persistence
+semptify_core.py - Core utilities
+semptify_ui.py - UI framework
+demo_curiosity.py - Curiosity demo
+
+══════════════════════════════════════════════════════
+SUMMARY BY CATEGORY
+══════════════════════════════════════════════════════
+Blueprints (Routes): 42
+Engines (Business Logic): 29
+AI/ML Modules: 12
+APIs & Services: 7
+Storage Modules: 10
+Security Modules: 10
+Legal/Court Modules: 15
+Calendar/Timeline: 9
+Client Management: 6
+Learning Systems: 15
+UI Components: 11
+Testing: 17
+Total: 183 Python modules
+
+══════════════════════════════════════════════════════
+AI MODEL SUPPORT
+══════════════════════════════════════════════════════
+LOCAL MODELS (via Ollama):
+- Llama 3.2, 3.1, 2
+- Mistral 7B
+- Phi-3
+- CodeLlama
+- Gemma
+- Neural Chat
+- Any Ollama-compatible model
+
+CLOUD MODELS:
+- OpenAI GPT-4, GPT-4-Turbo
+- OpenAI GPT-3.5-Turbo
+- Azure OpenAI (all models)
+- Anthropic Claude (via API key)
+
+CURRENT CONFIG:
+- AI_PROVIDER environment variable
+- Multi-provider fallback support
+- Reasoning with citation tracking
+- Local-first privacy option (Ollama)

@@ -1,0 +1,25 @@
+✅ UNIFIED ROLE SYSTEM APPROVED
+
+Your 6-tier system is EXCELLENT:
+0. User (tenant) 👤
+1. Manager (multi-case) 📊  
+2. Advocate (tenant rights) ⚖️
+3. Attorney (licensed legal) 👔
+4. Admin (system admin) 🔧
+5. Developer (godmode) 💻
+
+KEY BENEFITS:
+✓ No more client vs user confusion
+✓ Permission inheritance (higher = more access)
+✓ Industry standard RBAC pattern
+✓ Works across all 5 GUIs
+✓ Easy to implement (~2 hours)
+
+READY TO IMPLEMENT - Just say 'go' and I'll:
+1. Update system_architecture.py
+2. Add database columns
+3. Create @require_role decorator
+4. Protect Brad GUI (Advocate+ only)
+5. Create role management UI
+
+Full details saved to: UNIFIED_ROLE_SYSTEM_PROPOSAL.md

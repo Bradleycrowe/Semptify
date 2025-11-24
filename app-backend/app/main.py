@@ -61,3 +61,4 @@ async def health():
     if status.get('ok'):
         return {'status': 'ok', 'db': status}
     return {'status': 'degraded', 'db': status}
+

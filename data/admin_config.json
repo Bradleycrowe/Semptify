@@ -1,0 +1,63 @@
+# Quick Setup Script for Admin Control Panel
+Write-Output "`n🎛️ Setting up Admin Control Panel...`n"
+
+# 1. Update database schema
+Write-Output "1️⃣ Updating database schema..."
+python -c @"
+import sqlite3
+db = sqlite3.connect('users.db')
+try:
+    db.execute('ALTER TABLE users ADD COLUMN verified INTEGER DEFAULT 0')
+    print('   ✅ Added verified column')
+except:
+    print('   ⚠️ verified column already exists')
+try:
+    db.execute('ALTER TABLE users ADD COLUMN verified_at TEXT')
+    print('   ✅ Added verified_at column')
+except:
+    print('   ⚠️ verified_at column already exists')
+try:
+    db.execute('ALTER TABLE users ADD COLUMN storage_allowed INTEGER DEFAULT 1')
+    print('   ✅ Added storage_allowed column')
+except:
+    print('   ⚠️ storage_allowed column already exists')
+db.commit()
+db.close()
+print('   ✅ Database updated')
+"@
+
+# 2. Create default config
+Write-Output "`n2️⃣ Creating default configuration..."
+New-Item -ItemType Directory -Force -Path data | Out-Null
+if (-not (Test-Path data/admin_config.json)) {
+    @'
+{
+  "user_verification": {
+    "email_enabled": true,
+    "phone_enabled": false,
+    "require_verification": true
+  },
+  "registration": {
+    "allow_registration": true,
+    "require_email": false,
+    "manual_approval_required": false
+  },
+  "storage": {
+    "allow_system_storage": true,
+    "allow_user_storage": true,
+    "default_backend": "local"
+  },
+  "security": {
+    "security_mode": "open",
+    "rate_limiting_enabled": true,
+    "csrf_enabled": true,
+    "force_https": false
+  },
+  "features": {
+    "vault_enabled": true,
+    "complaint_filing_enabled": true,
+    "timeline_enabled": true,
+    "ai_assistance_enabled": true,
+    "learning_engine_enabled": true
+  }
+}

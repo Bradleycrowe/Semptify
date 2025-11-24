@@ -1,0 +1,234 @@
+SEMPTIFY FUNCTION ORGANIZATION MAP
+===================================
+Last Updated: 2025-11-22
+
+NAVBAR STRUCTURE (5 Main Sections)
+-----------------------------------
+1. HOME
+2. LIBRARY  
+3. CALENDAR (includes vault/documents)
+4. TOOLS
+5. HELP
+
+
+═══════════════════════════════════════════════════════════════════
+1. HOME (/) - Client Management, Welcome, What Semptify Does
+═══════════════════════════════════════════════════════════════════
+
+PRIMARY FUNCTIONS:
+- Main Dashboard (/) - Welcome page, overview
+- Brad GUI Client Manager (/brad/*) - Full client CRUD system
+  └─ Client list/view
+  └─ Add/Edit/Delete clients  
+  └─ Client activation
+  └─ Client profiles with document IDs
+  └─ User numbering system (user #1, #2, etc.)
+
+SECONDARY FUNCTIONS:
+- Onboarding flow - New user setup wizard
+- Seed Growth API (/api/seed/*) - Growth tracking
+- Housing Journey API (/api/journey/*) - Case progression tracking
+
+CLIENT DATA STRUCTURE:
+- Client #1: Brad Crowe (user#1, DOC-BC-001)
+- Client #2: Dena Sazama (user#2, DOC-DS-002)
+
+
+═══════════════════════════════════════════════════════════════════
+2. LIBRARY (/library) - Legal Resources, Laws, Information, Research
+═══════════════════════════════════════════════════════════════════
+
+PRIMARY FUNCTIONS:
+- Legal Library (/library/*) - Minnesota tenant law database
+- Documentation Explorer (/docs) - Browse legal docs and guides
+- Learning Dashboard API - Educational content
+
+CONTENT AREAS:
+- Tenant rights laws
+- Eviction process guides
+- Court procedures
+- Legal definitions
+- Case law references
+- Privacy policy (/privacy)
+
+PURPOSE: The "Librarian" - All information and educational resources
+
+
+═══════════════════════════════════════════════════════════════════
+3. CALENDAR (/calendar) - Timeline, Evidence, Deadlines, Documents
+═══════════════════════════════════════════════════════════════════
+** VAULT MERGED HERE - Documents belong with timeline **
+
+TIMELINE MANAGEMENT:
+- Calendar master view (/calendar) - Unified hub page (NEW)
+- Calendar timeline routes - Event visualization
+- Timeline Assistant UI (/timeline/assistant) - AI-powered timeline
+- Deadline tracker - Court dates, filing deadlines
+
+EVIDENCE VAULT (formerly separate "Document Center"):
+- Vault upload (/vault) - Upload evidence with timestamps
+- Audio/Video capture (/vault/capture) - Record evidence
+- Notary services (/vault/notary) - Digital notarization
+- Certified post (/vault/certified_post) - Certified delivery
+- Court clerk submit (/vault/court_clerk) - File with court
+- Evidence ledger - Chain of custody tracking
+
+RENT & PAYMENT TRACKING:
+- Rent ledger (/calendar/rent-ledger) - Payment history
+- Payment calendar - Due dates visualization
+- Calendar storage routes - Data persistence
+
+FORMS & LETTERS (Court-ready documents):
+- Complaint filing system
+- Court packet wizard
+- Packet builder (/api/packet-builder/*) - Custom document assembly
+- Legal notices generation
+
+WHY MERGED: Evidence + timeline are inseparable. When did event happen?
+Upload proof there. Court date? Attach required documents. Natural flow.
+
+
+═══════════════════════════════════════════════════════════════════
+4. TOOLS (/tools) - Utilities, AI, Technical Features
+═══════════════════════════════════════════════════════════════════
+
+AI & INTELLIGENCE:
+- AI Copilot (/api/copilot) - Chat assistance
+- Ollama routes (/api/ollama/*) - Local LLM integration
+- Reasoning demo (/demo/reasoning) - AI reasoning display
+- Curiosity Engine API - Adaptive learning system
+
+TECHNICAL UTILITIES:
+- Storage qualification (/storage/qualify, /storage/status)
+- Route discovery API - System introspection
+- Maintenance routes (/maintenance/*) - Admin tools
+- Storage setup (/setup/*) - Configuration wizard
+
+PURPOSE: Power user features, AI helpers, system configuration
+
+
+═══════════════════════════════════════════════════════════════════
+5. HELP (/help) - Programs, Services, Resources, Mental Health
+═══════════════════════════════════════════════════════════════════
+
+HOUSING ASSISTANCE:
+- Housing programs engine - Find rental assistance
+- Attorney finder routes - Locate free legal aid
+- Background check resources - Tenant screening info
+
+CRISIS & SUPPORT (TO BE ADDED):
+- Mental health helplines
+- Crisis action resources  
+- United Way 211 services
+- Emergency shelters
+- Food banks
+- Utility assistance
+- Domestic violence resources
+
+PURPOSE: Beyond legal - connect to human services and support networks
+
+
+═══════════════════════════════════════════════════════════════════
+AUTHENTICATION & SECURITY (Background Systems)
+═══════════════════════════════════════════════════════════════════
+
+AUTH SYSTEM (Currently bypassed with FORCE_OPEN_SECURITY=1):
+- Auth blueprint (/register, /login, /verify)
+- User database (users.db)
+- Remember tokens
+- Admin tokens (security/admin_tokens.json)
+- User tokens (security/users.json)
+
+STORAGE SYSTEMS:
+- Cloudflare R2 (primary) - Cloud persistence
+- Google Drive (fallback) - Backup storage
+- Local storage (tertiary) - Last resort
+
+
+═══════════════════════════════════════════════════════════════════
+SORTING RATIONALE
+═══════════════════════════════════════════════════════════════════
+
+HOME:
+- First touchpoint → client management belongs here
+- "Who am I helping?" before "What do I need?"
+
+LIBRARY:
+- Pure information, no actions
+- Reference material separate from doing tasks
+
+CALENDAR (★ Key Innovation):
+- Combined timeline + evidence because time context is everything
+- Documents without dates = useless in court
+- Evidence without timeline = unorganized chaos
+- Rent payments = calendar events with proof
+- Natural question: "What happened when?" → Upload proof there
+
+TOOLS:
+- Power features for advanced users
+- AI and utilities separate from core workflow
+- System maintenance hidden from basic users
+
+HELP:
+- Safety net category
+- External resources and services
+- Crisis support beyond legal issues
+
+
+═══════════════════════════════════════════════════════════════════
+FUNCTIONS NOT YET CATEGORIZED (Need Parent Page Assignment)
+═══════════════════════════════════════════════════════════════════
+
+These exist but need card placement:
+- Themes system (cards_model.py) - Currently broken
+- Migration routes (r2_migration) - Missing module
+- Adaptive registration - Auto-configuration
+- Clipboard monitor - Background utility
+- Communication suite - Messaging features
+- Background check user view - Screening display
+
+
+═══════════════════════════════════════════════════════════════════
+MULTI-PARENT FUNCTIONS (Appear on Multiple Pages)
+═══════════════════════════════════════════════════════════════════
+
+Packet Builder:
+- CALENDAR: Generate court documents for specific hearings
+- TOOLS: Technical document assembly interface
+
+AI Copilot:
+- HOME: Client-specific assistance
+- LIBRARY: Legal research helper
+- CALENDAR: Timeline gap detection
+- HELP: Resource recommendations
+
+Timeline Assistant:
+- HOME: Client case overview
+- CALENDAR: Full timeline interface
+
+
+═══════════════════════════════════════════════════════════════════
+CARD LAYOUT SIZING GUIDANCE
+═══════════════════════════════════════════════════════════════════
+
+MINI CARDS (1/3 grid width):
+- Quick actions (Upload Evidence, View Calendar)
+- Single-purpose tools
+- Status displays
+
+MEDIUM CARDS (1/2 grid width):
+- Multi-step wizards (Packet Builder)
+- Forms with inputs
+- List views
+
+LARGE CARDS (full width):
+- Complex interfaces (Client Manager)
+- Data tables
+- Rich visualizations
+
+CARD COUNT BALANCE:
+Home: 6-8 cards
+Library: 8-10 cards  
+Calendar: 10-12 cards (most complex - timeline + vault merged)
+Tools: 6-8 cards
+Help: 8-12 cards (many external resources)

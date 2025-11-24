@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brad''s Dashboard | Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: ''Segoe UI'', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Tooltip System */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.95);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            border: 6px solid transparent;
+        }
+
+        /* Tooltip positions */
+        .tooltip-top {
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip-top::after {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: rgba(0, 0, 0, 0.95);
+        }
+
+        .tooltip-bottom {
+            top: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip-bottom::after {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: rgba(0, 0, 0, 0.95);
+        }
+
+        .tooltip-right {
+            top: 50%;
+            left: 125%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip-right::after {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: rgba(0, 0, 0, 0.95);
+        }
+
+        .tooltip-container:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-example {
+            display: block;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            font-style: italic;
+            color: #a8d5ff;
+        }
+
+        /* Header with context */
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .context-info {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 5px;
+        }
+
+        .workflow-hint {
+            background: rgba(52, 211, 153, 0.2);
+            border-left: 4px solid #34d399;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            gap: 30px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel h2 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: help;
+            margin-left: 8px;
+        }
+
+        /* Storage Status with context */
+        .storage-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: help;
+            transition: all 0.3s;
+        }
+
+        .storage-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .storage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .storage-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .storage-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-healthy { background: #22c55e; }
+        .badge-degraded { background: #f59e0b; }
+        .badge-error { background: #ef4444; }
+        .badge-unknown { background: #6b7280; }
+
+        .storage-context {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.4;
+        }
+
+        /* Client Cards with smart suggestions */
+        .clients-container {
+            min-height: 400px;
+        }
+
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .client-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .client-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .client-card.active {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .client-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .client-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .client-status {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-active { background: #22c55e; }
+        .status-pending { background: #f59e0b; }
+        .status-review { background: #3b82f6; }
+
+        .client-info {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 4px;
+        }
+
+        .client-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 8px;
+        }
+
+        .quick-action {
+            flex: 1;
+            padding: 6px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .next-step-hint {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ef4444;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Modal with smart autofill */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 16px;
+            width: 600px;
+            max-width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .input-hint {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            pointer-events: none;
+        }
+
+        .autofill-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.95);
+            border-radius: 8px;
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .autofill-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: background 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .suggestion-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .suggestion-detail {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .smart-fill-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 8px;
+            cursor: help;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        /* AI Assistant with context */
+        .ai-panel {
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+        }
+
+        .ai-context {
+            background: rgba(59, 130, 246, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .ai-chat-area {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .ai-message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        .ai-message.user {
+            background: rgba(59, 130, 246, 0.3);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .ai-message.assistant {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .ai-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .ai-quick-prompts {
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quick-prompt {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-prompt:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .streaming-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            animation: pulse 2s infinite;
+            display: none;
+        }
+
+        .streaming-indicator.active {
+            display: block;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>👨‍💻 Brad''s Dashboard</h1>
+            <div class="context-info">
+                Managing <strong id="client-count">0</strong> clients • 
+                Active: <strong id="active-client-name">None</strong>
+            </div>
+            <div class="workflow-hint">
+                💡 <strong>Next Step:</strong> <span id="workflow-suggestion">Add your first client to get started</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <div class="tooltip-container">
+                <a href="/brad/settings" class="btn btn-secondary">⚙️ Settings</a>
+                <div class="tooltip tooltip-bottom">
+                    View and manage storage configuration, AI provider settings, and system health.
+                </div>
+            </div>
+            <div class="tooltip-container">
+                <button class="btn btn-primary" onclick="openAddClientModal()">➕ Add Client</button>
+                <div class="tooltip tooltip-bottom">
+                    Create a new client profile. You can manage multiple tenant cases simultaneously.
+                    <span class="tooltip-example">Example: John Doe facing eviction in Dakota County</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Storage Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2>
+                    💾 Storage
+                    <div class="tooltip-container">
+                        <span class="help-icon">?</span>
+                        <div class="tooltip tooltip-right">
+                            Three-tier storage system:<br>
+                            • <strong>R2:</strong> Primary cloud storage (Cloudflare)<br>
+                            • <strong>Google Drive:</strong> Backup storage<br>
+                            • <strong>Local:</strong> Always-on fallback<br><br>
+                            Documents are automatically synced across all backends.
+                        </div>
+                    </div>
+                </h2>
+            </div>
+
+            <div class="tooltip-container">
+                <div class="storage-item" id="storage-r2">
+                    <div class="storage-header">
+                        <div class="storage-name">R2 Storage</div>
+                        <div class="storage-badge badge-unknown">CHECKING...</div>
+                    </div>
+                    <div class="storage-context">Primary cloud storage for all client documents</div>
+                </div>
+                <div class="tooltip tooltip-right">
+                    <strong>R2 (Cloudflare)</strong> - Primary storage backend<br>
+                    Fast, reliable cloud storage with global CDN.<br><br>
+                    <strong>Status meanings:</strong><br>
+                    • HEALTHY: All systems operational<br>
+                    • DEGRADED: Accessible but slow<br>
+                    • ERROR: Configuration issue<br><br>
+                    If degraded/error, documents fall back to Google Drive or Local storage automatically.
+                </div>
+            </div>
+
+            <div class="tooltip-container">
+                <div class="storage-item" id="storage-gdrive">
+                    <div class="storage-header">
+                        <div class="storage-name">Google Drive</div>
+                        <div class="storage-badge badge-unknown">CHECKING...</div>
+                    </div>
+                    <div class="storage-context">Backup storage (1semptify@gmail.com)</div>
+                </div>
+                <div class="tooltip tooltip-right">
+                    <strong>Google Drive</strong> - Secondary backup storage<br>
+                    Connected to 1semptify@gmail.com<br><br>
+                    Automatically receives copies of all uploaded documents for redundancy.
+                </div>
+            </div>
+
+            <div class="tooltip-container">
+                <div class="storage-item" id="storage-local">
+                    <div class="storage-header">
+                        <div class="storage-name">Local Storage</div>
+                        <div class="storage-badge badge-unknown">CHECKING...</div>
+                    </div>
+                    <div class="storage-context">Always-on failsafe on this machine</div>
+                </div>
+                <div class="tooltip tooltip-right">
+                    <strong>Local Storage</strong> - Always available<br>
+                    Documents stored in uploads/vault/ directory.<br><br>
+                    This backend never fails - if cloud services are unavailable, documents are always accessible locally.
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <div style="font-size: 14px; color: rgba(255,255,255,0.7);">
+                    AI Provider: <strong id="ai-provider">{{ ai_provider or ''Not Configured'' }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clients Panel -->
+        <div class="panel clients-container">
+            <div class="panel-header">
+                <h2>
+                    👥 Clients (<span id="client-count-header">0</span>)
+                    <div class="tooltip-container">
+                        <span class="help-icon">?</span>
+                        <div class="tooltip tooltip-bottom">
+                            Manage multiple tenant clients simultaneously.<br><br>
+                            <strong>Active Client:</strong> Green highlighted card<br>
+                            <strong>Click card:</strong> Switch active client<br>
+                            <strong>Quick Actions:</strong> Access vault, timeline, filings<br><br>
+                            All subsequent actions (uploads, timeline events, filings) will use the active client''s context.
+                        </div>
+                    </div>
+                </h2>
+            </div>
+
+            <div id="clients-list" class="client-grid">
+                <!-- Empty state -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-state-icon">👤</div>
+                    <h3>No Clients Yet</h3>
+                    <p>Add your first client to start managing tenant cases</p>
+                    <button class="btn btn-primary" onclick="openAddClientModal()">➕ Add Your First Client</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant Panel -->
+        <div class="panel ai-panel">
+            <div class="panel-header">
+                <h2>
+                    🤖 AI Assistant
+                    <div class="tooltip-container">
+                        <span class="help-icon">?</span>
+                        <div class="tooltip tooltip-bottom">
+                            Claude Sonnet 4.5 AI coding assistant<br><br>
+                            <strong>Capabilities:</strong><br>
+                            • Write Flask routes and Python code<br>
+                            • Debug errors and suggest fixes<br>
+                            • Create database queries<br>
+                            • Design UI components<br>
+                            • Review legal documents<br><br>
+                            Context-aware: knows your active client and Semptify architecture.
+                        </div>
+                    </div>
+                </h2>
+            </div>
+
+            <div class="ai-context" id="ai-context-display">
+                📋 <strong>Context:</strong> No active client selected
+            </div>
+
+            <div class="ai-quick-prompts">
+                <div class="tooltip-container">
+                    <div class="quick-prompt" onclick="sendQuickPrompt(''suggest-next-action'')">
+                        💡 Suggest Next Action
+                    </div>
+                    <div class="tooltip tooltip-bottom">
+                        Get AI recommendations for what to do next based on current client status
+                    </div>
+                </div>
+                <div class="tooltip-container">
+                    <div class="quick-prompt" onclick="sendQuickPrompt(''review-case'')">
+                        📊 Review Case
+                    </div>
+                    <div class="tooltip tooltip-bottom">
+                        AI will analyze the current client''s documents, timeline, and status to provide case review
+                    </div>
+                </div>
+                <div class="tooltip-container">
+                    <div class="quick-prompt" onclick="sendQuickPrompt(''draft-motion'')">
+                        📝 Draft Motion
+                    </div>
+                    <div class="tooltip tooltip-bottom">
+                        Generate a motion template based on client situation (dismissal, continuance, escrow, etc.)
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-chat-area" id="ai-chat">
+                <div class="ai-message assistant">
+                    👋 Hi Brad! I''m your AI coding and legal assistant.<br><br>
+                    I can help you:<br>
+                    • Analyze client cases and suggest next steps<br>
+                    • Draft legal motions and documents<br>
+                    • Write Python code for Semptify<br>
+                    • Debug errors and optimize workflows<br><br>
+                    <strong>Try asking:</strong><br>
+                    "What should I do next for [client name]?"<br>
+                    "Draft a motion to dismiss for improper service"<br>
+                    "Review timeline and suggest evidence gaps"
+                </div>
+            </div>
+
+            <div class="ai-input-group">
+                <input type="text" class="ai-input" id="ai-input" placeholder="Ask me anything..." 
+                       onkeypress="if(event.key===''Enter'') sendAIMessage()">
+                <button class="btn btn-primary" onclick="sendAIMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Client Modal with Smart Autofill -->
+    <div id="add-client-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Add New Client</h2>
+                <div class="modal-subtitle">
+                    Fill in client information. Smart suggestions will appear as you type.
+                </div>
+            </div>
+
+            <form id="add-client-form" onsubmit="addClient(event)">
+                <div class="form-group tooltip-container">
+                    <label>
+                        Client Name <span class="required">*</span>
+                        <span class="smart-fill-badge">🧠 Smart Fill</span>
+                    </label>
+                    <input type="text" id="client-name" required 
+                           placeholder="e.g., John Doe" 
+                           oninput="checkAutofill(''name'', this.value)">
+                    <div class="autofill-suggestions" id="name-suggestions"></div>
+                    <div class="tooltip tooltip-right">
+                        Enter the tenant''s full legal name as it appears on lease documents.
+                        <span class="tooltip-example">Example: John Michael Doe</span>
+                    </div>
+                </div>
+
+                <div class="form-group tooltip-container">
+                    <label>
+                        Contact <span class="required">*</span>
+                    </label>
+                    <input type="text" id="client-contact" required 
+                           placeholder="Phone or email"
+                           oninput="formatContact(this)">
+                    <span class="input-hint">Phone or email</span>
+                    <div class="tooltip tooltip-right">
+                        Primary contact method. Phone numbers will auto-format.
+                        <span class="tooltip-example">Example: 555-123-4567 or john@example.com</span>
+                    </div>
+                </div>
+
+                <div class="form-group tooltip-container">
+                    <label>
+                        Address
+                        <span class="smart-fill-badge">🧠 Dakota County</span>
+                    </label>
+                    <input type="text" id="client-address" 
+                           placeholder="Rental property address"
+                           oninput="checkAutofill(''address'', this.value)">
+                    <div class="autofill-suggestions" id="address-suggestions"></div>
+                    <div class="tooltip tooltip-right">
+                        The address of the rental property (not mailing address).<br>
+                        For Dakota County cases, city will auto-suggest.
+                        <span class="tooltip-example">Example: 123 Main St, Eagan, MN 55123</span>
+                    </div>
+                </div>
+
+                <div class="form-group tooltip-container">
+                    <label>
+                        Case Number
+                        <span class="smart-fill-badge">🧠 Auto-detect</span>
+                    </label>
+                    <input type="text" id="client-case-number" 
+                           placeholder="Court case number (if filed)"
+                           oninput="formatCaseNumber(this)">
+                    <span class="input-hint">Format: 62-CV-YY-####</span>
+                    <div class="tooltip tooltip-right">
+                        Dakota County eviction case numbers follow format: 62-CV-YY-####<br>
+                        Will auto-format as you type.
+                        <span class="tooltip-example">Example: 62-CV-25-1234</span>
+                    </div>
+                </div>
+
+                <div class="form-group tooltip-container">
+                    <label>Notes</label>
+                    <textarea id="client-notes" 
+                              placeholder="Case summary, key dates, concerns..."
+                              rows="3"></textarea>
+                    <div class="tooltip tooltip-right">
+                        Internal notes about the case. Include:<br>
+                        • Eviction reason (if known)<br>
+                        • Key dates (notice served, hearing date)<br>
+                        • Special circumstances<br>
+                        • Evidence needed
+                        <span class="tooltip-example">Example: "Eviction for non-payment. Habitability issues with mold in bathroom. Hearing scheduled for 12/15."</span>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddClientModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="streaming-indicator" id="streaming-indicator">
+        🔴 LIVE
+    </div>
+
+    <script>
+        let clients = [];
+        let activeClientId = null;
+        let storageHealth = {};
+
+        // Initialize on page load
+        document.addEventListener(''DOMContentLoaded'', () => {
+            loadClients();
+            loadStorageHealth();
+            
+            // Check for streaming mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get(''streaming'') === ''1'') {
+                document.getElementById(''streaming-indicator'').classList.add(''active'');
+            }
+        });
+
+        // Load clients from API
+        async function loadClients() {
+            try {
+                const response = await fetch(''/brad/api/clients'');
+                const data = await response.json();
+                clients = data.clients || [];
+                activeClientId = data.active_client_id;
+                renderClients();
+                updateContext();
+            } catch (error) {
+                console.error(''Failed to load clients:'', error);
+            }
+        }
+
+        // Load storage health
+        async function loadStorageHealth() {
+            try {
+                const response = await fetch(''/brad/api/storage/health'');
+                storageHealth = await response.json();
+                updateStorageDisplay();
+            } catch (error) {
+                console.error(''Failed to load storage health:'', error);
+            }
+        }
+
+        // Update storage display
+        function updateStorageDisplay() {
+            const backends = [
+                { id: ''r2'', element: ''storage-r2'' },
+                { id: ''google_drive'', element: ''storage-gdrive'' },
+                { id: ''local'', element: ''storage-local'' }
+            ];
+
+            backends.forEach(backend => {
+                const status = storageHealth[backend.id] || ''unknown'';
+                const badge = document.querySelector(`#${backend.element} .storage-badge`);
+                badge.className = `storage-badge badge-${status}`;
+                badge.textContent = status.toUpperCase();
+            });
+        }
+
+        // Render clients
+        function renderClients() {
+            const container = document.getElementById(''clients-list'');
+            const emptyState = document.getElementById(''empty-state'');
+            
+            if (clients.length === 0) {
+                emptyState.style.display = ''block'';
+                return;
+            }
+
+            emptyState.style.display = ''none'';
+            container.innerHTML = clients.map(client => renderClientCard(client)).join('''');
+            
+            // Update counts
+            document.getElementById(''client-count'').textContent = clients.length;
+            document.getElementById(''client-count-header'').textContent = clients.length;
+        }
+
+        // Render individual client card
+        function renderClientCard(client) {
+            const isActive = client.id === activeClientId;
+            const nextStep = suggestNextStep(client);
+            
+            return `
+                <div class="client-card ${isActive ? ''active'' : ''''}" onclick="switchClient(''${client.id}'')" data-client-id="${client.id}">
+                    ${nextStep ? `<div class="next-step-hint">${nextStep}</div>` : ''''}
+                    <div class="client-card-header">
+                        <div class="client-name">${client.name}</div>
+                        <div class="client-status status-${client.status || ''active''}">${(client.status || ''active'').toUpperCase()}</div>
+                    </div>
+                    <div class="client-info">📞 ${client.contact}</div>
+                    ${client.address ? `<div class="client-info">🏠 ${client.address}</div>` : ''''}
+                    ${client.case_number ? `<div class="client-info">⚖️ ${client.case_number}</div>` : ''''}
+                    <div class="client-actions">
+                        <button class="quick-action" onclick="quickAction(event, ''${client.id}'', ''vault'')">📁 Vault</button>
+                        <button class="quick-action" onclick="quickAction(event, ''${client.id}'', ''timeline'')">📅 Timeline</button>
+                        <button class="quick-action" onclick="quickAction(event, ''${client.id}'', ''file'')">📝 File</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Suggest next step for client
+        function suggestNextStep(client) {
+            if (!client.case_number) return ''Add Case #'';
+            // Could check timeline, documents, etc. and suggest next actions
+            return null;
+        }
+
+        // Quick action buttons
+        function quickAction(event, clientId, action) {
+            event.stopPropagation();
+            const client = clients.find(c => c.id === clientId);
+            
+            switch(action) {
+                case ''vault'':
+                    window.location.href = `/brad/client/${clientId}#vault`;
+                    break;
+                case ''timeline'':
+                    window.location.href = `/brad/client/${clientId}#timeline`;
+                    break;
+                case ''file'':
+                    window.location.href = `/complaint_filing?client_id=${clientId}`;
+                    break;
+            }
+        }
+
+        // Switch active client
+        async function switchClient(clientId) {
+            try {
+                await fetch(`/brad/api/clients/${clientId}/activate`, { method: ''POST'' });
+                activeClientId = clientId;
+                renderClients();
+                updateContext();
+            } catch (error) {
+                console.error(''Failed to switch client:'', error);
+            }
+        }
+
+        // Update context displays
+        function updateContext() {
+            const activeClient = clients.find(c => c.id === activeClientId);
+            
+            if (activeClient) {
+                document.getElementById(''active-client-name'').textContent = activeClient.name;
+                document.getElementById(''ai-context-display'').innerHTML = `
+                    📋 <strong>Active Client:</strong> ${activeClient.name} 
+                    ${activeClient.case_number ? `• Case: ${activeClient.case_number}` : ''''}
+                `;
+                document.getElementById(''workflow-suggestion'').textContent = 
+                    activeClient.case_number ? 
+                    ''Upload evidence documents to vault or add timeline events'' :
+                    `Add case number for ${activeClient.name} to enable filing features`;
+            } else {
+                document.getElementById(''active-client-name'').textContent = ''None'';
+                document.getElementById(''ai-context-display'').innerHTML = 
+                    ''📋 <strong>Context:</strong> No active client selected'';
+                document.getElementById(''workflow-suggestion'').textContent = 
+                    clients.length > 0 ? ''Select a client to continue'' : ''Add your first client to get started'';
+            }
+        }
+
+        // Modal functions
+        function openAddClientModal() {
+            document.getElementById(''add-client-modal'').style.display = ''block'';
+            document.getElementById(''client-name'').focus();
+        }
+
+        function closeAddClientModal() {
+            document.getElementById(''add-client-modal'').style.display = ''none'';
+            document.getElementById(''add-client-form'').reset();
+        }
+
+        // Add client with validation
+        async function addClient(event) {
+            event.preventDefault();
+            
+            const clientData = {
+                name: document.getElementById(''client-name'').value,
+                contact: document.getElementById(''client-contact'').value,
+                address: document.getElementById(''client-address'').value,
+                case_number: document.getElementById(''client-case-number'').value,
+                notes: document.getElementById(''client-notes'').value
+            };
+
+            try {
+                const response = await fetch(''/brad/api/clients'', {
+                    method: ''POST'',
+                    headers: { ''Content-Type'': ''application/json'' },
+                    body: JSON.stringify(clientData)
+                });
+                
+                if (response.ok) {
+                    closeAddClientModal();
+                    await loadClients();
+                }
+            } catch (error) {
+                console.error(''Failed to add client:'', error);
+                alert(''Failed to add client. Please try again.'');
+            }
+        }
+
+        // Smart autofill functions
+        const dakotaCitiesfunction checkAutofill(type, value) {
+            if (value.length < 2) {
+                hideSuggestions(type);
+                return;
+            }
+
+            if (type === ''address'') {
+                // Suggest Dakota County cities
+                const dakotaCities = [
+                    ''Eagan, MN'',
+                    ''Apple Valley, MN'',
+                    ''Burnsville, MN'',
+                    ''Lakeville, MN'',
+                    ''Rosemount, MN'',
+                    ''Farmington, MN'',
+                    ''Hastings, MN''
+                ];
+                
+                const matches = dakotaCities.filter(city => 
+                    value.toLowerCase().includes(city.split('','')[0].toLowerCase())
+                );
+                
+                if (matches.length > 0) {
+                    showSuggestions(''address'', matches.map(city => ({
+                        label: city,
+                        detail: ''Dakota County''
+                    })));
+                }
+            }
+        }
+
+        function showSuggestions(type, items) {
+            const container = document.getElementById(`${type}-suggestions`);
+            container.innerHTML = items.map(item => `
+                <div class="suggestion-item" onclick="applySuggestion(''${type}'', ''${item.label}'')"
+                    <div class="suggestion-label">${item.label}</div>
+                    <div class="suggestion-detail">${item.detail}</div>
+                </div>
+            `).join('''');
+            container.classList.add(''active'');
+        }
+
+        function hideSuggestions(type) {
+            document.getElementById(`${type}-suggestions``).classList.remove(''active'');
+        }
+
+        function applySuggestion(type, value) {
+            document.getElementById(`client-${type}`).value = value;
+            hideSuggestions(type);
+        }
+
+        // Format contact (phone number auto-format)
+        function formatContact(input) {
+            let value = input.value.replace(/\D/g, '''');
+            if (value.length >= 10) {
+                value = value.slice(0, 10);
+                input.value = `${value.slice(0,3)}-${value.slice(3,6)}-${value.slice(6)}`;
+            }
+        }
+
+        // Format case number (Dakota County format: 62-CV-YY-####)
+        function formatCaseNumber(input) {
+            let value = input.value.replace(/[^0-9-]/g, '''');
+            
+            // Auto-format to 62-CV-YY-####
+            if (value.length > 0 && !value.startsWith(''62'')) {
+                value = ''62-'' + value;
+            }
+            if (value.length > 3 && value[2] !== ''-'') {
+                value = value.slice(0, 2) + ''-'' + value.slice(2);
+            }
+            if (value.length > 5 && !value.includes(''CV'')) {
+                value = value.slice(0, 3) + ''CV-'' + value.slice(3);
+            }
+            
+            input.value = value;
+        }
+
+        // AI Assistant functions
+        async function sendAIMessage() {
+            const input = document.getElementById(''ai-input'');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message to chat
+            addAIMessage(message, ''user'');
+            input.value = '''';
+
+            try {
+                const response = await fetch(''/brad/api/ai/chat'', {
+                    method: ''POST'',
+                    headers: { ''Content-Type'': ''application/json'' },
+                    body: JSON.stringify({
+                        message: message,
+                        client_id: activeClientId
+                    })
+                });
+
+                const data = await response.json();
+                addAIMessage(data.response || ''Sorry, I encountered an error.'', ''assistant'');
+            } catch (error) {
+                console.error(''AI request failed:'', error);
+                addAIMessage(''Sorry, I''m having trouble connecting. Please try again.'', ''assistant'');
+            }
+        }
+
+        function addAIMessage(text, sender) {
+            const chat = document.getElementById(''ai-chat'');
+            const messageDiv = document.createElement(''div'');
+            messageDiv.className = `ai-message ${sender}`;
+            messageDiv.textContent = text;
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function sendQuickPrompt(type) {
+            const activeClient = clients.find(c => c.id === activeClientId);
+            
+            let prompt = '''';
+            switch(type) {
+                case ''suggest-next-action'':
+                    prompt = activeClient ? 
+                        `What should I do next for ${activeClient.name}? Review their case status and suggest next steps.` :
+                        ''I need help deciding what to do next. What are common first steps in tenant defense cases?'';
+                    break;
+                case ''review-case'':
+                    prompt = activeClient ?
+                        `Review the case for ${activeClient.name}. Analyze documents, timeline, and identify any gaps or concerns.` :
+                        ''Please select a client first to review their case.'';
+                    break;
+                case ''draft-motion'':
+                    prompt = activeClient ?
+                        `Help me draft a motion for ${activeClient.name}. What type of motion would be most appropriate based on their situation?` :
+                        ''What information do you need to draft a motion for an eviction case?'';
+                    break;
+            }
+
+            document.getElementById(''ai-input'').value = prompt;
+            sendAIMessage();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById(''add-client-modal'');
+            if (event.target === modal) {
+                closeAddClientModal();
+            }
+        }
+    </script>
+</body>
+</html>

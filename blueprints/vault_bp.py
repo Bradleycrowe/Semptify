@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 
-vault_bp = Blueprint('vault', __name__, url_prefix='/vault')
+vault_bp = Blueprint('vault_bp_alt', __name__, url_prefix='/vault')
 
 @vault_bp.route('/')
 def vault_home():

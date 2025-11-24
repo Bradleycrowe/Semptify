@@ -1,0 +1,52 @@
+{
+  "clients": [
+    {
+      "id": "client_001",
+      "name": "Bradley Crowe Updated",
+      "contact": "Bradcowe45@gmail.com",
+      "address": "2977 Lexington Ave S, Eagan, MN 55121",
+      "case_number": "",
+      "created_at": "2025-11-22T03:20:41.818185",
+      "status": "Active",
+      "notes": "Updated via API test",
+      "client_number": 1,
+      "user_number": 1,
+      "document_id": "DOC-BC-001",
+      "updated_at": "2025-11-22T17:06:10.536243"
+    },
+    {
+      "id": "client_002",
+      "client_number": 2,
+      "user_number": 2,
+      "document_id": "DOC-DS-002",
+      "name": "Dena Sazama",
+      "contact": "dena.sazama@example.com",
+      "address": "456 Oak Ave, Minneapolis, MN 55403",
+      "case_number": "",
+      "created_at": "2025-11-22T10:57:29.321037",
+      "status": "active",
+      "notes": "Secondary user - eviction case"
+    },
+    {
+      "id": "client_003",
+      "name": "Dena Sazama",
+      "contact": "denasazama1@gmail.com     612-441-6948",
+      "address": "2977 Lexington Ave s ,    Eagan Mn. 55121",
+      "case_number": "",
+      "created_at": "2025-11-22T05:05:11.718722",
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "id": "client_004",
+      "name": "Dena Sazama",
+      "contact": "denasazama1@gmail.com     612-441-6948",
+      "address": "2977 Lexington Ave s ,    Eagan Mn. 55121",
+      "case_number": "",
+      "created_at": "2025-11-22T05:05:12.064803",
+      "status": "active",
+      "notes": ""
+    }
+  ],
+  "active_client_id": "client_002"
+}

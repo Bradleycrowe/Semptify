@@ -73,3 +73,4 @@ def summarize_url(url: str) -> str:
     except Exception:
         pass
     return 'unknown'
+

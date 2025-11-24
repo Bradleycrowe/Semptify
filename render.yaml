@@ -1,36 +1,55 @@
+# Semptify Deployment Configuration for Render.com
+
 services:
+  # Main web service
   - type: web
-    name: semptify
-    runtime: docker
-    dockerfilePath: ./Dockerfile
+    name: semptify-prod
+    env: python
+    region: oregon
+    plan: starter  # Free tier
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python run_prod.py"
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11
-      - key: PRODUCTION
-        value: true
-      - key: GROQ_API_KEY
-        sync: false
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false
-      - key: DROPBOX_APP_KEY
-        sync: false
-      - key: DROPBOX_APP_SECRET
-        sync: false
-      - key: FLASK_SECRET_KEY
-        value: 199b51253d456d225c511eb6ef5d871ac649715a52f3ed297f51fafdc3937542
-      - key: FORCE_HTTPS
-        value: 1
+      - key: FLASK_ENV
+        value: production
       - key: SECURITY_MODE
-        value: open
-      - key: R2_ACCOUNT_ID
-        sync: false
-      - key: R2_ACCESS_KEY_ID
-        sync: false
-      - key: R2_SECRET_ACCESS_KEY
-        sync: false
-      - key: R2_BUCKET_NAME
-        sync: false
-      - key: R2_ENDPOINT_URL
-        value: https://<account_id>.r2.cloudflarestorage.com
+        value: enforced
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ACCESS_LOG_JSON
+        value: "1"
+      - key: MAX_REQUEST_BODY_SIZE
+        value: "104857600"  # 100MB
+      - key: SEMPTIFY_WORKERS
+        value: "4"
+      - key: SEMPTIFY_THREADS
+        value: "2"
+      
+      # R2 Storage - SET THESE IN RENDER DASHBOARD (sensitive)
+      # - key: R2_ACCOUNT_ID
+      #   sync: false
+      # - key: R2_ACCESS_KEY_ID
+      #   sync: false
+      # - key: R2_SECRET_ACCESS_KEY
+      #   sync: false
+      # - key: R2_BUCKET_NAME
+      #   value: semptify
+      # - key: R2_ENDPOINT_URL
+      #   sync: false
+      
+      # Admin tokens - set in Render dashboard (sensitive)
+      # - key: ADMIN_TOKEN
+      #   sync: false
+
+# Health check configuration
+healthCheckPath: /readyz
+
+# Environment-specific settings
+# Dev: Use for testing before production
+# Prod: Live user-facing service

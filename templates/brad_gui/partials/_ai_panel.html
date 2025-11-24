@@ -1,0 +1,9 @@
+<div class="panel ai-panel" id="panel-ai">
+  <div class="panel-header"><h2>AI Assistant</h2></div>
+  <div class="ai-context" id="ai-context-display">No active client selected</div>
+  <div class="ai-chat-area" id="ai-chat"><div class="ai-message assistant">Hi Brad! Ask me anything.</div></div>
+  <div class="ai-input-group">
+    <input type="text" class="ai-input" id="ai-input" placeholder="Ask..." onkeypress="if(event.key==='Enter') sendAIMessage()">
+    <button class="quick-action" onclick="sendAIMessage()">Send</button>
+  </div>
+</div>

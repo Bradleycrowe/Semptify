@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ client.name }} | Brad''s GUI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-active { background: #22c55e; }
+        .status-pending { background: #f59e0b; }
+        .status-closed { background: #6b7280; }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .panel h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            width: 140px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .timeline-item {
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .timeline-date {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 5px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .document-info {
+            flex: 1;
+        }
+
+        .document-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .document-meta {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                👤 {{ client.name }}
+                <span class="status-badge status-{{ client.status }}">{{ client.status|upper }}</span>
+            </h1>
+            <div class="actions">
+                <a href="/brad" class="btn btn-secondary">← Back to Dashboard</a>
+                <button class="btn btn-primary" onclick="editClient()">✏️ Edit</button>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- Client Information -->
+            <div class="panel">
+                <h2>📋 Client Information</h2>
+                <div class="info-row">
+                    <div class="info-label">Contact:</div>
+                    <div class="info-value">{{ client.contact }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Address:</div>
+                    <div class="info-value">{{ client.address or 'Not provided' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Case Number:</div>
+                    <div class="info-value">{{ client.case_number or 'Not assigned' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Created:</div>
+                    <div class="info-value">{{ client.created_at[:10] }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Last Updated:</div>
+                    <div class="info-value">{{ client.updated_at[:10] }}</div>
+                </div>
+                {% if client.notes %}
+                <div class="info-row">
+                    <div class="info-label">Notes:</div>
+                    <div class="info-value">{{ client.notes }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="panel">
+                <h2>⚡ Quick Actions</h2>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <a href="/vault?user_token={{ user_token }}" class="btn btn-primary">
+                        📁 Open Vault
+                    </a>
+                    <a href="/timeline" class="btn btn-primary">
+                        📅 View Timeline
+                    </a>
+                    <a href="/complaint_filing" class="btn btn-primary">
+                        📝 File Complaint
+                    </a>
+                    <a href="/dakota_eviction_library" class="btn btn-primary">
+                        📚 Dakota County Resources
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Timeline Events -->
+            <div class="panel full-width">
+                <h2>📅 Recent Timeline Events</h2>
+                {% if timeline_events %}
+                    {% for event in timeline_events[:5] %}
+                    <div class="timeline-item">
+                        <div class="timeline-date">{{ event.event_date }}</div>
+                        <div class="timeline-title">{{ event.title }}</div>
+                        <div class="timeline-desc">{{ event.description }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No timeline events yet.</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Upload documents or file a complaint to start tracking events.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Documents -->
+            <div class="panel full-width">
+                <h2>📄 Recent Documents</h2>
+                {% if documents %}
+                    {% for doc in documents[:5] %}
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-name">{{ doc.filename }}</div>
+                            <div class="document-meta">{{ doc.upload_date }} • {{ doc.file_size }}</div>
+                        </div>
+                        <div class="document-actions">
+                            <a href="/vault/download/{{ doc.id }}?user_token={{ user_token }}" class="btn btn-primary btn-small">
+                                ⬇️ Download
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No documents uploaded yet.</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Visit the Vault to upload evidence and records.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editClient() {
+            alert('Edit functionality coming soon! For now, use the API or edit data/brad_clients/clients.json directly.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!-- Global Navigation Bar -->
+<nav class="semptify-navbar">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <a href="/" class="brand-link">Semptify</a>
+    </div>
+    <ul class="navbar-menu">
+      <li><a href="/" class="nav-link">Home</a></li>
+      <li><a href="/library" class="nav-link">Library</a></li>
+      <li><a href="/calendar" class="nav-link">Calendar</a></li>
+      <li><a href="/tools" class="nav-link">Tools</a></li>
+      <li><a href="/help" class="nav-link">Help</a></li>
+    </ul>
+  </div>
+</nav>
+
+<style>
+.semptify-navbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+.navbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 60px;
+}
+.navbar-brand .brand-link {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+}
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 5px;
+}
+.nav-link {
+  display: block;
+  padding: 18px 20px;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease;
+  border-radius: 4px;
+}
+.nav-link:hover {
+  background: rgba(255,255,255,0.15);
+}
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 20px;
+  }
+  .navbar-menu {
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+  }
+  .nav-link {
+    padding: 12px 15px;
+  }
+}
+</style>

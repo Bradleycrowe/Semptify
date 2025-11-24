@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client/Case Profiles - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { margin-bottom: 30px; color: #fff; }
+        .active-banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; }
+        .active-banner h2 { color: white; }
+        .active-banner .badge { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; }
+        .profiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .profile-card { background: #1a1a1a; border: 2px solid #333; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s; position: relative; }
+        .profile-card:hover { border-color: #667eea; transform: translateY(-2px); }
+        .profile-card.active { border-color: #667eea; background: #222; }
+        .profile-color { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 15px; }
+        .profile-name { font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; color: white; }
+        .profile-desc { color: #888; font-size: 0.9rem; margin-bottom: 15px; min-height: 40px; }
+        .profile-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+        .btn-secondary { background: #333; color: #e0e0e0; }
+        .btn-secondary:hover { background: #444; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .add-profile { background: #1a1a1a; border: 2px dashed #444; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .add-profile:hover { border-color: #667eea; background: #222; }
+        .add-profile h3 { color: #667eea; font-size: 2rem; margin-bottom: 10px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: #1a1a1a; border-radius: 12px; padding: 30px; max-width: 500px; width: 90%; }
+        .modal h2 { margin-bottom: 20px; color: white; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #ccc; font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: #0a0a0a; border: 1px solid #333; border-radius: 6px; color: #e0e0e0; font-family: inherit; }
+        .form-group input[type="color"] { padding: 5px; height: 50px; }
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .badge-active { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>��️ Client/Case Profiles</h1>
+        
+        <div class="active-banner">
+            <div>
+                <h2>{{ active_profile.name }}</h2>
+                <p>{{ active_profile.description or "No description" }}</p>
+            </div>
+            <div class="badge">ACTIVE</div>
+        </div>
+
+        <div class="profiles-grid">
+            {% for id, profile in profiles.items() %}
+            <div class="profile-card {% if profile.id == active_profile.id %}active{% endif %}" data-id="{{ profile.id }}">
+                <div class="profile-color" style="background-color: {{ profile.color }}"></div>
+                <div class="profile-name">
+                    {{ profile.name }}
+                    {% if profile.id == active_profile.id %}<span class="badge badge-active">ACTIVE</span>{% endif %}
+                </div>
+                <div class="profile-desc">{{ profile.description or "No description" }}</div>
+                <div class="profile-actions">
+                    {% if profile.id != active_profile.id %}
+                    <button class="btn btn-primary btn-switch" data-id="{{ profile.id }}">Switch to This</button>
+                    {% endif %}
+                    <button class="btn btn-secondary btn-edit" data-id="{{ profile.id }}">Edit</button>
+                    {% if profile.id != "default" %}
+                    <button class="btn btn-danger btn-delete" data-id="{{ profile.id }}">Delete</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="add-profile" id="addProfileBtn">
+                <h3>+</h3>
+                <p>Add New Profile</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">New Profile</h2>
+            <form id="profileForm">
+                <input type="hidden" id="profileId" value="">
+                <div class="form-group">
+                    <label for="profileName">Profile Name *</label>
+                    <input type="text" id="profileName" required placeholder="e.g., Case vs Smith Properties">
+                </div>
+                <div class="form-group">
+                    <label for="profileDesc">Description</label>
+                    <textarea id="profileDesc" rows="3" placeholder="Notes about this case..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="profileColor">Color Tag</label>
+                    <input type="color" id="profileColor" value="#4A90E2">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("profileModal");
+        const form = document.getElementById("profileForm");
+        const addBtn = document.getElementById("addProfileBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        // Open modal for new profile
+        addBtn.addEventListener("click", () => {
+            document.getElementById("modalTitle").textContent = "New Profile";
+            document.getElementById("profileId").value = "";
+            form.reset();
+            modal.classList.add("active");
+        });
+
+        // Close modal
+        cancelBtn.addEventListener("click", () => modal.classList.remove("active"));
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) modal.classList.remove("active");
+        });
+
+        // Edit profile
+        document.querySelectorAll(".btn-edit").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const res = await fetch("/profiles/api/all");
+                const data = await res.json();
+                const profile = data.profiles[id];
+                
+                document.getElementById("modalTitle").textContent = "Edit Profile";
+                document.getElementById("profileId").value = id;
+                document.getElementById("profileName").value = profile.name;
+                document.getElementById("profileDesc").value = profile.description || "";
+                document.getElementById("profileColor").value = profile.color;
+                modal.classList.add("active");
+            });
+        });
+
+        // Save profile
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("profileId").value;
+            const data = {
+                name: document.getElementById("profileName").value,
+                description: document.getElementById("profileDesc").value,
+                color: document.getElementById("profileColor").value
+            };
+
+            const url = id ? `/profiles/update/${id}` : "/profiles/create";
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                location.reload();
+            }
+        });
+
+        // Switch profile
+        document.querySelectorAll(".btn-switch").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const res = await fetch(`/profiles/switch/${id}`, {method: "POST"});
+                if (res.ok) location.reload();
+            });
+        });
+
+        // Delete profile
+        document.querySelectorAll(".btn-delete").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                if (!confirm("Delete this profile? This cannot be undone.")) return;
+                const id = btn.dataset.id;
+                const res = await fetch(`/profiles/delete/${id}`, {method: "POST"});
+                if (res.ok) location.reload();
+            });
+        });
+    </script>
+</body>
+</html>

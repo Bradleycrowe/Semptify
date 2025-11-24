@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Deadlines - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .deadlines-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .deadline-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .deadline-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4CAF50;
+            transition: all 0.3s;
+        }
+
+        .deadline-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .deadline-item.urgent {
+            border-left-color: #f44336;
+        }
+
+        .deadline-item.warning {
+            border-left-color: #ff9800;
+        }
+
+        .deadline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .deadline-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .deadline-date {
+            font-size: 14px;
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .deadline-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-upcoming {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-due-soon {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .status-overdue {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .deadline-description {
+            color: #ccc;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .deadline-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ccc;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ Calendar Deadlines</h1>
+            <p>Track and manage all your important tenant rights deadlines</p>
+        </div>
+
+        <div class="deadlines-container">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Due This Week</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Upcoming</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Overdue</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">On Track</div>
+                </div>
+            </div>
+
+            <div class="deadline-filters">
+                <button class="filter-btn active">All Deadlines</button>
+                <button class="filter-btn">Court Dates</button>
+                <button class="filter-btn">Filing Deadlines</button>
+                <button class="filter-btn">Rent Payments</button>
+                <button class="filter-btn">Appeals</button>
+            </div>
+
+            <div class="deadlines-list">
+                <div class="deadline-item urgent">
+                    <div class="deadline-header">
+                        <div>
+                            <div class="deadline-title">🏛️ Court Hearing - Eviction Defense</div>
+                            <div class="deadline-date">Due: Today, November 22, 2025</div>
+                        </div>
+                        <div class="deadline-status status-overdue">Overdue</div>
+                    </div>
+                    <div class="deadline-description">
+                        Final court hearing for eviction case #2025-0456. Prepare all evidence and witness statements.
+                        Court location: Hennepin County District Court, Room 302.
+                    </div>
+                    <div class="deadline-actions">
+                        <button class="btn btn-primary">Mark Complete</button>
+                        <button class="btn btn-secondary">View Details</button>
+                        <button class="btn btn-secondary">Set Reminder</button>
+                    </div>
+                </div>
+
+                <div class="deadline-item warning">
+                    <div class="deadline-header">
+                        <div>
+                            <div class="deadline-title">📄 Appeal Filing Deadline</div>
+                            <div class="deadline-date">Due: November 28, 2025</div>
+                        </div>
+                        <div class="deadline-status status-due-soon">Due Soon</div>
+                    </div>
+                    <div class="deadline-description">
+                        File appeal against recent court decision. Must be postmarked by end of business day.
+                        Include all supporting documentation and legal arguments.
+                    </div>
+                    <div class="deadline-actions">
+                        <button class="btn btn-primary">Prepare Appeal</button>
+                        <button class="btn btn-secondary">View Details</button>
+                        <button class="btn btn-secondary">Set Reminder</button>
+                    </div>
+                </div>
+
+                <div class="deadline-item">
+                    <div class="deadline-header">
+                        <div>
+                            <div class="deadline-title">💰 Rent Payment Due</div>
+                            <div class="deadline-date">Due: December 1, 2025</div>
+                        </div>
+                        <div class="deadline-status status-upcoming">Upcoming</div>
+                    </div>
+                    <div class="deadline-description">
+                        Monthly rent payment of ,250. Payment must be received by landlord by 5:00 PM.
+                        Late fees apply after this date.
+                    </div>
+                    <div class="deadline-actions">
+                        <button class="btn btn-primary">Make Payment</button>
+                        <button class="btn btn-secondary">View Details</button>
+                        <button class="btn btn-secondary">Set Reminder</button>
+                    </div>
+                </div>
+
+                <div class="deadline-item">
+                    <div class="deadline-header">
+                        <div>
+                            <div class="deadline-title">📋 Evidence Submission Deadline</div>
+                            <div class="deadline-date">Due: December 5, 2025</div>
+                        </div>
+                        <div class="deadline-status status-upcoming">Upcoming</div>
+                    </div>
+                    <div class="deadline-description">
+                        Submit all remaining evidence for ongoing case. Include photos, documents, and witness statements.
+                        Digital submission preferred through tenant portal.
+                    </div>
+                    <div class="deadline-actions">
+                        <button class="btn btn-primary">Upload Evidence</button>
+                        <button class="btn btn-secondary">View Details</button>
+                        <button class="btn btn-secondary">Set Reminder</button>
+                    </div>
+                </div>
+
+                <div class="deadline-item">
+                    <div class="deadline-header">
+                        <div>
+                            <div class="deadline-title">🏛️ Mediation Session</div>
+                            <div class="deadline-date">Due: December 12, 2025</div>
+                        </div>
+                        <div class="deadline-status status-upcoming">Upcoming</div>
+                    </div>
+                    <div class="deadline-description">
+                        Mandatory mediation session with landlord representative. Bring all relevant documents
+                        and be prepared to discuss settlement options.
+                    </div>
+                    <div class="deadline-actions">
+                        <button class="btn btn-primary">Prepare Documents</button>
+                        <button class="btn btn-secondary">View Details</button>
+                        <button class="btn btn-secondary">Set Reminder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality (placeholder)
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                alert(Filter "" selected - Filtering coming soon!);
+            });
+        });
+
+        // Action buttons (placeholder)
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert(Action "" clicked - Functionality coming soon!);
+            });
+        });
+    </script>
+</body>
+</html>

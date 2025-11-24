@@ -1,7 +1,7 @@
 """
 Calendar Master View - Central hub for vault documents, events, and packet assembly
 """
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect
 from calendar_vault_bridge import CalendarVaultBridge
 from functools import wraps
 import sqlite3
@@ -62,6 +62,41 @@ def packet_builder():
 
 
 
+@calendar_master_bp.route('/calendar/view')
+def calendar_view():
+    user_token = _get_user_token()
+    if not user_token:
+        return redirect('/register')
+    return render_template('calendar_view.html', user_token=user_token)
+
+@calendar_master_bp.route('/calendar/deadlines')
+def calendar_deadlines():
+    user_token = _get_user_token()
+    if not user_token:
+        return redirect('/register')
+    return render_template('calendar_deadlines.html', user_token=user_token)
+
+@calendar_master_bp.route('/calendar/payments')
+def calendar_payments():
+    user_token = _get_user_token()
+    if not user_token:
+        return redirect('/register')
+    return render_template('calendar_payments.html', user_token=user_token)
+
+@calendar_master_bp.route('/calendar/ledger')
+def calendar_ledger():
+    user_token = _get_user_token()
+    if not user_token:
+        return redirect('/register')
+    return render_template('calendar_ledger.html', user_token=user_token)
+
+@calendar_master_bp.route('/calendar/rent-ledger')
+def calendar_rent_ledger():
+    user_token = _get_user_token()
+    if not user_token:
+        return redirect('/register')
+    return render_template('calendar_ledger.html', user_token=user_token)
+
 # === PHASE 2 CALENDAR INTEGRATION ===
 # After event creation, add:
 #   bridge = CalendarVaultBridge()
@@ -69,4 +104,8 @@ def packet_builder():
 #   if suggestions:
 #       doc_list = ', '.join([s['doc_type'] for s in suggestions])
 #       flash(f"💡 Recommended uploads: {doc_list}", 'info')
+
+
+
+
 

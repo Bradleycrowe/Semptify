@@ -119,3 +119,14 @@ data/engine_generations.json
 
 # Temporary generation files
 .generator_cache/
+# Add to .gitignore to prevent committing deprecated patterns
+*_deprecated.py
+*_old.py
+*_backup.py
+*_alternative.py
+storage_token*.py
+persistent_auth*.py
+user_registration.py
+add_user_auth.py
+debug_registration.py
+storage_qualification.py

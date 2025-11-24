@@ -1,0 +1,35 @@
+
+# ============================================================
+# CLOUDFLARE R2 STORAGE (Copy these to your environment)
+# ============================================================
+
+R2_ACCOUNT_ID=your_cloudflare_account_id_here
+R2_ACCESS_KEY_ID=your_r2_access_key_id_here
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key_here
+R2_BUCKET_NAME=semptify-vault
+R2_ENDPOINT_URL=https://your_account_id.r2.cloudflarestorage.com
+
+
+# ============================================================
+# GOOGLE DRIVE STORAGE (Copy these to your environment)
+# ============================================================
+
+GOOGLE_APPLICATION_CREDENTIALS=C:\Semptify\Semptify\security\gcs-key.json
+GCS_BUCKET_NAME=semptify-drive
+
+
+# ============================================================
+# HOW TO SET THEM IN POWERSHELL
+# ============================================================
+
+# For R2:
+[Environment]::SetEnvironmentVariable("R2_ACCOUNT_ID", "your_value", "User")
+[Environment]::SetEnvironmentVariable("R2_ACCESS_KEY_ID", "your_value", "User")
+[Environment]::SetEnvironmentVariable("R2_SECRET_ACCESS_KEY", "your_value", "User")
+[Environment]::SetEnvironmentVariable("R2_BUCKET_NAME", "semptify-vault", "User")
+[Environment]::SetEnvironmentVariable("R2_ENDPOINT_URL", "your_endpoint", "User")
+
+# For Google Drive:
+[Environment]::SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "C:\Semptify\Semptify\security\gcs-key.json", "User")
+[Environment]::SetEnvironmentVariable("GCS_BUCKET_NAME", "semptify-drive", "User")
+

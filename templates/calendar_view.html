@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar View - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .calendar-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .calendar-day:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .calendar-day.today {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+        }
+
+        .day-number {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .day-events {
+            flex: 1;
+            width: 100%;
+        }
+
+        .event-item {
+            background: rgba(103, 126, 234, 0.8);
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin-bottom: 2px;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ccc;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Calendar View</h1>
+            <p>Interactive calendar with integrated tenant events and deadlines</p>
+        </div>
+
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div class="calendar-title">November 2025</div>
+                <div class="calendar-nav">
+                    <button class="btn btn-secondary">‹ Previous</button>
+                    <button class="btn btn-secondary">Today</button>
+                    <button class="btn btn-secondary">Next ›</button>
+                </div>
+            </div>
+
+            <div class="calendar-grid">
+                <!-- Day headers -->
+                <div class="calendar-day" style="background: rgba(255,255,255,0.1); cursor: default;">
+                    <div class="day-number" style="color: #ccc;">Sun</div>
+                </div>
+                <div class="calendar-day" style="background: rgba(255,255,255,0.1); cursor: default;">
+                    <div class="day-number" style="color: #ccc;">Mon</div>
+                </div>
+                <div class="calendar-day" style="background: rgba(255,255,255,0.1); cursor: default;">
+                    <div class="day-number" style="color: #ccc;">Tue</div>
+                </div>
+                <div class="calendar-day" style="background: rgba(255,255,255,0.1); cursor: default;">
+                    <div class="day-number" style="color: #ccc;">Wed</div>
+                </div>
+                <div class="calendar-day" style="background: rgba(255,255,255,0.1); cursor: default;">
+                    <div class="day-number" style="color: #ccc;">Thu</div>
+                </div>
+                <div class="calendar-day" style="background: rgba(255,255,255,0.1); cursor: default;">
+                    <div class="day-number" style="color: #ccc;">Fri</div>
+                </div>
+                <div class="calendar-day" style="background: rgba(255,255,255,0.1); cursor: default;">
+                    <div class="day-number" style="color: #ccc;">Sat</div>
+                </div>
+
+                <!-- Calendar days (simplified for demo) -->
+                {% for day in range(1, 31) %}
+                <div class="calendar-day {% if day == 22 %}today{% endif %}">
+                    <div class="day-number">{{ day }}</div>
+                    <div class="day-events">
+                        {% if day == 15 %}
+                        <div class="event-item">🏛️ Court Hearing</div>
+                        {% endif %}
+                        {% if day == 22 %}
+                        <div class="event-item">💰 Rent Due</div>
+                        {% endif %}
+                        {% if day == 28 %}
+                        <div class="event-item">📄 Filing Deadline</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calendar interaction (placeholder for now)
+        document.querySelectorAll('.calendar-day').forEach(day => {
+            if (!day.style.cursor.includes('default')) {
+                day.addEventListener('click', function() {
+                    const dayNumber = this.querySelector('.day-number').textContent;
+                    alert(Clicked on day  - Calendar interaction coming soon!);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

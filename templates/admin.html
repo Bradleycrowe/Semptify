@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Semptify</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <div class="security-badge">SECURITY MODE: {{ security_mode | upper }}</div>
+        
+        <h2>System Status</h2>
+        <form method="POST" action="/release_now">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="confirm_release" value="yes">
+            <button type="submit">Release Now</button>
+        </form>
+        
+        <h2>Admin Actions</h2>
+        <ul>
+            <li><a href="/admin/status">System Status</a></li>
+            <li><a href="/metrics">Metrics</a></li>
+            <li><a href="/readyz">Readiness Check</a></li>
+        </ul>
+    </div>
+</body>
+</html>

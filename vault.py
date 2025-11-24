@@ -149,358 +149,598 @@ def _sha256_of_file(path):
 
 def _cert_path(user_id, filename):
     user_dir = os.path.join(UPLOAD_ROOT, user_id)
-    from flask import Blueprint, request, jsonify, send_file, abort
-    import os
-    import hashlib
-    import json
-    import uuid
-    from datetime import datetime
-    from werkzeug.utils import secure_filename
-
-    from security import get_token_from_request, validate_user_token, log_event, _atomic_write_json
-
-    CWD = os.getcwd()
-    # Use current working directory for uploads so tests that change cwd write to the test tempdir
-    UPLOAD_ROOT = os.path.join(CWD, "uploads", "vault")
-    CERT_SUFFIX = ".cert.json"
-
-    vault_bp = Blueprint('vault_blueprint', __name__)
+    return os.path.join(user_dir, filename)
 
 
-    def _ensure_dirs(path):
-        os.makedirs(path, exist_ok=True)
+from flask import Blueprint, render_template, request, jsonify, send_file, abort
+import os
+import hashlib
+import json
+import uuid
+from datetime import datetime
+from werkzeug.utils import secure_filename
+
+from security import get_token_from_request, validate_user_token, log_event, _atomic_write_json
+
+CWD = os.getcwd()
+# Use current working directory for uploads so tests that change cwd write to the test tempdir
+UPLOAD_ROOT = os.path.join(CWD, "uploads", "vault")
+CERT_SUFFIX = ".cert.json"
+
+vault_bp = Blueprint('vault_blueprint', __name__)
 
 
-    def _sha256_of_file(path):
-        h = hashlib.sha256()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                h.update(chunk)
-        return h.hexdigest()
+def _ensure_dirs(path):
+    os.makedirs(path, exist_ok=True)
 
 
-    def _cert_path(user_id, filename):
-        user_dir = os.path.join(UPLOAD_ROOT, user_id)
-        return os.path.join(user_dir, filename + CERT_SUFFIX)
+def _sha256_of_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
-    def _file_path(user_id, filename):
-        user_dir = os.path.join(UPLOAD_ROOT, user_id)
-        return os.path.join(user_dir, filename)
+def _cert_path(user_id, filename):
+    user_dir = os.path.join(UPLOAD_ROOT, user_id)
+    return os.path.join(user_dir, filename + CERT_SUFFIX)
 
 
-    def _add_user_document_mapping(user_id, doc_id, filename):
-        """Track which documents belong to which user (for listing)."""
-        mapping_file = os.path.join(UPLOAD_ROOT, f"user_{user_id}_docs.json")
-        try:
-            if os.path.exists(mapping_file):
-                with open(mapping_file, 'r', encoding='utf-8') as f:
-                    mappings = json.load(f)
-            else:
-                mappings = []
-
-            mappings.append({
-                "doc_id": doc_id,
-                "filename": filename,
-                "uploaded": datetime.utcnow().isoformat() + 'Z'
-            })
-
-            _atomic_write_json(mapping_file, mappings)
-        except Exception as e:
-            print(f"Warning: Could not update user document mapping: {e}")
+def _file_path(user_id, filename):
+    user_dir = os.path.join(UPLOAD_ROOT, user_id)
+    return os.path.join(user_dir, filename)
 
 
-    def _get_user_documents(user_id):
-        """Get list of documents owned by user."""
-        mapping_file = os.path.join(UPLOAD_ROOT, f"user_{user_id}_docs.json")
-        try:
-            if os.path.exists(mapping_file):
-                with open(mapping_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            return []
-        except Exception as e:
-            print(f"Warning: Could not read user document mapping: {e}")
-            return []
+def _add_user_document_mapping(user_id, doc_id, filename):
+    """Track which documents belong to which user (for listing)."""
+    mapping_file = os.path.join(UPLOAD_ROOT, f"user_{user_id}_docs.json")
+    try:
+        if os.path.exists(mapping_file):
+            with open(mapping_file, 'r', encoding='utf-8') as f:
+                mappings = json.load(f)
+        else:
+            mappings = []
 
-
-    @vault_bp.route('/vault/upload', methods=['POST'])
-    def upload():
-        token = get_token_from_request(request)
-        uid = validate_user_token(token)
-        if not uid:
-            return jsonify({"error": "unauthorized"}), 401
-
-        if 'file' not in request.files:
-            return jsonify({"error": "no file"}), 400
-        f = request.files['file']
-        filename = secure_filename(f.filename or "uploaded")
-        if not filename:
-            return jsonify({"error": "invalid filename"}), 400
-
-        # Generate unique document ID for storage (not encrypted, just reference)
-        doc_id = f"doc_{uuid.uuid4().hex[:12]}"
-
-        # Read file data for encryption
-        file_data = f.read()
-
-        # Encrypt file with user token
-        encrypted_data, salt, nonce = _encrypt_file(file_data, token)
-
-        # Store by document ID with clean naming: doc_id.enc
-        doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
-        _ensure_dirs(doc_dir)
-        encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
-
-        # Write encrypted file
-        with open(encrypted_path, 'wb') as ef:
-            ef.write(encrypted_data)
-
-        # Hash the encrypted data (for integrity verification)
-        sha = hashlib.sha256(encrypted_data).hexdigest()
-
-        # Certificate links document ID to user, stores decryption params
-        cert = {
+        mappings.append({
             "doc_id": doc_id,
-            "original_filename": filename,  # Store original name
-            "salt": salt.hex(),  # Hex encoding for JSON
-            "nonce": nonce.hex(),
-            "sha256": sha,  # Hash of encrypted data
-            "user_id": uid,  # User who owns this document
-            "created": datetime.utcnow().isoformat() + 'Z',
-            "request_id": str(uuid.uuid4()),
-            "attestations": [],
-        }
-        cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
-        _atomic_write_json(cert_path, cert)
-
-        # Also store document mapping so user can list their documents
-        _add_user_document_mapping(uid, doc_id, filename)
-
-        log_event("vault.upload", {"user_id": uid, "doc_id": doc_id, "sha256": sha})
-        return jsonify({"ok": True, "doc_id": doc_id, "filename": filename, "sha256": sha}), 200
-
-
-    @vault_bp.route('/vault/list', methods=['GET'])
-    def list_documents():
-        """List all documents owned by user (requires user token)."""
-        token = get_token_from_request(request)
-        uid = validate_user_token(token)
-        if not uid:
-            return jsonify({"error": "unauthorized"}), 401
-
-        documents = _get_user_documents(uid)
-        return jsonify({"ok": True, "documents": documents}), 200
-
-
-    @vault_bp.route('/vault', methods=['GET', 'POST'])
-    def vault():
-        # Legacy-style vault endpoint used by templates/tests
-        token = request.args.get('user_token') or request.headers.get('X-User-Token') or request.form.get('user_token') or request.args.get('token')
-        uid = validate_user_token(token)
-        if request.method == 'GET':
-            if not uid:
-                return jsonify({"error": "unauthorized"}), 401
-            return jsonify({"ok": True, "user": uid}), 200
-
-        # POST -> file upload (legacy)
-        if not uid:
-            return jsonify({"error": "unauthorized"}), 401
-        f = request.files.get('file')
-        if not f or not f.filename:
-            return jsonify({"error": "no file"}), 400
-        filename = secure_filename(f.filename or 'uploaded')
-        user_dir = os.path.join(UPLOAD_ROOT, uid)
-        _ensure_dirs(user_dir)
-        dest = _file_path(uid, filename)
-        f.save(dest)
-        sha = _sha256_of_file(dest)
-        cert = {
             "filename": filename,
-            "sha256": sha,
-            "user_id": uid,
-            "created": datetime.utcnow().isoformat() + 'Z',
-            "request_id": str(uuid.uuid4()),
-            "attestations": [],
-        }
-        cert_path = _cert_path(uid, filename)
-        _atomic_write_json(cert_path, cert)
-        log_event("vault.upload", user_id=uid, doc_id=filename, extra={"sha256": sha})
-        return jsonify({"ok": True, "filename": filename, "sha256": sha}), 200
+            "uploaded": datetime.utcnow().isoformat() + 'Z'
+        })
+
+        _atomic_write_json(mapping_file, mappings)
+    except Exception as e:
+        print(f"Warning: Could not update user document mapping: {e}")
 
 
-    @vault_bp.route('/vault/download', methods=['GET'])
-    def download():
-        token = get_token_from_request(request)
-        uid = validate_user_token(token)
+def _get_user_documents(user_id):
+    """Get list of documents owned by user."""
+    mapping_file = os.path.join(UPLOAD_ROOT, f"user_{user_id}_docs.json")
+    try:
+        if os.path.exists(mapping_file):
+            with open(mapping_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return []
+    except Exception as e:
+        print(f"Warning: Could not read user document mapping: {e}")
+        return []
+
+
+@vault_bp.route('/vault/upload', methods=['POST'])
+def upload():
+    token = get_token_from_request(request)
+    uid = validate_user_token(token)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+
+    if 'file' not in request.files:
+        return jsonify({"error": "no file"}), 400
+    f = request.files['file']
+    filename = secure_filename(f.filename or "uploaded")
+    if not filename:
+        return jsonify({"error": "invalid filename"}), 400
+
+    # Generate unique document ID for storage (not encrypted, just reference)
+    doc_id = f"doc_{uuid.uuid4().hex[:12]}"
+
+    # Read file data for encryption
+    file_data = f.read()
+
+    # Encrypt file with user token
+    encrypted_data, salt, nonce = _encrypt_file(file_data, token)
+
+    # Store by document ID with clean naming: doc_id.enc
+    doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
+    _ensure_dirs(doc_dir)
+    encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
+
+    # Write encrypted file
+    with open(encrypted_path, 'wb') as ef:
+        ef.write(encrypted_data)
+
+    # Hash the encrypted data (for integrity verification)
+    sha = hashlib.sha256(encrypted_data).hexdigest()
+
+    # Certificate links document ID to user, stores decryption params
+    cert = {
+        "doc_id": doc_id,
+        "original_filename": filename,  # Store original name
+        "salt": salt.hex(),  # Hex encoding for JSON
+        "nonce": nonce.hex(),
+        "sha256": sha,  # Hash of encrypted data
+        "user_id": uid,  # User who owns this document
+        "created": datetime.utcnow().isoformat() + 'Z',
+        "request_id": str(uuid.uuid4()),
+        "attestations": [],
+    }
+    cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
+    _atomic_write_json(cert_path, cert)
+    # ====================================================================
+    # DOCUMENT INTELLIGENCE PROCESSING (Auto-extract legal details)
+    # ====================================================================
+    try:
+        from document_intelligence import DocumentIntelligenceEngine
+        from datetime import datetime
+        import tempfile
+        
+        # Create temp file for analysis
+        with tempfile.NamedTemporaryFile(mode='wb', suffix=f'_{filename}', delete=False) as tmp:
+            tmp.write(file_data)
+            tmp_path = tmp.name
+        
+        # Process document
+        intel_engine = DocumentIntelligenceEngine()
+        doc_intel = intel_engine.process_document(tmp_path)
+        
+        # Clean up temp
+        os.unlink(tmp_path)
+        
+        if doc_intel:
+            # Save intelligence
+            intel_data = {
+                "doc_id": doc_id,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence,
+                "contacts_found": len(doc_intel.contacts),
+                "signatures_found": len(doc_intel.signatures),
+                "legal_status": doc_intel.legal_validation.status.value if doc_intel.legal_validation else "unknown",
+                "processed_at": datetime.now().isoformat()
+            }
+            
+            intel_path = os.path.join(doc_dir, "intelligence.json")
+            _write_json(intel_path, intel_data)
+            
+            # Add to certificate
+            cert["intelligence"] = {
+                "available": True,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence
+            }
+            _write_json(cert_path, cert)
+            
+    except Exception as e:
+        print(f"[WARN] Intelligence processing failed: {e}")
+        cert["intelligence"] = {"available": False}
+        _write_json(cert_path, cert)
+
+    # Also store document mapping so user can list their documents
+    _add_user_document_mapping(uid, doc_id, filename)
+
+    log_event("vault.upload", {"user_id": uid, "doc_id": doc_id, "sha256": sha})
+    return jsonify({"ok": True, "doc_id": doc_id, "filename": filename, "sha256": sha}), 200
+
+
+@vault_bp.route('/vault/list', methods=['GET'])
+def list_documents():
+    """List all documents owned by user (requires user token)."""
+    token = get_token_from_request(request)
+    uid = validate_user_token(token)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+
+    documents = _get_user_documents(uid)
+    return jsonify({"ok": True, "documents": documents}), 200
+
+
+@vault_bp.route('/vault', methods=['GET', 'POST'])
+def vault():
+    # Legacy-style vault endpoint used by templates/tests
+    token = request.args.get('user_token') or request.headers.get('X-User-Token') or request.form.get('user_token') or request.args.get('token')
+    uid = validate_user_token(token)
+    if request.method == 'GET':
         if not uid:
             return jsonify({"error": "unauthorized"}), 401
+        documents = _get_user_documents(uid)
+        return render_template('vault.html', user_id=uid, documents=documents)
 
-        # Require doc_id (new method only)
-        doc_id = request.args.get('doc_id')
-        if not doc_id:
-            return jsonify({"error": "doc_id required"}), 400
-
-        # Verify user owns this document
-        user_docs = _get_user_documents(uid)
-        doc_info = next((d for d in user_docs if d['doc_id'] == doc_id), None)
-        if not doc_info:
-            return jsonify({"error": "document not found or not authorized"}), 404
-
-        # Load certificate and encrypted file
-        doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
-        encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
-        cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
-
-        if not os.path.exists(encrypted_path) or not os.path.exists(cert_path):
-            return jsonify({"error": "not found"}), 404
-
-        # Load certificate
-        try:
-            with open(cert_path, 'r', encoding='utf-8') as f:
-                cert = json.load(f)
-        except Exception as e:
-            return jsonify({"error": "corrupt cert"}), 500
-
-        # Load encrypted data
-        try:
-            with open(encrypted_path, 'rb') as f:
-                encrypted_data = f.read()
-        except Exception as e:
-            return jsonify({"error": "cannot read file"}), 500
-
-        # Verify integrity of encrypted data
-        actual = hashlib.sha256(encrypted_data).hexdigest()
-        if actual != cert.get('sha256'):
-            log_event("vault.tamper_detected", {"user_id": uid, "doc_id": doc_id, "expected": cert.get('sha256'), "actual": actual})
-            return jsonify({"error": "tamper detected"}), 409
-
-        # Decrypt file using user token
-        try:
-            salt = bytes.fromhex(cert['salt'])
-            nonce = bytes.fromhex(cert['nonce'])
-            decrypted_data = _decrypt_file(encrypted_data, salt, nonce, token)
-        except ValueError as e:
-            log_event("vault.decrypt_failed", {"user_id": uid, "doc_id": doc_id, "error": str(e)})
-            return jsonify({"error": "decryption failed - wrong token or corrupted data"}), 403
-        except Exception as e:
-            log_event("vault.decrypt_error", {"user_id": uid, "doc_id": doc_id, "error": str(e)})
-            return jsonify({"error": "decryption error"}), 500
-
-        # Return decrypted file with original filename
-        original_filename = cert.get('original_filename', 'download')
-        log_event("vault.download", {"user_id": uid, "doc_id": doc_id})
-
-        # Send file from memory (decrypted bytes)
-        from io import BytesIO
-        return send_file(
-            BytesIO(decrypted_data),
-            as_attachment=True,
-            download_name=original_filename,
-            mimetype='application/octet-stream'
-        )
-
-
-    @vault_bp.route('/vault/attest', methods=['POST'])
-    def attest():
-        token = get_token_from_request(request)
-        uid = validate_user_token(token)
-        if not uid:
-            return jsonify({"error": "unauthorized"}), 401
-
-        data = request.get_json(force=True, silent=True) or {}
-        filename = data.get('filename')
-        statement = data.get('statement')
-        if not filename or not statement:
-            return jsonify({"error": "filename and statement required"}), 400
-        filename = secure_filename(filename)
-        cert_path = _cert_path(uid, filename)
-        if not os.path.exists(cert_path):
-            return jsonify({"error": "not found"}), 404
-
-        try:
-            with open(cert_path, 'r', encoding='utf-8') as f:
-                cert = json.load(f)
-        except Exception as e:
-            return jsonify({"error": "corrupt cert"}), 500
-
-        att = {
-            "attestation_id": str(uuid.uuid4()),
-            "by": uid,
-            "ts": datetime.utcnow().isoformat() + 'Z',
-            "statement": statement,
-        }
-        cert.setdefault('attestations', []).append(att)
-        # write atomically
-        _atomic_write_json(cert_path, cert)
-        log_event("vault.attest", user_id=uid, doc_id=filename, extra={"attestation_id": att['attestation_id']})
-        return jsonify({"ok": True, "attestation_id": att['attestation_id'], "total_attestations": len(cert.get('attestations', []))}), 200
+    # POST -> file upload (legacy)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+    f = request.files.get('file')
+    if not f or not f.filename:
+        return jsonify({"error": "no file"}), 400
+    filename = secure_filename(f.filename or 'uploaded')
+    user_dir = os.path.join(UPLOAD_ROOT, uid)
+    _ensure_dirs(user_dir)
+    dest = _file_path(uid, filename)
+    f.save(dest)
+    sha = _sha256_of_file(dest)
+    cert = {
+        "filename": filename,
+        "sha256": sha,
+        "user_id": uid,
+        "created": datetime.utcnow().isoformat() + 'Z',
+        "request_id": str(uuid.uuid4()),
+        "attestations": [],
+    }
+    cert_path = _cert_path(uid, filename)
+    _atomic_write_json(cert_path, cert)
+    # ====================================================================
+    # DOCUMENT INTELLIGENCE PROCESSING (Auto-extract legal details)
+    # ====================================================================
+    try:
+        from document_intelligence import DocumentIntelligenceEngine
+        from datetime import datetime
+        import tempfile
+        
+        # Create temp file for analysis
+        with tempfile.NamedTemporaryFile(mode='wb', suffix=f'_{filename}', delete=False) as tmp:
+            tmp.write(file_data)
+            tmp_path = tmp.name
+        
+        # Process document
+        intel_engine = DocumentIntelligenceEngine()
+        doc_intel = intel_engine.process_document(tmp_path)
+        
+        # Clean up temp
+        os.unlink(tmp_path)
+        
+        if doc_intel:
+            # Save intelligence
+            intel_data = {
+                "doc_id": doc_id,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence,
+                "contacts_found": len(doc_intel.contacts),
+                "signatures_found": len(doc_intel.signatures),
+                "legal_status": doc_intel.legal_validation.status.value if doc_intel.legal_validation else "unknown",
+                "processed_at": datetime.now().isoformat()
+            }
+            
+            intel_path = os.path.join(doc_dir, "intelligence.json")
+            _write_json(intel_path, intel_data)
+            
+            # Add to certificate
+            cert["intelligence"] = {
+                "available": True,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence
+            }
+            _write_json(cert_path, cert)
+            
+    except Exception as e:
+        print(f"[WARN] Intelligence processing failed: {e}")
+        cert["intelligence"] = {"available": False}
+        _write_json(cert_path, cert)
+    log_event("vault.upload", user_id=uid, doc_id=filename, extra={"sha256": sha})
+    return jsonify({"ok": True, "filename": filename, "sha256": sha}), 200
 
 
-    # --- Legacy notary endpoints (tests expect these) ---
-    @vault_bp.route('/notary', methods=['GET'])
-    def notary_index():
-        token = request.args.get('user_token') or request.headers.get('X-User-Token') or request.form.get('user_token') or request.args.get('token')
-        uid = validate_user_token(token)
-        if not uid:
-            return jsonify({"error": "unauthorized"}), 401
-        # simple HTML expected by tests
-        return ("<html><body><h1>Virtual Notary</h1></body></html>"), 200
+@vault_bp.route('/vault/download', methods=['GET'])
+def download():
+    token = get_token_from_request(request)
+    uid = validate_user_token(token)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+
+    # Require doc_id (new method only)
+    doc_id = request.args.get('doc_id')
+    if not doc_id:
+        return jsonify({"error": "doc_id required"}), 400
+
+    # Verify user owns this document
+    user_docs = _get_user_documents(uid)
+    doc_info = next((d for d in user_docs if d['doc_id'] == doc_id), None)
+    if not doc_info:
+        return jsonify({"error": "document not found or not authorized"}), 404
+
+    # Load certificate and encrypted file
+    doc_dir = os.path.join(UPLOAD_ROOT, doc_id)
+    encrypted_path = os.path.join(doc_dir, f"{doc_id}.enc")
+    cert_path = os.path.join(doc_dir, f"{doc_id}.cert.json")
+
+    if not os.path.exists(encrypted_path) or not os.path.exists(cert_path):
+        return jsonify({"error": "not found"}), 404
+
+    # Load certificate
+    try:
+        with open(cert_path, 'r', encoding='utf-8') as f:
+            cert = json.load(f)
+    except Exception as e:
+        return jsonify({"error": "corrupt cert"}), 500
+
+    # Load encrypted data
+    try:
+        with open(encrypted_path, 'rb') as f:
+            encrypted_data = f.read()
+    except Exception as e:
+        return jsonify({"error": "cannot read file"}), 500
+
+    # Verify integrity of encrypted data
+    actual = hashlib.sha256(encrypted_data).hexdigest()
+    if actual != cert.get('sha256'):
+        log_event("vault.tamper_detected", {"user_id": uid, "doc_id": doc_id, "expected": cert.get('sha256'), "actual": actual})
+        return jsonify({"error": "tamper detected"}), 409
+
+    # Decrypt file using user token
+    try:
+        salt = bytes.fromhex(cert['salt'])
+        nonce = bytes.fromhex(cert['nonce'])
+        decrypted_data = _decrypt_file(encrypted_data, salt, nonce, token)
+    except ValueError as e:
+        log_event("vault.decrypt_failed", {"user_id": uid, "doc_id": doc_id, "error": str(e)})
+        return jsonify({"error": "decryption failed - wrong token or corrupted data"}), 403
+    except Exception as e:
+        log_event("vault.decrypt_error", {"user_id": uid, "doc_id": doc_id, "error": str(e)})
+        return jsonify({"error": "decryption error"}), 500
+
+    # Return decrypted file with original filename
+    original_filename = cert.get('original_filename', 'download')
+    log_event("vault.download", {"user_id": uid, "doc_id": doc_id})
+
+    # Send file from memory (decrypted bytes)
+    from io import BytesIO
+    return send_file(
+        BytesIO(decrypted_data),
+        as_attachment=True,
+        download_name=original_filename,
+        mimetype='application/octet-stream'
+    )
 
 
-    @vault_bp.route('/notary/upload', methods=['POST'])
-    def notary_upload():
-        token = request.form.get('user_token') or request.args.get('user_token') or request.headers.get('X-User-Token')
-        uid = validate_user_token(token)
-        if not uid:
-            return jsonify({"error": "unauthorized"}), 401
-        f = request.files.get('file')
-        if not f or not f.filename:
-            return jsonify({"error": "no file"}), 400
-        filename = secure_filename(f.filename or 'uploaded')
-        user_dir = os.path.join(UPLOAD_ROOT, uid)
-        _ensure_dirs(user_dir)
-        dest = _file_path(uid, filename)
-        f.save(dest)
-        sha = _sha256_of_file(dest)
-        # write a notary certificate file
-        ts = int(time.time())
-        cert_name = f"notary_{ts}_test.json"
-        cert_path = os.path.join(user_dir, cert_name)
-        cert = {"filename": filename, "sha256": sha, "user_id": uid, "created": ts, "request_id": str(uuid.uuid4())}
-        _atomic_write_json(cert_path, cert)
-        log_event("notary.upload", user_id=uid, doc_id=filename, extra={"cert": cert_name})
-        return jsonify({"ok": True, "filename": filename, "cert": cert_name}), 200
+@vault_bp.route('/vault/attest', methods=['POST'])
+def attest():
+    token = get_token_from_request(request)
+    uid = validate_user_token(token)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True) or {}
+    filename = data.get('filename')
+    statement = data.get('statement')
+    if not filename or not statement:
+        return jsonify({"error": "filename and statement required"}), 400
+    filename = secure_filename(filename)
+    cert_path = _cert_path(uid, filename)
+    if not os.path.exists(cert_path):
+        return jsonify({"error": "not found"}), 404
+
+    try:
+        with open(cert_path, 'r', encoding='utf-8') as f:
+            cert = json.load(f)
+    except Exception as e:
+        return jsonify({"error": "corrupt cert"}), 500
+
+    att = {
+        "attestation_id": str(uuid.uuid4()),
+        "by": uid,
+        "ts": datetime.utcnow().isoformat() + 'Z',
+        "statement": statement,
+    }
+    cert.setdefault('attestations', []).append(att)
+    # write atomically
+    _atomic_write_json(cert_path, cert)
+    # ====================================================================
+    # DOCUMENT INTELLIGENCE PROCESSING (Auto-extract legal details)
+    # ====================================================================
+    try:
+        from document_intelligence import DocumentIntelligenceEngine
+        from datetime import datetime
+        import tempfile
+        
+        # Create temp file for analysis
+        with tempfile.NamedTemporaryFile(mode='wb', suffix=f'_{filename}', delete=False) as tmp:
+            tmp.write(file_data)
+            tmp_path = tmp.name
+        
+        # Process document
+        intel_engine = DocumentIntelligenceEngine()
+        doc_intel = intel_engine.process_document(tmp_path)
+        
+        # Clean up temp
+        os.unlink(tmp_path)
+        
+        if doc_intel:
+            # Save intelligence
+            intel_data = {
+                "doc_id": doc_id,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence,
+                "contacts_found": len(doc_intel.contacts),
+                "signatures_found": len(doc_intel.signatures),
+                "legal_status": doc_intel.legal_validation.status.value if doc_intel.legal_validation else "unknown",
+                "processed_at": datetime.now().isoformat()
+            }
+            
+            intel_path = os.path.join(doc_dir, "intelligence.json")
+            _write_json(intel_path, intel_data)
+            
+            # Add to certificate
+            cert["intelligence"] = {
+                "available": True,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence
+            }
+            _write_json(cert_path, cert)
+            
+    except Exception as e:
+        print(f"[WARN] Intelligence processing failed: {e}")
+        cert["intelligence"] = {"available": False}
+        _write_json(cert_path, cert)
+    log_event("vault.attest", user_id=uid, doc_id=filename, extra={"attestation_id": att['attestation_id']})
+    return jsonify({"ok": True, "attestation_id": att['attestation_id'], "total_attestations": len(cert.get('attestations', []))}), 200
 
 
-    @vault_bp.route('/notary/attest_existing', methods=['POST'])
-    def notary_attest_existing():
-        token = request.form.get('user_token') or request.args.get('user_token') or request.headers.get('X-User-Token')
-        uid = validate_user_token(token)
-        if not uid:
-            return jsonify({"error": "unauthorized"}), 401
-        filename = request.form.get('filename') or request.args.get('filename')
-        if not filename:
-            return jsonify({"error": "filename required"}), 400
-        filename = secure_filename(filename)
-        user_dir = os.path.join(UPLOAD_ROOT, uid)
-        # ensure original exists
-        orig = os.path.join(user_dir, filename)
-        if not os.path.exists(orig):
-            return jsonify({"error": "not found"}), 404
-        # create a new notary cert file (this increments the count expected by tests)
-        ts = int(time.time())
-        cert_name = f"notary_{ts}_test.json"
-        cert_path = os.path.join(user_dir, cert_name)
-        sha = _sha256_of_file(orig)
-        cert = {"filename": filename, "sha256": sha, "user_id": uid, "created": ts, "request_id": str(uuid.uuid4()), "attested": True}
-        _atomic_write_json(cert_path, cert)
-        log_event("notary.attest_existing", user_id=uid, doc_id=filename, extra={"cert": cert_name})
-        return jsonify({"ok": True, "cert": cert_name}), 200
+# --- Legacy notary endpoints (tests expect these) ---
+@vault_bp.route('/notary', methods=['GET'])
+def notary_index():
+    token = request.args.get('user_token') or request.headers.get('X-User-Token') or request.form.get('user_token') or request.args.get('token')
+    uid = validate_user_token(token)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+    # simple HTML expected by tests
+    return ("<html><body><h1>Virtual Notary</h1></body></html>"), 200
+
+
+@vault_bp.route('/notary/upload', methods=['POST'])
+def notary_upload():
+    token = request.form.get('user_token') or request.args.get('user_token') or request.headers.get('X-User-Token')
+    uid = validate_user_token(token)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+    f = request.files.get('file')
+    if not f or not f.filename:
+        return jsonify({"error": "no file"}), 400
+    filename = secure_filename(f.filename or 'uploaded')
+    user_dir = os.path.join(UPLOAD_ROOT, uid)
+    _ensure_dirs(user_dir)
+    dest = _file_path(uid, filename)
+    f.save(dest)
+    sha = _sha256_of_file(dest)
+    # write a notary certificate file
+    ts = int(time.time())
+    cert_name = f"notary_{ts}_test.json"
+    cert_path = os.path.join(user_dir, cert_name)
+    cert = {"filename": filename, "sha256": sha, "user_id": uid, "created": ts, "request_id": str(uuid.uuid4())}
+    _atomic_write_json(cert_path, cert)
+    # ====================================================================
+    # DOCUMENT INTELLIGENCE PROCESSING (Auto-extract legal details)
+    # ====================================================================
+    try:
+        from document_intelligence import DocumentIntelligenceEngine
+        from datetime import datetime
+        import tempfile
+        
+        # Create temp file for analysis
+        with tempfile.NamedTemporaryFile(mode='wb', suffix=f'_{filename}', delete=False) as tmp:
+            tmp.write(file_data)
+            tmp_path = tmp.name
+        
+        # Process document
+        intel_engine = DocumentIntelligenceEngine()
+        doc_intel = intel_engine.process_document(tmp_path)
+        
+        # Clean up temp
+        os.unlink(tmp_path)
+        
+        if doc_intel:
+            # Save intelligence
+            intel_data = {
+                "doc_id": doc_id,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence,
+                "contacts_found": len(doc_intel.contacts),
+                "signatures_found": len(doc_intel.signatures),
+                "legal_status": doc_intel.legal_validation.status.value if doc_intel.legal_validation else "unknown",
+                "processed_at": datetime.now().isoformat()
+            }
+            
+            intel_path = os.path.join(doc_dir, "intelligence.json")
+            _write_json(intel_path, intel_data)
+            
+            # Add to certificate
+            cert["intelligence"] = {
+                "available": True,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence
+            }
+            _write_json(cert_path, cert)
+            
+    except Exception as e:
+        print(f"[WARN] Intelligence processing failed: {e}")
+        cert["intelligence"] = {"available": False}
+        _write_json(cert_path, cert)
+    log_event("notary.upload", user_id=uid, doc_id=filename, extra={"cert": cert_name})
+    return jsonify({"ok": True, "filename": filename, "cert": cert_name}), 200
+
+
+@vault_bp.route('/notary/attest_existing', methods=['POST'])
+def notary_attest_existing():
+    token = request.form.get('user_token') or request.args.get('user_token') or request.headers.get('X-User-Token')
+    uid = validate_user_token(token)
+    if not uid:
+        return jsonify({"error": "unauthorized"}), 401
+    filename = request.form.get('filename') or request.args.get('filename')
+    if not filename:
+        return jsonify({"error": "filename required"}), 400
+    filename = secure_filename(filename)
+    user_dir = os.path.join(UPLOAD_ROOT, uid)
+    # ensure original exists
+    orig = os.path.join(user_dir, filename)
+    if not os.path.exists(orig):
+        return jsonify({"error": "not found"}), 404
+    # create a new notary cert file (this increments the count expected by tests)
+    ts = int(time.time())
+    cert_name = f"notary_{ts}_test.json"
+    cert_path = os.path.join(user_dir, cert_name)
+    sha = _sha256_of_file(orig)
+    cert = {"filename": filename, "sha256": sha, "user_id": uid, "created": ts, "request_id": str(uuid.uuid4()), "attested": True}
+    _atomic_write_json(cert_path, cert)
+    # ====================================================================
+    # DOCUMENT INTELLIGENCE PROCESSING (Auto-extract legal details)
+    # ====================================================================
+    try:
+        from document_intelligence import DocumentIntelligenceEngine
+        from datetime import datetime
+        import tempfile
+        
+        # Create temp file for analysis
+        with tempfile.NamedTemporaryFile(mode='wb', suffix=f'_{filename}', delete=False) as tmp:
+            tmp.write(file_data)
+            tmp_path = tmp.name
+        
+        # Process document
+        intel_engine = DocumentIntelligenceEngine()
+        doc_intel = intel_engine.process_document(tmp_path)
+        
+        # Clean up temp
+        os.unlink(tmp_path)
+        
+        if doc_intel:
+            # Save intelligence
+            intel_data = {
+                "doc_id": doc_id,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence,
+                "contacts_found": len(doc_intel.contacts),
+                "signatures_found": len(doc_intel.signatures),
+                "legal_status": doc_intel.legal_validation.status.value if doc_intel.legal_validation else "unknown",
+                "processed_at": datetime.now().isoformat()
+            }
+            
+            intel_path = os.path.join(doc_dir, "intelligence.json")
+            _write_json(intel_path, intel_data)
+            
+            # Add to certificate
+            cert["intelligence"] = {
+                "available": True,
+                "doc_type": doc_intel.doc_type,
+                "confidence": doc_intel.confidence
+            }
+            _write_json(cert_path, cert)
+            
+    except Exception as e:
+        print(f"[WARN] Intelligence processing failed: {e}")
+        cert["intelligence"] = {"available": False}
+        _write_json(cert_path, cert)
+    log_event("notary.attest_existing", user_id=uid, doc_id=filename, extra={"cert": cert_name})
+    return jsonify({"ok": True, "cert": cert_name}), 200
 
 
 if __name__ == '__main__':
     _ensure_dirs(UPLOAD_ROOT)
     app.run(host='127.0.0.1', port=5000, debug=True)
+
 
 
 

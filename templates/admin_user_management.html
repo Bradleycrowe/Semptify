@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Semptify Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 { color: #667eea; margin-bottom: 10px; }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: #f3f4f6;
+        }
+        .panel-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .panel-card h2 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .create-user-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-group input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            cursor: pointer;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background: #f3f4f6;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            font-weight: 600;
+            color: #374151;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 User Management</h1>
+            <p>Manually verify users, manage storage access, and create accounts</p>
+            <div class="nav-links">
+                <a href="{{ url_for('admin_panel.index', admin_token=admin_token) }}">⚙️ Settings</a>
+                <a href="?admin_token={{ admin_token }}">👥 Users</a>
+                <a href="/metrics?admin_token={{ admin_token }}">📊 Metrics</a>
+                <a href="/">🏠 Home</a>
+            </div>
+        </div>
+
+        <!-- Create User Manually -->
+        <div class="panel-card">
+            <h2>➕ Create User Manually</h2>
+            <form class="create-user-form" onsubmit="createUser(event)">
+                <div class="form-group">
+                    <label for="new_email">Email Address</label>
+                    <input type="email" id="new_email" name="email" required placeholder="user@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="auto_verify" name="auto_verify" checked>
+                        <label for="auto_verify">Auto-Verify</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="storage_allowed" name="storage_allowed" checked>
+                        <label for="storage_allowed">Allow Storage</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- User List -->
+        <div class="panel-card">
+            <h2>📋 All Users ({{ users|length }})</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Storage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr id="user-{{ user[0] }}">
+                        <td>#{{ user[0] }}</td>
+                        <td>{{ user[1] or '(anonymous)' }}</td>
+                        <td>{{ user[2][:10] if user[2] else '-' }}</td>
+                        <td>{{ user[3][:10] if user[3] else 'Never' }}</td>
+                        <td>
+                            <span class="badge badge-success" id="status-{{ user[0] }}">✓ Verified</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-success" id="storage-{{ user[0] }}">✓ Allowed</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-success" onclick="verifyUser({{ user[0] }})">
+                                    ✓ Verify
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="toggleStorage({{ user[0] }}, true)">
+                                    💾 Enable Storage
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="toggleStorage({{ user[0] }}, false)">
+                                    🚫 Disable Storage
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const adminToken = '{{ admin_token }}';
+
+        async function verifyUser(userId) {
+            const formData = new FormData();
+            formData.append('admin_token', adminToken);
+            
+            const response = await fetch(`/admin/panel/users/${userId}/verify`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById(`status-${userId}`).textContent = '✓ Verified';
+                document.getElementById(`status-${userId}`).className = 'badge badge-success';
+                alert(result.message);
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        async function toggleStorage(userId, allowed) {
+            const formData = new FormData();
+            formData.append('admin_token', adminToken);
+            formData.append('allowed', allowed);
+            
+            const response = await fetch(`/admin/panel/users/${userId}/storage`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                const badge = document.getElementById(`storage-${userId}`);
+                if (allowed) {
+                    badge.textContent = '✓ Allowed';
+                    badge.className = 'badge badge-success';
+                } else {
+                    badge.textContent = '✗ Disabled';
+                    badge.className = 'badge badge-danger';
+                }
+                alert(result.message);
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        async function createUser(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            formData.append('admin_token', adminToken);
+            
+            const response = await fetch('/admin/panel/users/create', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+    </script>
+</body>
+</html>

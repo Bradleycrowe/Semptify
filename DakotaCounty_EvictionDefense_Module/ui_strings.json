@@ -1,0 +1,121 @@
+{
+  "module_name": "Dakota County Eviction Defense",
+  "version": "1.0.0",
+  "languages": ["en", "es", "so", "hm"],
+  "strings": {
+    "intro_message": {
+      "en": "Facing eviction is overwhelming. This module equips you with attorney-grade tactics to defend your home.",
+      "es": "Enfrentar un desalojo es abrumador. Este módulo te brinda tácticas de nivel legal para defender tu hogar.",
+      "so": "Ka saarista guri waa adag. Qaybtani waxa ay ku siinaysaa xeelado heer qareen si aad u difaacdo gurigaaga.",
+      "hm": "Kev raug ntiab tawm tsev yog ntxhov siab. Module no pab koj nrog tswv yim qib kws lij choj tiv thaiv koj lub tsev."
+    },
+    "motion_dismiss": {
+      "en": "Motion to Dismiss",
+      "es": "Moción para Desestimar",
+      "so": "Codsi in la Joojiyo",
+      "hm": "Kev txav kom Rho Tawm"
+    },
+    "motion_continue": {
+      "en": "Motion to Continue",
+      "es": "Moción para Continuar",
+      "so": "Codsi in la Sii Wado",
+      "hm": "Kev txav kom Txuas Ntxiv"
+    },
+    "motion_rent_escrow": {
+      "en": "Rent Escrow",
+      "es": "Depósito de Renta",
+      "so": "Kayd Kirada",
+      "hm": "Khaws Nyiaj Tso Tseg"
+    },
+    "motion_expungement": {
+      "en": "Expungement",
+      "es": "Eliminación de Registro",
+      "so": "Tirtirid Diiwaan",
+      "hm": "Kov Txo Txim"
+    },
+    "counterclaim": {
+      "en": "Counterclaim",
+      "es": "Contrademanda",
+      "so": "Dacwad-ka-Horjeedka",
+      "hm": "Kev Tawm Tsam"
+    },
+    "habitability": {
+      "en": "Habitability",
+      "es": "Habitabilidad",
+      "so": "Xaaladda Degitaanka",
+      "hm": "Nyob Tau"
+    },
+    "retaliation": {
+      "en": "Retaliation",
+      "es": "Represalia",
+      "so": "Aarsasho",
+      "hm": "Kev Ua Pauj"
+    },
+    "service_defect": {
+      "en": "Service Defect",
+      "es": "Defecto de Notificación",
+      "so": "Cilad Adeegga",
+      "hm": "Qhov Txhaum Kev Pab"
+    },
+    "hearing_date": {
+      "en": "Hearing Date",
+      "es": "Fecha de Audiencia",
+      "so": "Taariikhda Dhegeysiga",
+      "hm": "Hnub Mloog Plaub"
+    },
+    "case_number": {
+      "en": "Case Number",
+      "es": "Número de Caso",
+      "so": "Lambarka Kiiska",
+      "hm": "Tus Lej Plaub"
+    },
+    "tenant_name": {
+      "en": "Tenant Name",
+      "es": "Nombre del Inquilino",
+      "so": "Magaca Qandaraaska",
+      "hm": "Tus Neeg Xauj Tsev Lub Npe"
+    },
+    "landlord_name": {
+      "en": "Landlord Name",
+      "es": "Nombre del Propietario",
+      "so": "Magaca Mulkiilaha",
+      "hm": "Tus Tswv Tsev Lub Npe"
+    },
+    "evidence": {
+      "en": "Evidence",
+      "es": "Evidencia",
+      "so": "Caddayn",
+      "hm": "Pov Thawj"
+    },
+    "proactive_checklist": {
+      "en": "Proactive Checklist",
+      "es": "Lista de Verificación Proactiva",
+      "so": "Liiska Hubinta Hordhaca ah",
+      "hm": "Daim Ntawv Kuaj Ua Ntej"
+    },
+    "statutes": {
+      "en": "Statutes",
+      "es": "Estatutos",
+      "so": "Sharciyada",
+      "hm": "Cov Cai"
+    },
+    "forms": {
+      "en": "Forms",
+      "es": "Formularios",
+      "so": "Foomamka",
+      "hm": "Daim Ntawv"
+    },
+    "process_flow": {
+      "en": "Process Flow",
+      "es": "Flujo del Proceso",
+      "es": "Socodka Habka",
+      "hm": "Txheej Txheem"
+    },
+    "disclaimer": {
+      "en": "This is informational only. Not legal advice. Consult a licensed attorney.",
+      "es": "Esto es solo informativo. No es asesoramiento legal. Consulte a un abogado con licencia.",
+      "so": "Tani waa macluumaad kaliya. Maaha talo sharci. La xiriir qareen sharci ah.",
+      "hm": "Qhov no tsuas yog cov ntaub ntawv xwb. Tsis yog kev pab cai lij choj. Sab laj nrog tus kws lij choj."
+    }
+  }
+}

@@ -11,7 +11,7 @@ from preliminary_learning import PreliminaryLearningModule
 from user_database import log_user_interaction
 from datetime import datetime
 
-learning_dashboard_bp = Blueprint('learning_dashboard', __name__, url_prefix='/api/learning')
+learning_dashboard_bp = Blueprint('learning_dashboard_api', __name__, url_prefix='/api/learning')
 
 
 @learning_dashboard_bp.route('/suggestions', methods=['GET'])

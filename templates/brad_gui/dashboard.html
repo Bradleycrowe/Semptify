@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brad's Dashboard - Semptify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Desktop-optimized: 1920x1080+ */
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Layout: 3-column grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Storage Status Panel (Left) */
+        .storage-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .storage-panel h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .storage-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .storage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .storage-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-healthy {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-degraded {
+            background: #FF9800;
+            color: white;
+        }
+
+        .status-error {
+            background: #F44336;
+            color: white;
+        }
+
+        .status-unknown {
+            background: #9E9E9E;
+            color: white;
+        }
+
+        .storage-message {
+            font-size: 13px;
+            color: #ddd;
+            margin-top: 5px;
+        }
+
+        /* Clients Panel (Center) */
+        .clients-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 600px;
+        }
+
+        .clients-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .clients-header h2 {
+            font-size: 24px;
+        }
+
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .client-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .client-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .client-card.active {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .client-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .client-info {
+            font-size: 13px;
+            color: #ddd;
+            margin-bottom: 5px;
+        }
+
+        .client-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ccc;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* AI Assistant Panel (Right) */
+        .ai-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+        }
+
+        .ai-panel h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .ai-chat {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .ai-message {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .ai-message.user {
+            background: rgba(76, 175, 80, 0.3);
+            margin-left: 30px;
+        }
+
+        .ai-message.assistant {
+            background: rgba(103, 126, 234, 0.3);
+            margin-right: 30px;
+        }
+
+        .ai-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 14px;
+        }
+
+        .ai-input::placeholder {
+            color: #ccc;
+        }
+
+        .ai-send-btn {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .ai-send-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        /* Modal for adding client */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-input::placeholder {
+            color: #ccc;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        /* Streaming mode indicator */
+        .streaming-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .streaming-indicator.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>👨‍💻 Brad's Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="window.location.href='/brad/settings'">⚙️ Settings</button>
+                <button class="btn btn-primary" onclick="openAddClientModal()">➕ Add Client</button>
+            </div>
+
+    <!-- Edit Client Modal -->
+    <div class="modal" id="editClientModal">
+        <div class="modal-content">
+            <h2 class="modal-header">✏️ Edit Client</h2>
+
+            <div class="form-group">
+                <label class="form-label">Client Name *</label>
+                <input type="text" class="form-input" id="editClientName" placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contact (Phone/Email) *</label>
+                <input type="text" class="form-input" id="editClientContact" placeholder="555-123-4567 or email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-input" id="editClientAddress" placeholder="123 Main St, Eagan, MN">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Case Number</label>
+                <input type="text" class="form-input" id="editClientCaseNumber" placeholder="62-CV-25-1234">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <input type="text" class="form-input" id="editClientNotes" placeholder="Additional notes...">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-input" id="editClientStatus">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeEditClientModal()">Cancel</button>
+                <button class="btn btn-primary" id="saveEditsBtn" onclick="saveEdits()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+        </div>
+
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+            <!-- Storage Status (Left) -->
+            <div class="storage-panel">
+                <h2>☁️ Storage Status</h2>
+                
+                <div class="storage-item">
+                    <div class="storage-header">
+                        <span class="storage-name">R2 Storage</span>
+                        <span class="status-badge status-{{ storage_health.r2.status }}">
+                            {{ storage_health.r2.status|upper }}
+                        </span>
+                    </div>
+                    <div class="storage-message">{{ storage_health.r2.message }}</div>
+                    <div class="storage-message" style="margin-top: 10px; font-weight: 600;">
+                        🎯 Primary Storage
+                    </div>
+                </div>
+
+                <div class="storage-item">
+                    <div class="storage-header">
+                        <span class="storage-name">Google Drive</span>
+                        <span class="status-badge status-{{ storage_health.gdrive.status }}">
+                            {{ storage_health.gdrive.status|upper }}
+                        </span>
+                    </div>
+                    <div class="storage-message">{{ storage_health.gdrive.message }}</div>
+                    <div class="storage-message" style="margin-top: 10px; font-weight: 600;">
+                        🔄 Fallback Storage
+                    </div>
+                </div>
+
+                <div class="storage-item">
+                    <div class="storage-header">
+                        <span class="storage-name">Local Storage</span>
+                        <span class="status-badge status-{{ storage_health.local.status }}">
+                            {{ storage_health.local.status|upper }}
+                        </span>
+                    </div>
+                    <div class="storage-message">{{ storage_health.local.message }}</div>
+                    <div class="storage-message" style="margin-top: 10px; font-weight: 600;">
+                        💾 Always Available
+                    </div>
+                </div>
+
+                <div style="margin-top: 25px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                    <div style="font-size: 13px; color: #ddd;">
+                        <strong>AI Provider:</strong> {{ ai_provider }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients (Center) -->
+            <div class="clients-panel">
+                <div class="clients-header">
+                    <h2>👥 Clients ({{ clients|length }})</h2>
+                </div>
+
+                {% if clients|length == 0 %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <h3>No Clients Yet</h3>
+                    <p>Add your first client to get started</p>
+                    <button class="btn btn-primary" onclick="openAddClientModal()" style="margin-top: 20px;">
+                        ➕ Add First Client
+                    </button>
+                </div>
+                {% else %}
+                <div class="clients-grid">
+                    {% for client in clients %}
+                    <div class="client-card {% if client.id == active_client_id %}active{% endif %}" 
+                         onclick="selectClient('{{ client.id }}')">
+                        <div class="client-name">{{ client.name }}</div>
+                        <div class="client-info">📞 {{ client.contact }}</div>
+                        {% if client.address %}
+                        <div class="client-info">🏠 {{ client.address }}</div>
+                        {% endif %}
+                        {% if client.case_number %}
+                        <div class="client-info">📂 Case: {{ client.case_number }}</div>
+                        {% endif %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <span class="client-status">{{ client.status }}</span>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="event.stopPropagation(); openEditModal('{{ client.id }}', '{{ client.name }}', '{{ client.contact }}', '{{ client.address or "" }}', '{{ client.case_number or "" }}', '{{ client.notes or "" }}', '{{ client.status }}')">✏️ Edit</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- AI Assistant (Right) -->
+            <div class="ai-panel">
+                <h2>
+                    <div class="ai-icon">🤖</div>
+                    AI Coding Assistant
+                </h2>
+                
+                                <div style="background: rgba(255,255,255,0.04); padding:12px; border-radius:8px; margin-bottom:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div><strong>Journeys</strong><div style="font-size:12px; color:#ddd;">Guided onboarding & evidence flows</div></div>
+                        <div>
+                            <button class="btn btn-secondary" onclick="seedJourneys()">Seed Journeys</button>
+                        </div>
+                    </div>
+                    <div id="journeysList" style="font-size:13px; color:#eee;">Loading...</div>
+                </div><div class="ai-chat" id="aiChat">
+                    <div class="ai-message assistant">
+                        👋 Hi Brad! I'm your AI coding assistant powered by Claude Sonnet 4.5. 
+                        I can help you with:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Writing Python code for Semptify</li>
+                            <li>Debugging Flask routes</li>
+                            <li>Creating database queries</li>
+                            <li>Designing UI components</li>
+                        </ul>
+                        Ask me anything!
+                    </div>
+                </div>
+
+                <div class="ai-input-container">
+                    <input type="text" 
+                           class="ai-input" 
+                           id="aiInput" 
+                           placeholder="Ask me to code something..."
+                           onkeypress="if(event.key==='Enter') sendAIMessage()">
+                    <button class="ai-send-btn" onclick="sendAIMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Client Modal -->
+    <div class="modal" id="addClientModal">
+        <div class="modal-content">
+            <h2 class="modal-header">➕ Add New Client</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Client Name *</label>
+                <input type="text" class="form-input" id="clientName" placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contact (Phone/Email) *</label>
+                <input type="text" class="form-input" id="clientContact" placeholder="555-123-4567 or email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-input" id="clientAddress" placeholder="123 Main St, Eagan, MN">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Case Number</label>
+                <input type="text" class="form-input" id="clientCaseNumber" placeholder="62-CV-25-1234">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <input type="text" class="form-input" id="clientNotes" placeholder="Additional notes...">
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeAddClientModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addClient()">Add Client</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Streaming Indicator -->
+    <div class="streaming-indicator" id="streamingIndicator">
+        🔴 LIVE
+    </div>
+
+    <script>
+        // Modal management
+        function openAddClientModal() {
+            document.getElementById('addClientModal').classList.add('active');
+        }
+
+        function closeAddClientModal() {
+            document.getElementById('addClientModal').classList.remove('active');
+        }
+
+        // Add client
+        async function addClient() {
+            const name = document.getElementById('clientName').value.trim();
+            const contact = document.getElementById('clientContact').value.trim();
+            const address = document.getElementById('clientAddress').value.trim();
+            const caseNumber = document.getElementById('clientCaseNumber').value.trim();
+            const notes = document.getElementById('clientNotes').value.trim();
+
+            if (!name || !contact) {
+                alert('Name and Contact are required');
+                return;
+            }
+
+            try {
+                const response = await fetch('/brad/api/clients', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name, contact, address,
+                        case_number: caseNumber,
+                        notes
+                    })
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to add client');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding client');
+            }
+        }
+
+        // Select/activate client
+        async function selectClient(clientId) {
+            try {
+                const response = await fetch(`/brad/api/clients/${clientId}/activate`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // AI Assistant
+        async function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const prompt = input.value.trim();
+
+            if (!prompt) return;
+
+            const chat = document.getElementById('aiChat');
+
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-message user';
+            userMsg.textContent = prompt;
+            chat.appendChild(userMsg);
+
+            input.value = '';
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const response = await fetch('/brad/api/ai/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({prompt, context: 'brad_dashboard'})
+                });
+
+                const data = await response.json();
+
+                // Add assistant response
+                const assistantMsg = document.createElement('div');
+                assistantMsg.className = 'ai-message assistant';
+                assistantMsg.textContent = data.response || data.error || 'No response';
+                chat.appendChild(assistantMsg);
+
+                chat.scrollTop = chat.scrollHeight;
+            } catch (error) {
+                console.error('AI Error:', error);
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'ai-message assistant';
+                errorMsg.textContent = '❌ Error communicating with AI';
+                chat.appendChild(errorMsg);
+            }
+        }
+
+                // Journeys UI
+        async function loadJourneys(){
+            try{
+                const res = await fetch('/brad/api/journeys');
+                const data = await res.json();
+                const box = document.getElementById('journeysList');
+                if(!data || !data.journeys || data.journeys.length===0){ box.innerText = 'No journeys available'; return; }
+                box.innerHTML = data.journeys.map(j=>`<div style="padding:8px 0; border-bottom:1px dashed rgba(255,255,255,0.03)"><strong>${j.title}</strong><div style="font-size:12px;color:#ccc">${j.description}</div></div>`).join('');
+            }catch(e){ console.error(e); document.getElementById('journeysList').innerText='Error loading journeys'; }
+        }
+
+        async function seedJourneys(){
+            try{
+                const res = await fetch('/brad/api/journeys/seed', { method:'POST' });
+                if(res.ok){ await loadJourneys(); alert('Journeys seeded') } else alert('Seed failed');
+            }catch(e){ alert('Seed failed'); console.error(e); }
+        }
+
+        // load journeys on open
+        loadJourneys();
+        // Edit client functions
+        let currentEditClientId = null;
+
+        function openEditModal(clientId, name, contact, address, caseNumber, notes, status) {
+            currentEditClientId = clientId;
+            document.getElementById('editClientName').value = name;
+            document.getElementById('editClientContact').value = contact;
+            document.getElementById('editClientAddress').value = address || '';
+            document.getElementById('editClientCaseNumber').value = caseNumber || '';
+            document.getElementById('editClientNotes').value = notes || '';
+            document.getElementById('editClientStatus').value = status;
+            document.getElementById('editClientModal').classList.add('active');
+        }
+
+        function closeEditClientModal() {
+            document.getElementById('editClientModal').classList.remove('active');
+            currentEditClientId = null;
+        }
+
+        async function saveEdits() {
+            if (!currentEditClientId) return;
+
+            const name = document.getElementById('editClientName').value.trim();
+            const contact = document.getElementById('editClientContact').value.trim();
+            const address = document.getElementById('editClientAddress').value.trim();
+            const caseNumber = document.getElementById('editClientCaseNumber').value.trim();
+            const notes = document.getElementById('editClientNotes').value.trim();
+            const status = document.getElementById('editClientStatus').value;
+
+            if (!name || !contact) {
+                alert('Name and Contact are required');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveEditsBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const response = await fetch(/brad/api/clients/, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name, contact, address,
+                        case_number: caseNumber,
+                        notes, status
+                    })
+                });
+
+                if (response.ok) {
+                    closeEditClientModal();
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert('Failed to update client: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating client');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes';
+            }
+        }
+
+        // Streaming mode detection (placeholder for OBS/streaming software)
+        // Can be triggered by URL param: ?streaming=1
+        if (window.location.search.includes('streaming=1')) {
+            document.getElementById('streamingIndicator').classList.add('active');
+        }
+    </script>
+</body>
+</html>
+
+
+

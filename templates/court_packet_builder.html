@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Court Packet Builder - Assemble Legal Documents</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .builder-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .step.completed {
+            background: #2196F3;
+            color: white;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .step.active .step-number {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .step.completed .step-number {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .checkbox-item label {
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .document-preview {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .document-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .document-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #2196F3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .document-info h3 {
+            color: #2196F3;
+            margin-bottom: 5px;
+        }
+
+        .document-info p {
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .document-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .status-ready {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .disclaimer {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .disclaimer h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer p {
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .step-indicator {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include "includes/navbar.html" %}
+
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Court Packet Builder</h1>
+            <p>Assemble complete court filing packets with all necessary documents</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step-1">
+                <div class="step-number">1</div>
+                Case Details
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-number">2</div>
+                Select Documents
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-number">3</div>
+                Review & Generate
+            </div>
+        </div>
+
+        <!-- Step 1: Case Details -->
+        <div class="builder-section" id="step1-content">
+            <h2 style="margin-bottom: 20px; font-size: 24px;">📋 Case Information</h2>
+            
+            <div class="form-section">
+                <div class="form-group">
+                    <label class="form-label">Case Type</label>
+                    <select class="form-select" id="case-type">
+                        <option value="">Select case type...</option>
+                        <option value="eviction">Eviction Defense</option>
+                        <option value="repair">Habitability/Repairs</option>
+                        <option value="discrimination">Housing Discrimination</option>
+                        <option value="retaliation">Retaliation</option>
+                        <option value="deposit">Security Deposit</option>
+                        <option value="other">Other Housing Issue</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Plaintiff/Landlord Name</label>
+                    <input type="text" class="form-input" id="landlord-name" placeholder="Enter landlord's full name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Property Address</label>
+                    <input type="text" class="form-input" id="property-address" placeholder="Street address, city, state, ZIP">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Name</label>
+                    <input type="text" class="form-input" id="tenant-name" placeholder="Your full legal name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Case Description</label>
+                    <textarea class="form-textarea" id="case-description" placeholder="Briefly describe the situation and what you're seeking from the court..."></textarea>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <div></div>
+                <button class="btn btn-primary" onclick="nextStep(1)">Next: Select Documents</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Document Selection -->
+        <div class="builder-section hidden" id="step2-content">
+            <h2 style="margin-bottom: 20px; font-size: 24px;">📄 Document Selection</h2>
+            <p style="margin-bottom: 20px; opacity: 0.9;">Select the documents you need to include in your court packet:</p>
+            
+            <div class="form-section">
+                <div class="checkbox-group" id="document-options">
+                    <!-- Documents will be populated based on case type -->
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevStep(2)">Back</button>
+                <button class="btn btn-primary" onclick="nextStep(2)">Next: Review Packet</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Review & Generate -->
+        <div class="builder-section hidden" id="step3-content">
+            <h2 style="margin-bottom: 20px; font-size: 24px;">📋 Review Your Court Packet</h2>
+            
+            <div class="document-preview">
+                <h3 style="margin-bottom: 20px; color: #2196F3;">Documents in Your Packet:</h3>
+                <div class="document-list" id="packet-preview">
+                    <!-- Packet contents will be shown here -->
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="prevStep(3)">Back</button>
+                <button class="btn btn-primary" id="generate-btn" onclick="generatePacket()">Generate Court Packet</button>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <h3>⚠️ Important Legal Notice</h3>
+            <p>This tool helps you assemble court documents but does not provide legal advice. The generated documents should be reviewed by a qualified attorney before filing. Court procedures vary by jurisdiction, and improper filing may result in case dismissal or other consequences.</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+        let caseData = {};
+
+        function updateStepIndicator() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(step-);
+                stepEl.classList.remove('active', 'completed');
+                
+                if (i < currentStep) {
+                    stepEl.classList.add('completed');
+                } else if (i === currentStep) {
+                    stepEl.classList.add('active');
+                }
+            }
+        }
+
+        function nextStep(fromStep) {
+            if (validateStep(fromStep)) {
+                // Hide current step
+                document.getElementById(step-content).classList.add('hidden');
+                
+                // Show next step
+                currentStep = fromStep + 1;
+                const nextContent = document.getElementById(step-content);
+                nextContent.classList.remove('hidden');
+                nextContent.classList.add('fade-in');
+                
+                updateStepIndicator();
+                
+                if (currentStep === 2) {
+                    populateDocumentOptions();
+                } else if (currentStep === 3) {
+                    generatePacketPreview();
+                }
+            }
+        }
+
+        function prevStep(fromStep) {
+            // Hide current step
+            document.getElementById(step-content).classList.add('hidden');
+            
+            // Show previous step
+            currentStep = fromStep - 1;
+            const prevContent = document.getElementById(step-content);
+            prevContent.classList.remove('hidden');
+            prevContent.classList.add('fade-in');
+            
+            updateStepIndicator();
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const caseType = document.getElementById('case-type').value;
+                const landlordName = document.getElementById('landlord-name').value;
+                const propertyAddress = document.getElementById('property-address').value;
+                const tenantName = document.getElementById('tenant-name').value;
+                
+                if (!caseType || !landlordName || !propertyAddress || !tenantName) {
+                    alert('Please fill in all required fields.');
+                    return false;
+                }
+                
+                caseData = {
+                    caseType,
+                    landlordName,
+                    propertyAddress,
+                    tenantName,
+                    description: document.getElementById('case-description').value
+                };
+            }
+            
+            return true;
+        }
+
+        function populateDocumentOptions() {
+            const caseType = caseData.caseType;
+            const optionsContainer = document.getElementById('document-options');
+            
+            const documentOptions = {
+                eviction: [
+                    { id: 'complaint', name: 'Answer to Complaint', description: 'Your formal response to the eviction lawsuit' },
+                    { id: 'affidavit', name: 'Affidavit of Facts', description: 'Sworn statement of your side of the story' },
+                    { id: 'witness', name: 'Witness Statements', description: 'Statements from people who know about your situation' },
+                    { id: 'evidence', name: 'Evidence Exhibits', description: 'Photos, documents, or other proof' },
+                    { id: 'counterclaim', name: 'Counterclaim', description: 'Your claims against the landlord' }
+                ],
+                repair: [
+                    { id: 'repair-request', name: 'Repair Request Letter', description: 'Formal written request for repairs' },
+                    { id: 'inspection', name: 'Inspection Report', description: 'Documented condition of the property' },
+                    { id: 'photos', name: 'Photo Evidence', description: 'Before/after photos of repair issues' },
+                    { id: 'witness', name: 'Witness Statements', description: 'Statements from other tenants/neighbors' },
+                    { id: 'repair-and-deduct', name: 'Repair and Deduct Notice', description: 'Notice of intent to repair and deduct costs' }
+                ],
+                discrimination: [
+                    { id: 'complaint-eeoc', name: 'EEOC Complaint', description: 'Federal discrimination complaint' },
+                    { id: 'timeline', name: 'Timeline of Events', description: 'Chronological record of discriminatory actions' },
+                    { id: 'comparables', name: 'Comparable Evidence', description: 'Evidence of different treatment' },
+                    { id: 'witness', name: 'Witness Statements', description: 'Statements from witnesses to discrimination' },
+                    { id: 'damages', name: 'Damages Calculation', description: 'Calculation of harm suffered' }
+                ],
+                default: [
+                    { id: 'complaint', name: 'Formal Complaint', description: 'Your main legal filing' },
+                    { id: 'affidavit', name: 'Affidavit', description: 'Sworn statement of facts' },
+                    { id: 'evidence', name: 'Evidence Package', description: 'Supporting documents and proof' },
+                    { id: 'witness', name: 'Witness Statements', description: 'Statements from witnesses' },
+                    { id: 'motion', name: 'Motion to Court', description: 'Request for specific court action' }
+                ]
+            };
+            
+            const options = documentOptions[caseType] || documentOptions.default;
+            
+            optionsContainer.innerHTML = options.map(option => 
+                <div class="checkbox-item">
+                    <input type="checkbox" id="" checked>
+                    <label for="">
+                        <strong></strong><br>
+                        <small style="color: rgba(255,255,255,0.7);"></small>
+                    </label>
+                </div>
+            ).join('');
+        }
+
+        function generatePacketPreview() {
+            const selectedDocs = Array.from(document.querySelectorAll('#document-options input:checked'))
+                .map(cb => ({
+                    id: cb.id,
+                    name: cb.nextElementSibling.querySelector('strong').textContent,
+                    description: cb.nextElementSibling.querySelector('small').textContent
+                }));
+            
+            const previewContainer = document.getElementById('packet-preview');
+            
+            const packetHtml = selectedDocs.map(doc => 
+                <div class="document-item">
+                    <div class="document-info">
+                        <h3></h3>
+                        <p></p>
+                    </div>
+                    <div class="document-status status-pending">Pending</div>
+                </div>
+            ).join('');
+            
+            previewContainer.innerHTML = packetHtml || '<p style="text-align: center; color: rgba(255,255,255,0.7);">No documents selected</p>';
+        }
+
+        function generatePacket() {
+            const selectedDocs = Array.from(document.querySelectorAll('#document-options input:checked'));
+            
+            if (selectedDocs.length === 0) {
+                alert('Please select at least one document to include in your packet.');
+                return;
+            }
+            
+            // Update status to show generation in progress
+            const generateBtn = document.getElementById('generate-btn');
+            generateBtn.textContent = 'Generating...';
+            generateBtn.disabled = true;
+            
+            // Simulate document generation
+            setTimeout(() => {
+                // Update document statuses
+                const statusElements = document.querySelectorAll('.document-status');
+                statusElements.forEach(status => {
+                    status.textContent = 'Ready';
+                    status.className = 'document-status status-ready';
+                });
+                
+                generateBtn.textContent = 'Download Court Packet';
+                generateBtn.onclick = downloadPacket;
+                generateBtn.disabled = false;
+                
+                alert('Court packet generated successfully! Click "Download Court Packet" to save your documents.');
+            }, 2000);
+        }
+
+        function downloadPacket() {
+            alert('Download functionality would integrate with document generation system. In a real implementation, this would create and download a ZIP file containing all court documents.');
+        }
+
+        // Initialize
+        updateStepIndicator();
+    </script>
+</body>
+</html>

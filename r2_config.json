@@ -1,0 +1,39 @@
+{
+  "_metadata": {
+    "version": "1.0",
+    "created": "2025-11-21",
+    "purpose": "R2 storage configuration and diagnostics for Semptify"
+  },
+  "bucket_structure": {
+    "users.db": "SQLite database for user accounts and tokens",
+    "learning_patterns.json": "AI learning patterns and sequences",
+    "admin_tokens.json": "Admin authentication tokens (hashed)",
+    "logs/": "Application logs directory",
+    "vault/": "User document storage (organized by user_id)"
+  },
+  "health_check": {
+    "status": "initialized",
+    "last_check": "2025-11-21T00:00:00Z",
+    "bucket_name": "Semptify",
+    "region": "auto"
+  },
+  "troubleshooting": {
+    "common_errors": {
+      "400_bad_request": "Check R2_ENDPOINT_URL format - should be https://<account_id>.r2.cloudflarestorage.com",
+      "403_forbidden": "Verify R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are correct",
+      "404_not_found": "Ensure R2_BUCKET_NAME='Semptify' exists in Cloudflare dashboard"
+    },
+    "required_env_vars": [
+      "R2_ACCOUNT_ID",
+      "R2_ACCESS_KEY_ID", 
+      "R2_SECRET_ACCESS_KEY",
+      "R2_BUCKET_NAME",
+      "R2_ENDPOINT_URL"
+    ]
+  },
+  "initialization": {
+    "auto_create_dirs": ["logs", "vault", "security", "data"],
+    "required_files": ["users.db", "learning_patterns.json"],
+    "backup_schedule": "daily"
+  }
+}
