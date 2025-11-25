@@ -2,7 +2,8 @@
 Journey Progress Blueprint
 Shows user's 5-stage progression: Newcomer → Documenting → Learning → Organizing → Ready
 """
-from flask import Blueprint, render_template, request, jsonify
+from flask import
+from curiosity_hooks import on_journey_step_completed Blueprint, render_template, request, jsonify
 from journey_automation import get_user_stage, get_next_milestone, get_stage_progress, check_and_advance
 
 journey_bp = Blueprint('journey', __name__, url_prefix='/journey')
@@ -47,5 +48,14 @@ def api_check_progress():
     
     # Check if user advanced
     result = check_and_advance(user_token, action_type)
+
+    # Trigger curiosity: What happens next in journey?
+    try:
+        if result.get('advanced'):
+            question = on_journey_step_completed(user_token, result.get('new_stage', action_type), result)
+            if question:
+                print(f'[CURIOSITY] {question}')
+    except Exception as e:
+        print(f'[WARN] Curiosity hook failed: {e}')
     
     return jsonify(result)

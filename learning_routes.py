@@ -5,7 +5,8 @@ Provides endpoints for self-learning capabilities.
 
 from flask import Blueprint, request, jsonify
 from engines.learning_engine import get_learning
-from security import validate_user_token, validate_admin_token
+from security import
+from curiosity_hooks import on_learning_module_completed validate_user_token, validate_admin_token
 
 learning_bp = Blueprint("learning", __name__, url_prefix="/api/learning")
 
@@ -38,6 +39,14 @@ def observe_action():
 
     learning = get_learning()
     learning.observe_action(user_id, action, context)
+
+    # Trigger curiosity: What did user learn?
+    try:
+        question = on_learning_module_completed(user_id, action, context)
+        if question:
+            print(f'[CURIOSITY] {question}')
+    except Exception as e:
+        print(f'[WARN] Curiosity hook failed: {e}')
 
     return jsonify({"status": "recorded", "action": action})
 
