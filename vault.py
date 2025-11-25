@@ -330,6 +330,13 @@ def upload():
     _add_user_document_mapping(uid, doc_id, filename)
 
     log_event("vault.upload", {"user_id": uid, "doc_id": doc_id, "sha256": sha})
+    # Trigger curiosity engine: Learn from this upload
+    try:
+        question = on_document_uploaded(uid, {'filename': filename, 'doc_id': doc_id, 'category': 'uploaded'})
+        if question:
+            print(f'[CURIOSITY] {question}')
+    except Exception as e:
+        print(f'[WARN] Curiosity hook failed: {e}')
     return jsonify({"ok": True, "doc_id": doc_id, "filename": filename, "sha256": sha}), 200
 
 
