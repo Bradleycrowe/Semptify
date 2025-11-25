@@ -339,14 +339,23 @@ def upload():
     except Exception as e:
         print(f'[WARN] Curiosity hook failed: {e}')
     
+    # PHASE 3: Trigger learning suggestions based on document type
+    try:
+        learning_suggestions = suggest_learning_from_document(uid, {
+            'filename': filename,
+            'doc_id': doc_id,
+            'doc_type': cert.get('intelligence', {}).get('doc_type', 'unknown'),
             'category': 'uploaded'
         })
         if learning_suggestions:
             print(f'[LEARNING] Modules: {learning_suggestions.get("modules", [])}')
+            cert['learning_suggestions'] = learning_suggestions
+            _write_json(cert_path, cert)
+    except Exception as e:
+        print(f'[WARN] Learning suggestion failed: {e}')
     
     # PHASE 5: Auto-advance journey based on upload milestone
     try:
-        # Count user's total uploads
         user_docs = _get_user_documents(uid)
         upload_count = len(user_docs) if user_docs else 1
         journey_result = auto_advance_journey(uid, 'upload', {
@@ -358,10 +367,8 @@ def upload():
             print(f'[JOURNEY] User advanced to: {journey_result.get("new_stage")}')
     except Exception as e:
         print(f'[WARN] Journey automation failed: {e}')
-            cert['learning_suggestions'] = learning_suggestions
-            _write_json(cert_path, cert)
-    except Exception as e:
-        print(f'[WARN] Learning suggestion failed: {e}')
+    
+    return jsonify({"ok": True, "doc_id": doc_id, "filename": filename, "sha256": sha}), 200
 
 
 @vault_bp.route('/vault/list', methods=['GET'])

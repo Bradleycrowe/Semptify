@@ -2,8 +2,8 @@
 Journey Progress Blueprint
 Shows user's 5-stage progression: Newcomer → Documenting → Learning → Organizing → Ready
 """
-from flask import
-from curiosity_hooks import on_journey_step_completed Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify
+from curiosity_hooks import on_journey_step_completed, auto_advance_journey
 from journey_automation import get_user_stage, get_next_milestone, get_stage_progress, check_and_advance
 
 journey_bp = Blueprint('journey', __name__, url_prefix='/journey')

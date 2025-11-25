@@ -95,6 +95,7 @@ def add_event_with_storage():
             if question:
                 print(f'[CURIOSITY] {question}')
         except Exception as e:
+            print(f'[WARN] Curiosity hook failed: {e}')
         
         # PHASE 5: Journey automation
         try:
@@ -106,8 +107,8 @@ def add_event_with_storage():
                 print(f'[JOURNEY] Advanced to: {journey_result.get("new_stage")}')
         except Exception as e:
             print(f'[WARN] Journey automation failed: {e}')
-            print(f'[WARN] Curiosity hook failed: {e}')
-                return jsonify({
+        
+        return jsonify({
             'ok': True,
             'message': f'Event stored with {len(document_ids)} document(s)',
             'event_id': catalog_entry['event_id'],
