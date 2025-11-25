@@ -95,6 +95,17 @@ def add_event_with_storage():
             if question:
                 print(f'[CURIOSITY] {question}')
         except Exception as e:
+        
+        # PHASE 5: Journey automation
+        try:
+            journey_result = auto_advance_journey(user_token, 'calendar', {
+                'action_type': 'calendar_event',
+                'event_type': event_data.get('event_type', 'general')
+            })
+            if journey_result and journey_result.get('advanced'):
+                print(f'[JOURNEY] Advanced to: {journey_result.get("new_stage")}')
+        except Exception as e:
+            print(f'[WARN] Journey automation failed: {e}')
             print(f'[WARN] Curiosity hook failed: {e}')
                 return jsonify({
             'ok': True,

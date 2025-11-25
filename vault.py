@@ -27,7 +27,7 @@ import hashlib
 import json
 import uuid
 from datetime import datetime
-from curiosity_hooks import on_document_uploaded, get_next_question_for_user, suggest_learning_from_document
+from curiosity_hooks import on_document_uploaded, get_next_question_for_user, suggest_learning_from_document, auto_advance_journey
 import time
 from typing import Tuple
 from werkzeug.utils import secure_filename
@@ -343,6 +343,21 @@ def upload():
         })
         if learning_suggestions:
             print(f'[LEARNING] Modules: {learning_suggestions.get("modules", [])}')
+    
+    # PHASE 5: Auto-advance journey based on upload milestone
+    try:
+        # Count user's total uploads
+        user_docs = _get_user_documents(uid)
+        upload_count = len(user_docs) if user_docs else 1
+        journey_result = auto_advance_journey(uid, 'upload', {
+            'upload_count': upload_count,
+            'has_certificate': True,
+            'action_type': 'vault_upload'
+        })
+        if journey_result and journey_result.get('advanced'):
+            print(f'[JOURNEY] User advanced to: {journey_result.get("new_stage")}')
+    except Exception as e:
+        print(f'[WARN] Journey automation failed: {e}')
             cert['learning_suggestions'] = learning_suggestions
             _write_json(cert_path, cert)
     except Exception as e:

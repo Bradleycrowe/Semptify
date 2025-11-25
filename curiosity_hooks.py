@@ -260,3 +260,56 @@ def suggest_learning_from_document(user_id: str, doc_info: Dict) -> Optional[Dic
     )
     
     return suggestions
+# ========================================================================
+# PHASE 5: JOURNEY AUTOMATION - Auto-advance based on user progress
+# ========================================================================
+
+def auto_advance_journey(user_id: str, action: str, context: Dict) -> Optional[Dict]:
+    '''
+    Automatically detect milestones and advance user's journey
+    
+    Args:
+        user_id: User token
+        action: Action performed (upload, event, learning, etc.)
+        context: Additional context about the action
+    
+    Returns:
+        Dict with journey update: {advanced: bool, new_stage: str, milestone: str}
+    '''
+    from journey_automation import check_and_advance, get_user_stage
+    
+    # Map actions to journey milestones
+    milestone_triggers = {
+        'first_upload': lambda ctx: ctx.get('upload_count') == 1,
+        'upload_5_docs': lambda ctx: ctx.get('upload_count', 0) >= 5,
+        'add_timeline_event': lambda ctx: ctx.get('action_type') == 'calendar_event',
+        'create_notary_cert': lambda ctx: ctx.get('has_certificate') == True,
+        'complete_module': lambda ctx: ctx.get('action_type') == 'learning_complete',
+        'track_rent_payment': lambda ctx: 'payment' in ctx.get('action_type', '').lower(),
+        'log_maintenance': lambda ctx: 'repair' in ctx.get('action_type', '').lower() or 'maintenance' in ctx.get('action_type', '').lower(),
+        'calendar_event': lambda ctx: ctx.get('action_type') == 'calendar_event'
+    }
+    
+    # Detect which milestone was achieved
+    milestone_detected = None
+    for milestone, condition in milestone_triggers.items():
+        if condition(context):
+            milestone_detected = milestone
+            break
+    
+    if milestone_detected:
+        # Check and potentially advance journey
+        result = check_and_advance(user_id, milestone_detected)
+        
+        old_stage = get_user_stage(user_id)
+        new_stage = result.get('current_stage')
+        
+        return {
+            'advanced': old_stage != new_stage,
+            'new_stage': new_stage,
+            'milestone': milestone_detected,
+            'completed_milestones': result.get('completed_milestones', [])
+        }
+    
+    return None
+
