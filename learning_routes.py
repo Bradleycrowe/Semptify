@@ -5,8 +5,8 @@ Provides endpoints for self-learning capabilities.
 
 from flask import Blueprint, request, jsonify
 from engines.learning_engine import get_learning
-from security import
-from curiosity_hooks import on_learning_module_completed, auto_advance_journey validate_user_token, validate_admin_token
+from security import validate_user_token, validate_admin_token
+from curiosity_hooks import on_learning_module_completed, auto_advance_journey
 
 learning_bp = Blueprint("learning", __name__, url_prefix="/api/learning")
 
