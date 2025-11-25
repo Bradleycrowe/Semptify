@@ -231,3 +231,51 @@ def get_stats():
     }
 
     return jsonify(stats)
+
+
+@learning_bp.route("/suggestions/<doc_id>", methods=["GET"])
+def get_document_learning_suggestions(doc_id):
+    """
+    Get learning suggestions for a specific uploaded document
+    
+    GET /api/learning/suggestions/<doc_id>?user_token=...
+    
+    Returns: {
+        "modules": ["eviction_defenses", ...],
+        "resources": ["Legal aid contacts", ...],
+        "next_steps": ["Review your eviction notice", ...]
+    }
+    """
+    user_token = request.args.get("user_token") or request.headers.get("X-User-Token")
+    user_id = validate_user_token(user_token)
+    
+    if not user_id:
+        return jsonify({"error": "unauthorized"}), 401
+    
+    # Read certificate file to get learning suggestions
+    import os
+    import json
+    
+    cert_path = os.path.join("uploads", "vault", doc_id, f"{doc_id}.cert.json")
+    
+    if not os.path.exists(cert_path):
+        return jsonify({"error": "document not found"}), 404
+    
+    try:
+        with open(cert_path, 'r') as f:
+            cert = json.load(f)
+        
+        # Verify user owns this document
+        if cert.get("user_id") != user_id:
+            return jsonify({"error": "unauthorized"}), 403
+        
+        suggestions = cert.get("learning_suggestions", {
+            "modules": [],
+            "resources": [],
+            "next_steps": []
+        })
+        
+        return jsonify(suggestions)
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

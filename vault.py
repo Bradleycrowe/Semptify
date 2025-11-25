@@ -27,6 +27,7 @@ import hashlib
 import json
 import uuid
 from datetime import datetime
+from curiosity_hooks import on_document_uploaded, get_next_question_for_user, suggest_learning_from_document
 import time
 from typing import Tuple
 from werkzeug.utils import secure_filename
@@ -338,6 +339,20 @@ def upload():
     except Exception as e:
         print(f'[WARN] Curiosity hook failed: {e}')
     return jsonify({"ok": True, "doc_id": doc_id, "filename": filename, "sha256": sha}), 200
+    
+    # PHASE 3: Trigger learning suggestions based on document type
+    try:
+        learning_suggestions = suggest_learning_from_document(uid, {
+            'filename': filename,
+            'doc_id': doc_id,
+            'category': 'uploaded'
+        })
+        if learning_suggestions:
+            print(f'[LEARNING] Modules: {learning_suggestions.get("modules", [])}')
+            cert['learning_suggestions'] = learning_suggestions
+            _write_json(cert_path, cert)
+    except Exception as e:
+        print(f'[WARN] Learning suggestion failed: {e}')
 
 
 @vault_bp.route('/vault/list', methods=['GET'])
