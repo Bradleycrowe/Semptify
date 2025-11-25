@@ -3,69 +3,143 @@
 {% block title %}Settings - Semptify{% endblock %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto; padding: 2rem;">
-    <h1 style="color: #2c3e50; margin-bottom: 1rem;">⚙️ Settings</h1>
+<div class="settings-container" style="max-width: 800px; margin: 40px auto; padding: 20px;">
     
-    <div style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-        <h2 style="color: #34495e; font-size: 1.3rem; margin-bottom: 1rem;">User Preferences</h2>
-        <form method="post" action="/settings/update">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <h1 style="color: #6c63ff; margin-bottom: 30px;">⚙️ Account Settings</h1>
+    
+    <!-- Account Information -->
+    <div class="settings-section" style="background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; margin-bottom: 20px;">📋 Account Information</h2>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Token (ID):</strong>
+            <code style="background: #f5f5f5; padding: 8px 12px; border-radius: 4px; display: inline-block; margin-left: 10px;">
+                {{ token_masked }}
+            </code>
+            <button onclick="copyToken()" style="margin-left: 10px; padding: 6px 12px; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                📋 Copy Full Token
+            </button>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Storage Provider:</strong>
+            <span style="margin-left: 10px; padding: 6px 12px; background: #e8f5e9; color: #2e7d32; border-radius: 4px;">
+                {% if storage_provider == 'google_drive' %}
+                    🔵 Google Drive
+                {% elif storage_provider == 'dropbox' %}
+                    🔷 Dropbox
+                {% elif storage_provider == 'local' %}
+                    💻 Local Storage
+                {% else %}
+                    ❓ {{ storage_provider }}
+                {% endif %}
+            </span>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <strong>Account Created:</strong>
+            <span style="margin-left: 10px;">{{ created_at }}</span>
+        </div>
+    </div>
+    
+    <!-- Quick Links -->
+    <div class="settings-section" style="background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; margin-bottom: 20px;">🔗 Quick Links</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <a href="{{ vault_url }}" style="padding: 15px; background: #f5f5f5; border-radius: 6px; text-decoration: none; color: #333; text-align: center; transition: background 0.3s;">
+                📁 Access Vault
+            </a>
             
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Display Name</label>
-                <input type="text" name="display_name" placeholder="Your name (optional)" 
-                       style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
+            {% if timeline_url %}
+            <a href="{{ timeline_url }}" style="padding: 15px; background: #f5f5f5; border-radius: 6px; text-decoration: none; color: #333; text-align: center; transition: background 0.3s;">
+                📅 View Timeline
+            </a>
+            {% endif %}
             
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Notification Preferences</label>
-                <label style="display: block; margin-bottom: 0.5rem;">
-                    <input type="checkbox" name="email_notifications" checked style="margin-right: 0.5rem;">
-                    Email notifications for important updates
-                </label>
-                <label style="display: block;">
-                    <input type="checkbox" name="deadline_reminders" checked style="margin-right: 0.5rem;">
-                    Deadline and court date reminders
-                </label>
-            </div>
+            <a href="/file-complaint" style="padding: 15px; background: #f5f5f5; border-radius: 6px; text-decoration: none; color: #333; text-align: center; transition: background 0.3s;">
+                ⚖️ File Complaint
+            </a>
             
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Data Storage</label>
-                <p style="color: #7f8c8d; margin-bottom: 0.5rem;">Your documents are encrypted and stored securely</p>
-                <label style="display: block;">
-                    <input type="checkbox" name="auto_backup" checked style="margin-right: 0.5rem;">
-                    Automatic backup to cloud storage (R2)
-                </label>
-            </div>
-            
-            <button type="submit" style="background: #3498db; color: white; padding: 0.75rem 2rem; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">
-                Save Settings
+            <a href="/" style="padding: 15px; background: #f5f5f5; border-radius: 6px; text-decoration: none; color: #333; text-align: center; transition: background 0.3s;">
+                🏠 Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <!-- Storage Management -->
+    <div class="settings-section" style="background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; margin-bottom: 20px;">💾 Storage Management</h2>
+        
+        <p style="margin-bottom: 15px; color: #666;">
+            Your documents are stored in <strong>YOUR {{ storage_provider }}</strong>. Semptify does not store your files on our servers.
+        </p>
+        
+        <form method="POST" action="/settings/change-storage" style="margin-top: 20px;">
+            <input type="hidden" name="user_token" value="{{ token }}">
+            <button type="submit" style="padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px;">
+                🔄 Change Storage Provider
             </button>
         </form>
+        
+        <p style="margin-top: 15px; font-size: 14px; color: #999;">
+            Note: Changing provider will require re-authorization and data migration.
+        </p>
     </div>
     
-    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; margin-bottom: 2rem; border-radius: 4px;">
-        <h3 style="margin-top: 0; color: #856404;">🔐 Security & Privacy</h3>
-        <p style="margin-bottom: 0.5rem;">• Your user token is never stored in plain text</p>
-        <p style="margin-bottom: 0.5rem;">• Documents are encrypted with your token</p>
-        <p style="margin-bottom: 0;">• We never share your data with third parties</p>
+    <!-- Privacy & Security -->
+    <div class="settings-section" style="background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; margin-bottom: 20px;">🔒 Privacy & Security</h2>
+        
+        <ul style="line-height: 1.8; color: #666;">
+            <li>✅ Your token is hashed (SHA-256) on our servers</li>
+            <li>✅ Your documents stay in YOUR cloud storage</li>
+            <li>✅ Semptify never sees your files</li>
+            <li>✅ You can revoke access anytime via {{ storage_provider }} settings</li>
+            <li>⚠️ Keep your token secure - it cannot be recovered if lost</li>
+        </ul>
     </div>
     
-    <div style="background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <h2 style="color: #34495e; font-size: 1.3rem; margin-bottom: 1rem;">Account Actions</h2>
-        <a href="/vault" style="display: inline-block; background: #27ae60; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 4px; margin-right: 1rem;">
-            📁 Manage Vault
-        </a>
-        <a href="/timeline" style="display: inline-block; background: #9b59b6; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 4px; margin-right: 1rem;">
-            📅 View Timeline
-        </a>
-        <a href="/register" style="display: inline-block; background: #95a5a6; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 4px;">
-            🔑 Get New Token
-        </a>
+    <!-- Documentation -->
+    <div class="settings-section" style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; margin-bottom: 20px;">📚 Documentation</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+            <a href="/static/USER_GUIDE.md" target="_blank" style="padding: 15px; background: #e3f2fd; border-radius: 6px; text-decoration: none; color: #1976d2; text-align: center;">
+                📖 User Guide
+            </a>
+            
+            <a href="/static/README.md" target="_blank" style="padding: 15px; background: #f3e5f5; border-radius: 6px; text-decoration: none; color: #7b1fa2; text-align: center;">
+                📝 README
+            </a>
+            
+            <a href="https://github.com/Bradleycrowe/SemptifyGUI" target="_blank" style="padding: 15px; background: #fce4ec; border-radius: 6px; text-decoration: none; color: #c2185b; text-align: center;">
+                🐙 GitHub
+            </a>
+        </div>
     </div>
     
-    <div style="margin-top: 2rem; text-align: center;">
-        <a href="/" style="color: #3498db; text-decoration: none;">← Back to Dashboard</a>
-    </div>
 </div>
+
+<script>
+function copyToken() {
+    const token = '{{ token }}';
+    navigator.clipboard.writeText(token).then(() => {
+        alert('✅ Token copied to clipboard!');
+    }).catch(() => {
+        prompt('Copy your token:', token);
+    });
+}
+
+// Add hover effect to links
+document.querySelectorAll('a[style*="background: #f5f5f5"]').forEach(link => {
+    link.addEventListener('mouseenter', () => {
+        link.style.background = '#e0e0e0';
+    });
+    link.addEventListener('mouseleave', () => {
+        link.style.background = '#f5f5f5';
+    });
+});
+</script>
+
 {% endblock %}
