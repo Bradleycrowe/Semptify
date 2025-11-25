@@ -104,12 +104,13 @@ except NameError:
     print('[WARN] Dashboard API not available')
 
 
-try:
-    from register import register_bp
-    app.register_blueprint(register_bp)
-    print('[OK] Registration blueprint registered')
-except ImportError as e:
-    print(f'[WARN] Registration blueprint not available: {e}')
+# REMOVED: Legacy registration - Semptify uses storage-based identity
+# try:
+#     from register import register_bp
+#     app.register_blueprint(register_bp)
+#     print('[OK] Registration blueprint registered')
+# except ImportError as e:
+#     print(f'[WARN] Registration blueprint not available: {e}')
 
 try:
     from vault import vault_bp
@@ -263,8 +264,9 @@ def admin_status():
         return render_template('verify.html')
     # Process verification
     return redirect(url_for('index'))
-def register():
-    return render_template('register.html')
+# REMOVED: Legacy registration function
+# def register():
+#     return render_template('register.html')
 
 
 @app.route('/copilot')

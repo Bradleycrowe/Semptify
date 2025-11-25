@@ -1,0 +1,27 @@
+# Add this import at top of vault.py (after curiosity_hooks import)
+from curiosity_hooks import on_document_uploaded, suggest_learning_from_document
+
+# Replace the curiosity hook section with this enhanced version:
+    # Trigger curiosity engine: Learn from this upload
+    try:
+        question = on_document_uploaded(uid, {'filename': filename, 'doc_id': doc_id, 'category': 'uploaded'})
+        if question:
+            print(f'[CURIOSITY] {question}')
+    except Exception as e:
+        print(f'[WARN] Curiosity hook failed: {e}')
+    
+    # PHASE 3: Trigger learning suggestions based on document type
+    try:
+        learning_suggestions = suggest_learning_from_document(uid, {
+            'filename': filename,
+            'doc_id': doc_id,
+            'doc_type': cert.get('intelligence', {}).get('doc_type', 'unknown'),
+            'category': 'uploaded'
+        })
+        if learning_suggestions:
+            print(f'[LEARNING] Suggested modules: {learning_suggestions.get("modules", [])}')
+            # Store suggestions in certificate for retrieval later
+            cert['learning_suggestions'] = learning_suggestions
+            _write_json(cert_path, cert)
+    except Exception as e:
+        print(f'[WARN] Learning suggestion failed: {e}')
