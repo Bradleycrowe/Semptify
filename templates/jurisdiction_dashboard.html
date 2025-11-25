@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurisdiction Engine Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+        }
+        h1 { color: #333; }
+        .test-section {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .result {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .module-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>��️ Jurisdiction Engine Dashboard</h1>
+        <p>Test auto-generation of eviction defense modules for any county/state</p>
+        
+        <div class="test-section">
+            <h2>🔍 Test Jurisdiction Detection</h2>
+            <input type="text" id="testQuery" placeholder="Try: 'I need help with Hennepin County Minnesota eviction'">
+            <button onclick="testDetection()">Detect Jurisdiction</button>
+            <div id="detectionResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>��️ Generated Modules</h2>
+            <button onclick="loadModules()">Load All Modules</button>
+            <div id="modulesList"></div>
+        </div>
+    </div>
+    
+    <script>
+        async function testDetection() {
+            const query = document.getElementById('testQuery').value;
+            const result = document.getElementById('detectionResult');
+            result.style.display = 'block';
+            result.innerHTML = '⏳ Detecting jurisdiction...';
+            
+            try {
+                const response = await fetch('/jurisdiction/detect', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query: query})
+                });
+                
+                const data = await response.json();
+                
+                if (data.detected) {
+                    let html = `<h3>✅ Detected: ${data.jurisdiction.full_name}</h3>`;
+                    html += `<p>Type: ${data.jurisdiction.type}</p>`;
+                    
+                    if (data.generated) {
+                        html += `<p style="color: green;">🎉 Module generated! ${data.metadata.files.length} files created</p>`;
+                        html += `<a href="${data.redirect_url}" target="_blank">
+                            <button>Open Module →</button>
+                        </a>`;
+                    } else if (data.module_exists) {
+                        html += `<p>Module already exists!</p>`;
+                        html += `<a href="${data.redirect_url}" target="_blank">
+                            <button>Open Module →</button>
+                        </a>`;
+                    }
+                    
+                    result.innerHTML = html;
+                } else {
+                    result.innerHTML = '❌ No jurisdiction detected. Try mentioning a county or state.';
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+        
+        async function loadModules() {
+            const list = document.getElementById('modulesList');
+            list.innerHTML = '⏳ Loading modules...';
+            
+            try {
+                const response = await fetch('/jurisdiction/list');
+                const data = await response.json();
+                
+                if (data.modules.length === 0) {
+                    list.innerHTML = '<p>No modules generated yet. Test detection above!</p>';
+                    return;
+                }
+                
+                let html = `<h3>Total Modules: ${data.count}</h3>`;
+                
+                data.modules.forEach(module => {
+                    html += `
+                        <div class="module-card">
+                            <h4>⚖️ ${module.jurisdiction.full_name}</h4>
+                            <p>Created: ${new Date(module.created_at).toLocaleString()}</p>
+                            <p>Files: ${module.files.length}</p>
+                            <a href="${module.url_prefix}" target="_blank">
+                                <button>Open Module</button>
+                            </a>
+                        </div>
+                    `;
+                });
+                
+                list.innerHTML = html;
+            } catch (error) {
+                list.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

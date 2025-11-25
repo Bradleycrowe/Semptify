@@ -196,6 +196,14 @@ try:
     print('[OK] Dakota County Eviction Defense Library registered at /library/dakota')
 except ImportError as e:
     print(f'[WARN] Dakota Library not available: {e}')
+# Jurisdiction Engine - Auto-generate modules for any county/state
+try:
+    from jurisdiction_engine_routes import jurisdiction_engine_bp
+    app.register_blueprint(jurisdiction_engine_bp)
+    print('[OK] Jurisdiction Engine registered at /jurisdiction/*')
+    print('     → Auto-generates modules for any county/state on-demand')
+except ImportError as e:
+    print(f'[WARN] Jurisdiction Engine not available: {e}')
 # GUI Hub - Landing page and interface launcher
 try:
     from gui_hub_routes import gui_hub_bp
@@ -376,4 +384,5 @@ try:
     print("[OK] research_bp registered")
 except ImportError as e:
     print(f"[WARN] Research routes not available: {e}")
+
 
