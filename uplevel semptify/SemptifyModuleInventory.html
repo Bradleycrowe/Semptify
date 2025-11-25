@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Semptify Module Inventory</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+    header { background: #2d3e50; color: #fff; padding: 1em; text-align: center; }
+    .container { max-width: 900px; margin: 2em auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0002; padding: 2em; }
+    h2 { margin-top: 2em; }
+    .module-list { list-style: none; padding: 0; }
+    .module-item { margin-bottom: 1em; border-bottom: 1px solid #eee; padding-bottom: 1em; }
+    .variant { color: #2d3e50; font-weight: bold; }
+    .submodules { margin-left: 1em; }
+    .toggle { cursor: pointer; color: #007bff; text-decoration: underline; }
+    .hidden { display: none; }
+    .search { margin-bottom: 2em; }
+    input[type="text"] { padding: 0.5em; width: 100%; border-radius: 4px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Semptify Module Inventory</h1>
+    <p>Comprehensive inventory of all Semptify modules, variants, and submodules</p>
+  </header>
+  <div class="container">
+    <div class="search">
+      <input type="text" id="searchBox" placeholder="Search modules..." oninput="filterModules()">
+    </div>
+    <ul class="module-list" id="moduleList">
+      <!-- Module items will be injected here -->
+    </ul>
+  </div>
+  <script>
+    // Inventory data (auto-generated from file search)
+    const modules = [
+      {
+        name: "Semptify.py",
+        path: "Semptify/Semptify.py",
+        variants: ["Semptify", "SemptifyGUI", "SemptifyTools"],
+        submodules: ["SemptifyCleanupGUI.py", "SemptifyAppGUI.py", "semptify_ui.py", "semptify_blueprint_saver.py", "run_semptify_gui.py"]
+      },
+      {
+        name: "SemptifyAppGUI.py",
+        path: "Semptify/SemptifyAppGUI.py",
+        variants: ["SemptifyAppGUI"],
+        submodules: ["SemptifyAppGUI.ts", "SemptifyAppGUI.ui"]
+      },
+      {
+        name: "semptify-verify-module",
+        path: "Semptify/semptify-verify-module/",
+        variants: ["semptify-verify-module", "semptify-verify-module-1"],
+        submodules: ["verify_module.py", "verify_tests.py", "README_VERIFY.md", "demo_manifest.json", "config.example.env", "verify_schema.json", "__init__.py"]
+      },
+      {
+        name: "SemptifyGUI",
+        path: "Semptify/SemptifyGUI/",
+        variants: ["SemptifyGUI"],
+        submodules: ["PushAndDeploy-Semptify.ps1", "Push-Semptify.ps1", "Semptify_Verify.ps1", "SemptifyCleanupGUI.py", "Semptify.py", "Deploy-Semptify.ps1", "AllInOne-Semptify.ps1"]
+      },
+      {
+        name: "semptify_one.ps1",
+        path: "Semptify/scripts/semptify_one.ps1",
+        variants: ["semptify_one.ps1"],
+        submodules: []
+      },
+      {
+        name: "setup_semptify.ps1",
+        path: "Semptify/setup_semptify.ps1",
+        variants: ["setup_semptify.ps1"],
+        submodules: []
+      },
+      {
+        name: "rename_and_run_semptify.ps1",
+        path: "Semptify/rename_and_run_semptify.ps1",
+        variants: ["rename_and_run_semptify.ps1"],
+        submodules: []
+      },
+      {
+        name: "semptify-delivery-openapi.yaml",
+        path: "Semptify/api/specs/semptify-delivery-openapi.yaml",
+        variants: ["semptify-delivery-openapi.yaml"],
+        submodules: []
+      },
+      {
+        name: "semptify-delivery.d.ts",
+        path: "Semptify/types/semptify-delivery.d.ts",
+        variants: ["semptify-delivery.d.ts"],
+        submodules: []
+      },
+      {
+        name: "semptify_all_modules.html",
+        path: "Semptify/templates/law_notes/semptify_all_modules.html",
+        variants: ["semptify_all_modules.html"],
+        submodules: []
+      }
+      // ...add more discovered modules here as needed
+    ];
+
+    function renderModules(list) {
+      const ul = document.getElementById('moduleList');
+      ul.innerHTML = '';
+      list.forEach((mod, idx) => {
+        const li = document.createElement('li');
+        li.className = 'module-item';
+        li.innerHTML = `
+          <span class="variant">${mod.name}</span> <small>(${mod.path})</small><br>
+          <span>Variants: ${mod.variants.join(', ')}</span>
+          ${mod.submodules.length ? `<div><span class="toggle" onclick="toggleSubmodules(${idx})">Show submodules (${mod.submodules.length})</span><ul class="submodules hidden" id="submodules-${idx}">${mod.submodules.map(s => `<li>${s}</li>`).join('')}</ul></div>` : ''}
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    function toggleSubmodules(idx) {
+      const el = document.getElementById('submodules-' + idx);
+      if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function filterModules() {
+      const val = document.getElementById('searchBox').value.toLowerCase();
+      renderModules(modules.filter(m => m.name.toLowerCase().includes(val) || m.variants.some(v => v.toLowerCase().includes(val)) || m.path.toLowerCase().includes(val)));
+    }
+
+    // Initial render
+    renderModules(modules);
+  </script>
+</body>
+</html>

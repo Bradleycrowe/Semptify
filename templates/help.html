@@ -1,0 +1,323 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Help Center - Semptify{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Help Center</h1>
+    <p class="lead">Get answers to common questions and learn how to use Semptify effectively.</p>
+    
+    <div class="alert alert-info mt-4">
+        <strong>Need Immediate Legal Help?</strong>
+        <ul class="mb-0">
+            <li><strong>HOME Line:</strong> 1-888-575-2954 (Free tenant hotline)</li>
+            <li><strong>Legal Aid:</strong> <a href="https://www.smrls.org/" target="_blank" class="alert-link">SMRLS</a> | <a href="https://mylegalaid.org/" target="_blank" class="alert-link">Legal Aid Society</a></li>
+            <li><strong>Emergency:</strong> Call 911 for immediate danger</li>
+        </ul>
+    </div>
+    
+    <h2 class="mt-5">📚 Quick Start Guides</h2>
+    <div class="row mt-3">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🔐 Getting Started</h5>
+                    <p class="card-text">Set up your account and learn the basics.</p>
+                    <ol class="small">
+                        <li>Visit <code>/setup</code> to register</li>
+                        <li>Save your 12-digit token (we can't recover it!)</li>
+                        <li>Bookmark <code>/?user_token=YOUR_TOKEN</code></li>
+                        <li>Explore the Legal Library and Vault</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📂 Document Vault</h5>
+                    <p class="card-text">Store evidence securely with cryptographic attestation.</p>
+                    <ol class="small">
+                        <li>Go to <a href="/vault?user_token={{ user_token or request.args.get('user_token') }}">Document Vault</a></li>
+                        <li>Upload photos, PDFs, emails as evidence</li>
+                        <li>Each upload gets a SHA-256 certificate</li>
+                        <li>Optionally sync to your Google Drive or Dropbox</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">⚖️ Filing a Complaint</h5>
+                    <p class="card-text">Generate court-ready complaint packets.</p>
+                    <ol class="small">
+                        <li>Visit <a href="/file-complaint?user_token={{ user_token or request.args.get('user_token') }}">File Complaint</a></li>
+                        <li>Answer guided questions about your case</li>
+                        <li>System generates a PDF complaint packet</li>
+                        <li><strong>Review with an attorney before filing!</strong></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📅 Calendar & Timeline</h5>
+                    <p class="card-text">Track important dates and case events.</p>
+                    <ol class="small">
+                        <li>Go to <a href="/calendar-timeline?user_token={{ user_token or request.args.get('user_token') }}">Calendar</a></li>
+                        <li>Add events (rent due, court dates, inspections)</li>
+                        <li>View timeline of your case</li>
+                        <li>Export to .ics for your phone/calendar app</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="mt-5">❓ Frequently Asked Questions</h2>
+    
+    <div class="accordion mt-3" id="faqAccordion">
+        <!-- Account & Security -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq1">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                    🔐 How do I access my account?
+                </button>
+            </h2>
+            <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p>Semptify uses <strong>anonymous 12-digit tokens</strong> instead of email/password.</p>
+                    <ul>
+                        <li>Visit <code>/setup</code> to register and get your token</li>
+                        <li>Access Semptify by adding <code>?user_token=YOUR_TOKEN</code> to URLs</li>
+                        <li>Bookmark your home page with token: <code>/?user_token=123456789012</code></li>
+                        <li><strong>Save your token securely - we cannot recover lost tokens</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                    🔒 Is my data secure?
+                </button>
+            </h2>
+            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p><strong>Yes!</strong> Semptify uses multiple security measures:</p>
+                    <ul>
+                        <li><strong>AES-256-GCM encryption</strong> for sensitive data at rest</li>
+                        <li><strong>SHA-256 hashing</strong> for user tokens</li>
+                        <li><strong>Rate limiting</strong> to prevent brute force attacks</li>
+                        <li><strong>CSRF protection</strong> on form submissions</li>
+                        <li><strong>Cryptographic attestation</strong> (SHA-256 certificates) for vault uploads</li>
+                        <li><strong>User-controlled cloud storage</strong> - your data stays in YOUR Drive/Dropbox</li>
+                    </ul>
+                    <p>See our <a href="/privacy?user_token={{ user_token or request.args.get('user_token') }}">Privacy Policy</a> for full details.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legal Information -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                    ⚖️ Is Semptify a lawyer? Do you provide legal advice?
+                </button>
+            </h2>
+            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p><strong>No.</strong> Semptify is for educational and self-help purposes only.</p>
+                    <ul>
+                        <li>❌ Semptify does NOT provide legal advice</li>
+                        <li>❌ AI responses are educational only, not legal advice</li>
+                        <li>❌ Documents generated are templates - not customized legal work</li>
+                        <li>✅ Semptify provides access to official MN statutes and resources</li>
+                        <li>✅ Tools help you organize your case and understand your rights</li>
+                        <li>✅ Always consult a licensed attorney for legal representation</li>
+                    </ul>
+                    <p><strong>Free legal help:</strong> <a href="https://homelinemn.org/" target="_blank">HOME Line (1-888-575-2954)</a> | <a href="https://www.smrls.org/" target="_blank">SMRLS</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                    📖 Where does your legal information come from?
+                </button>
+            </h2>
+            <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p>Semptify links to official government sources:</p>
+                    <ul>
+                        <li><a href="https://www.revisor.mn.gov/statutes/" target="_blank">MN Office of the Revisor of Statutes</a> - Official MN laws</li>
+                        <li><a href="https://www.mncourts.gov/" target="_blank">Minnesota Judicial Branch</a> - Court forms and procedures</li>
+                        <li><a href="https://www.hud.gov/" target="_blank">HUD.gov</a> - Federal housing rights</li>
+                    </ul>
+                    <p><strong>Important:</strong> Laws change frequently. Always verify with current statutes and consult an attorney.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cloud Storage -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq5">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5">
+                    ☁️ How does cloud storage work?
+                </button>
+            </h2>
+            <div id="collapse5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p>Semptify can sync encrypted data to <strong>your own</strong> cloud storage:</p>
+                    <ul>
+                        <li><strong>Google Drive:</strong> Files stored in <code>.semptify/</code> folder (limited access scope)</li>
+                        <li><strong>Dropbox:</strong> Files stored in <code>.semptify/</code> folder (app folder scope)</li>
+                        <li><strong>Encryption:</strong> AES-256-GCM before upload</li>
+                        <li><strong>Control:</strong> You can revoke access anytime from your Google/Dropbox settings</li>
+                        <li><strong>Optional:</strong> Cloud sync is entirely optional - Semptify works locally too</li>
+                    </ul>
+                    <p>To connect: Visit <a href="/cloud-integrations?user_token={{ user_token or request.args.get('user_token') }}">Cloud Integrations</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Document Vault -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq6">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6">
+                    📂 What is cryptographic attestation?
+                </button>
+            </h2>
+            <div id="collapse6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p>When you upload evidence to the Document Vault, Semptify generates a <strong>SHA-256 certificate</strong>:</p>
+                    <ul>
+                        <li><strong>SHA-256 hash:</strong> Unique fingerprint of the file (tamper-evident)</li>
+                        <li><strong>Timestamp:</strong> Exact upload time</li>
+                        <li><strong>Request ID:</strong> Unique identifier for this upload</li>
+                        <li><strong>Evidence context:</strong> Your description and case information</li>
+                    </ul>
+                    <p><strong>Why it matters:</strong> Proves the file existed at a specific time and hasn't been altered. Useful for court evidence.</p>
+                    <p>Certificates are saved as JSON: <code>notary_&lt;timestamp&gt;_&lt;type&gt;.json</code></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Troubleshooting -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq7">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7">
+                    🐛 I lost my token. Can you recover it?
+                </button>
+            </h2>
+            <div id="collapse7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p><strong>Unfortunately, no.</strong> Semptify uses anonymous tokens with one-way SHA-256 hashing.</p>
+                    <ul>
+                        <li>❌ We cannot reverse the hash to recover your original token</li>
+                        <li>❌ We cannot reset your password (there is no password)</li>
+                        <li>❌ We cannot link your token to an email (no email on file)</li>
+                    </ul>
+                    <p><strong>What to do:</strong></p>
+                    <ul>
+                        <li>If you synced to Google Drive or Dropbox, your data is still there</li>
+                        <li>You can register a new token and re-upload documents</li>
+                        <li><strong>Prevention:</strong> Save your token in a password manager (1Password, Bitwarden, etc.)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faq8">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8">
+                    🤖 The AI gave me wrong information. What now?
+                </button>
+            </h2>
+            <div id="collapse8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <p><strong>AI responses are for educational purposes only and may contain errors.</strong></p>
+                    <ul>
+                        <li>Always verify AI responses with official sources (.gov websites)</li>
+                        <li>Consult a licensed attorney for case-specific advice</li>
+                        <li>If AI provides incorrect info, you can report it to help us improve</li>
+                    </ul>
+                    <p><strong>Authoritative sources:</strong></p>
+                    <ul>
+                        <li><a href="https://www.revisor.mn.gov/statutes/" target="_blank">MN Statutes</a> (official legal text)</li>
+                        <li><a href="https://homelinemn.org/" target="_blank">HOME Line</a> (tenant hotline: 1-888-575-2954)</li>
+                        <li><a href="https://www.smrls.org/" target="_blank">SMRLS</a> (free legal aid)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="mt-5">📞 Contact & Support</h2>
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🏠 Tenant Hotline</h5>
+                    <p class="card-text"><strong>HOME Line</strong></p>
+                    <p>📞 <a href="tel:+18885752954">1-888-575-2954</a></p>
+                    <p class="small text-muted">Free advice for Minnesota tenants</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">⚖️ Legal Aid</h5>
+                    <p class="card-text"><strong>SMRLS</strong></p>
+                    <p><a href="https://www.smrls.org/" target="_blank">www.smrls.org</a></p>
+                    <p class="small text-muted">Free legal services (income-qualified)</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📚 Legal Library</h5>
+                    <p class="card-text"><strong>Semptify Resources</strong></p>
+                    <p><a href="/library?user_token={{ user_token or request.args.get('user_token') }}">Browse Legal Library</a></p>
+                    <p class="small text-muted">MN housing statutes and guides</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="mt-5">🔗 Useful Links</h2>
+    <ul>
+        <li><a href="/?user_token={{ user_token or request.args.get('user_token') }}">Home</a></li>
+        <li><a href="/library?user_token={{ user_token or request.args.get('user_token') }}">Legal Library</a></li>
+        <li><a href="/vault?user_token={{ user_token or request.args.get('user_token') }}">Document Vault</a></li>
+        <li><a href="/file-complaint?user_token={{ user_token or request.args.get('user_token') }}">File Complaint</a></li>
+        <li><a href="/calendar-timeline?user_token={{ user_token or request.args.get('user_token') }}">Calendar & Timeline</a></li>
+        <li><a href="/research?user_token={{ user_token or request.args.get('user_token') }}">Research Tools</a></li>
+        <li><a href="/about?user_token={{ user_token or request.args.get('user_token') }}">About Semptify</a></li>
+        <li><a href="/privacy?user_token={{ user_token or request.args.get('user_token') }}">Privacy Policy</a></li>
+        <li><a href="/terms?user_token={{ user_token or request.args.get('user_token') }}">Terms of Service</a></li>
+    </ul>
+    
+    <div class="alert alert-success mt-5">
+        <strong>Still need help?</strong> Explore the <a href="/library?user_token={{ user_token or request.args.get('user_token') }}" class="alert-link">Legal Library</a> or contact <a href="https://homelinemn.org/" target="_blank" class="alert-link">HOME Line (1-888-575-2954)</a>.
+    </div>
+    
+    <div class="mt-5">
+        <a href="/?user_token={{ user_token or request.args.get('user_token') }}" class="btn btn-primary">Back to Home</a>
+    </div>
+</div>
+
+<!-- Bootstrap JS for accordion -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

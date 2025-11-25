@@ -6,6 +6,113 @@ from engines.complaint_filing_engine import get_filing_engine, VenueType
 from engines.accuracy_engine import get_accuracy_engine
 import json
 
+
+# ============================================================================
+# CONTEXT INTEGRATION - Auto-fill from uploaded documents
+# ============================================================================
+
+def get_user_context_data(user_token):
+    """
+    Fetch user's context data from unified Context System.
+    Returns: {
+        'user': user_info,
+        'documents': [uploaded docs with intelligence],
+        'timeline': timeline events,
+        'case_data': extracted case information
+    }
+    """
+    try:
+        from security import validate_user_token
+        user_id = validate_user_token(user_token)
+        if not user_id:
+            return None
+        
+        # Import context system
+        import sys
+        import os
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from system_architecture import SystemState
+        
+        # Get comprehensive context
+        context = {
+            'user_id': user_id,
+            'documents': [],
+            'timeline': [],
+            'case_data': {}
+        }
+        
+        # Load vault documents with intelligence
+        vault_dir = f"uploads/vault/{user_id}"
+        if os.path.exists(vault_dir):
+            for filename in os.listdir(vault_dir):
+                if filename.endswith('.cert.json'):
+                    cert_path = os.path.join(vault_dir, filename)
+                    with open(cert_path, 'r') as f:
+                        cert = json.load(f)
+                        context['documents'].append(cert)
+        
+        # Load intelligence data
+        intel_path = f"{vault_dir}/intelligence.json"
+        if os.path.exists(intel_path):
+            with open(intel_path, 'r') as f:
+                intel = json.load(f)
+                context['case_data']['intelligence'] = intel
+        
+        # Load timeline events
+        from user_database import get_user_db
+        conn = get_user_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT event_type, title, description, event_date, created_at
+            FROM timeline_events
+            WHERE user_id = ?
+            ORDER BY event_date DESC
+        ''', (user_id,))
+        
+        for row in cursor.fetchall():
+            context['timeline'].append({
+                'event_type': row[0],
+                'title': row[1],
+                'description': row[2],
+                'event_date': row[3],
+                'created_at': row[4]
+            })
+        
+        conn.close()
+        
+        # Extract key case data from documents
+        context['case_data']['landlord_name'] = None
+        context['case_data']['property_address'] = None
+        context['case_data']['lease_start_date'] = None
+        context['case_data']['monthly_rent'] = None
+        context['case_data']['issue_description'] = None
+        
+        # Parse from intelligence if available
+        if 'intelligence' in context['case_data']:
+            intel = context['case_data']['intelligence']
+            if 'parties' in intel:
+                parties = intel.get('parties', [])
+                for party in parties:
+                    if party.get('role') == 'landlord':
+                        context['case_data']['landlord_name'] = party.get('name')
+            
+            if 'monetary_amounts' in intel:
+                amounts = intel.get('monetary_amounts', [])
+                if amounts:
+                    context['case_data']['monthly_rent'] = amounts[0].get('amount')
+            
+            if 'key_dates' in intel:
+                dates = intel.get('key_dates', [])
+                for date_obj in dates:
+                    if 'lease_start' in date_obj.get('label', '').lower():
+                        context['case_data']['lease_start_date'] = date_obj.get('date')
+        
+        return context
+        
+    except Exception as e:
+        print(f"[ERROR] Context data fetch failed: {e}")
+        return None
+
 complaint_filing_bp = Blueprint('complaint_filing', __name__)
 
 @complaint_filing_bp.route('/file-complaint', methods=['GET'])
@@ -216,3 +323,57 @@ def success_stories():
         'filing_success_stories.html',
         success_stories=success_stories
     )
+
+
+@complaint_filing_bp.route('/api/complaint/autofill', methods=['POST'])
+def autofill_complaint():
+    """
+    Auto-fill complaint form from user's context data.
+    Returns pre-populated form fields from uploaded documents.
+    """
+    data = request.json
+    user_token = data.get('user_token') or request.headers.get('X-User-Token')
+    
+    if not user_token:
+        return jsonify({"error": "user_token required"}), 401
+    
+    # Get context data
+    context = get_user_context_data(user_token)
+    if not context:
+        return jsonify({"error": "Could not load context data"}), 500
+    
+    # Build pre-filled form data
+    form_data = {
+        'tenant_name': None,  # Would come from user profile
+        'landlord_name': context['case_data'].get('landlord_name'),
+        'property_address': context['case_data'].get('property_address'),
+        'lease_start_date': context['case_data'].get('lease_start_date'),
+        'monthly_rent': context['case_data'].get('monthly_rent'),
+        'issue_description': context['case_data'].get('issue_description'),
+        'evidence_count': len(context['documents']),
+        'evidence_files': [
+            {
+                'filename': doc.get('filename'),
+                'doc_type': doc.get('intelligence', {}).get('doc_type'),
+                'upload_date': doc.get('created')
+            }
+            for doc in context['documents']
+            if doc.get('filename')
+        ],
+        'timeline_events': [
+            {
+                'date': event.get('event_date'),
+                'description': event.get('title')
+            }
+            for event in context['timeline'][:10]  # Most recent 10
+        ],
+        'intelligence_available': 'intelligence' in context['case_data']
+    }
+    
+    return jsonify({
+        "success": True,
+        "form_data": form_data,
+        "context_loaded": True,
+        "documents_found": len(context['documents']),
+        "timeline_events_found": len(context['timeline'])
+    })

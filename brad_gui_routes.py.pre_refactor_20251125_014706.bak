@@ -1,0 +1,347 @@
+"""
+Brad's Single-User Multi-Client GUI
+Desktop-optimized interface for managing multiple tenant clients with:
+- R2 primary storage + Google Drive fallback
+- Claude Sonnet 4.5 AI coding assistant
+- Laptop/external display layouts (1920x1080+)
+- Streaming-friendly design
+"""
+from flask import Blueprint, render_template, jsonify, request, session
+import os
+import json
+import re
+from datetime import datetime
+
+brad_bp = Blueprint('brad_gui', __name__, url_prefix='/brad')
+
+# Storage status check (uses existing storage_manager)
+try:
+    from storage_manager import upload_file, download_file, list_files
+    STORAGE_AVAILABLE = True
+except ImportError:
+    STORAGE_AVAILABLE = False
+
+# Client data directory
+CLIENTS_DIR = os.path.join(os.path.dirname(__file__), 'data', 'brad_clients')
+os.makedirs(CLIENTS_DIR, exist_ok=True)
+
+# -----------------------------
+# Utilities
+# -----------------------------
+
+def _get_clients():
+    """Load all clients for Brad's account"""
+    clients_file = os.path.join(CLIENTS_DIR, 'clients.json')
+    if os.path.exists(clients_file):
+        with open(clients_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {"clients": [], "active_client_id": None}
+
+
+def _atomic_write_file(path, data_obj):
+    """Write JSON to path atomically."""
+    tmp = path + '.tmp'
+    data_str = json.dumps(data_obj, indent=2, ensure_ascii=False)
+    with open(tmp, 'w', encoding='utf-8') as f:
+        f.write(data_str)
+    os.replace(tmp, path)
+
+
+def _save_clients(data):
+    """Save clients list using atomic write"""
+    clients_file = os.path.join(CLIENTS_DIR, 'clients.json')
+    _atomic_write_file(clients_file, data)
+
+
+def _validate_client_updates(updates):
+    """Validate updates for contact (email/phone). Return error message or None."""
+    contact = updates.get('contact') or ''
+    if contact:
+        if '@' in contact:
+            pattern = r'^[^@\s]+@[^@\s]+\.[^@\s]+'
+            if not re.match(pattern, contact.strip()):
+                return 'Invalid email format'
+        else:
+            digits = re.sub(r'\D', '', contact)
+            if len(digits) < 7:
+                return 'Phone number too short'
+    return None
+
+# -----------------------------
+# Health / Storage
+# -----------------------------
+
+def _get_storage_health():
+    """Check R2 and Google Drive status"""
+    health = {
+        "r2": {"status": "unknown", "available": False, "message": ""},
+        "gdrive": {"status": "unknown", "available": False, "message": ""},
+        "local": {"status": "healthy", "available": True, "message": "Local storage active"}
+    }
+
+    if not STORAGE_AVAILABLE:
+        health["r2"]["message"] = "Storage manager not loaded"
+        health["gdrive"]["message"] = "Storage manager not loaded"
+        return health
+
+    try:
+        test_data = b"health_check"
+        result = upload_file("_health_check", "test.txt", test_data)
+        if result.get("r2"):
+            health["r2"] = {"status": "healthy", "available": True, "message": "R2 operational"}
+        else:
+            health["r2"] = {"status": "degraded", "available": False, "message": "R2 unavailable (credentials?)"}
+    except Exception as e:
+        health["r2"] = {"status": "error", "available": False, "message": str(e)}
+
+    try:
+        if result.get("gdrive"):
+            health["gdrive"] = {"status": "healthy", "available": True, "message": "Google Drive operational"}
+        else:
+            health["gdrive"] = {"status": "degraded", "available": False, "message": "Google Drive unavailable"}
+    except Exception as e:
+        health["gdrive"] = {"status": "error", "available": False, "message": str(e)}
+
+    return health
+
+# -----------------------------
+# Routes
+# -----------------------------
+
+@brad_bp.route("/")
+def dashboard():
+    """Main Brad dashboard"""
+    clients_data = _get_clients()
+    storage_health = _get_storage_health()
+
+    return render_template('brad_gui/dashboard.html',
+                         clients=clients_data["clients"],
+                         active_client_id=clients_data["active_client_id"],
+                         storage_health=storage_health,
+                         ai_provider=os.getenv('AI_PROVIDER', 'not_configured'))
+
+
+@brad_bp.route("/api/clients", methods=["GET"])
+def list_clients():
+    """Get all clients"""
+    data = _get_clients()
+    return jsonify(data)
+
+
+@brad_bp.route("/api/clients", methods=["POST"])
+def add_client():
+    """Add new client"""
+    client_data = request.get_json() or {}
+
+    # Validate required fields
+    required = ["name", "contact"]
+    if not all(k in client_data and client_data[k] for k in required):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    data = _get_clients()
+
+    # Generate client ID
+    client_id = f"client_{len(data['clients']) + 1:03d}"
+
+    # Determine next client_number / user_number
+    existing_nums = [c.get('client_number', 0) for c in data['clients'] if isinstance(c.get('client_number', None), int)]
+    next_num = (max(existing_nums) + 1) if existing_nums else (len(data['clients']) + 1)
+
+    # Generate initials for document id
+    name_parts = client_data['name'].strip().split()
+    initials = (name_parts[0][0] if name_parts else 'X') + (name_parts[-1][0] if len(name_parts) > 1 else 'X')
+    initials = initials.upper()
+    document_id = f"DOC-{initials}-{next_num:03d}"
+
+    new_client = {
+        "id": client_id,
+        "name": client_data["name"],
+        "contact": client_data["contact"],
+        "address": client_data.get("address", ""),
+        "case_number": client_data.get("case_number", ""),
+        "created_at": datetime.now().isoformat(),
+        "status": "active",
+        "notes": client_data.get("notes", ""),
+        "client_number": next_num,
+        "user_number": client_data.get('user_number', next_num),
+        "document_id": document_id
+    }
+
+    data["clients"].append(new_client)
+
+    # Set as active if first client
+    if not data.get("active_client_id"):
+        data["active_client_id"] = client_id
+
+    _save_clients(data)
+
+    return jsonify({"success": True, "client": new_client})
+
+
+@brad_bp.route("/api/clients/<client_id>", methods=["PUT","PATCH"])
+def update_client(client_id):
+    """Update client details with validation and immutable fields."""
+    updates = request.get_json() or {}
+    data = _get_clients()
+    client = next((c for c in data["clients"] if c["id"] == client_id), None)
+    if not client:
+        return jsonify({"error": "Client not found"}), 404
+
+    # validate contact/email/phone
+    err = _validate_client_updates(updates)
+    if err:
+        return jsonify({"error": err}), 400
+
+    immutable = {"id","created_at","client_number","user_number","document_id"}
+    allowed = ["name","contact","address","case_number","status","notes"]
+    for key in allowed:
+        if key in updates and key not in immutable:
+            client[key] = updates[key]
+
+    client["updated_at"] = datetime.now().isoformat()
+    _save_clients(data)
+    return jsonify({"success": True, "client": client})
+
+
+@brad_bp.route("/api/clients/<client_id>/activate", methods=["POST"])
+def activate_client(client_id):
+    """Switch active client"""
+    data = _get_clients()
+
+    client = next((c for c in data["clients"] if c["id"] == client_id), None)
+    if not client:
+        return jsonify({"error": "Client not found"}), 404
+
+    data["active_client_id"] = client_id
+    _save_clients(data)
+
+    return jsonify({"success": True, "active_client_id": client_id})
+
+
+@brad_bp.route("/api/storage/health", methods=["GET"])
+def storage_health():
+    """Get storage backend health status"""
+    health = _get_storage_health()
+    return jsonify(health)
+
+
+@brad_bp.route("/api/ai/chat", methods=["POST"])
+def ai_chat():
+    """AI coding assistant (Claude Sonnet 4.5)"""
+    data = request.get_json() or {}
+    prompt = data.get("prompt", "")
+    context = data.get("context", "")
+
+    if not prompt:
+        return jsonify({"error": "Missing prompt"}), 400
+
+    # Route to existing copilot system
+    try:
+        from copilot_routes import generate_response  # If exists
+        response = generate_response(prompt, context)
+        return jsonify({"response": response})
+    except ImportError:
+        ai_provider = os.getenv('AI_PROVIDER', 'openai')
+        if ai_provider == 'openai':
+            import openai
+            openai.api_key = os.getenv('OPENAI_API_KEY')
+
+            completion = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a helpful coding assistant for a tenant rights platform."},
+                    {"role": "user", "content": f"{context}\n\n{prompt}"}
+                ]
+            )
+
+            return jsonify({"response": completion.choices[0].message.content})
+        else:
+            return jsonify({"error": "AI provider not configured"}), 500
+
+
+@brad_bp.route("/client/<client_id>")
+def client_detail(client_id):
+    """Client detail view"""
+    data = _get_clients()
+    client = next((c for c in data["clients"] if c["id"] == client_id), None)
+
+    if not client:
+        return "Client not found", 404
+
+    storage_health = _get_storage_health()
+
+    return render_template('brad_gui/client_detail.html', client=client, storage_health=storage_health)
+
+
+@brad_bp.route("/settings")
+def settings():
+    """Brad's settings page"""
+    storage_health = _get_storage_health()
+
+    config = {
+        "r2_configured": bool(os.getenv('R2_ACCESS_KEY_ID')),
+        "gdrive_configured": os.path.exists('security/gdrive_credentials.json'),
+        "ai_provider": os.getenv('AI_PROVIDER', 'not_configured'),
+        "ai_key_set": bool(os.getenv('OPENAI_API_KEY') or os.getenv('AZURE_OPENAI_KEY'))
+    }
+
+    return render_template('brad_gui/settings.html', storage_health=storage_health, config=config)
+
+
+# Health check
+@brad_bp.route("/health")
+def health():
+    """Brad GUI health check"""
+    return jsonify({
+        "status": "healthy",
+        "storage_manager": STORAGE_AVAILABLE,
+        "clients_count": len(_get_clients()["clients"])
+    })
+
+
+# -----------------------------
+# Journeys & Onboarding API (simple seed/expose)
+# -----------------------------
+
+JOURNEYS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'journeys.json')
+
+@brad_bp.route('/api/journeys', methods=['GET'])
+def list_journeys():
+    if os.path.exists(JOURNEYS_FILE):
+        with open(JOURNEYS_FILE, 'r', encoding='utf-8') as f:
+            return jsonify(json.load(f))
+    return jsonify({"journeys": []})
+
+@brad_bp.route('/api/journeys/seed', methods=['POST'])
+def seed_journeys_api():
+    # Lightweight: if no journeys file present, write default seeds
+    sample = {
+        "journeys": [
+            {
+                "id": "onboarding",
+                "title": "Onboarding: Start your first case",
+                "description": "Guided 5-step onboarding to add a client, create case, add evidence, and get help.",
+                "steps": [
+                    {"id": "add_client", "title": "Add first client", "done": False},
+                    {"id": "create_case", "title": "Fill case details", "done": False},
+                    {"id": "upload_evidence", "title": "Upload evidence files", "done": False},
+                    {"id": "review_journey", "title": "Review case timeline & deadlines", "done": False},
+                    {"id": "find_help", "title": "Find legal help", "done": False}
+                ]
+            },
+            {
+                "id": "evidence_collection",
+                "title": "Evidence collection",
+                "description": "Collection checklist for courtroom-ready evidence.",
+                "steps": [
+                    {"id": "gather_photos", "title": "Take photos of issue", "done": False},
+                    {"id": "record_audio", "title": "Record audio notes", "done": False},
+                    {"id": "create_notary", "title": "Create notary certificate", "done": False}
+                ]
+            }
+        ]
+    }
+    os.makedirs(os.path.dirname(JOURNEYS_FILE), exist_ok=True)
+    _atomic_write_file(JOURNEYS_FILE, sample)
+    return jsonify({"seeded": True, "count": len(sample['journeys'])})
+

@@ -1,0 +1,138 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Privacy Policy - Semptify{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>Privacy Policy</h1>
+    <p class="text-muted">Last Updated: November 24, 2025</p>
+    
+    <div class="alert alert-info mt-4">
+        <strong>Privacy-First Design:</strong> Semptify is built with your privacy as the top priority. We collect minimal data, use anonymous authentication, and give you full control over your information.
+    </div>
+    
+    <h2 class="mt-4">1. Information We Collect</h2>
+    
+    <h3>1.1 Anonymous Authentication</h3>
+    <p>When you register with Semptify, you receive a <strong>12-digit anonymous token</strong>. No email address, phone number, or personal identification is required.</p>
+    <ul>
+        <li>Your token is hashed (SHA-256) before storage</li>
+        <li>The plain token is shown once during registration - save it securely</li>
+        <li>We cannot recover or reset your token if lost</li>
+    </ul>
+    
+    <h3>1.2 Data You Create</h3>
+    <p>You control all data you create in Semptify:</p>
+    <ul>
+        <li><strong>Documents:</strong> Stored locally on the server and optionally synced to YOUR cloud storage (Google Drive or Dropbox)</li>
+        <li><strong>Timeline Events:</strong> Case events, deadlines, and rent payments stored in local database</li>
+        <li><strong>Complaints & Court Packets:</strong> PDFs generated locally, stored on server and optionally in your cloud</li>
+        <li><strong>Vault Uploads:</strong> Evidence files with cryptographic attestation stored locally</li>
+    </ul>
+    
+    <h3>1.3 Technical Data</h3>
+    <p>We collect minimal technical data for system operation:</p>
+    <ul>
+        <li><strong>Access Logs:</strong> IP address, timestamp, route accessed (for security and debugging)</li>
+        <li><strong>Error Logs:</strong> System errors for troubleshooting (no personal data)</li>
+        <li><strong>Metrics:</strong> Aggregate usage statistics (request counts, response times)</li>
+    </ul>
+    
+    <h2 class="mt-4">2. How We Use Your Information</h2>
+    <p>We use your data ONLY for:</p>
+    <ul>
+        <li>Providing Semptify services (document storage, complaint generation, timeline tracking)</li>
+        <li>Authenticating your access with your anonymous token</li>
+        <li>Backing up your data to YOUR cloud storage (if you enable it)</li>
+        <li>System security (rate limiting, breach detection)</li>
+        <li>Technical support and debugging (with your consent)</li>
+    </ul>
+    
+    <p><strong>We do NOT:</strong></p>
+    <ul>
+        <li>❌ Sell or share your data with third parties</li>
+        <li>❌ Use your data for advertising or marketing</li>
+        <li>❌ Track you across other websites or services</li>
+        <li>❌ Read your documents without your explicit request for support</li>
+        <li>❌ Share your legal information with anyone</li>
+    </ul>
+    
+    <h2 class="mt-4">3. Cloud Storage Integration</h2>
+    <p>Semptify offers optional cloud storage via OAuth:</p>
+    
+    <h3>Google Drive</h3>
+    <ul>
+        <li><strong>Scope:</strong> drive.file (limited access - only files created by Semptify)</li>
+        <li><strong>Storage Location:</strong> .semptify/ folder in your Drive</li>
+        <li><strong>Encryption:</strong> Your user token is encrypted (AES-256-GCM) before upload</li>
+        <li><strong>Control:</strong> You can delete the folder and revoke access anytime</li>
+    </ul>
+    
+    <h3>Dropbox</h3>
+    <ul>
+        <li><strong>Scope:</strong> files.content.write, files.content.read</li>
+        <li><strong>Storage Location:</strong> /.semptify/ folder in your Dropbox</li>
+        <li><strong>Encryption:</strong> Same AES-256-GCM encryption</li>
+        <li><strong>Control:</strong> You can delete the folder and revoke access anytime</li>
+    </ul>
+    
+    <p><strong>Important:</strong> Semptify does not have access to any other files in your cloud storage.</p>
+    
+    <h2 class="mt-4">4. Data Security</h2>
+    <p>We implement multiple security measures:</p>
+    <ul>
+        <li><strong>Encryption:</strong> AES-256-GCM for sensitive data at rest</li>
+        <li><strong>Hashing:</strong> SHA-256 for user and admin tokens</li>
+        <li><strong>Rate Limiting:</strong> Prevents brute force attacks</li>
+        <li><strong>CSRF Protection:</strong> In enforced security mode</li>
+        <li><strong>Break-Glass Access:</strong> Emergency admin access with audit trail</li>
+        <li><strong>Cryptographic Attestation:</strong> SHA-256 certificates for vault uploads</li>
+    </ul>
+    
+    <h2 class="mt-4">5. Data Retention</h2>
+    <p>Your data is retained as long as you use Semptify:</p>
+    <ul>
+        <li><strong>Active Users:</strong> Data retained indefinitely while you access the system</li>
+        <li><strong>Inactive Users:</strong> No automatic deletion - your token remains valid</li>
+        <li><strong>Data Deletion:</strong> Contact admin to request full account deletion</li>
+        <li><strong>Logs:</strong> Access logs retained for 90 days, then automatically deleted</li>
+    </ul>
+    
+    <h2 class="mt-4">6. Third-Party Services</h2>
+    <p>Semptify may integrate with these third-party services:</p>
+    
+    <h3>AI Providers (Optional)</h3>
+    <ul>
+        <li><strong>OpenAI:</strong> If you use the Copilot feature, your prompts are sent to OpenAI API. See <a href="https://openai.com/privacy" target="_blank">OpenAI Privacy Policy</a></li>
+        <li><strong>Azure OpenAI:</strong> Microsoft-hosted version. See <a href="https://privacy.microsoft.com" target="_blank">Microsoft Privacy Policy</a></li>
+        <li><strong>Ollama (Local):</strong> Runs on your machine - no data leaves your system</li>
+    </ul>
+    
+    <h3>External Legal Resources</h3>
+    <p>Links to .gov websites (revisor.mn.gov, mncourts.gov, hud.gov) are provided for reference. These sites have their own privacy policies.</p>
+    
+    <h2 class="mt-4">7. Your Rights</h2>
+    <p>You have the right to:</p>
+    <ul>
+        <li><strong>Access:</strong> View all data associated with your token</li>
+        <li><strong>Export:</strong> Download all your data (documents, timeline, certificates)</li>
+        <li><strong>Delete:</strong> Request full account and data deletion</li>
+        <li><strong>Revoke:</strong> Revoke cloud storage access anytime via Google/Dropbox settings</li>
+        <li><strong>Opt-Out:</strong> Don't use AI features if you don't want data sent to AI providers</li>
+    </ul>
+    
+    <h2 class="mt-4">8. Children's Privacy</h2>
+    <p>Semptify is not intended for users under 18. We do not knowingly collect data from minors.</p>
+    
+    <h2 class="mt-4">9. Changes to This Policy</h2>
+    <p>We may update this privacy policy from time to time. Changes will be posted on this page with an updated "Last Updated" date. Continued use of Semptify after changes constitutes acceptance of the new policy.</p>
+    
+    <h2 class="mt-4">10. Contact</h2>
+    <p>For privacy questions or data deletion requests, visit our <a href="/help_hub?user_token={{ user_token or request.args.get('user_token') }}">Help Center</a>.</p>
+    
+    <div class="mt-5">
+        <a href="/?user_token={{ user_token or request.args.get('user_token') }}" class="btn btn-primary">Back to Home</a>
+        <a href="/terms?user_token={{ user_token or request.args.get('user_token') }}" class="btn btn-secondary">Terms of Service</a>
+    </div>
+</div>
+{% endblock %}

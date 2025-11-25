@@ -1,0 +1,54 @@
+Type,Name,Path,Description
+Module,Semptify.py,Semptify/Semptify.py,Main app module
+Module,SemptifyAppGUI.py,Semptify/SemptifyAppGUI.py,GUI app module
+Module,SemptifyCleanupGUI.py,Semptify/SemptifyCleanupGUI.py,GUI cleanup module
+Module,SemptifyTools,Semptify/SemptifyTools/,Tools package
+Module,semptify-verify-module,Semptify/semptify-verify-module/,Verification module
+Module,semptify-verify-module-1,Semptify/semptify-verify-module-1/,Verification module variant
+Module,modules,Semptify/modules/,All submodules (law_notes, office_module, public_exposure_module.py)
+Module,msn_modules,Semptify/msn_modules/,MSN modules
+Module,robot,Semptify/robot/,Robot modules
+Module,scripts,Semptify/scripts/,Scripts
+Module,tests,Semptify/tests/,Tests
+Module,tools,Semptify/tools/,Tools
+Module,types,Semptify/types/,Type definitions
+Module,vault.py,Semptify/vault.py,Secure vault
+Module,run_semptify_gui.py,Semptify/run_semptify_gui.py,GUI runner
+Module,run_prod.py,Semptify/run_prod.py,Production runner
+Module,run_dev_ssl.py,Semptify/run_dev_ssl.py,Dev SSL runner
+Module,readyz.py,Semptify/readyz.py,Health check
+Module,register.py,Semptify/register.py,Registration
+Module,security.py,Semptify/security.py,Security
+Module,tenant_narrative_module.py,Semptify/tenant_narrative_module.py,Narrative module
+Doc,README.md,Semptify/README.md,Project overview
+Doc,admin-guide.md,Semptify/docs/admin-guide.md,Admin guide
+Doc,deployment_checklist.md,Semptify/docs/deployment_checklist.md,Deployment checklist
+Doc,RUNNING_PRODUCTION.md,Semptify/RUNNING_PRODUCTION.md,Production run docs
+Doc,office_module/README.md,Semptify/modules/office_module/README.md,Office module guide
+Doc,admin_help.md,Semptify/modules/office_module/help/admin_help.md,Admin help
+Doc,organizer_help.md,Semptify/modules/office_module/help/organizer_help.md,Organizer help
+Doc,user_help.md,Semptify/modules/office_module/help/user_help.md,User quick guide
+Doc,mn_checklist.md,Semptify/docs/law_notes/mn_checklist.md,Jurisdiction checklist
+Doc,witness_statement_template.txt,Semptify/docs/templates/witness_statement_template.txt,Witness template
+Doc,filing_packet_checklist.txt,Semptify/docs/templates/filing_packet_checklist.txt,Filing checklist
+Doc,copilot-instructions.md,Semptify/.github/copilot-instructions.md,Agent instructions
+Doc,INVENTORY_MANUALS_TODOS.md,Semptify/INVENTORY_MANUALS_TODOS.md,Inventory of docs, guides, todos
+TODO,Code comments,Various,Search for TODO/FIXME in code/scripts/templates
+Template,admin.html,Semptify/templates/admin.html,Admin UI template
+Template,copilot.html,Semptify/templates/copilot.html,Copilot UI template
+Template,vault.html,Semptify/templates/vault.html,Vault UI template
+Template,register.html,Semptify/templates/register.html,Register UI template
+Template,register_success.html,Semptify/templates/register_success.html,Register success UI
+Template,evidence_panel.html,Semptify/templates/evidence_panel.html,Evidence panel UI
+Template,law_notes/*,Semptify/templates/law_notes/,Law notes templates
+Static,style.css,Semptify/static/style.css,Main CSS
+Static,manifest.webmanifest,Semptify/static/manifest.webmanifest,Web manifest
+Static,icons,Semptify/static/icons/,Icons
+Snapshot,.snapshots/,Semptify/.snapshots/,Project snapshots
+Workspace,Semptify.worktrees/,Semptify/Semptify.worktrees/,Worktree container
+Workspace,workspaces/,Semptify/workspaces/,Workspace container
+Workspace,New folder/,Semptify/New folder/,Workspace folder
+System,.venv/,Semptify/.venv/,Python virtualenv
+System,.vscode/,Semptify/.vscode/,VSCode config
+System,.devcontainer/,Semptify/.devcontainer/,Dev container
+System,.github/,Semptify/.github/,Github config

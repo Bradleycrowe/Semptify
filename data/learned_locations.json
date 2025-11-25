@@ -1,0 +1,148 @@
+{
+  "Eagan_MN_55121": {
+    "location_key": "Eagan_MN_55121",
+    "city": "Eagan",
+    "state": "MN",
+    "zip": "55121",
+    "discovered_at": "2025-11-23T20:00:48.960574",
+    "last_accessed": "2025-11-23T20:00:48.960574",
+    "access_count": 1,
+    "resources": {
+      "tenant_hotlines": [
+        {
+          "name": "Mn Tenant Hotline",
+          "search_query": "MN tenant rights hotline",
+          "confidence": "pattern_based",
+          "needs_verification": true
+        }
+      ],
+      "legal_aid": [
+        {
+          "name": "Mn Legal Aid",
+          "search_query": "MN legal aid tenant rights",
+          "confidence": "pattern_based",
+          "needs_verification": true
+        }
+      ],
+      "housing_courts": [
+        {
+          "name": "Mn County Court",
+          "search_query": "MN county housing court",
+          "confidence": "pattern_based",
+          "needs_verification": true
+        }
+      ],
+      "government_agencies": [
+        {
+          "name": "Eagan Code Enforcement",
+          "search_query": "Eagan MN code enforcement rental",
+          "phone_pattern": "City Hall + extension",
+          "confidence": "pattern_based",
+          "needs_verification": true
+        }
+      ],
+      "discovery_method": "automated_search",
+      "user_contribution_needed": true,
+      "contribution_prompt": "Know resources in Eagan? Help others!"
+    },
+    "laws": {
+      "federal": {
+        "fair_housing": {
+          "statute": "Fair Housing Act (42 U.S.C. \u00a73604)",
+          "applies": "all_locations"
+        }
+      },
+      "state": {
+        "discovery_needed": true,
+        "search_queries": [
+          "MN landlord tenant law",
+          "MN security deposit law",
+          "MN tenant rights statute",
+          "MN habitability requirements"
+        ],
+        "common_statute_numbers": [
+          "Mn Statutes \u00a7"
+        ]
+      },
+      "local": {
+        "discovery_needed": true,
+        "check_for": [
+          "rent control ordinances",
+          "rental licensing requirements",
+          "local health codes",
+          "tenant protection ordinances"
+        ]
+      }
+    },
+    "statistics": {
+      "rent_ranges": {
+        "source": "user_reports",
+        "data_points": 0,
+        "needs_learning": true,
+        "studio": {
+          "min": null,
+          "max": null,
+          "avg": null
+        },
+        "1br": {
+          "min": null,
+          "max": null,
+          "avg": null
+        },
+        "2br": {
+          "min": null,
+          "max": null,
+          "avg": null
+        },
+        "3br": {
+          "min": null,
+          "max": null,
+          "avg": null
+        }
+      },
+      "application_fees": {
+        "source": "user_reports",
+        "data_points": 0,
+        "needs_learning": true,
+        "average": null,
+        "range": {
+          "min": null,
+          "max": null
+        }
+      },
+      "security_deposits": {
+        "source": "user_reports",
+        "data_points": 0,
+        "needs_learning": true,
+        "average_months": null
+      },
+      "common_issues": {
+        "source": "user_reports",
+        "data_points": 0,
+        "needs_learning": true,
+        "top_issues": []
+      },
+      "learning_note": "Statistics improve as more users contribute data"
+    },
+    "procedures": {
+      "complaint_filing": {
+        "where": "discovering...",
+        "how": "discovering...",
+        "forms": "discovering...",
+        "learned_from": "will_learn_from_user_experiences"
+      },
+      "court_process": {
+        "small_claims": "discovering...",
+        "housing_court": "discovering...",
+        "learned_from": "will_learn_from_cases"
+      },
+      "repair_process": {
+        "notice_method": "discovering...",
+        "timeline": "discovering...",
+        "escalation": "discovering...",
+        "learned_from": "will_learn_from_outcomes"
+      },
+      "learning_status": "Active - gathering data from user experiences"
+    }
+  }
+}

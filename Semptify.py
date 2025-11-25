@@ -88,6 +88,8 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY') or os.getenv('FLASK_SECRET') or '
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('FORCE_HTTPS') == '1' or os.getenv('SESSION_COOKIE_SECURE') == '1'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_DOMAIN'] = None  # Allow localhost
+app.config['SESSION_TYPE'] = 'filesystem'  # Persist sessions
 app.config['PERMANENT_SESSION_LIFETIME'] = 7 * 24 * 60 * 60  # 7 days (604800 seconds)
 
 # Dev: make changes show immediately
@@ -146,6 +148,8 @@ blueprints_to_register = [
     ('library_routes', 'library_bp'),
     ('library_hub_routes', 'library_hub_bp'),
     ('main_dashboard_routes', 'main_dashboard_bp'),
+    ('storage_setup_routes', 'storage_setup_bp'),
+    ('storage_autologin', 'storage_autologin_bp'),
     ('modern_gui_routes', 'modern_gui_bp'),
 
     # Additional Feature Blueprints
@@ -154,6 +158,7 @@ blueprints_to_register = [
     ('ledger_calendar_routes', 'ledger_calendar_bp'),
     ('av_routes', 'av_routes_bp'),
     ('brad_integration_routes', 'integration_bp'),
+    ('system_integration_routes', 'system_bp'),
     ('ai_orchestrator_routes', 'orchestrator_bp'),
     ('maintenance_routes', 'maintenance_bp'),
     ('migration_routes', 'migration_bp'),
@@ -183,6 +188,29 @@ try:
     print("[OK] Complaint Context API registered (/api/complaint/*)")
 except ImportError as e:
     print(f"[WARN] Complaint Context API not available: {e}")
+
+# Dakota County Eviction Defense Library
+try:
+    from dakota_eviction_library_routes import dakota_bp
+    app.register_blueprint(dakota_bp)
+    print('[OK] Dakota County Eviction Defense Library registered at /library/dakota')
+except ImportError as e:
+    print(f'[WARN] Dakota Library not available: {e}')
+# GUI Hub - Landing page and interface launcher
+try:
+    from gui_hub_routes import gui_hub_bp
+    app.register_blueprint(gui_hub_bp)
+    print('[OK] GUI Hub registered')
+except ImportError as e:
+    print(f'[WARN] GUI Hub not available: {e}')
+
+# Master Admin - Control panel
+try:
+    from master_admin_routes import master_admin_bp
+    app.register_blueprint(master_admin_bp)
+    print('[OK] Master Admin registered')
+except ImportError as e:
+    print(f'[WARN] Master Admin not available: {e}')
 # Context API - Context Data System™ access
 try:
     from context_api_routes import context_api_bp
@@ -217,11 +245,11 @@ def admin_status():
     from security import get_metrics
     return jsonify({"status": "ok", "metrics": get_metrics()})
 
-@app.route('/register')
-
-
-@app.route('/verify', methods=['GET', 'POST'])
-def verify():
+# DISABLED (OAuth storage identity only) - @app.route('/register')
+# 
+# 
+# DISABLED (OAuth storage identity only) - @app.route('/verify', methods=['GET', 'POST'])
+# def verify():
     '''Verify user registration via email or phone'''
     if request.method == 'GET':
         return render_template('verify.html')
@@ -335,4 +363,17 @@ def readyz():
 
 # Add more routes as needed...
 
+
+
+
+
+
+
+# Research Tools - Landlord/property lookup
+try:
+    from research_routes import research_bp
+    app.register_blueprint(research_bp)
+    print("[OK] research_bp registered")
+except ImportError as e:
+    print(f"[WARN] Research routes not available: {e}")
 

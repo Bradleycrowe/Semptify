@@ -1,0 +1,48 @@
+"""
+Phase 2 UI Routes - Timeline Assistant Dashboard
+Shows document suggestions, missing docs, auto-created events
+"""
+from flask import Blueprint, render_template, request, jsonify
+from calendar_vault_bridge import CalendarVaultBridge
+
+calendar_vault_ui_bp = Blueprint('calendar_vault_ui', __name__)
+
+@calendar_vault_ui_bp.route('/timeline/assistant')
+def timeline_assistant():
+    """Dashboard showing smart recommendations for completing timeline"""
+    user_token = request.args.get('user_token')
+    
+    if not user_token:
+        return "User token required", 401
+    
+    bridge = CalendarVaultBridge()
+    
+    # Get events needing documents
+    needs_docs = bridge.get_events_needing_documents(user_token)
+    
+    # Separate by urgency
+    high_priority = [e for e in needs_docs if e['urgency'] == 'high']
+    normal_priority = [e for e in needs_docs if e['urgency'] != 'high']
+    
+    return render_template('calendar_vault/assistant_dashboard.html',
+                          high_priority=high_priority,
+                          normal_priority=normal_priority,
+                          user_token=user_token)
+
+@calendar_vault_ui_bp.route('/api/timeline/suggestions')
+def api_suggestions():
+    """API endpoint for getting document suggestions"""
+    user_token = request.args.get('user_token')
+    event_type = request.args.get('event_type', 'general')
+    
+    if not user_token:
+        return jsonify({'error': 'user_token required'}), 401
+    
+    bridge = CalendarVaultBridge()
+    event_data = {'event_id': request.args.get('event_id', 'temp')}
+    suggestions = bridge.suggest_documents_for_event(event_type, event_data)
+    
+    return jsonify({
+        'suggestions': suggestions,
+        'count': len(suggestions)
+    })

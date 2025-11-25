@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "base_layout.html" %}`n{% block title %}Help Center - Semptify{% endblock %}`n{% block content %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help Center - Semptify</title>
@@ -23,7 +21,7 @@
         .emergency-banner .hotline { font-size: 1.5em; font-weight: bold; margin: 10px 0; }
     </style>
 </head>
-<body>
+
     {% include "includes/navbar.html" %}
     
     <div class="container">
@@ -149,5 +147,5 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}
+

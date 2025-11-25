@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Analysis - 4 Perspectives | Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard?user_token={{ user_id }}" class="back-link">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>📊 Case Analysis</h1>
+            <p>Four-Perspective Legal Analysis System</p>
+        </div>
+
+        {% include 'perspective_widget.html' %}
+
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3>�� About This Analysis</h3>
+            <p>This analysis uses AI to examine your case from four critical viewpoints:</p>
+            <ul style="margin: 15px 0; padding-left: 30px;">
+                <li><strong>Tenant Perspective:</strong> Your rights, strengths, and concerns</li>
+                <li><strong>Landlord Perspective:</strong> How the other side may argue</li>
+                <li><strong>Legal Analysis:</strong> Relevant laws and precedents</li>
+                <li><strong>Judicial View:</strong> How a judge may likely rule</li>
+            </ul>
+            <p style="margin-top: 15px; color: #6c757d; font-size: 0.9em;">
+                ⚠️ <strong>Disclaimer:</strong> This is AI-powered analysis, not legal advice. 
+                Consult with a qualified attorney for your specific situation.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!-- Semptify Header Component - Include in all pages with: {% include 'components/header.html' %} -->
+<style>
+.semptify-header {
+    background: linear-gradient(135deg, #0a2647 0%, #16213e 100%);
+    padding: 15px 30px;
+    border-bottom: 2px solid #0f3460;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.semptify-logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+.semptify-logo-link:hover {
+    transform: scale(1.05);
+}
+.semptify-logo-small {
+    height: 50px;
+    width: auto;
+    filter: drop-shadow(0 2px 6px rgba(233, 69, 96, 0.3));
+}
+.semptify-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+.semptify-nav a {
+    color: #aaa;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+.semptify-nav a:hover {
+    color: white;
+    background: rgba(233, 69, 96, 0.2);
+}
+@media (max-width: 768px) {
+    .semptify-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .semptify-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+</style>
+
+<header class="semptify-header">
+    <!-- Hidden link in logo - goes to Master Admin Control Panel -->
+    <a href="/master-admin" class="semptify-logo-link" title="Admin Access">
+        <img src="/static/images/semptify-logo.jpg" alt="Semptify" class="semptify-logo-small">
+    </a>
+    <nav class="semptify-nav">
+        <a href="/">Home</a>
+        <a href="/hub">GUIs</a>
+        <a href="/vault">Vault</a>
+        <a href="/dashboard">Dashboard</a>
+    </nav>
+</header>

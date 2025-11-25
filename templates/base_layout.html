@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Semptify - Tenant Rights Protection{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, system-ui, sans-serif; }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .navbar-menu {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .navbar-menu a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            border-radius: 5px;
+        }
+        .disclaimer strong {
+            color: #856404;
+        }
+        
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-menu {
+                gap: 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/?user_token={{ user_token or request.args.get('user_token') }}" class="navbar-brand">🏠 Semptify</a>
+            <ul class="navbar-menu">
+                <li><a href="/?user_token={{ user_token or request.args.get('user_token') }}">Home</a></li>
+                <li><a href="/library?user_token={{ user_token or request.args.get('user_token') }}">Library</a></li>
+                <li><a href="/calendar?user_token={{ user_token or request.args.get('user_token') }}">Calendar</a></li>
+                <li><a href="/vault?user_token={{ user_token or request.args.get('user_token') }}">Vault</a></li>
+                <li><a href="/help?user_token={{ user_token or request.args.get('user_token') }}">Help</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="disclaimer">
+        <strong>⚠️ Legal Disclaimer:</strong> Semptify provides information and tools for educational purposes only. This is not legal advice. For specific legal guidance, consult a licensed attorney in your jurisdiction. We do not guarantee outcomes and are not responsible for how you use this information.
+    </div>
+    
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

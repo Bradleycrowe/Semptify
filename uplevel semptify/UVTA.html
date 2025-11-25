@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UVTA App</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6fa; margin: 0; }
+    header { background: #2d3e50; color: #fff; padding: 1.5em; text-align: center; }
+    .container { max-width: 1000px; margin: 2em auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0002; padding: 2em; }
+    h2 { margin-top: 2em; }
+    .section { margin-bottom: 2em; }
+    .item-list { list-style: none; padding: 0; }
+    .item-list li { margin-bottom: 0.5em; }
+    .search { margin-bottom: 2em; }
+    input[type="text"] { padding: 0.5em; width: 100%; border-radius: 4px; border: 1px solid #ccc; }
+    .type { font-weight: bold; color: #2d3e50; }
+    .desc { color: #555; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>UVTA App</h1>
+    <p>Unified View & Tracker for All Modules, Docs, and TODOs</p>
+  </header>
+  <div class="container">
+    <div class="search">
+      <input type="text" id="searchBox" placeholder="Search inventory..." oninput="filterItems()">
+    </div>
+    <div class="section"><h2>Modules & Major Scripts</h2><ul class="item-list" id="modulesList"></ul></div>
+    <div class="section"><h2>Documentation & Instructions</h2><ul class="item-list" id="docsList"></ul></div>
+    <div class="section"><h2>TODOs & Action Items</h2><ul class="item-list" id="todosList"></ul></div>
+    <div class="section"><h2>Templates & Static Files</h2><ul class="item-list" id="templatesList"></ul></div>
+    <div class="section"><h2>Workspace & System Files</h2><ul class="item-list" id="workspaceList"></ul></div>
+    <div class="section"><h2>File Metadata</h2><ul class="item-list" id="metadataList"></ul></div>
+    <div class="section"><h2>Code Extraction</h2><ul class="item-list" id="codeList"></ul></div>
+    <div class="section"><h2>Doc Summaries</h2><ul class="item-list" id="summaryList"></ul></div>
+    <div class="section"><h2>Directory Tree</h2><pre id="treeView"></pre></div>
+    <div class="section"><h2>File Preview</h2>
+      <input type="text" id="previewFile" placeholder="Enter file path...">
+      <button onclick="fetchPreview()">Preview</button>
+      <pre id="previewContent"></pre>
+    </div>
+    <div class="section"><h2>Search</h2>
+      <input type="text" id="searchInput" placeholder="Search filename/content...">
+      <button onclick="doSearch()">Search</button>
+      <ul class="item-list" id="searchResults"></ul>
+    </div>
+  </div>
+  <script>
+    // Inventory data (from FULL_INVENTORY_REPORT)
+    let modules = [], docs = [], todos = [], templates = [], workspace = [], metadata = [], code = [], summary = [], tree = {};
+
+    async function fetchInventory() {
+      modules = await fetch('/api/modules').then(r => r.json());
+      docs = await fetch('/api/docs').then(r => r.json());
+      todos = await fetch('/api/todos').then(r => r.json());
+      templates = await fetch('/api/templates').then(r => r.json());
+      workspace = await fetch('/api/workspace').then(r => r.json());
+      metadata = await fetch('/api/metadata').then(r => r.json());
+      code = await fetch('/api/code').then(r => r.json());
+      summary = await fetch('/api/summary').then(r => r.json());
+      tree = await fetch('/api/tree').then(r => r.json());
+      renderAll();
+    }
+
+    function renderList(list, elementId, formatter) {
+      const ul = document.getElementById(elementId);
+      ul.innerHTML = '';
+      list.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = formatter ? formatter(item) : item;
+        ul.appendChild(li);
+      });
+    }
+
+    function renderTree(node, indent = '') {
+      let out = indent + node.name + '\n';
+      if (node.children) {
+        node.children.forEach(child => {
+          out += renderTree(child, indent + '  ');
+        });
+      }
+      return out;
+    }
+
+    function renderAll() {
+      const val = document.getElementById('searchBox').value.toLowerCase();
+      renderList(modules.filter(i => i.toLowerCase().includes(val)), 'modulesList');
+      renderList(docs.filter(i => i.toLowerCase().includes(val)), 'docsList');
+      renderList(todos.filter(i => (i.text || i).toLowerCase().includes(val)), 'todosList', t => t.text ? `${t.text} <small>(${t.file}:${t.line})</small>` : t);
+      renderList(templates.filter(i => i.toLowerCase().includes(val)), 'templatesList');
+      renderList(workspace.filter(i => i.toLowerCase().includes(val)), 'workspaceList');
+      renderList(metadata.filter(i => i.file.toLowerCase().includes(val)), 'metadataList', m => `${m.file} <small>size: ${m.size} bytes, mtime: ${new Date(m.mtime*1000).toLocaleString()}</small>`);
+      renderList(code.filter(i => i.name.toLowerCase().includes(val)), 'codeList', c => `${c.type}: <b>${c.name}</b> <small>(${c.file}:${c.line})</small>`);
+      renderList(summary.filter(i => i.file.toLowerCase().includes(val)), 'summaryList', s => `<b>${s.file}</b><pre>${s.excerpt}</pre>`);
+      document.getElementById('treeView').textContent = renderTree(tree);
+    }
+
+    async function fetchPreview() {
+      const file = document.getElementById('previewFile').value;
+      if (!file) return;
+      const res = await fetch(`/api/preview?file=${encodeURIComponent(file)}`);
+      const data = await res.json();
+      document.getElementById('previewContent').textContent = data.content || data.error;
+    }
+
+    async function doSearch() {
+      const q = document.getElementById('searchInput').value;
+      if (!q) return;
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      renderList(data, 'searchResults', r => r.match === 'filename' ? `<b>${r.file}</b> <small>(filename match)</small>` : `<b>${r.file}</b>:${r.line} <pre>${r.text}</pre>`);
+    }
+
+    document.getElementById('searchBox').addEventListener('input', renderAll);
+
+    fetchInventory();
+  </script>
+</body>
+</html>

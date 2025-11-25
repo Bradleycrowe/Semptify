@@ -221,7 +221,7 @@ def google_oauth_callback():
     session['user_token'] = user_token
     session['authenticated'] = True
     session['storage_type'] = 'dropbox'
-    return redirect(url_for('storage_setup.welcome', user_token=user_token))
+    return render_template('welcome_home.html', user_token=user_token)
 
 # ============================================================================
 # DROPBOX OAUTH
@@ -229,39 +229,29 @@ def google_oauth_callback():
 
 @storage_setup_bp.route('/oauth/dropbox/start', methods=['GET'])
 def dropbox_oauth_start():
-    '''Initiate Dropbox OAuth flow with automatic redirect'''
+    '''Initiate Dropbox OAuth flow - simplified without DropboxOAuth2Flow'''
     import secrets
-    from dropbox import DropboxOAuth2Flow
-
+    
     app_key = os.getenv('DROPBOX_APP_KEY')
     app_secret = os.getenv('DROPBOX_APP_SECRET')
-
+    
     if not app_key or not app_secret:
         return 'Dropbox OAuth not configured. Set DROPBOX_APP_KEY and DROPBOX_APP_SECRET env vars.', 500
-
-    # Generate CSRF state parameter
+    
+    # Generate CSRF state
     state = secrets.token_urlsafe(32)
     session.permanent = True
     session['dropbox_oauth_state'] = state
-
-    # Build redirect URI with HTTPS enforcement
+    
+    # Build redirect URI
     redirect_uri = request.url_root.rstrip('/') + '/oauth/dropbox/callback'
-    if os.getenv('FORCE_HTTPS') or request.headers.get('X-Forwarded-Proto') == 'https':
-        redirect_uri = redirect_uri.replace('http://', 'https://')
-
     session['dropbox_redirect_uri'] = redirect_uri
+    
+    # Build authorization URL manually (simpler than DropboxOAuth2Flow)
+    auth_url = f"https://www.dropbox.com/oauth2/authorize?client_id={app_key}&redirect_uri={redirect_uri}&response_type=code&state={state}"
+    
+    return redirect(auth_url)
 
-    # Create OAuth flow with automatic redirect
-    auth_flow = DropboxOAuth2Flow(
-        consumer_key=app_key,
-        consumer_secret=app_secret,
-        redirect_uri=redirect_uri,
-        session={},
-        csrf_token_session_key='dropbox_oauth_state'
-    )
-
-    authorize_url = auth_flow.start()
-    return redirect(authorize_url)
 @storage_setup_bp.route('/oauth/dropbox/callback', methods=['GET'])
 def dropbox_oauth_callback():
     '''Handle Dropbox OAuth callback (automatic redirect)'''
@@ -288,22 +278,27 @@ def dropbox_oauth_callback():
     app_key = os.getenv('DROPBOX_APP_KEY')
     app_secret = os.getenv('DROPBOX_APP_SECRET')
     redirect_uri = session.get('dropbox_redirect_uri')
-
-    auth_flow = DropboxOAuth2Flow(
-        app_key, 
-        app_secret,
-        redirect_uri,
-        session,
-        'dropbox_auth_flow'
-    )
-
+    # Manual token exchange using requests
+    import requests
+    token_url = 'https://api.dropbox.com/oauth2/token'
+    token_data = {
+        'code': auth_code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': redirect_uri,
+        'client_id': app_key,
+        'client_secret': app_secret
+    }
+    
     try:
-        oauth_result = auth_flow.finish(auth_code)
+        token_response = requests.post(token_url, data=token_data)
+        token_response.raise_for_status()
+        oauth_result = token_response.json()
+        access_token = oauth_result['access_token']
     except Exception as e:
-        return f'OAuth error: {str(e)}', 400
+        return f'Token exchange failed: {str(e)}', 400
 
     # Create Dropbox client
-    dbx = dropbox.Dropbox(oauth_result.access_token)
+    dbx = dropbox.Dropbox(access_token)
 
     # Create .semptify folder
     try:
@@ -354,12 +349,12 @@ def dropbox_oauth_callback():
     with open(users_file, 'w') as f:
         json.dump(users, f, indent=2)
 
-    session['dropbox_access_token'] = oauth_result.access_token
+    session['dropbox_access_token'] = oauth_result.get('access_token') or oauth_result['access_token']
 
     session['user_token'] = user_token
     session['authenticated'] = True
     session['storage_type'] = 'dropbox'
-    return redirect(url_for('storage_setup.welcome', user_token=user_token))
+    return render_template('welcome_home.html', user_token=user_token)
 
 # ============================================================================
 
@@ -455,5 +450,31 @@ def vault_ui():
 def document_repo_ui():
     """Alias for vault-ui - 'Drepo' (Document Repo), dontcha know!"""
     return vault_ui()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@storage_setup_bp.route('/skip_setup', methods=['GET'])
+def skip_setup():
+    """Skip cloud storage setup - use local storage only"""
+    import secrets
+    # Generate anonymous token (12 digits)
+    user_token = ''.join([str(secrets.randbelow(10)) for _ in range(12)])
+    session['user_token'] = user_token
+    session['storage_mode'] = 'local_only'
+    return render_template('welcome_home.html', user_token=user_token)
+
 
 

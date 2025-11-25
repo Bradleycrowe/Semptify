@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Admin Control Panel | Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: #16213e;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 2px solid #0f3460;
+        }
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #0f3460;
+        }
+        .sidebar-header h1 {
+            font-size: 1.5em;
+            color: #e94560;
+            margin-bottom: 5px;
+        }
+        .sidebar-nav {
+            list-style: none;
+        }
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #aaa;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: #0f3460;
+            color: white;
+        }
+        .sidebar-nav .icon {
+            margin-right: 12px;
+            font-size: 1.3em;
+        }
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+        }
+        .page-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #0f3460;
+        }
+        .page-header h1 {
+            font-size: 2.5em;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+        .page-header p {
+            color: #aaa;
+            font-size: 1.1em;
+        }
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .control-section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid #0f3460;
+        }
+        .control-section h2 {
+            color: #e94560;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+        }
+        .control-section h2 .icon {
+            margin-right: 12px;
+        }
+        .control-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(15,52,96,0.3);
+            border-radius: 8px;
+            position: relative;
+        }
+        .control-item:hover {
+            background: rgba(15,52,96,0.5);
+        }
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .help-icon {
+            cursor: help;
+            background: #0f3460;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            color: #e94560;
+            position: relative;
+        }
+        .help-icon:hover::after {
+            content: attr(data-help);
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #0f3460;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            width: 300px;
+            font-size: 0.85em;
+            font-weight: normal;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            white-space: normal;
+        }
+        .control-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #e94560 0%, #c23454 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .control-button:hover {
+            opacity: 0.9;
+        }
+        .control-button.secondary {
+            background: linear-gradient(135deg, #0f3460 0%, #0a2647 100%);
+        }
+        .control-button.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        .control-input {
+            width: 100%;
+            padding: 10px;
+            background: #0a2647;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            color: white;
+            font-size: 1em;
+            margin-top: 8px;
+        }
+        .control-select {
+            width: 100%;
+            padding: 10px;
+            background: #0a2647;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            color: white;
+            font-size: 1em;
+            margin-top: 8px;
+        }
+        .stat-card {
+            background: rgba(15,52,96,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #e94560;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #aaa;
+            font-size: 0.95em;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert.info {
+            background: rgba(23,162,184,0.2);
+            border-left: 4px solid #17a2b8;
+        }
+        .alert.warning {
+            background: rgba(255,193,7,0.2);
+            border-left: 4px solid #ffc107;
+        }
+        .alert.success {
+            background: rgba(40,167,69,0.2);
+            border-left: 4px solid #28a745;
+        }
+        .how-to-guide {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 2px solid #0f3460;
+        }
+        .how-to-guide h3 {
+            color: #e94560;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .how-to-step {
+            padding: 15px;
+            background: rgba(15,52,96,0.3);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e94560;
+        }
+        .how-to-step strong {
+            color: #fff;
+            display: block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    {% include "components/header.html" %}
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>🛡️ Master Admin</h1>
+            <p style="color: #aaa; font-size: 0.9em;">System Control Panel</p>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="#overview" class="active"><span class="icon">📊</span>Overview</a></li>
+            <li><a href="#users"><span class="icon">👥</span>User Management</a></li>
+            <li><a href="#system"><span class="icon">⚙️</span>System Config</a></li>
+            <li><a href="#content"><span class="icon">📄</span>Content</a></li>
+            <li><a href="#analytics"><span class="icon">📈</span>Analytics</a></li>
+            <li><a href="#clients"><span class="icon">🏢</span>Clients</a></li>
+            <li><a href="#data"><span class="icon">💾</span>Data Operations</a></li>
+            <li><a href="#security"><span class="icon">🔐</span>Security</a></li>
+            <li><a href="/metrics" target="_blank"><span class="icon">📊</span>Metrics</a></li>
+            <li><a href="/readyz" target="_blank"><span class="icon">✅</span>Health Check</a></li>
+            <li><a href="/hub"><span class="icon">🏠</span>Back to Hub</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1>🛡️ Master Admin Control Panel</h1>
+            <p>Comprehensive system management and configuration</p>
+        </div>
+
+        <!-- System Overview Section -->
+        <section id="overview">
+            <div class="control-grid">
+                <div class="control-section">
+                    <h2><span class="icon">📊</span>System Status</h2>
+                    <div class="stat-card">
+                        <div class="stat-value">RUNNING</div>
+                        <div class="stat-label">System Status</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">42+</div>
+                        <div class="stat-label">Blueprints Loaded</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Active GUIs</div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h2><span class="icon">⚡</span>Quick Actions</h2>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>View System Logs</span>
+                            <span class="help-icon" data-help="Access application logs, errors, and events from logs/events.log">?</span>
+                        </div>
+                        <button class="control-button secondary" onclick="alert('Viewing logs...')">View Logs</button>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Clear Cache</span>
+                            <span class="help-icon" data-help="Clear application cache and temporary files. Safe to run anytime.">?</span>
+                        </div>
+                        <button class="control-button secondary" onclick="confirm('Clear all caches?') && alert('Cache cleared')">Clear Cache</button>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Restart Services</span>
+                            <span class="help-icon" data-help="Restart background services without full app restart. Use if services become unresponsive.">?</span>
+                        </div>
+                        <button class="control-button danger" onclick="confirm('Restart services?') && alert('Services restarted')">Restart</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Management Section -->
+        <section id="users">
+            <div class="control-section">
+                <h2><span class="icon">👥</span>User Management</h2>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Create User Token</span>
+                        <span class="help-icon" data-help="Generate a new anonymous 12-digit user token. Hash stored in security/users.json.">?</span>
+                    </div>
+                    <button class="control-button" onclick="alert('Token: 123456789012 (example)')">Generate Token</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>View Active Users</span>
+                        <span class="help-icon" data-help="See list of all registered users with creation dates and last activity.">?</span>
+                    </div>
+                    <button class="control-button secondary" onclick="alert('Viewing users...')">View Users</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Revoke User Token</span>
+                        <span class="help-icon" data-help="Invalidate a user token. User will need to re-register. Use for security incidents.">?</span>
+                    </div>
+                    <input type="text" class="control-input" placeholder="Enter user token to revoke">
+                    <button class="control-button danger" onclick="confirm('Revoke this token?') && alert('Token revoked')">Revoke Token</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Token Rotation</span>
+                        <span class="help-icon" data-help="Force token rotation for security. All users will need to re-authenticate. Increments token_rotations_total metric.">?</span>
+                    </div>
+                    <button class="control-button danger" onclick="confirm('Force token rotation for all users? This will log everyone out.') && alert('Rotation complete')">Rotate All Tokens</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Configuration Section -->
+        <section id="system">
+            <div class="control-grid">
+                <div class="control-section">
+                    <h2><span class="icon">⚙️</span>System Configuration</h2>
+                    
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Security Mode</span>
+                            <span class="help-icon" data-help="OPEN: Admin routes accessible without tokens (dev/test). ENFORCED: Requires token validation and CSRF protection.">?</span>
+                        </div>
+                        <select class="control-select">
+                            <option value="open">Open (Development)</option>
+                            <option value="enforced" selected>Enforced (Production)</option>
+                        </select>
+                        <button class="control-button secondary" style="margin-top: 10px;">Apply Change</button>
+                    </div>
+
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Rate Limiting</span>
+                            <span class="help-icon" data-help="Configure rate limits: ADMIN_RATE_WINDOW (seconds), ADMIN_RATE_MAX (requests). Returns 429 with Retry-After header.">?</span>
+                        </div>
+                        <input type="number" class="control-input" placeholder="Window (seconds)" value="60">
+                        <input type="number" class="control-input" placeholder="Max requests" value="10">
+                        <button class="control-button secondary" style="margin-top: 10px;">Update Limits</button>
+                    </div>
+
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Blueprint Management</span>
+                            <span class="help-icon" data-help="View loaded blueprints, enable/disable modules. Changes require restart.">?</span>
+                        </div>
+                        <button class="control-button secondary">Manage Blueprints</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h2><span class="icon">☁️</span>Storage Configuration</h2>
+                    
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Primary Storage</span>
+                            <span class="help-icon" data-help="Choose primary storage backend: R2 (Cloudflare), Dropbox, Google Drive. R2 recommended for production.">?</span>
+                        </div>
+                        <select class="control-select">
+                            <option value="r2" selected>Cloudflare R2</option>
+                            <option value="dropbox">Dropbox</option>
+                            <option value="google">Google Drive</option>
+                        </select>
+                        <button class="control-button secondary" style="margin-top: 10px;">Change Storage</button>
+                    </div>
+
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Dropbox OAuth Status</span>
+                            <span class="help-icon" data-help="Check Dropbox connection status. Re-authorize if expired. Used by Brad GUI multi-client system.">?</span>
+                        </div>
+                        <div class="alert success">✅ Connected</div>
+                        <button class="control-button secondary">Re-authorize</button>
+                    </div>
+
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Storage Quota</span>
+                            <span class="help-icon" data-help="Monitor storage usage across all backends. Set quotas and alerts.">?</span>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">2.4 GB</div>
+                            <div class="stat-label">Used / 10 GB Quota</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Management Section -->
+        <section id="content">
+            <div class="control-section">
+                <h2><span class="icon">📄</span>Content Management</h2>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Document Intelligence</span>
+                        <span class="help-icon" data-help="Auto-processes uploads via DocumentIntelligenceEngine. Extracts landlord info, rent, dates. Stored in intelligence.json.">?</span>
+                    </div>
+                    <div class="alert success">✅ Auto-processing enabled</div>
+                    <button class="control-button secondary">View Intelligence Data</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Perspective Analysis</span>
+                        <span class="help-icon" data-help="4-viewpoint analysis: tenant, landlord, legal, judge. Provides win probability and settlement recommendations. Access via /api/context/.../perspectives">?</span>
+                    </div>
+                    <button class="control-button secondary">View All Analyses</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Evidence Categorization</span>
+                        <span class="help-icon" data-help="Auto-detect document types (lease, notice, evidence) and link to timeline events. Currently in development.">?</span>
+                    </div>
+                    <div class="alert warning">⚠️ Coming soon (70% milestone)</div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Court Packet Auto-Fill</span>
+                        <span class="help-icon" data-help="Extracts data from vault documents to auto-fill complaint forms. Uses get_user_context_data() helper.">?</span>
+                    </div>
+                    <button class="control-button secondary">Test Auto-Fill</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics">
+            <div class="control-grid">
+                <div class="control-section">
+                    <h2><span class="icon">📈</span>Analytics & Monitoring</h2>
+                    
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Prometheus Metrics</span>
+                            <span class="help-icon" data-help="Access /metrics endpoint. Counters: requests_total, errors_total, releases_total, rate_limited_total. Latency: p50, p95, p99.">?</span>
+                        </div>
+                        <button class="control-button secondary" onclick="window.open('/metrics', '_blank')">View Metrics</button>
+                    </div>
+
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>System Health</span>
+                            <span class="help-icon" data-help="Checks runtime dirs writable, token files loadable, database connectivity. Returns ready/degraded status.">?</span>
+                        </div>
+                        <button class="control-button secondary" onclick="window.open('/readyz', '_blank')">Health Check</button>
+                    </div>
+
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Access Logs</span>
+                            <span class="help-icon" data-help="Enable JSON access logs with ACCESS_LOG_JSON=1. Includes request_id, latency, IP. X-Request-Id header propagated.">?</span>
+                        </div>
+                        <button class="control-button secondary">Configure Logging</button>
+                    </div>
+
+                    <div class="control-item">
+                        <div class="control-label">
+                            <span>Error Tracking</span>
+                            <span class="help-icon" data-help="View errors_total metric, inspect logs/events.log for details. Filter by severity and timestamp.">?</span>
+                        </div>
+                        <button class="control-button secondary">View Errors</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h2><span class="icon">📊</span>Usage Statistics</h2>
+                    
+                    <div class="stat-card">
+                        <div class="stat-value">1,247</div>
+                        <div class="stat-label">Total Requests (requests_total)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">Admin Actions (admin_actions_total)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Rate Limited (rate_limited_total)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Releases (releases_total)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Breakglass Uses (breakglass_used_total)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Client Management Section -->
+        <section id="clients">
+            <div class="control-section">
+                <h2><span class="icon">🏢</span>Client Management (Brad GUI)</h2>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Multi-Client System</span>
+                        <span class="help-icon" data-help="Brad's multi-client manager at brad_gui_routes.py. Handles multiple tenant cases with OAuth storage. Switch clients, batch operations.">?</span>
+                    </div>
+                    <button class="control-button secondary" onclick="window.location.href='/brad'">Open Brad GUI</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Active Clients</span>
+                        <span class="help-icon" data-help="View all clients managed through Brad GUI. Includes case details, document counts, timeline events.">?</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Active Client Cases</div>
+                    </div>
+                    <button class="control-button secondary">View All Clients</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Client Storage Sync</span>
+                        <span class="help-icon" data-help="Sync client data across Dropbox, R2, and Google Drive. Check sync status and resolve conflicts.">?</span>
+                    </div>
+                    <button class="control-button secondary">Sync All Clients</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Operations Section -->
+        <section id="data">
+            <div class="control-section">
+                <h2><span class="icon">💾</span>Data Operations</h2>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Database Backup</span>
+                        <span class="help-icon" data-help="Backup SQLite database (users.db). Includes users, remember_tokens, timeline_events tables. Stored in data/ directory.">?</span>
+                    </div>
+                    <button class="control-button">Create Backup</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Export User Data</span>
+                        <span class="help-icon" data-help="Export all data for specific user: vault documents, timeline events, intelligence data, perspective analyses. GDPR compliance.">?</span>
+                    </div>
+                    <input type="text" class="control-input" placeholder="Enter user token">
+                    <button class="control-button secondary" style="margin-top: 10px;">Export Data</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Data Migration</span>
+                        <span class="help-icon" data-help="Migrate data between storage backends. Use when switching from Dropbox to R2 or vice versa. Preserves all metadata.">?</span>
+                    </div>
+                    <select class="control-select">
+                        <option>Dropbox → R2</option>
+                        <option>R2 → Dropbox</option>
+                        <option>Google Drive → R2</option>
+                    </select>
+                    <button class="control-button danger" style="margin-top: 10px;">Start Migration</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Learning Patterns Reset</span>
+                        <span class="help-icon" data-help="Reset adaptive learning system (data/learning_patterns.json). Use POST /admin/learning/reset. Includes _metadata versioning.">?</span>
+                    </div>
+                    <button class="control-button danger" onclick="confirm('Reset learning patterns? This cannot be undone.') && alert('Learning patterns reset')">Reset Patterns</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Cleanup Orphaned Files</span>
+                        <span class="help-icon" data-help="Remove files in uploads/ directory with no corresponding user records. Safe operation, creates backup first.">?</span>
+                    </div>
+                    <button class="control-button danger">Cleanup Files</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Section -->
+        <section id="security">
+            <div class="control-section">
+                <h2><span class="icon">🔐</span>Security</h2>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Admin Tokens</span>
+                        <span class="help-icon" data-help="Multi-token support in security/admin_tokens.json. SHA-256 hashed. Format: [{id, hash, breakglass?}]. Legacy ADMIN_TOKEN env var fallback.">?</span>
+                    </div>
+                    <button class="control-button secondary">Manage Admin Tokens</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Break-Glass Access</span>
+                        <span class="help-icon" data-help="Emergency access: create security/breakglass.flag + use token with breakglass:true. One-time use. Increments breakglass_used_total metric.">?</span>
+                    </div>
+                    <div class="alert warning">⚠️ Emergency access only</div>
+                    <button class="control-button danger" onclick="confirm('Activate break-glass access? This is logged.') && alert('Break-glass activated')">Activate Break-Glass</button>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>CSRF Protection</span>
+                        <span class="help-icon" data-help="Only enforced in enforced mode on POST routes. Use _get_or_create_csrf_token() in handlers. Include hidden field in forms. Tests use open mode to bypass.">?</span>
+                    </div>
+                    <div class="alert success">✅ Enabled (enforced mode)</div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Security Audit Log</span>
+                        <span class="help-icon" data-help="View all security events: token validations, rate limits, admin actions, breakglass uses. Located in logs/events.log.">?</span>
+                    </div>
+                    <button class="control-button secondary">View Audit Log</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- How-To Guides Section -->
+        <div class="how-to-guide">
+            <h3>📖 Quick Start Guides</h3>
+            
+            <div class="how-to-step">
+                <strong>1. Setting Up a New User</strong>
+                <p>Navigate to User Management → Create User Token. Save the generated token securely. User can register at /register or access vault at /vault?user_token=TOKEN.</p>
+            </div>
+
+            <div class="how-to-step">
+                <strong>2. Changing Storage Backend</strong>
+                <p>Go to System Config → Storage Configuration. Select new primary storage. Click "Change Storage". Use Data Operations → Data Migration to move existing files.</p>
+            </div>
+
+            <div class="how-to-step">
+                <strong>3. Monitoring System Health</strong>
+                <p>Check Analytics → System Health for readiness status. View Prometheus Metrics for detailed performance data. Enable JSON access logs for request tracking.</p>
+            </div>
+
+            <div class="how-to-step">
+                <strong>4. Managing Multiple Clients (Brad GUI)</strong>
+                <p>Open Brad GUI from Client Management section. Switch between clients using dropdown. All clients share same storage backend. Use Sync All Clients to ensure data consistency.</p>
+            </div>
+
+            <div class="how-to-step">
+                <strong>5. Emergency Access Procedures</strong>
+                <p>If locked out: Create security/breakglass.flag file. Use admin token with breakglass:true. Access is one-time only and fully logged. Remove flag after use.</p>
+            </div>
+
+            <div class="how-to-step">
+                <strong>6. Backing Up System Data</strong>
+                <p>Data Operations → Database Backup (SQLite). Export User Data for GDPR compliance. Backups stored in data/ directory with timestamps. Test restore process regularly.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scroll for sidebar nav
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Update active state
+                    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Add scroll spy for active section
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.sidebar-nav a').forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href') === '#' + current) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

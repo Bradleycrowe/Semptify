@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "jurisdiction": "Dakota County, Minnesota",
+  "court": "Minnesota Judicial Branch",
+  "security_requirements": {
+    "encryption": "end-to-end",
+    "platform": "Zoom (court-managed accounts)",
+    "authentication": "name verification in waiting room",
+    "recording_policy": "prohibited_by_law",
+    "document_submission": "eFS only (not Zoom chat)"
+  },
+  "verified_links": {
+    "efile": "https://mncourts.gov/efile",
+    "court_records": "https://publicaccess.courts.state.mn.us/",
+    "interpreter": "https://www.mncourts.gov/Help-Topics/Interpreters.aspx",
+    "housing_resource_line": "tel:651-554-5751",
+    "dakota_county_court": "https://www.mncourts.gov/Find-Courts/Dakota.aspx"
+  },
+  "compliance_checklist": [
+    "Legal name matches summons",
+    "Case number verified",
+    "Device camera/mic tested",
+    "Documents filed via eFS",
+    "Interpreter requested (if needed)",
+    "Security rules acknowledged"
+  ]
+}

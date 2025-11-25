@@ -1,0 +1,47 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Research Tools - Semptify{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <h1 style="color: #667eea; margin-bottom: 20px;">🔍 Research Tools</h1>
+    <p style="color: #666; font-size: 18px; margin-bottom: 40px;">
+        Look up landlord information, building records, and property details
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #667eea; margin-bottom: 15px;">🏢 Landlord Lookup</h2>
+            <p style="color: #666; margin-bottom: 20px;">Search property owner records and contact information</p>
+            <input type="text" placeholder="Enter landlord name or address" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; margin-bottom: 10px;">
+            <button style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; cursor: pointer;">Search Records</button>
+        </div>
+
+        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #667eea; margin-bottom: 15px;">🏠 Property Records</h2>
+            <p style="color: #666; margin-bottom: 20px;">Access building permits, violations, and ownership history</p>
+            <input type="text" placeholder="Enter property address" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; margin-bottom: 10px;">
+            <button style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; cursor: pointer;">View Records</button>
+        </div>
+
+        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #667eea; margin-bottom: 15px;">⚠️ Code Violations</h2>
+            <p style="color: #666; margin-bottom: 20px;">Check for housing code violations and inspection reports</p>
+            <input type="text" placeholder="Enter address or parcel ID" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; margin-bottom: 10px;">
+            <button style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; cursor: pointer;">Check Violations</button>
+        </div>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-top: 40px;">
+        <h2 style="color: #333; margin-bottom: 20px;">📚 External Resources</h2>
+        <div style="display: grid; gap: 15px;">
+            <a href="https://www.propertyrecords.mn.gov" target="_blank" style="display: block; padding: 15px; background: white; border-radius: 5px; text-decoration: none; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <strong>Minnesota Property Records</strong> - Official state database
+            </a>
+            <a href="https://www.mnhousing.gov" target="_blank" style="display: block; padding: 15px; background: white; border-radius: 5px; text-decoration: none; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <strong>MN Housing Database</strong> - Rental assistance and compliance
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

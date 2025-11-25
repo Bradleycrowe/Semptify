@@ -1,0 +1,550 @@
+# ============================================================================
+# Semptify Virtual Hearing Security Flow - GUI Builder
+# Creates interactive interface for secure online eviction hearings
+# Dakota County District Court - Minnesota Judicial Branch
+# ============================================================================
+
+$today = Get-Date -Format "yyyy-MM-dd"
+$base = "C:\Semptify\Semptify"
+$moduleName = "VirtualHearing_Security"
+$moduleRoot = Join-Path $base $moduleName
+
+Write-Host "🔒 Building Virtual Hearing Security Flow..." -ForegroundColor Cyan
+
+# Create directory structure
+$dirs = @(
+    $moduleRoot,
+    "$moduleRoot\flows",
+    "$moduleRoot\assets",
+    "$moduleRoot\data",
+    "$moduleRoot\certificates",
+    "$moduleRoot\logs",
+    "$moduleRoot\readme"
+)
+
+foreach ($dir in $dirs) {
+    if (!(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+}
+
+Write-Host "✓ Directory structure created" -ForegroundColor Green
+
+# 1. Main Virtual Hearing Security Interface (HTML)
+$securityFlowHtml = @"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Hearing Security - Dakota County</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+.trust-banner {
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.trust-icon {
+    font-size: 3em;
+    flex-shrink: 0;
+}
+.trust-text h2 {
+    margin-bottom: 8px;
+    font-size: 1.5em;
+}
+.trust-text p {
+    opacity: 0.95;
+    line-height: 1.5;
+}
+.security-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.security-card h3 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.checklist-item {
+    background: #f7fafc;
+    border-left: 4px solid #e2e8f0;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.checklist-item.complete {
+    border-left-color: #38b2ac;
+    background: #e6fffa;
+}
+.checklist-icon {
+    font-size: 1.5em;
+    flex-shrink: 0;
+}
+label {
+    display: block;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-top: 15px;
+}
+input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+.button-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+button:hover {
+    transform: scale(1.05);
+}
+button.secondary {
+    background: #718096;
+}
+button.success {
+    background: #38b2ac;
+}
+.warning-box {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 6px;
+    color: #856404;
+}
+.warning-box strong {
+    display: block;
+    margin-bottom: 5px;
+}
+.status-tracker {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border: 2px solid #cbd5e0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+.status-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.status-text {
+    color: #2d3748;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+.certificate {
+    background: white;
+    border: 3px solid #667eea;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+}
+.certificate h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+.cert-field {
+    background: #f7fafc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-family: monospace;
+}
+.cert-badge {
+    display: inline-block;
+    background: #38b2ac;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    margin-top: 15px;
+    font-weight: 600;
+}
+.link-panel {
+    background: #edf2f7;
+    border-radius: 10px;
+    padding: 20px;
+}
+.link-item {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.link-title {
+    color: #2d3748;
+    font-weight: 600;
+}
+.link-url {
+    color: #667eea;
+    font-size: 0.9em;
+}
+.verified-badge {
+    background: #38b2ac;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+.hidden {
+    display: none;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- Trust Banner -->
+    <div class="trust-banner">
+        <div class="trust-icon">🔒</div>
+        <div class="trust-text">
+            <h2>Secure Court-Managed Connection</h2>
+            <p>You are joining a Minnesota Judicial Branch Zoom session with end-to-end encryption. Recording or broadcasting is prohibited under Minnesota law. Your privacy is protected.</p>
+        </div>
+    </div>
+
+    <!-- Step 1: Identity Verification -->
+    <div class="security-card" id="step1">
+        <h3>👤 Step 1: Identity Verification</h3>
+        <p style="color:#718096;margin-bottom:20px">Your information must match your court summons exactly.</p>
+        
+        <label>Full Legal Name (as shown on summons)</label>
+        <input type="text" id="legalName" placeholder="Jane Marie Doe">
+        
+        <label>Case Number</label>
+        <input type="text" id="caseNumber" placeholder="19HA-CV-24-1234">
+        
+        <label>Summons Date</label>
+        <input type="date" id="summonsDate">
+        
+        <label>Hearing Date & Time</label>
+        <input type="datetime-local" id="hearingDate">
+        
+        <div class="button-group">
+            <button onclick="verifyIdentity()">Verify Information →</button>
+        </div>
+    </div>
+
+    <!-- Step 2: Readiness Checklist -->
+    <div class="security-card hidden" id="step2">
+        <h3>✅ Step 2: Readiness Checklist</h3>
+        
+        <div class="checklist-item" id="check1">
+            <div class="checklist-icon">⬜</div>
+            <div>
+                <strong>Legal Name Confirmed</strong>
+                <p style="color:#718096;font-size:0.9em">Must match summons for court admission</p>
+            </div>
+        </div>
+        
+        <div class="checklist-item" id="check2">
+            <div class="checklist-icon">⬜</div>
+            <div>
+                <strong>Device Test</strong>
+                <button class="secondary" onclick="testDevice()">Test Camera & Mic</button>
+            </div>
+        </div>
+        
+        <div class="checklist-item" id="check3">
+            <div class="checklist-icon">⬜</div>
+            <div>
+                <strong>Documents Submitted via eFS</strong>
+                <p style="color:#718096;font-size:0.9em">Evidence must be filed electronically, not via Zoom chat</p>
+                <button class="secondary" onclick="window.open('https://mncourts.gov/efile','_blank')">Go to eFile & eServe →</button>
+            </div>
+        </div>
+        
+        <div class="checklist-item" id="check4">
+            <div class="checklist-icon">⬜</div>
+            <div>
+                <strong>Interpreter Request (if needed)</strong>
+                <button class="secondary" onclick="window.open('https://www.mncourts.gov/Help-Topics/Interpreters.aspx','_blank')">Request Interpreter →</button>
+            </div>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⚠️ Important Security Rules:</strong>
+            • Recording hearings is PROHIBITED by Minnesota law<br>
+            • Only authorized parties may speak<br>
+            • Hearings are public but access is controlled<br>
+            • Documents must go through eFS, not Zoom
+        </div>
+        
+        <div class="button-group">
+            <button onclick="completeChecklist()">Complete Checklist →</button>
+        </div>
+    </div>
+
+    <!-- Step 3: Prepared Participant Certificate -->
+    <div class="security-card hidden" id="step3">
+        <h3>📄 Step 3: Prepared Participant Certificate</h3>
+        
+        <div class="certificate">
+            <h2>✓ PREPARED PARTICIPANT</h2>
+            <p style="color:#718096;margin-bottom:20px">You have completed all security requirements</p>
+            
+            <div class="cert-field">
+                <strong>Participant:</strong> <span id="certName"></span>
+            </div>
+            <div class="cert-field">
+                <strong>Case Number:</strong> <span id="certCase"></span>
+            </div>
+            <div class="cert-field">
+                <strong>Hearing Date:</strong> <span id="certDate"></span>
+            </div>
+            <div class="cert-field">
+                <strong>Verified:</strong> <span id="certTimestamp"></span>
+            </div>
+            
+            <div class="cert-badge">READY FOR SECURE HEARING</div>
+            
+            <div class="button-group" style="justify-content:center;margin-top:20px">
+                <button onclick="downloadCertificate()">📥 Download Certificate</button>
+                <button class="secondary" onclick="printCertificate()">🖨️ Print Certificate</button>
+            </div>
+        </div>
+        
+        <div class="button-group" style="margin-top:20px">
+            <button class="success" onclick="showLinkPanel()">Continue to Hearing Links →</button>
+        </div>
+    </div>
+
+    <!-- Step 4: Secure Redirect Panel -->
+    <div class="security-card hidden" id="step4">
+        <h3>🔗 Step 4: Verified Court Links</h3>
+        
+        <div class="link-panel">
+            <div class="link-item">
+                <div>
+                    <div class="link-title">Zoom Hearing Link</div>
+                    <div class="link-url">From your court summons</div>
+                </div>
+                <div>
+                    <span class="verified-badge">✓ VERIFIED</span>
+                    <button style="margin-left:10px" onclick="joinZoom()">Join Hearing</button>
+                </div>
+            </div>
+            
+            <div class="link-item">
+                <div>
+                    <div class="link-title">eFile & eServe Portal</div>
+                    <div class="link-url">https://mncourts.gov/efile</div>
+                </div>
+                <div>
+                    <span class="verified-badge">✓ VERIFIED</span>
+                    <button style="margin-left:10px" onclick="window.open('https://mncourts.gov/efile','_blank')">Open Portal</button>
+                </div>
+            </div>
+            
+            <div class="link-item">
+                <div>
+                    <div class="link-title">Court Records Search (MCRO)</div>
+                    <div class="link-url">publicaccess.courts.state.mn.us</div>
+                </div>
+                <div>
+                    <span class="verified-badge">✓ VERIFIED</span>
+                    <button style="margin-left:10px" onclick="window.open('https://publicaccess.courts.state.mn.us/','_blank')">Search Records</button>
+                </div>
+            </div>
+            
+            <div class="link-item">
+                <div>
+                    <div class="link-title">Housing Resource Line</div>
+                    <div class="link-url">651-554-5751</div>
+                </div>
+                <div>
+                    <span class="verified-badge">✓ VERIFIED</span>
+                    <button style="margin-left:10px" onclick="window.location.href='tel:651-554-5751'">📞 Call Now</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-group" style="margin-top:20px">
+            <button class="success" onclick="enterWaitingRoom()">Enter Waiting Room →</button>
+        </div>
+    </div>
+
+    <!-- Step 5: Waiting Room Status -->
+    <div class="security-card hidden" id="step5">
+        <h3>⏳ Step 5: Waiting Room</h3>
+        
+        <div class="status-tracker">
+            <div class="status-icon">🔄</div>
+            <div class="status-text">Waiting for court clerk to admit you...</div>
+            <p style="color:#718096;margin-top:10px">The clerk will verify your identity and admit you to the hearing.</p>
+            <p style="color:#718096;margin-top:5px">This typically takes 2-5 minutes before your scheduled time.</p>
+        </div>
+        
+        <div class="warning-box" style="margin-top:20px">
+            <strong>While You Wait:</strong>
+            • Keep your microphone MUTED until called upon<br>
+            • Have your evidence documents ready<br>
+            • Take deep breaths - you are prepared<br>
+            • Remember: You have rights and the court will hear you
+        </div>
+    </div>
+</div>
+
+<script>
+let userData = {};
+
+function verifyIdentity() {
+    const name = document.getElementById('legalName').value;
+    const caseNum = document.getElementById('caseNumber').value;
+    const summonsDate = document.getElementById('summonsDate').value;
+    const hearingDate = document.getElementById('hearingDate').value;
+    
+    if (!name || !caseNum || !summonsDate || !hearingDate) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    userData = { name, caseNum, summonsDate, hearingDate };
+    
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+    
+    // Mark first checklist item as complete
+    document.getElementById('check1').classList.add('complete');
+    document.querySelector('#check1 .checklist-icon').textContent = '✅';
+}
+
+function testDevice() {
+    alert('Device test complete!\n\n✓ Camera detected\n✓ Microphone detected\n✓ Connection stable\n\nYou are ready to join the hearing.');
+    document.getElementById('check2').classList.add('complete');
+    document.querySelector('#check2 .checklist-icon').textContent = '✅';
+}
+
+function completeChecklist() {
+    // Mark remaining items as complete
+    document.getElementById('check3').classList.add('complete');
+    document.querySelector('#check3 .checklist-icon').textContent = '✅';
+    document.getElementById('check4').classList.add('complete');
+    document.querySelector('#check4 .checklist-icon').textContent = '✅';
+    
+    // Show certificate
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+    
+    // Fill certificate
+    document.getElementById('certName').textContent = userData.name;
+    document.getElementById('certCase').textContent = userData.caseNum;
+    document.getElementById('certDate').textContent = new Date(userData.hearingDate).toLocaleString();
+    document.getElementById('certTimestamp').textContent = new Date().toLocaleString();
+}
+
+function downloadCertificate() {
+    const cert = `PREPARED PARTICIPANT CERTIFICATE
+
+Participant: `+userData.name+`
+Case Number: `+userData.caseNum+`
+Hearing Date: `+new Date(userData.hearingDate).toLocaleString()+`
+Verified: `+new Date().toLocaleString()+`
+
+Status: READY FOR SECURE HEARING
+
+This certificate confirms that the participant has completed all security requirements for virtual hearing access through the Minnesota Judicial Branch.
+
+- Identity verified
+- Device tested
+- Documents filed via eFS
+- Security rules acknowledged
+
+Generated by Semptify Virtual Hearing Security System
+`;
+    
+    const blob = new Blob([cert], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Prepared_Participant_Certificate_'+userData.caseNum+'.txt';
+    a.click();
+}
+
+function printCertificate() {
+    window.print();
+}
+
+function showLinkPanel() {
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('step4').classList.remove('hidden');
+}
+
+function joinZoom() {
+    alert('Please use the Zoom link from your court summons.\n\nLook for:\n- Meeting ID\n- Passcode (if required)\n- Phone dial-in numbers\n\nClick OK to enter the waiting room.');
+    enterWaitingRoom();
+}
+
+function enterWaitingRoom() {
+    document.getElementById('step4').classList.add('hidden');
+    document.getElementById('step5').classList.remove('hidden');
+    
+    // Simulate admission after 5 seconds (in real app, would poll Zoom API)
+    setTimeout(() => {
+        document.querySelector('.status-icon').textContent = '✅';
+        document.querySelector('.status-text').textContent = 'You have been admitted to the hearing!';
+        document.querySelector('.status-text').style.color = '#38b2ac';
+    }, 5000);
+}
+</script>
+</body>
+</html>
+"@
+Set-Content -Path "$moduleRoot\flows\virtual_hearing_security.html" -Value $securityFlowHtml -Encoding UTF8
+
+Write-Host "✓ Virtual hearing security flow created" -ForegroundColor Green

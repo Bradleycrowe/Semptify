@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify GUI Hub | Choose Your Interface</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .gui-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .gui-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        .gui-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+        }
+        .gui-card.featured {
+            border: 3px solid #667eea;
+        }
+        .gui-card.mobile-optimized::after {
+            content: "📱 Mobile";
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #28a745;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .gui-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .gui-title {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .gui-subtitle {
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        .gui-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .gui-features {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+        .gui-features li {
+            padding: 6px 0;
+            color: #444;
+        }
+        .gui-features li::before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .device-compatibility {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .device-tag {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .device-tag.desktop {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .device-tag.mobile {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .device-tag.tablet {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .launch-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+        .launch-button:hover {
+            opacity: 0.9;
+        }
+        .admin-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .admin-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #dc3545;
+            color: white;
+            border-radius: 8px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .admin-button:hover {
+            background: #c82333;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .badge.new {
+            background: #28a745;
+            color: white;
+        }
+        .badge.beta {
+            background: #ffc107;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    {% include "components/header.html" %}
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Semptify GUI Hub</h1>
+            <p>Choose the interface that works best for you</p>
+        </div>
+
+        <div class="gui-grid">
+            <!-- Learning Dashboard -->
+            <div class="gui-card featured">
+                <div class="gui-icon">📊</div>
+                <h2 class="gui-title">Learning Dashboard <span class="badge new">NEW</span></h2>
+                <p class="gui-subtitle">Intelligent adaptive interface</p>
+                <p class="gui-description">
+                    AI-powered dashboard that learns from your usage patterns and adapts to your needs.
+                </p>
+                <ul class="gui-features">
+                    <li>Personalized next steps</li>
+                    <li>Progress tracking</li>
+                    <li>Smart recommendations</li>
+                    <li>4-perspective analysis</li>
+                    <li>Win probability display</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag desktop">💻 Desktop</span>
+                    <span class="device-tag tablet">📱 Tablet</span>
+                </div>
+                <a href="/dashboard" class="launch-button">Launch Learning Dashboard</a>
+            </div>
+
+            <!-- Brad GUI (Multi-Client Manager) -->
+            <div class="gui-card">
+                <div class="gui-icon">👥</div>
+                <h2 class="gui-title">Brad GUI</h2>
+                <p class="gui-subtitle">Multi-client case manager</p>
+                <p class="gui-description">
+                    Manage multiple tenant cases simultaneously with cloud storage integration.
+                </p>
+                <ul class="gui-features">
+                    <li>Multiple client tracking</li>
+                    <li>Dropbox & cloud storage</li>
+                    <li>OAuth integration</li>
+                    <li>Client switching</li>
+                    <li>Batch operations</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag desktop">💻 Desktop</span>
+                </div>
+                <a href="/brad" class="launch-button">Launch Brad GUI</a>
+            </div>
+
+            <!-- Modern GUI -->
+            <div class="gui-card mobile-optimized">
+                <div class="gui-icon">✨</div>
+                <h2 class="gui-title">Modern GUI</h2>
+                <p class="gui-subtitle">Human-centered mobile interface</p>
+                <p class="gui-description">
+                    Clean, intuitive interface optimized for single users on mobile devices.
+                </p>
+                <ul class="gui-features">
+                    <li>Touch-optimized</li>
+                    <li>Smart auto-fill</li>
+                    <li>Profile management</li>
+                    <li>Simplified workflow</li>
+                    <li>Fast loading</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag mobile">📱 Mobile</span>
+                    <span class="device-tag tablet">📱 Tablet</span>
+                    <span class="device-tag desktop">💻 Desktop</span>
+                </div>
+                <a href="/modern" class="launch-button">Launch Modern GUI</a>
+            </div>
+
+            <!-- Main Dashboard -->
+            <div class="gui-card">
+                <div class="gui-icon">🏡</div>
+                <h2 class="gui-title">Main Dashboard</h2>
+                <p class="gui-subtitle">Classic tenant interface</p>
+                <p class="gui-description">
+                    Traditional dashboard with all core features in one place.
+                </p>
+                <ul class="gui-features">
+                    <li>Document vault access</li>
+                    <li>Timeline view</li>
+                    <li>Quick actions</li>
+                    <li>Status overview</li>
+                    <li>Help resources</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag desktop">💻 Desktop</span>
+                    <span class="device-tag tablet">📱 Tablet</span>
+                </div>
+                <a href="/main" class="launch-button">Launch Main Dashboard</a>
+            </div>
+
+            <!-- Calendar Vault UI -->
+            <div class="gui-card">
+                <div class="gui-icon">📅</div>
+                <h2 class="gui-title">Calendar Vault</h2>
+                <p class="gui-subtitle">Timeline & document manager</p>
+                <p class="gui-description">
+                    Visual timeline with integrated document vault and deadline tracking.
+                </p>
+                <ul class="gui-features">
+                    <li>Calendar view</li>
+                    <li>Document uploads</li>
+                    <li>Deadline alerts</li>
+                    <li>Event timeline</li>
+                    <li>Evidence tracking</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag desktop">💻 Desktop</span>
+                    <span class="device-tag mobile">📱 Mobile</span>
+                </div>
+                <a href="/calendar-vault" class="launch-button">Launch Calendar Vault</a>
+            </div>
+
+            <!-- Complaint Filing Wizard -->
+            <div class="gui-card">
+                <div class="gui-icon">⚖️</div>
+                <h2 class="gui-title">Complaint Filing</h2>
+                <p class="gui-subtitle">Court packet generator</p>
+                <p class="gui-description">
+                    Step-by-step wizard for filing court complaints with auto-fill from documents.
+                </p>
+                <ul class="gui-features">
+                    <li>Auto-fill from vault</li>
+                    <li>Multi-venue filing</li>
+                    <li>Legal formatting</li>
+                    <li>Evidence inclusion</li>
+                    <li>Filing instructions</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag desktop">💻 Desktop</span>
+                </div>
+                <a href="/file-complaint" class="launch-button">Launch Filing Wizard</a>
+            </div>
+
+            <!-- Perspective Analysis -->
+            <div class="gui-card featured">
+                <div class="gui-icon">🔍</div>
+                <h2 class="gui-title">Perspective Analysis <span class="badge new">NEW</span></h2>
+                <p class="gui-subtitle">4-viewpoint case analyzer</p>
+                <p class="gui-description">
+                    See your case from tenant, landlord, legal, and judicial perspectives.
+                </p>
+                <ul class="gui-features">
+                    <li>4 perspective analysis</li>
+                    <li>Win probability</li>
+                    <li>Settlement recommendations</li>
+                    <li>Strength/weakness analysis</li>
+                    <li>Next steps guidance</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag desktop">💻 Desktop</span>
+                    <span class="device-tag tablet">📱 Tablet</span>
+                </div>
+                <a href="/dashboard/perspective" class="launch-button">View Perspectives</a>
+            </div>
+
+            <!-- Vault (Direct Access) -->
+            <div class="gui-card mobile-optimized">
+                <div class="gui-icon">🔐</div>
+                <h2 class="gui-title">Document Vault</h2>
+                <p class="gui-subtitle">Secure document storage</p>
+                <p class="gui-description">
+                    Direct access to encrypted document storage with intelligence analysis.
+                </p>
+                <ul class="gui-features">
+                    <li>Encrypted storage</li>
+                    <li>Auto-analysis on upload</li>
+                    <li>Certificate generation</li>
+                    <li>Evidence notarization</li>
+                    <li>Download/attestation</li>
+                </ul>
+                <div class="device-compatibility">
+                    <span class="device-tag mobile">📱 Mobile</span>
+                    <span class="device-tag desktop">💻 Desktop</span>
+                </div>
+                <a href="/vault" class="launch-button">Access Vault</a>
+            </div>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="admin-section">
+            <h2 style="color: white; margin-bottom: 20px; font-size: 2em;">
+                🔧 System Administration
+            </h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 25px; font-size: 1.1em;">
+                Comprehensive control panel for system management, configuration, and monitoring
+            </p>
+            <a href="/master-admin" class="admin-button">
+                🛡️ Master Admin Control Panel
+            </a>
+        </div>
+    </div>
+</body>
+</html>

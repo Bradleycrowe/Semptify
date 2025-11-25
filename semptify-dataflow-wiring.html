@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify Data Flow Wiring Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #e0e0e0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .container {
+            min-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+        }
+        
+        .legend-line {
+            width: 30px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        .data-user { background: #00d4ff; }
+        .data-auth { background: #ff6b6b; }
+        .data-storage { background: #51cf66; }
+        .data-db { background: #ffd43b; }
+        .data-api { background: #a78bfa; }
+        .data-ai { background: #f783ac; }
+        
+        /* Diagram Layout */
+        .diagram {
+            position: relative;
+            min-height: 1200px;
+            background: radial-gradient(circle at center, #1a1f3a 0%, #0a0e27 100%);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }
+        
+        /* Nodes */
+        .node {
+            position: absolute;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            min-width: 140px;
+            z-index: 10;
+        }
+        
+        .node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px currentColor;
+            z-index: 20;
+        }
+        
+        /* Node Types */
+        .node-entry {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #a78bfa;
+            color: white;
+        }
+        
+        .node-auth {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border-color: #ff8787;
+            color: white;
+        }
+        
+        .node-page {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            border-color: #00d4ff;
+            color: white;
+        }
+        
+        .node-api {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            border-color: #c4b5fd;
+            color: white;
+        }
+        
+        .node-storage {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            border-color: #8ce99a;
+            color: white;
+        }
+        
+        .node-db {
+            background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%);
+            border-color: #ffe066;
+            color: #333;
+        }
+        
+        .node-external {
+            background: linear-gradient(135deg, #f783ac 0%, #e64980 100%);
+            border-color: #faa2c1;
+            color: white;
+        }
+        
+        .node-ai {
+            background: linear-gradient(135deg, #f783ac 0%, #a78bfa 100%);
+            border-color: #f8b4d9;
+            color: white;
+        }
+        
+        /* Connection Lines */
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .connection {
+            stroke-width: 2.5;
+            fill: none;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .connection-user { stroke: #00d4ff; }
+        .connection-auth { stroke: #ff6b6b; }
+        .connection-storage { stroke: #51cf66; }
+        .connection-db { stroke: #ffd43b; }
+        .connection-api { stroke: #a78bfa; }
+        .connection-ai { stroke: #f783ac; }
+        
+        .connection:hover {
+            opacity: 1;
+            stroke-width: 4;
+        }
+        
+        /* Animated flow */
+        @keyframes flow {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        .connection {
+            stroke-dasharray: 10, 5;
+            animation: flow 20s linear infinite;
+        }
+        
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            right: -450px;
+            top: 0;
+            width: 450px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-left: 3px solid #00d4ff;
+            padding: 30px;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.5);
+            transition: right 0.4s ease;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        
+        .info-panel.open {
+            right: 0;
+        }
+        
+        .info-panel h3 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .info-panel .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+        
+        .info-panel .close-btn:hover {
+            background: #ff5252;
+            transform: rotate(90deg);
+        }
+        
+        .data-flow-item {
+            background: rgba(255,255,255,0.05);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 3px solid;
+        }
+        
+        .data-flow-item.user { border-left-color: #00d4ff; }
+        .data-flow-item.auth { border-left-color: #ff6b6b; }
+        .data-flow-item.storage { border-left-color: #51cf66; }
+        .data-flow-item.db { border-left-color: #ffd43b; }
+        .data-flow-item.api { border-left-color: #a78bfa; }
+        .data-flow-item.ai { border-left-color: #f783ac; }
+        
+        .data-flow-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #00d4ff;
+        }
+        
+        .data-flow-item code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            color: #51cf66;
+        }
+        
+        /* Section Labels */
+        .section-label {
+            position: absolute;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Semptify Data Flow Wiring Diagram</h1>
+        <div class="subtitle">Complete module interconnections, API flows, and data pathways</div>
+        
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-line data-user"></div>
+                <span>User Data Flow</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line data-auth"></div>
+                <span>Authentication</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line data-storage"></div>
+                <span>Cloud Storage</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line data-db"></div>
+                <span>Database</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line data-api"></div>
+                <span>API Calls</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line data-ai"></div>
+                <span>AI Processing</span>
+            </div>
+        </div>
+        
+        <!-- Diagram -->
+        <div class="diagram">
+            <!-- SVG for connections -->
+            <svg id="connectionsSvg"></svg>
+            
+            <!-- Section Labels -->
+            <div class="section-label" style="top: 10px; left: 20px;">Entry Point</div>
+            <div class="section-label" style="top: 150px; left: 20px;">Authentication Layer</div>
+            <div class="section-label" style="top: 350px; left: 20px;">Frontend Pages</div>
+            <div class="section-label" style="top: 350px; right: 20px;">Backend APIs</div>
+            <div class="section-label" style="bottom: 250px; left: 20px;">Storage Layer</div>
+            <div class="section-label" style="bottom: 250px; right: 20px;">External Services</div>
+            <div class="section-label" style="bottom: 50px; left: 50%; transform: translateX(-50%);">Data Persistence</div>
+            
+            <!-- NODES -->
+            <!-- Entry Point -->
+            <div class="node node-entry" style="top: 50px; left: 50%; transform: translateX(-50%);" data-id="entry">
+                🚀 http://localhost:5000/
+            </div>
+            
+            <!-- Auth Layer -->
+            <div class="node node-auth" style="top: 180px; left: 30%;" data-id="oauth-check">
+                🔐 storage_autologin_bp<br><small>OAuth Check</small>
+            </div>
+            <div class="node node-auth" style="top: 180px; left: 50%; transform: translateX(-50%);" data-id="setup">
+                ⚙️ /setup<br><small>Storage Setup</small>
+            </div>
+            <div class="node node-auth" style="top: 180px; right: 30%;" data-id="oauth-flow">
+                🔑 OAuth Flow<br><small>Google/Dropbox</small>
+            </div>
+            
+            <!-- Main Pages (Left Column) -->
+            <div class="node node-page" style="top: 380px; left: 50px;" data-id="home">
+                🏠 Welcome Home<br><small>/</small>
+            </div>
+            <div class="node node-page" style="top: 480px; left: 50px;" data-id="library">
+                📚 Library<br><small>/library</small>
+            </div>
+            <div class="node node-page" style="top: 580px; left: 50px;" data-id="vault">
+                🗄️ Vault<br><small>/vault</small>
+            </div>
+            <div class="node node-page" style="top: 680px; left: 50px;" data-id="complaint">
+                📝 File Complaint<br><small>/file-complaint</small>
+            </div>
+            <div class="node node-page" style="top: 780px; left: 50px;" data-id="research">
+                🔍 Research<br><small>/research</small>
+            </div>
+            <div class="node node-page" style="top: 880px; left: 50px;" data-id="calendar">
+                📅 Calendar<br><small>/calendar</small>
+            </div>
+            
+            <!-- API Layer (Middle) -->
+            <div class="node node-api" style="top: 380px; left: 45%;" data-id="copilot-api">
+                🤖 Copilot API<br><small>/api/copilot</small>
+            </div>
+            <div class="node node-api" style="top: 480px; left: 45%;" data-id="vault-api">
+                📦 Vault API<br><small>/api/vault/*</small>
+            </div>
+            <div class="node node-api" style="top: 580px; left: 45%;" data-id="timeline-api">
+                ⏱️ Timeline API<br><small>/api/timeline/*</small>
+            </div>
+            <div class="node node-api" style="top: 680px; left: 45%;" data-id="calendar-api">
+                📆 Calendar API<br><small>/api/calendar/*</small>
+            </div>
+            <div class="node node-api" style="top: 780px; left: 45%;" data-id="dashboard-api">
+                📊 Dashboard API<br><small>/api/dashboard/*</small>
+            </div>
+            <div class="node node-api" style="top: 880px; left: 45%;" data-id="ollama-api">
+                🦙 Ollama API<br><small>/api/ollama/*</small>
+            </div>
+            
+            <!-- AI Processing (Right Upper) -->
+            <div class="node node-ai" style="top: 380px; right: 50px;" data-id="ai-openai">
+                🧠 OpenAI<br><small>GPT-4/3.5</small>
+            </div>
+            <div class="node node-ai" style="top: 480px; right: 50px;" data-id="ai-azure">
+                ☁️ Azure OpenAI<br><small>GPT-4</small>
+            </div>
+            <div class="node node-ai" style="top: 580px; right: 50px;" data-id="ai-ollama">
+                🦙 Ollama Local<br><small>llama3.2/mistral</small>
+            </div>
+            
+            <!-- External Services (Right Middle) -->
+            <div class="node node-external" style="top: 720px; right: 50px;" data-id="github">
+                📦 GitHub API<br><small>Releases</small>
+            </div>
+            <div class="node node-external" style="top: 820px; right: 50px;" data-id="easyocr">
+                👁️ EasyOCR<br><small>Handwriting</small>
+            </div>
+            <div class="node node-external" style="top: 920px; right: 50px;" data-id="reportlab">
+                📄 ReportLab<br><small>PDF Gen</small>
+            </div>
+            
+            <!-- Storage Layer (Bottom Left) -->
+            <div class="node node-storage" style="bottom: 280px; left: 100px;" data-id="google-drive">
+                📁 Google Drive<br><small>.semptify/*</small>
+            </div>
+            <div class="node node-storage" style="bottom: 280px; left: 300px;" data-id="dropbox">
+                📦 Dropbox<br><small>.semptify/*</small>
+            </div>
+            <div class="node node-storage" style="bottom: 280px; left: 500px;" data-id="r2">
+                ☁️ Cloudflare R2<br><small>Backups</small>
+            </div>
+            <div class="node node-storage" style="bottom: 280px; left: 700px;" data-id="local-uploads">
+                💾 Local Uploads<br><small>uploads/vault/*</small>
+            </div>
+            
+            <!-- Database Layer (Bottom Center) -->
+            <div class="node node-db" style="bottom: 80px; left: 35%;" data-id="sqlite">
+                🗃️ SQLite<br><small>users.db</small>
+            </div>
+            <div class="node node-db" style="bottom: 80px; left: 50%; transform: translateX(-50%);" data-id="users-json">
+                👥 users.json<br><small>User Tokens</small>
+            </div>
+            <div class="node node-db" style="bottom: 80px; right: 35%;" data-id="admin-tokens">
+                🔐 admin_tokens.json<br><small>Admin Auth</small>
+            </div>
+        </div>
+        
+        <!-- Info Panel -->
+        <div class="info-panel" id="infoPanel">
+            <button class="close-btn" onclick="closeInfo()">✕</button>
+            <div id="infoContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Node data with detailed flow information
+        const nodeData = {
+            'entry': {
+                title: '🚀 Application Entry Point',
+                flows: [
+                    { type: 'user', label: 'Browser Request', desc: 'User navigates to http://localhost:5000/' },
+                    { type: 'auth', label: 'OAuth Check', desc: 'storage_autologin_bp.before_app_request intercepts' },
+                    { type: 'user', label: 'Session Validation', desc: 'Checks for dropbox_access_token or drive_credentials' }
+                ]
+            },
+            'oauth-check': {
+                title: '🔐 OAuth Authentication Check',
+                flows: [
+                    { type: 'auth', label: 'Session Check', desc: 'if dropbox_access_token in session or drive_credentials in session' },
+                    { type: 'auth', label: 'Route Exclusions', desc: 'Skip: /setup, /oauth/*, /static/*, /clear-session' },
+                    { type: 'storage', label: 'Token Validation', desc: 'Attempts to download .semptify/auth_token.enc from cloud' },
+                    { type: 'user', label: 'Redirect Decision', desc: 'No token → 302 /setup | Valid token → Continue to requested page' }
+                ]
+            },
+            'setup': {
+                title: '⚙️ Storage Setup Page',
+                flows: [
+                    { type: 'user', label: 'Provider Selection', desc: 'User chooses Google Drive or Dropbox' },
+                    { type: 'auth', label: 'OAuth Initiation', desc: 'GET /oauth/google/start or /oauth/dropbox/start' },
+                    { type: 'api', label: 'OAuth URL Generation', desc: 'Creates authorization URL with redirect_uri' },
+                    { type: 'user', label: 'External Redirect', desc: 'Browser redirects to Google/Dropbox consent screen' }
+                ]
+            },
+            'oauth-flow': {
+                title: '🔑 OAuth Authorization Flow',
+                flows: [
+                    { type: 'auth', label: 'Callback Received', desc: 'GET /oauth/google/callback?code=... or /oauth/dropbox/callback?code=...' },
+                    { type: 'api', label: 'Token Exchange', desc: 'POST to Google/Dropbox token endpoint with code' },
+                    { type: 'storage', label: 'Token Storage', desc: 'Saves access_token to Flask session' },
+                    { type: 'storage', label: 'User Token Creation', desc: 'Generates 12-digit anonymous token, encrypts with AES-256-GCM' },
+                    { type: 'storage', label: 'Cloud Upload', desc: 'Uploads encrypted token to .semptify/auth_token.enc' },
+                    { type: 'db', label: 'Local Token Storage', desc: 'SHA-256 hash saved to security/users.json' },
+                    { type: 'user', label: 'Redirect to Home', desc: '302 → /?user_token=123456789012' }
+                ]
+            },
+            'home': {
+                title: '🏠 Welcome Home - Main Hub',
+                flows: [
+                    { type: 'user', label: 'Page Load', desc: 'GET / with user_token parameter' },
+                    { type: 'user', label: 'Feature Cards', desc: '6 clickable cards: Library, Vault, Complaint, Research, Journey, Calendar' },
+                    { type: 'user', label: 'Navigation', desc: 'goTo(path) JavaScript function appends user_token to all links' },
+                    { type: 'api', label: 'Dashboard Data', desc: 'AJAX calls to /api/dashboard/* for widgets' }
+                ]
+            },
+            'library': {
+                title: '📚 Legal Library',
+                flows: [
+                    { type: 'user', label: 'Page Load', desc: 'GET /library?user_token=...' },
+                    { type: 'user', label: 'Subsections', desc: 'Eviction Law, Tenant Rights, Court Procedures, Court Forms' },
+                    { type: 'api', label: 'External Links', desc: 'Links to .gov sources: revisor.mn.gov, mncourts.gov, hud.gov' },
+                    { type: 'api', label: 'Legal Aid', desc: 'SMRLS, HOME Line, Legal Aid Society resources' }
+                ]
+            },
+            'vault': {
+                title: '🗄️ Document Vault',
+                flows: [
+                    { type: 'user', label: 'Page Load', desc: 'GET /vault?user_token=...' },
+                    { type: 'storage', label: 'File Upload', desc: 'POST /api/vault/upload → saves to uploads/vault/<user_id>/' },
+                    { type: 'api', label: 'OCR Processing', desc: 'EasyOCR on uploaded images for handwriting recognition' },
+                    { type: 'api', label: 'Forensics', desc: 'Document metadata analysis for tampering detection' },
+                    { type: 'storage', label: 'Certificate Generation', desc: 'Creates notary_<ts>_<type>.json with SHA-256, timestamp, evidence' },
+                    { type: 'db', label: 'Timeline Update', desc: 'INSERT INTO timeline_events with upload details' },
+                    { type: 'storage', label: 'Cloud Backup', desc: 'Optional sync to Google Drive/Dropbox and R2' }
+                ]
+            },
+            'complaint': {
+                title: '📝 Complaint Filing Wizard',
+                flows: [
+                    { type: 'user', label: 'Multi-Step Form', desc: 'GET /file-complaint?user_token=...' },
+                    { type: 'user', label: 'Data Collection', desc: 'User fills out: property details, landlord info, violations, evidence' },
+                    { type: 'api', label: 'PDF Generation', desc: 'POST /api/complaint/generate → ReportLab creates court packet' },
+                    { type: 'storage', label: 'Document Save', desc: 'PDF saved to uploads/complaints/<user_id>/' },
+                    { type: 'db', label: 'Case Tracking', desc: 'INSERT INTO cases with complaint details' },
+                    { type: 'api', label: 'Court Forms', desc: 'Includes MN Judicial Branch official forms from mncourts.gov' }
+                ]
+            },
+            'research': {
+                title: '🔍 Research Tools',
+                flows: [
+                    { type: 'user', label: 'Page Load', desc: 'GET /research?user_token=...' },
+                    { type: 'api', label: 'Landlord Lookup', desc: 'Search property ownership records' },
+                    { type: 'api', label: 'Code Violations', desc: 'Query city/county violation databases' },
+                    { type: 'api', label: 'Property History', desc: 'Rental license, inspection history' },
+                    { type: 'storage', label: 'Research Save', desc: 'Results saved to uploads/research/<user_id>/' }
+                ]
+            },
+            'calendar': {
+                title: '📅 Calendar & Timeline',
+                flows: [
+                    { type: 'user', label: 'Page Load', desc: 'GET /calendar?user_token=...' },
+                    { type: 'api', label: 'Events API', desc: 'GET /api/calendar/events returns upcoming deadlines' },
+                    { type: 'db', label: 'Event Storage', desc: 'SELECT FROM timeline_events WHERE user_id=...' },
+                    { type: 'api', label: 'Rent Ledger', desc: 'POST /api/calendar/rent-payment logs payments' },
+                    { type: 'storage', label: 'iCal Export', desc: 'Generate .ics file for external calendar apps' }
+                ]
+            },
+            'copilot-api': {
+                title: '🤖 Copilot AI API',
+                flows: [
+                    { type: 'api', label: 'Request', desc: 'POST /api/copilot with {prompt, context, provider}' },
+                    { type: 'ai', label: 'Provider Routing', desc: 'AI_PROVIDER env: openai | azure | ollama' },
+                    { type: 'ai', label: 'OpenAI', desc: 'If openai: POST https://api.openai.com/v1/chat/completions' },
+                    { type: 'ai', label: 'Azure', desc: 'If azure: POST https://<resource>.openai.azure.com/...' },
+                    { type: 'ai', label: 'Ollama', desc: 'If ollama: POST http://localhost:11434/api/generate' },
+                    { type: 'user', label: 'Response', desc: 'JSON {response, tokens, model} returned to frontend' }
+                ]
+            },
+            'vault-api': {
+                title: '📦 Vault API Endpoints',
+                flows: [
+                    { type: 'api', label: 'Upload', desc: 'POST /api/vault/upload with multipart/form-data' },
+                    { type: 'storage', label: 'File Save', desc: 'secure_filename() → uploads/vault/<user_id>/<filename>' },
+                    { type: 'api', label: 'Download', desc: 'GET /api/vault/download/<file_id>' },
+                    { type: 'api', label: 'List', desc: 'GET /api/vault/list returns file metadata' },
+                    { type: 'api', label: 'Delete', desc: 'DELETE /api/vault/file/<file_id>' },
+                    { type: 'storage', label: 'Attestation', desc: 'POST /api/vault/attest creates notary certificate' }
+                ]
+            },
+            'timeline-api': {
+                title: '⏱️ Timeline API',
+                flows: [
+                    { type: 'api', label: 'Get Events', desc: 'GET /api/timeline/events?user_token=...' },
+                    { type: 'db', label: 'Query', desc: 'SELECT * FROM timeline_events WHERE user_id=... ORDER BY event_date DESC' },
+                    { type: 'storage', label: 'Merge Certificates', desc: 'Reads notary_*.json files from vault, merges with DB events' },
+                    { type: 'user', label: 'Response', desc: 'JSON array [{event_type, title, description, event_date, evidence}]' }
+                ]
+            },
+            'calendar-api': {
+                title: '📆 Calendar API',
+                flows: [
+                    { type: 'api', label: 'Events', desc: 'GET /api/calendar/events?start=...&end=...' },
+                    { type: 'api', label: 'Add Event', desc: 'POST /api/calendar/event with {title, date, type}' },
+                    { type: 'db', label: 'Storage', desc: 'INSERT INTO timeline_events with event_type=calendar' },
+                    { type: 'api', label: 'Rent Payment', desc: 'POST /api/calendar/rent-payment logs payment' },
+                    { type: 'api', label: 'iCal Export', desc: 'GET /api/calendar/export.ics generates iCalendar file' }
+                ]
+            },
+            'dashboard-api': {
+                title: '📊 Dashboard API',
+                flows: [
+                    { type: 'api', label: 'Stats', desc: 'GET /api/dashboard/stats returns {uploads, events, deadlines}' },
+                    { type: 'db', label: 'Aggregation', desc: 'COUNT queries on timeline_events, vault uploads' },
+                    { type: 'api', label: 'Recent Activity', desc: 'GET /api/dashboard/activity → last 10 events' },
+                    { type: 'user', label: 'Widgets', desc: 'JSON data populates dashboard cells dynamically' }
+                ]
+            },
+            'ollama-api': {
+                title: '🦙 Ollama Local LLM API',
+                flows: [
+                    { type: 'api', label: 'Request', desc: 'POST /api/ollama/generate with {model, prompt}' },
+                    { type: 'ai', label: 'Local Ollama', desc: 'Forwards to http://localhost:11434/api/generate' },
+                    { type: 'ai', label: 'Models', desc: 'Supports llama3.2, mistral, codellama, etc.' },
+                    { type: 'user', label: 'Response', desc: 'Streaming or complete JSON response' }
+                ]
+            },
+            'ai-openai': {
+                title: '🧠 OpenAI Integration',
+                flows: [
+                    { type: 'api', label: 'API Key', desc: 'OPENAI_API_KEY from env' },
+                    { type: 'ai', label: 'Endpoint', desc: 'POST https://api.openai.com/v1/chat/completions' },
+                    { type: 'ai', label: 'Models', desc: 'gpt-4, gpt-3.5-turbo' },
+                    { type: 'ai', label: 'Request', desc: '{model, messages: [{role, content}], temperature, max_tokens}' },
+                    { type: 'ai', label: 'Response', desc: '{choices: [{message: {content}}], usage: {tokens}}' }
+                ]
+            },
+            'ai-azure': {
+                title: '☁️ Azure OpenAI Integration',
+                flows: [
+                    { type: 'api', label: 'Config', desc: 'AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_KEY, AZURE_OPENAI_DEPLOYMENT' },
+                    { type: 'ai', label: 'Endpoint', desc: 'POST https://<resource>.openai.azure.com/openai/deployments/<deployment>/chat/completions?api-version=2023-05-15' },
+                    { type: 'ai', label: 'Models', desc: 'gpt-4, gpt-35-turbo (deployment names)' },
+                    { type: 'ai', label: 'Authentication', desc: 'api-key header or Azure AD token' }
+                ]
+            },
+            'ai-ollama': {
+                title: '🦙 Ollama Local LLM',
+                flows: [
+                    { type: 'api', label: 'Config', desc: 'OLLAMA_BASE_URL=http://localhost:11434' },
+                    { type: 'ai', label: 'Local Server', desc: 'Ollama running on localhost (no API key needed)' },
+                    { type: 'ai', label: 'Models', desc: 'llama3.2, mistral, codellama, orca-mini' },
+                    { type: 'ai', label: 'Privacy', desc: 'All data stays local, no external API calls' }
+                ]
+            },
+            'github': {
+                title: '📦 GitHub API Integration',
+                flows: [
+                    { type: 'api', label: 'Release Creation', desc: 'POST /release_now creates git tag via GitHub API' },
+                    { type: 'api', label: 'Authentication', desc: 'GITHUB_TOKEN env var' },
+                    { type: 'api', label: 'Endpoint', desc: 'POST https://api.github.com/repos/<owner>/<repo>/git/refs' },
+                    { type: 'storage', label: 'Logging', desc: 'Release details logged to logs/release-log.json' }
+                ]
+            },
+            'easyocr': {
+                title: '👁️ EasyOCR Handwriting Recognition',
+                flows: [
+                    { type: 'api', label: 'Import', desc: 'import easyocr' },
+                    { type: 'ai', label: 'Reader', desc: 'reader = easyocr.Reader(["en"])' },
+                    { type: 'ai', label: 'Processing', desc: 'result = reader.readtext(image_path)' },
+                    { type: 'storage', label: 'Output', desc: 'Extracted text saved with bounding boxes and confidence scores' }
+                ]
+            },
+            'reportlab': {
+                title: '📄 ReportLab PDF Generation',
+                flows: [
+                    { type: 'api', label: 'Import', desc: 'from reportlab.lib.pagesizes import letter' },
+                    { type: 'api', label: 'Canvas', desc: 'c = canvas.Canvas(filename, pagesize=letter)' },
+                    { type: 'api', label: 'Content', desc: 'c.drawString(x, y, text) for forms and documents' },
+                    { type: 'storage', label: 'Save', desc: 'c.save() → PDF written to uploads/complaints/' }
+                ]
+            },
+            'google-drive': {
+                title: '📁 Google Drive Storage',
+                flows: [
+                    { type: 'storage', label: 'OAuth Scopes', desc: 'https://www.googleapis.com/auth/drive.file (limited access)' },
+                    { type: 'storage', label: 'Folder', desc: '.semptify/ in user\'s Drive root' },
+                    { type: 'storage', label: 'Files', desc: 'auth_token.enc (encrypted user token), backups, exports' },
+                    { type: 'api', label: 'API', desc: 'Google Drive API v3 via google-api-python-client' },
+                    { type: 'storage', label: 'Encryption', desc: 'AES-256-GCM before upload' }
+                ]
+            },
+            'dropbox': {
+                title: '📦 Dropbox Storage',
+                flows: [
+                    { type: 'storage', label: 'OAuth Scopes', desc: 'files.content.write, files.content.read' },
+                    { type: 'storage', label: 'Folder', desc: '/.semptify/ in user\'s Dropbox root' },
+                    { type: 'storage', label: 'Files', desc: 'auth_token.enc, document backups' },
+                    { type: 'api', label: 'API', desc: 'Dropbox API v2 via dropbox Python SDK' },
+                    { type: 'storage', label: 'Encryption', desc: 'AES-256-GCM before upload' }
+                ]
+            },
+            'r2': {
+                title: '☁️ Cloudflare R2 Backups',
+                flows: [
+                    { type: 'storage', label: 'S3 Compatible', desc: 'Uses boto3 with R2 endpoint' },
+                    { type: 'storage', label: 'Bucket', desc: 'semptify-backups (or configured name)' },
+                    { type: 'storage', label: 'Files', desc: 'Periodic backups of vault documents, database exports' },
+                    { type: 'api', label: 'Authentication', desc: 'R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY' }
+                ]
+            },
+            'local-uploads': {
+                title: '💾 Local Upload Storage',
+                flows: [
+                    { type: 'storage', label: 'Base Path', desc: 'uploads/vault/<user_id>/' },
+                    { type: 'storage', label: 'Structure', desc: 'Organized by user_id folders' },
+                    { type: 'storage', label: 'File Types', desc: 'PDFs, images, documents, evidence files' },
+                    { type: 'storage', label: 'Certificates', desc: 'notary_<ts>_<type>.json alongside files' },
+                    { type: 'storage', label: 'Cleanup', desc: 'Optional expiration/cleanup policies' }
+                ]
+            },
+            'sqlite': {
+                title: '🗃️ SQLite Database (users.db)',
+                flows: [
+                    { type: 'db', label: 'users table', desc: 'id, email, password_hash, created_at' },
+                    { type: 'db', label: 'remember_tokens table', desc: 'token_hash, user_id, expires_at' },
+                    { type: 'db', label: 'timeline_events table', desc: 'id, event_type, title, description, event_date, user_id, created_at' },
+                    { type: 'db', label: 'Connection', desc: 'get_user_db() from user_database.py' },
+                    { type: 'db', label: 'Location', desc: 'users.db in project root' }
+                ]
+            },
+            'users-json': {
+                title: '👥 User Tokens (security/users.json)',
+                flows: [
+                    { type: 'db', label: 'Format', desc: '{<user_id>: {token_hash: <sha256>, created: <iso8601>}}' },
+                    { type: 'auth', label: 'Token Generation', desc: '12-digit anonymous token on registration' },
+                    { type: 'auth', label: 'Hashing', desc: 'SHA-256 hash stored, plain token shown once' },
+                    { type: 'auth', label: 'Validation', desc: 'validate_user_token(token) from security.py' },
+                    { type: 'db', label: 'Atomic Writes', desc: '_atomic_write_json() for safe updates' }
+                ]
+            },
+            'admin-tokens': {
+                title: '🔐 Admin Tokens (security/admin_tokens.json)',
+                flows: [
+                    { type: 'db', label: 'Format', desc: '[{id: <name>, hash: <sha256>, breakglass: <bool>}]' },
+                    { type: 'auth', label: 'Multi-Token', desc: 'Supports multiple admin tokens for team' },
+                    { type: 'auth', label: 'Break-Glass', desc: 'Special token for emergency access (one-time use)' },
+                    { type: 'auth', label: 'Validation', desc: 'validate_admin_token(token) from security.py' },
+                    { type: 'db', label: 'Security', desc: 'Never commit to git, generate via create_admin_token.py' }
+                ]
+            }
+        };
+        
+        // Connection definitions [from, to, type]
+        const connections = [
+            // Entry → Auth
+            ['entry', 'oauth-check', 'auth'],
+            ['oauth-check', 'setup', 'auth'],
+            ['oauth-check', 'home', 'user'],
+            ['setup', 'oauth-flow', 'auth'],
+            ['oauth-flow', 'google-drive', 'storage'],
+            ['oauth-flow', 'dropbox', 'storage'],
+            ['oauth-flow', 'users-json', 'db'],
+            ['oauth-flow', 'home', 'user'],
+            
+            // Pages → APIs
+            ['home', 'copilot-api', 'api'],
+            ['home', 'dashboard-api', 'api'],
+            ['library', 'copilot-api', 'api'],
+            ['vault', 'vault-api', 'api'],
+            ['vault', 'timeline-api', 'api'],
+            ['complaint', 'reportlab', 'api'],
+            ['research', 'copilot-api', 'api'],
+            ['calendar', 'calendar-api', 'api'],
+            ['calendar', 'timeline-api', 'api'],
+            
+            // APIs → AI
+            ['copilot-api', 'ai-openai', 'ai'],
+            ['copilot-api', 'ai-azure', 'ai'],
+            ['copilot-api', 'ai-ollama', 'ai'],
+            ['ollama-api', 'ai-ollama', 'ai'],
+            
+            // APIs → External
+            ['dashboard-api', 'github', 'api'],
+            ['vault-api', 'easyocr', 'api'],
+            
+            // APIs → Storage
+            ['vault-api', 'local-uploads', 'storage'],
+            ['vault-api', 'google-drive', 'storage'],
+            ['vault-api', 'dropbox', 'storage'],
+            ['vault-api', 'r2', 'storage'],
+            ['complaint', 'local-uploads', 'storage'],
+            
+            // APIs → Database
+            ['timeline-api', 'sqlite', 'db'],
+            ['calendar-api', 'sqlite', 'db'],
+            ['vault-api', 'sqlite', 'db'],
+            ['dashboard-api', 'sqlite', 'db'],
+            ['oauth-flow', 'sqlite', 'db'],
+            
+            // Database cross-references
+            ['sqlite', 'users-json', 'db'],
+            ['oauth-check', 'admin-tokens', 'auth'],
+            
+            // Storage to Database
+            ['local-uploads', 'timeline-api', 'storage'],
+            ['google-drive', 'oauth-check', 'storage'],
+            ['dropbox', 'oauth-check', 'storage']
+        ];
+        
+        // Calculate node positions
+        const nodes = {};
+        document.querySelectorAll('.node').forEach(node => {
+            const rect = node.getBoundingClientRect();
+            const diagramRect = document.querySelector('.diagram').getBoundingClientRect();
+            nodes[node.dataset.id] = {
+                x: rect.left - diagramRect.left + rect.width / 2,
+                y: rect.top - diagramRect.top + rect.height / 2,
+                element: node
+            };
+        });
+        
+        // Draw connections
+        const svg = document.getElementById('connectionsSvg');
+        const svgNS = 'http://www.w3.org/2000/svg';
+        
+        connections.forEach(([from, to, type]) => {
+            if (nodes[from] && nodes[to]) {
+                const path = document.createElementNS(svgNS, 'path');
+                const x1 = nodes[from].x;
+                const y1 = nodes[from].y;
+                const x2 = nodes[to].x;
+                const y2 = nodes[to].y;
+                
+                // Curved path for better visualization
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const curve = Math.min(dist * 0.3, 100);
+                
+                // Control point perpendicular to line
+                const cpX = midX - dy / dist * curve;
+                const cpY = midY + dx / dist * curve;
+                
+                const d = `M ${x1} ${y1} Q ${cpX} ${cpY} ${x2} ${y2}`;
+                path.setAttribute('d', d);
+                path.classList.add('connection', `connection-${type}`);
+                svg.appendChild(path);
+            }
+        });
+        
+        // Node click handler
+        document.querySelectorAll('.node').forEach(node => {
+            node.addEventListener('click', () => {
+                showInfo(node.dataset.id);
+            });
+        });
+        
+        function showInfo(nodeId) {
+            const data = nodeData[nodeId];
+            if (!data) return;
+            
+            const panel = document.getElementById('infoPanel');
+            const content = document.getElementById('infoContent');
+            
+            let html = `<h3>${data.title}</h3>`;
+            data.flows.forEach(flow => {
+                html += `
+                    <div class="data-flow-item ${flow.type}">
+                        <strong>${flow.label}</strong>
+                        ${flow.desc}
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = html;
+            panel.classList.add('open');
+        }
+        
+        function closeInfo() {
+            document.getElementById('infoPanel').classList.remove('open');
+        }
+        
+        // Close panel when clicking outside
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('infoPanel');
+            if (panel.classList.contains('open') && 
+                !panel.contains(e.target) && 
+                !e.target.closest('.node')) {
+                closeInfo();
+            }
+        });
+    </script>
+</body>
+</html>

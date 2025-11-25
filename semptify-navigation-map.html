@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify Navigation Flow - Interactive Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .legend {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 30px;
+            margin-bottom: 10px;
+        }
+        .legend-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+        .flow-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .flow-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .flow-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .flow-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        .flow-card:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .flow-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #fff;
+        }
+        .flow-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .flow-card .icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .flow-card .route {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #764ba2;
+            margin: 8px 0;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 5px;
+        }
+        .flow-card.active .route {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .flow-card .description {
+            font-size: 0.9em;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        .flow-arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        .entry-point {
+            background: #4CAF50;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        .entry-point h2 {
+            margin-bottom: 15px;
+            color: white;
+            border: none;
+        }
+        .detail-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+            padding: 30px;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 1000;
+        }
+        .detail-panel.open {
+            right: 0;
+        }
+        .detail-panel .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        .detail-panel h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .detail-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+        .detail-panel li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-panel li:before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        .oauth-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .oauth-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 45%;
+            border: 3px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .oauth-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .oauth-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .flow-grid {
+                grid-template-columns: 1fr;
+            }
+            .detail-panel {
+                width: 100%;
+                right: -100%;
+            }
+            .oauth-flow {
+                flex-direction: column;
+            }
+            .oauth-card {
+                width: 90%;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Semptify Navigation Flow</h1>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-box" style="background: #4CAF50;"></span>
+                <span>Entry Point</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-box" style="background: linear-gradient(135deg, #667eea, #764ba2);"></span>
+                <span>Main Features</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-box" style="background: linear-gradient(135deg, #f5f7fa, #c3cfe2);"></span>
+                <span>Sub-pages</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-box" style="background: #FF5722;"></span>
+                <span>External Links</span>
+            </div>
+        </div>
+
+        <div class="entry-point">
+            <h2>🚀 Application Entry</h2>
+            <p><strong>http://localhost:5000/</strong></p>
+            <p style="margin-top: 15px;">OAuth Storage Check → With Session: Welcome Home | No Session: Setup Page</p>
+        </div>
+
+        <div class="flow-arrow">⬇️</div>
+
+        <div class="flow-section">
+            <h2>☁️ OAuth Storage Setup</h2>
+            <p style="margin-bottom: 20px;"><strong>Route:</strong> /setup</p>
+            <div class="oauth-flow">
+                <div class="oauth-card" onclick="showDetail('google')">
+                    <div style="font-size: 3em;">📁</div>
+                    <h3>Google Drive</h3>
+                    <div class="route">/oauth/google/start</div>
+                    <p>Secure token storage in your Drive</p>
+                </div>
+                <div class="oauth-card" onclick="showDetail('dropbox')">
+                    <div style="font-size: 3em;">📦</div>
+                    <h3>Dropbox</h3>
+                    <div class="route">/oauth/dropbox/start</div>
+                    <p>Secure token storage in your Dropbox</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-arrow">⬇️</div>
+
+        <div class="flow-section">
+            <h2>🏠 Welcome Home - Main Hub</h2>
+            <p style="margin-bottom: 20px;"><strong>Route:</strong> / (welcome_home.html)</p>
+            <div class="flow-grid">
+                <div class="flow-card" onclick="toggleCard(this); showDetail('library')">
+                    <h3><span class="icon">📚</span> AI Librarian</h3>
+                    <div class="route">/library</div>
+                    <div class="description">Legal resources, statutes, tenant rights, court forms</div>
+                </div>
+                <div class="flow-card" onclick="toggleCard(this); showDetail('vault')">
+                    <h3><span class="icon">🔐</span> Document Vault</h3>
+                    <div class="route">/vault</div>
+                    <div class="description">Upload, verify, analyze documents. Handwriting recognition & forensics</div>
+                </div>
+                <div class="flow-card" onclick="toggleCard(this); showDetail('complaint')">
+                    <h3><span class="icon">⚖️</span> File Complaint</h3>
+                    <div class="route">/file-complaint</div>
+                    <div class="description">Guided complaint wizard, generate court packets</div>
+                </div>
+                <div class="flow-card" onclick="toggleCard(this); showDetail('research')">
+                    <h3><span class="icon">🔍</span> Research Tools</h3>
+                    <div class="route">/research</div>
+                    <div class="description">Landlord lookup, property records, code violations</div>
+                </div>
+                <div class="flow-card" onclick="toggleCard(this); showDetail('journey')">
+                    <h3><span class="icon">🗺️</span> Interactive Journey</h3>
+                    <div class="route">/journey</div>
+                    <div class="description">Step-by-step guidance through tenant rights process</div>
+                </div>
+                <div class="flow-card" onclick="toggleCard(this); showDetail('calendar')">
+                    <h3><span class="icon">📅</span> Timeline & Calendar</h3>
+                    <div class="route">/calendar</div>
+                    <div class="description">Track events, deadlines, rent payments, court dates</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-section">
+            <h2>📚 Library System Deep Dive</h2>
+            <div class="flow-grid">
+                <div class="flow-card" onclick="showDetail('library-eviction')">
+                    <h3>Eviction Law</h3>
+                    <div class="route">/library/eviction-basics</div>
+                    <div class="description">MN Statute 504B, eviction process, tenant defenses</div>
+                </div>
+                <div class="flow-card" onclick="showDetail('library-rights')">
+                    <h3>Tenant Rights</h3>
+                    <div class="route">/library/tenant-rights</div>
+                    <div class="description">Habitability, repairs, rent withholding</div>
+                </div>
+                <div class="flow-card" onclick="showDetail('library-court')">
+                    <h3>Court Procedures</h3>
+                    <div class="route">/library/court-procedures</div>
+                    <div class="description">Filing deadlines, hearings, appeals</div>
+                </div>
+                <div class="flow-card" onclick="showDetail('library-forms')">
+                    <h3>Court Forms & Legal Aid</h3>
+                    <div class="route">/library/court-forms</div>
+                    <div class="description">Official MN court forms, SMRLS, HOME Line</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-section">
+            <h2>🔗 External Legal Resources</h2>
+            <div class="flow-grid">
+                <div class="flow-card" style="background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%); color: white;">
+                    <h3>SMRLS Legal Aid</h3>
+                    <div class="route" style="color: white; background: rgba(255,255,255,0.2);">https://www.smrls.org</div>
+                    <div class="description">32 counties, 1-888-575-2954</div>
+                </div>
+                <div class="flow-card" style="background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%); color: white;">
+                    <h3>HOME Line</h3>
+                    <div class="route" style="color: white; background: rgba(255,255,255,0.2);">https://homelinemn.org</div>
+                    <div class="description">Tenant advocacy hotline</div>
+                </div>
+                <div class="flow-card" style="background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%); color: white;">
+                    <h3>MN Courts</h3>
+                    <div class="route" style="color: white; background: rgba(255,255,255,0.2);">https://mncourts.gov</div>
+                    <div class="description">Official court forms</div>
+                </div>
+                <div class="flow-card" style="background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%); color: white;">
+                    <h3>Federal HUD</h3>
+                    <div class="route" style="color: white; background: rgba(255,255,255,0.2);">https://hud.gov</div>
+                    <div class="description">Fair housing regulations</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-section">
+            <h2>🔧 Shared Navigation Components</h2>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; color: white;">
+                <h3 style="color: white; margin-bottom: 15px;">🏠 Navbar (All Pages)</h3>
+                <p style="margin-bottom: 10px;"><strong>Template:</strong> base_layout.html</p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
+                    <span style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px;">Home</span>
+                    <span style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px;">Library</span>
+                    <span style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px;">Calendar</span>
+                    <span style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px;">Vault</span>
+                    <span style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px;">Help</span>
+                </div>
+            </div>
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; border-left: 5px solid #ffc107; margin-top: 20px;">
+                <h3 style="color: #856404;">⚠️ Legal Disclaimer Banner</h3>
+                <p style="color: #856404; margin-top: 10px;">Educational purposes only. Not legal advice. Consult licensed attorney.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-panel" id="detailPanel">
+        <button class="close-btn" onclick="closeDetail()">✕</button>
+        <div id="detailContent"></div>
+    </div>
+
+    <script>
+        const details = {
+            google: {
+                title: '📁 Google Drive OAuth',
+                items: [
+                    'Client ID: 144818423056-...',
+                    'Redirect: http://localhost:5000/oauth/google/callback',
+                    'Scope: drive.file (limited access)',
+                    'Storage: .semptify/auth_token.enc',
+                    'Encryption: AES-256-GCM',
+                    'Token: 12-digit anonymous user token'
+                ]
+            },
+            dropbox: {
+                title: '📦 Dropbox OAuth',
+                items: [
+                    'App Key: 0d9rqwu5cwkgssu',
+                    'Redirect: http://localhost:5000/oauth/dropbox/callback',
+                    'Manual token exchange working',
+                    'Storage: .semptify/auth_token.enc',
+                    'Encryption: AES-256-GCM',
+                    'Fully functional ✓'
+                ]
+            },
+            library: {
+                title: '📚 Legal Library Details',
+                items: [
+                    'MN Statute 504B (Eviction Law)',
+                    'Federal HUD regulations (24 CFR)',
+                    'Tenant rights & habitability',
+                    'Court procedures & deadlines',
+                    'Verified .gov sources only',
+                    'Court forms with SMRLS integration',
+                    'External legal aid links'
+                ]
+            },
+            vault: {
+                title: '🔐 Document Vault Features',
+                items: [
+                    'Upload documents securely',
+                    'Handwriting recognition (EasyOCR)',
+                    'Document forensics (metadata analysis)',
+                    'Forgery detection (suspicion scoring 0-100)',
+                    'SHA256 hash verification',
+                    'Notary certificates (JSON)',
+                    'Storage: uploads/vault/<user_id>/'
+                ]
+            },
+            complaint: {
+                title: '⚖️ Complaint Filing System',
+                items: [
+                    'Multi-step wizard',
+                    'Identify venue',
+                    'Gather evidence',
+                    'Generate court packet (PDF)',
+                    'Uses reportlab for PDF generation',
+                    'API: POST /api/complaint/identify-venues',
+                    'API: POST /api/complaint/generate-packet'
+                ]
+            },
+            research: {
+                title: '🔍 Research Tools',
+                items: [
+                    'Landlord lookup',
+                    'Property records search',
+                    'Code violations check',
+                    'External: MN Property Records',
+                    'External: MN Housing Database',
+                    'Template: research.html',
+                    'Blueprint: research_bp'
+                ]
+            },
+            journey: {
+                title: '🗺️ Interactive Journey',
+                items: [
+                    'Step-by-step guidance',
+                    'Contextual help',
+                    'Progress tracking',
+                    'Decision trees',
+                    'Adaptive system',
+                    'Blueprint: journey_bp'
+                ]
+            },
+            calendar: {
+                title: '📅 Calendar System',
+                items: [
+                    'Event tracking',
+                    'Deadline management',
+                    'Rent payment ledger',
+                    'Timeline visualization',
+                    'iCalendar export',
+                    'API: GET /api/timeline/events',
+                    'API: POST /api/calendar/event'
+                ]
+            },
+            'library-eviction': {
+                title: 'Eviction Law Resources',
+                items: [
+                    'MN Statute 504B complete text',
+                    'Eviction process timeline',
+                    'Tenant defenses',
+                    'Notice requirements',
+                    'Source: revisor.mn.gov'
+                ]
+            },
+            'library-rights': {
+                title: 'Tenant Rights',
+                items: [
+                    'Habitability standards',
+                    'Repair requests',
+                    'Rent withholding rules',
+                    'Retaliation protection',
+                    'Sources: health.state.mn.us, mnhousing.gov'
+                ]
+            },
+            'library-court': {
+                title: 'Court Procedures',
+                items: [
+                    'Filing deadlines',
+                    'Hearing procedures',
+                    'Evidence presentation',
+                    'Appeals process',
+                    'Source: mncourts.gov'
+                ]
+            },
+            'library-forms': {
+                title: 'Court Forms & Legal Aid',
+                items: [
+                    'Answer to Eviction Complaint',
+                    'Motion for Continuance',
+                    'Motion to Dismiss',
+                    'SMRLS contact: 1-888-575-2954',
+                    'HOME Line: homelinemn.org',
+                    'Legal Aid Society: mylegalaid.org'
+                ]
+            }
+        };
+
+        function toggleCard(card) {
+            const cards = document.querySelectorAll('.flow-card');
+            cards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+        }
+
+        function showDetail(key) {
+            const panel = document.getElementById('detailPanel');
+            const content = document.getElementById('detailContent');
+            const detail = details[key];
+            
+            if (detail) {
+                content.innerHTML = `
+                    <h3>${detail.title}</h3>
+                    <ul>
+                        ${detail.items.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                `;
+                panel.classList.add('open');
+            }
+        }
+
+        function closeDetail() {
+            document.getElementById('detailPanel').classList.remove('open');
+        }
+
+        // Close detail panel when clicking outside
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('detailPanel');
+            if (panel.classList.contains('open') && !panel.contains(event.target) && !event.target.closest('.flow-card, .oauth-card')) {
+                closeDetail();
+            }
+        });
+    </script>
+</body>
+</html>

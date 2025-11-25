@@ -1,0 +1,83 @@
+{% extends "base_layout.html" %}
+
+{% block title %}About Semptify{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>About Semptify</h1>
+    <p class="lead">Empowering tenants with legal knowledge and self-advocacy tools</p>
+    
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <h2>Our Mission</h2>
+            <p>Semptify provides Minnesota tenants with the tools, resources, and guidance needed to understand their rights, document housing issues, and prepare legal documents for self-representation in housing court.</p>
+            
+            <h3 class="mt-4">What We Do</h3>
+            <ul>
+                <li><strong>Legal Library</strong> - Access Minnesota housing statutes, tenant rights guides, and court procedures</li>
+                <li><strong>Document Vault</strong> - Securely store evidence with cryptographic attestation and OCR for handwriting</li>
+                <li><strong>Complaint Filing</strong> - Generate court-ready packets with guided wizards</li>
+                <li><strong>Calendar & Timeline</strong> - Track deadlines, rent payments, and case events</li>
+                <li><strong>Research Tools</strong> - Look up landlord history, property violations, and court records</li>
+                <li><strong>AI Assistance</strong> - Get answers to legal questions (educational purposes only)</li>
+            </ul>
+            
+            <h3 class="mt-4">Educational Purpose</h3>
+            <div class="alert alert-warning">
+                <strong>Important:</strong> Semptify is for educational and self-help purposes only. It does not provide legal advice and is not a substitute for an attorney. For legal representation, please consult a licensed attorney.
+            </div>
+            
+            <h3 class="mt-4">Open Source & Privacy</h3>
+            <p>Semptify is built with privacy-first principles:</p>
+            <ul>
+                <li>Anonymous 12-digit token authentication (no email required)</li>
+                <li>User-controlled cloud storage (Google Drive or Dropbox)</li>
+                <li>AES-256-GCM encryption for sensitive data</li>
+                <li>Local-first architecture with optional cloud backups</li>
+                <li>No tracking, no ads, no data selling</li>
+            </ul>
+            
+            <h3 class="mt-4">Technology Stack</h3>
+            <p>Built with: Flask, Python, SQLite, ReportLab (PDF generation), EasyOCR (handwriting recognition), and AI integration (OpenAI, Azure, Ollama)</p>
+            
+            <h3 class="mt-4">Legal Resources</h3>
+            <p>Semptify provides links to authoritative sources:</p>
+            <ul>
+                <li><a href="https://www.revisor.mn.gov/statutes/" target="_blank">Minnesota Statutes (revisor.mn.gov)</a></li>
+                <li><a href="https://www.mncourts.gov/" target="_blank">Minnesota Judicial Branch (mncourts.gov)</a></li>
+                <li><a href="https://www.hud.gov/" target="_blank">U.S. HUD (hud.gov)</a></li>
+                <li><a href="https://homelinemn.org/" target="_blank">HOME Line Tenant Hotline</a></li>
+                <li><a href="https://www.smrls.org/" target="_blank">Southern Minnesota Regional Legal Services</a></li>
+            </ul>
+            
+            <div class="mt-5">
+                <a href="/?user_token={{ user_token or request.args.get('user_token') }}" class="btn btn-primary">Back to Home</a>
+                <a href="/help_hub?user_token={{ user_token or request.args.get('user_token') }}" class="btn btn-secondary">Get Help</a>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/library?user_token={{ user_token or request.args.get('user_token') }}">📚 Legal Library</a></li>
+                        <li><a href="/vault?user_token={{ user_token or request.args.get('user_token') }}">🗄️ Document Vault</a></li>
+                        <li><a href="/file-complaint?user_token={{ user_token or request.args.get('user_token') }}">📝 File Complaint</a></li>
+                        <li><a href="/calendar?user_token={{ user_token or request.args.get('user_token') }}">📅 Calendar</a></li>
+                        <li><a href="/research?user_token={{ user_token or request.args.get('user_token') }}">🔍 Research</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Contact & Support</h5>
+                    <p>For technical issues or questions about using Semptify, visit our <a href="/help_hub?user_token={{ user_token or request.args.get('user_token') }}">Help Center</a>.</p>
+                    <p class="text-muted small">For legal advice, consult a licensed attorney.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

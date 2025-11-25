@@ -1,0 +1,245 @@
+"""
+Context API Routes - Access the Context Data System via REST API
+"""
+
+from flask import Blueprint, jsonify, request
+from semptify_core import get_context, add_document, search_documents
+from security import validate_user_token
+import os
+from dataclasses import asdict
+import traceback
+
+context_api_bp = Blueprint('context_api', __name__, url_prefix='/api/context')
+
+@context_api_bp.route('/<user_id>', methods=['GET'])
+def get_user_context(user_id):
+    """Get complete context ring for user"""
+    try:
+        # Validate user token (skip in open mode)
+        security_mode = os.environ.get('SECURITY_MODE', 'enforced')
+        if security_mode != 'open':
+            token = request.args.get('user_token') or request.headers.get('X-User-Token')
+            if not validate_user_token(token, user_id):
+                return jsonify({'error': 'Invalid token'}), 401
+        
+        # Get context
+        context = get_context(user_id)
+        
+        # Convert to dict
+        context_dict = asdict(context)
+        
+        return jsonify(context_dict), 200
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 404
+    except Exception as e:
+        return jsonify({'error': 'Internal error', 'details': str(e)}), 500
+
+@context_api_bp.route('/<user_id>/documents', methods=['GET'])
+def get_user_documents(user_id):
+    """Get user's documents with context"""
+    try:
+        token = request.args.get('user_token') or request.headers.get('X-User-Token')
+        if not validate_user_token(token, user_id):
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        context = get_context(user_id)
+        docs = [asdict(doc) for doc in context.documents]
+        
+        return jsonify({
+            'count': len(docs),
+            'documents': docs,
+            'case_strength': context.overall_strength
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@context_api_bp.route('/<user_id>/next-steps', methods=['GET'])
+def get_next_steps(user_id):
+    """Get intelligent next steps"""
+    try:
+        token = request.args.get('user_token') or request.headers.get('X-User-Token')
+        if not validate_user_token(token, user_id):
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        context = get_context(user_id)
+        
+        return jsonify({
+            'next_steps': context.next_steps,
+            'urgent_actions': context.urgent_actions,
+            'suggestions': context.suggestions,
+            'case_strength': context.overall_strength
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@context_api_bp.route('/<user_id>/search', methods=['GET'])
+def search_user_documents(user_id):
+    """Search documents with context"""
+    try:
+        token = request.args.get('user_token') or request.headers.get('X-User-Token')
+        if not validate_user_token(token, user_id):
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        query = request.args.get('q', '')
+        if not query:
+            return jsonify({'error': 'Query required'}), 400
+        
+        results = search_documents(user_id, query)
+        docs = [asdict(doc) for doc in results]
+        
+        return jsonify({
+            'query': query,
+            'count': len(docs),
+            'results': docs
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+@context_api_bp.route('/<user_id>/document/<doc_id>/perspectives', methods=['GET'])
+def get_document_perspectives(user_id, doc_id):
+    """
+    GET /api/context/<user_id>/document/<doc_id>/perspectives
+    
+    Returns 4-angle perspective analysis of a document.
+    """
+    try:
+        from perspective_reasoning import analyze_perspectives
+        from document_intelligence import DocumentIntelligenceEngine
+        from pathlib import Path
+        
+        # Get document path
+        doc_path = Path(f"uploads/vault/{user_id}/{doc_id}")
+        
+        if not doc_path.exists():
+            return jsonify({"error": f"Document not found: {doc_id}"}), 404
+        
+        # Process document
+        intel_engine = DocumentIntelligenceEngine()
+        doc_intel = intel_engine.process_document(str(doc_path))
+        
+        if not doc_intel:
+            return jsonify({"error": "Failed to process document"}), 500
+        
+        # Analyze perspectives
+        perspectives = analyze_perspectives(doc_intel)
+        
+        # Build response
+        result = {
+            "document_id": doc_id,
+            "tenant_view": {
+                "overall_score": perspectives.tenant_view.overall_score,
+                "win_probability": perspectives.tenant_view.win_probability,
+                "favorable_clauses": perspectives.tenant_view.favorable_clauses,
+                "unfavorable_clauses": perspectives.tenant_view.unfavorable_clauses,
+                "key_strengths": perspectives.tenant_view.key_strengths,
+                "action_items": perspectives.tenant_view.action_items
+            },
+            "landlord_view": {
+                "overall_score": perspectives.landlord_view.overall_score,
+                "win_probability": perspectives.landlord_view.win_probability,
+                "key_strengths": perspectives.landlord_view.key_strengths
+            },
+            "legal_view": {
+                "overall_score": perspectives.legal_view.overall_score,
+                "illegal_clauses": perspectives.legal_view.illegal_clauses
+            },
+            "judge_view": {
+                "overall_score": perspectives.judge_view.overall_score,
+                "key_strengths": perspectives.judge_view.key_strengths
+            },
+            "comparative": {
+                "tenant_advantage": perspectives.tenant_advantage,
+                "likely_outcome": perspectives.likely_outcome,
+                "settlement_recommendation": perspectives.settlement_recommendation
+            }
+        }
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ============================================================================
+# PERSPECTIVE REASONING ENDPOINT
+# ============================================================================
+
+@context_api_bp.route('/<user_id>/document/<doc_id>/perspectives', methods=['GET'])
+def get_document_perspectives(user_id, doc_id):
+    """
+    Get 4-perspective analysis for a document
+    Returns: tenant, landlord, legal, judge perspectives + win probability
+    """
+    try:
+        # Validate token
+        security_mode = os.environ.get('SECURITY_MODE', 'enforced')
+        if security_mode != 'open':
+            token = request.args.get('user_token') or request.headers.get('X-User-Token')
+            if not validate_user_token(token, user_id):
+                return jsonify({'error': 'Invalid token'}), 401
+
+        # Import perspective engine
+        from perspective_reasoning import PerspectiveReasoningEngine, analyze_perspectives
+        from document_intelligence import DocumentIntelligence
+        
+        # Get document from context
+        context = get_context(user_id)
+        document = next((d for d in context.documents if d.doc_id == doc_id), None)
+        
+        if not document:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        # Run document intelligence if not already done
+        doc_intel = DocumentIntelligence()
+        intelligence_result = doc_intel.analyze(document.file_path)
+        
+        # Run perspective analysis
+        perspectives = analyze_perspectives(intelligence_result)
+        
+        # Format response
+        response = {
+            'document_id': doc_id,
+            'document_name': document.filename,
+            'perspectives': {
+                'tenant': {
+                    'summary': perspectives.tenant_view.summary,
+                    'strengths': perspectives.tenant_view.strengths,
+                    'risks': perspectives.tenant_view.risks,
+                    'recommended_actions': perspectives.tenant_view.recommended_actions
+                },
+                'landlord': {
+                    'summary': perspectives.landlord_view.summary,
+                    'strengths': perspectives.landlord_view.strengths,
+                    'risks': perspectives.landlord_view.risks
+                },
+                'legal': {
+                    'summary': perspectives.legal_view.summary,
+                    'violations': perspectives.legal_view.violations,
+                    'defenses': perspectives.legal_view.defenses,
+                    'precedents': perspectives.legal_view.precedents
+                },
+                'judge': {
+                    'summary': perspectives.judge_view.summary,
+                    'key_factors': perspectives.judge_view.key_factors,
+                    'likely_outcome': perspectives.judge_view.likely_outcome
+                }
+            },
+            'analysis': {
+                'win_probability': perspectives.win_probability,
+                'confidence_level': perspectives.confidence_level,
+                'settlement_range': perspectives.settlement_range,
+                'recommended_strategy': perspectives.recommended_strategy
+            },
+            'timestamp': perspectives.analysis_timestamp.isoformat()
+        }
+        
+        return jsonify(response), 200
+        
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500

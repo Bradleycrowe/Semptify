@@ -1,18 +1,353 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Semptify - Tenant Justice</title>
-    <link rel="stylesheet" href="/static/css/base.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify | Tenant Rights Protection Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a2647 0%, #16213e 50%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+        .logo-link {
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .logo-link:hover {
+            transform: scale(1.05);
+        }
+        .logo {
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 12px rgba(233, 69, 96, 0.3));
+        }
+        .tagline {
+            font-size: 1.8em;
+            color: #e94560;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            color: #aaa;
+            margin-bottom: 40px;
+        }
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        .hero-card {
+            background: rgba(22, 33, 62, 0.8);
+            border: 2px solid #0f3460;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e94560 0%, #c23454 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        .hero-card:hover::before {
+            transform: scaleX(1);
+        }
+        .hero-card:hover {
+            transform: translateY(-8px);
+            border-color: #e94560;
+            box-shadow: 0 12px 48px rgba(233, 69, 96, 0.3);
+        }
+        .hero-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .hero-title {
+            font-size: 2em;
+            color: #e94560;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .hero-description {
+            font-size: 1.1em;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .hero-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #e94560 0%, #c23454 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .hero-button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(233, 69, 96, 0.4);
+        }
+        .hero-button.secondary {
+            background: linear-gradient(135deg, #0f3460 0%, #0a2647 100%);
+        }
+        .features {
+            max-width: 1400px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .features-title {
+            text-align: center;
+            font-size: 2.5em;
+            color: #e94560;
+            margin-bottom: 40px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .feature-card {
+            background: rgba(22, 33, 62, 0.6);
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        .feature-title {
+            font-size: 1.3em;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .feature-text {
+            color: #aaa;
+            line-height: 1.6;
+        }
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            margin-top: 50px;
+            border-top: 1px solid #0f3460;
+        }
+        .quick-links {
+            max-width: 800px;
+            margin: 30px auto;
+            text-align: center;
+        }
+        .quick-links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: rgba(15, 52, 96, 0.5);
+            color: #e94560;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            transition: all 0.3s;
+        }
+        .quick-links a:hover {
+            background: rgba(15, 52, 96, 0.8);
+            border-color: #e94560;
+        }
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 280px;
+            }
+            .tagline {
+                font-size: 1.4em;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-title {
+                font-size: 1.6em;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Semptify</h1>
-        <p>Get Started with tenant rights protection.</p>
-        <div class="actions">
-            <a href="/register" class="btn">Register</a>
-            <a href="/vault" class="btn">Vault</a>
-            <a href="/admin" class="btn">Admin</a>
+    <div class="header">
+        <a href="/master-admin" class="logo-link" title="Click logo to access Master Control Panel">
+            <img src="/static/images/semptify-logo.jpg" alt="Semptify Logo" class="logo">
+        </a>
+        <h1 class="tagline">Protect Your Rights. Fight Unfair Evictions.</h1>
+        <p class="subtitle">Intelligent tools to help tenants stand up to unlawful landlord actions</p>
+    </div>
+
+    <div class="hero">
+        <div class="hero-grid">
+            <!-- I'm a Tenant -->
+            <div class="hero-card" onclick="window.location.href='/register'">
+                <div class="hero-icon">🏠</div>
+                <h2 class="hero-title">I'm a Tenant</h2>
+                <p class="hero-description">
+                    Get started with free tools to protect yourself from unfair eviction. 
+                    Upload your documents and get intelligent analysis.
+                </p>
+                <a href="/register" class="hero-button">Get Started Free</a>
+            </div>
+
+            <!-- Browse All GUIs -->
+            <div class="hero-card" onclick="window.location.href='/hub'">
+                <div class="hero-icon">✨</div>
+                <h2 class="hero-title">Browse Interfaces</h2>
+                <p class="hero-description">
+                    Choose from 8 different interfaces optimized for desktop, mobile, 
+                    and different workflows. Pick what works for you.
+                </p>
+                <a href="/hub" class="hero-button secondary">View All GUIs</a>
+            </div>
+
+            <!-- Admin/Setup -->
+            <div class="hero-card" onclick="window.location.href='/master-admin'">
+                <div class="hero-icon">🛡️</div>
+                <h2 class="hero-title">System Admin</h2>
+                <p class="hero-description">
+                    Comprehensive control panel for system management, user administration, 
+                    and configuration. All admin tools in one place.
+                </p>
+                <a href="/master-admin" class="hero-button secondary">Admin Panel</a>
+            </div>
         </div>
     </div>
+
+    <div class="features">
+        <h2 class="features-title">🎯 What Makes Semptify Different</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">AI-Powered Analysis</div>
+                <p class="feature-text">
+                    Document intelligence extracts key facts automatically. 
+                    4-perspective analysis shows your case from all angles.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <div class="feature-title">Auto-Fill Court Forms</div>
+                <p class="feature-text">
+                    Upload your lease and notices. We auto-fill complaint forms 
+                    with landlord info, dates, and rent amounts.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⏰</div>
+                <div class="feature-title">Deadline Detection</div>
+                <p class="feature-text">
+                    Never miss a court date. Automatic deadline detection with 
+                    urgency levels and specific next steps.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <div class="feature-title">Secure Document Vault</div>
+                <p class="feature-text">
+                    Encrypted storage for all your evidence. Every upload gets 
+                    a certificate with SHA-256 hash and timestamp.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Win Probability</div>
+                <p class="feature-text">
+                    See your estimated chances in court based on analysis of 
+                    your documents and evidence strength.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">Multiple Interfaces</div>
+                <p class="feature-text">
+                    8 different GUIs: mobile-optimized, multi-client manager, 
+                    learning dashboard, and more. Use what works for you.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-title">4-Perspective View</div>
+                <p class="feature-text">
+                    See your case from tenant, landlord, legal, and judicial 
+                    perspectives. Understand all sides.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">Settlement Guidance</div>
+                <p class="feature-text">
+                    AI-generated settlement recommendations based on case 
+                    strength and typical outcomes.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-links">
+        <h3 style="color: #e94560; margin-bottom: 20px; font-size: 1.5em;">Quick Access</h3>
+        <a href="/register">Register New User</a>
+        <a href="/vault">Document Vault</a>
+        <a href="/file-complaint">File Complaint</a>
+        <a href="/brad">Multi-Client Manager</a>
+        <a href="/dashboard">Learning Dashboard</a>
+        <a href="/metrics">System Metrics</a>
+        <a href="/readyz">Health Check</a>
+    </div>
+
+    <div class="footer">
+        <p style="color: #aaa; margin-bottom: 10px;">
+            <strong>SEMPTIFY</strong> | Tenant Rights Protection Platform
+        </p>
+        <p style="font-size: 0.9em;">
+            Not legal advice. For educational purposes only. Consult an attorney for legal guidance.
+        </p>
+        <p style="font-size: 0.85em; margin-top: 10px;">
+            Built by Brad | First App at 60 | 70% Complete 🚀
+        </p>
+    </div>
+
+    <script>
+        // Make hero cards clickable
+        document.querySelectorAll('.hero-card').forEach(card => {
+            card.style.cursor = 'pointer';
+        });
+    </script>
 </body>
 </html>

@@ -71,9 +71,9 @@ def _get_storage_client():
 
 @storage_autologin_bp.before_app_request
 def check_storage_auth():
-    """Auto-detect storage and authorize if token present"""
-    # Skip for static, setup, OAuth, and unlock routes
-    if request.path.startswith(('/static/', '/setup', '/oauth/', '/unlock', '/brad')):
+    # Skip auth check for setup and OAuth routes
+    if request.path in ['/setup', '/clear-session'] or request.path.startswith(('/oauth/', '/static/')):
+        return
         return
     # Allow brad GUI with override
     if request.path.startswith('/brad') and os.getenv('PERSISTENCE_OVERRIDE'):
@@ -100,7 +100,13 @@ def check_storage_auth():
     
     # Storage is connected, check for auth_token.enc and auto-login
     try:
-        encrypted_token_data = storage_client.download('auth_token.enc')
+        try:
+            encrypted_token_data = storage_client.download('auth_token.enc')
+        except Exception as e:
+            if 'expired_access_token' in str(e) or 'AuthError' in str(type(e)):
+                session.clear()
+                return redirect('/setup')
+            raise
         
         # Auto-decrypt using token hash as key
         try:
@@ -159,6 +165,8 @@ def unlock():
     storage_client, storage_type = _get_storage_client()
     
     return render_template('unlock.html', next_url=next_url, storage_type=storage_type)
+
+
 
 
 

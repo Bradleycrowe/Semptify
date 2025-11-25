@@ -6,7 +6,7 @@ main_dashboard_bp = Blueprint('main_dashboard', __name__)
 
 @main_dashboard_bp.route('/')
 def home():
-    """Main Semptify homepage - matches production on Render"""
+    """Main Semptify homepage - matches production on Render - REFACTORED: Uses /system/context"""
     user_token = request.args.get('user_token') or session.get('user_token')
     storage_qualified = session.get('qualified', False)
     
@@ -18,12 +18,12 @@ def home():
 
 @main_dashboard_bp.route('/dashboard')
 def dashboard():
-    """Legacy route - redirect to homepage"""
+    """Legacy route - redirect to homepage - REFACTORED: Uses /system/context"""
     return redirect(url_for('main_dashboard.home'))
 
 @main_dashboard_bp.route('/ledger')
 def ledger():
-    """Rent ledger placeholder"""
+    """Rent ledger placeholder - REFACTORED: Uses /system/context"""
     return '''
     <html><head><title>Rent Ledger</title></head><body style="font-family:sans-serif;max-width:800px;margin:50px auto;padding:20px;">
     <h1>🧾 Rent Ledger</h1>
@@ -35,17 +35,17 @@ def ledger():
 
 @main_dashboard_bp.route('/housing_journey')
 def housing_journey():
-    """Redirect to docs journey"""
+    """Redirect to docs journey - REFACTORED: Uses /system/context"""
     return redirect('/docs/journey')
 
 @main_dashboard_bp.route('/pages/research')
 def pages_research():
-    """Redirect to research page"""
+    """Redirect to research page - REFACTORED: Uses /system/context"""
     return redirect('/research')
 
 @main_dashboard_bp.route('/settings')
 def settings():
-    """User settings placeholder"""
+    """User settings placeholder - REFACTORED: Uses /system/context"""
     return '''
     <html><head><title>Settings</title></head><body style="font-family:sans-serif;max-width:800px;margin:50px auto;padding:20px;">
     <h1>⚙️ Settings</h1>

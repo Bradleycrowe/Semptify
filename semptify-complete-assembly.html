@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify Complete User Flow Assembly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1em;
+        }
+        
+        /* Journey Cards */
+        .journey-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .journey-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .journey-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4ff;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        .journey-card h2 {
+            color: #00d4ff;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .journey-card .goal {
+            color: #51cf66;
+            font-style: italic;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+        
+        .journey-card .steps {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .journey-card .steps li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9em;
+        }
+        
+        .journey-card .steps li:last-child {
+            border-bottom: none;
+        }
+        
+        .journey-card .result {
+            background: rgba(81, 207, 102, 0.1);
+            border-left: 3px solid #51cf66;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        
+        .journey-card .pages {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .journey-card .pages strong {
+            color: #ffd43b;
+        }
+        
+        .journey-card .pages code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            color: #00d4ff;
+        }
+        
+        /* Principles Section */
+        .principles-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .principles-section h2 {
+            color: #ffd43b;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .principle-card {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .principle-card h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .principle-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .principle-card li {
+            padding: 5px 0;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        .principle-card li::before {
+            content: "✓ ";
+            color: #51cf66;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        /* Architecture Section */
+        .architecture-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .architecture-section h2 {
+            color: #a78bfa;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .nav-card {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-card:hover {
+            border-color: #a78bfa;
+            transform: scale(1.05);
+        }
+        
+        .nav-card h3 {
+            color: #a78bfa;
+            margin-bottom: 10px;
+        }
+        
+        .nav-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .nav-card li {
+            padding: 5px 0;
+            font-size: 0.85em;
+        }
+        
+        .nav-card code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #51cf66;
+        }
+        
+        /* Fixes Section */
+        .fixes-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .fixes-section h2 {
+            color: #51cf66;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .fixes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .fix-card {
+            background: rgba(81, 207, 102, 0.1);
+            border-left: 4px solid #51cf66;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .fix-card .issue {
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .fix-card .solution {
+            color: #51cf66;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .fix-card code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            color: #00d4ff;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        /* Summary Section */
+        .summary-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .summary-section h2 {
+            color: #00d4ff;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .before, .after {
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .before {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        .before h3 {
+            color: #ff6b6b;
+        }
+        
+        .after {
+            background: rgba(81, 207, 102, 0.1);
+            border: 2px solid rgba(81, 207, 102, 0.3);
+        }
+        
+        .after h3 {
+            color: #51cf66;
+        }
+        
+        .improvements {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .improvements ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .improvements li {
+            padding: 10px 0;
+            font-size: 1.05em;
+        }
+        
+        .improvements li::before {
+            content: "✓ ";
+            color: #51cf66;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+        
+        .result-highlight {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: #00d4ff;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .journey-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .before-after {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Semptify - Complete User Flow Assembly</h1>
+        <div class="subtitle">Simplified Structure for Efficient, Human-Friendly Navigation</div>
+        
+        <!-- Core User Journeys -->
+        <section>
+            <h2 style="color: #00d4ff; text-align: center; margin-bottom: 30px;">Core User Journeys</h2>
+            <div class="journey-grid">
+                <!-- Journey A: Registration -->
+                <div class="journey-card">
+                    <h2><span>🔐</span> Journey A: First-Time User Registration</h2>
+                    <div class="goal">Goal: Get user authenticated and ready to use Semptify</div>
+                    <ol class="steps">
+                        <li>1. Entry → http://localhost:5000/</li>
+                        <li>2. OAuth Check → No session detected</li>
+                        <li>3. Redirect → /setup (Storage Setup)</li>
+                        <li>4. Choose Provider → Google Drive OR Dropbox</li>
+                        <li>5. OAuth Flow → External consent screen</li>
+                        <li>6. Callback → Token exchange & encryption</li>
+                        <li>7. Success → Welcome Home with user_token</li>
+                    </ol>
+                    <div class="result">
+                        <strong>Result:</strong> User is authenticated, has anonymous token, ready to use all features
+                    </div>
+                    <div class="pages">
+                        <strong>Key Pages:</strong>
+                        <code>/</code>
+                        <code>/setup</code>
+                        <code>/oauth/google/start</code>
+                        <code>/oauth/dropbox/start</code>
+                    </div>
+                </div>
+                
+                <!-- Journey B: Vault Upload -->
+                <div class="journey-card">
+                    <h2><span>🗄️</span> Journey B: Document Vault Upload</h2>
+                    <div class="goal">Goal: User uploads evidence, gets notarized certificate</div>
+                    <ol class="steps">
+                        <li>1. Start → Welcome Home → Click "Vault"</li>
+                        <li>2. Vault Page → /vault?user_token=...</li>
+                        <li>3. Upload Form → Choose file(s)</li>
+                        <li>4. POST → /api/vault/upload</li>
+                        <li>5. Processing → Save to uploads/vault/&lt;user_id&gt;/</li>
+                        <li>6. OCR → EasyOCR extracts handwriting</li>
+                        <li>7. Forensics → Check metadata for tampering</li>
+                        <li>8. Certificate → Generate notary JSON with SHA-256</li>
+                        <li>9. Timeline Update → INSERT INTO timeline_events</li>
+                        <li>10. Cloud Backup → Sync to Drive/Dropbox/R2</li>
+                    </ol>
+                    <div class="result">
+                        <strong>Result:</strong> User sees uploaded file, downloads certificate, views in timeline
+                    </div>
+                    <div class="pages">
+                        <strong>Key APIs:</strong>
+                        <code>/api/vault/upload</code>
+                        <code>/api/vault/list</code>
+                        <code>/api/vault/download</code>
+                        <code>/api/timeline/events</code>
+                    </div>
+                </div>
+                
+                <!-- Journey C: File Complaint -->
+                <div class="journey-card">
+                    <h2><span>📝</span> Journey C: File a Complaint</h2>
+                    <div class="goal">Goal: User creates court-ready complaint packet</div>
+                    <ol class="steps">
+                        <li>1. Start → Welcome Home → Click "File Complaint"</li>
+                        <li>2. Complaint Wizard → /file-complaint?user_token=...</li>
+                        <li>3. Step 1 → Property details</li>
+                        <li>4. Step 2 → Violation details</li>
+                        <li>5. Step 3 → Evidence selection</li>
+                        <li>6. Step 4 → Review & confirm</li>
+                        <li>7. POST → /api/complaint/generate</li>
+                        <li>8. PDF Generation → ReportLab creates packet</li>
+                        <li>9. Save → uploads/complaints/&lt;user_id&gt;/</li>
+                        <li>10. Database → INSERT INTO cases</li>
+                    </ol>
+                    <div class="result">
+                        <strong>Result:</strong> User downloads PDF, sees in timeline, can file with court
+                    </div>
+                    <div class="pages">
+                        <strong>Key Pages:</strong>
+                        <code>/file-complaint</code>
+                        <code>/api/complaint/generate</code>
+                    </div>
+                </div>
+                
+                <!-- Journey D: Library -->
+                <div class="journey-card">
+                    <h2><span>📚</span> Journey D: Research & Legal Library</h2>
+                    <div class="goal">Goal: User finds legal info, statutes, and tenant rights</div>
+                    <ol class="steps">
+                        <li>1. Start → Welcome Home → Click "Library"</li>
+                        <li>2. Library Hub → /library?user_token=...</li>
+                        <li>3. Browse: Eviction Law, Tenant Rights, Court Procedures, Court Forms</li>
+                        <li>4. External Links → .gov sources (revisor.mn.gov, mncourts.gov, hud.gov)</li>
+                        <li>5. Legal Aid → SMRLS, HOME Line, Legal Aid Society</li>
+                    </ol>
+                    <div class="result">
+                        <strong>Result:</strong> User finds accurate, up-to-date legal info
+                    </div>
+                    <div class="pages">
+                        <strong>Key Pages:</strong>
+                        <code>/library</code>
+                        <code>/library/eviction-basics</code>
+                        <code>/library/tenant-rights</code>
+                        <code>/research</code>
+                    </div>
+                </div>
+                
+                <!-- Journey E: Calendar -->
+                <div class="journey-card">
+                    <h2><span>📅</span> Journey E: Calendar & Timeline</h2>
+                    <div class="goal">Goal: Track deadlines, rent payments, and case events</div>
+                    <ol class="steps">
+                        <li>1. Start → Welcome Home → Click "Calendar"</li>
+                        <li>2. Calendar Hub → /calendar?user_token=...</li>
+                        <li>3. View Modes: Calendar, Timeline, Rent Ledger</li>
+                        <li>4. Add Event → POST /api/calendar/event</li>
+                        <li>5. Log Payment → POST /api/calendar/rent-payment</li>
+                        <li>6. Export → GET /api/calendar/export.ics</li>
+                    </ol>
+                    <div class="result">
+                        <strong>Result:</strong> User sees all deadlines, payments, and case events in one place
+                    </div>
+                    <div class="pages">
+                        <strong>Key APIs:</strong>
+                        <code>/api/calendar/events</code>
+                        <code>/api/calendar/event</code>
+                        <code>/api/timeline/events</code>
+                    </div>
+                </div>
+                
+                <!-- Journey F: Admin -->
+                <div class="journey-card">
+                    <h2><span>🔧</span> Journey F: Admin & System Management</h2>
+                    <div class="goal">Goal: Admin manages users, views metrics, rotates tokens</div>
+                    <ol class="steps">
+                        <li>1. Entry → /admin (requires admin token)</li>
+                        <li>2. Admin Token Check → validate_admin_token()</li>
+                        <li>3. Admin Dashboard → /admin/dashboard</li>
+                        <li>4. Sections: User Management, Learning System, Security Panel</li>
+                        <li>5. Actions: Create/delete users, rotate tokens, prime learning, view metrics</li>
+                    </ol>
+                    <div class="result">
+                        <strong>Result:</strong> Admin maintains system, monitors health, manages access
+                    </div>
+                    <div class="pages">
+                        <strong>Key Pages:</strong>
+                        <code>/admin</code>
+                        <code>/admin/users</code>
+                        <code>/admin/security</code>
+                        <code>/metrics</code>
+                        <code>/readyz</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Principles Section -->
+        <section class="principles-section">
+            <h2>⚡ Efficient, No-Waste Design Principles</h2>
+            <div class="principles-grid">
+                <div class="principle-card">
+                    <h3>1. Every Page Has a Purpose</h3>
+                    <ul>
+                        <li>No placeholder pages</li>
+                        <li>Every page provides value</li>
+                        <li>Remove incomplete features</li>
+                    </ul>
+                </div>
+                <div class="principle-card">
+                    <h3>2. Clear Next Steps</h3>
+                    <ul>
+                        <li>Pages tell user what to do next</li>
+                        <li>CTA buttons are visible</li>
+                        <li>No confusion about navigation</li>
+                    </ul>
+                </div>
+                <div class="principle-card">
+                    <h3>3. Accurate Information</h3>
+                    <ul>
+                        <li>All .gov links verified</li>
+                        <li>Latest AI models</li>
+                        <li>Fresh database queries</li>
+                        <li>No stale/cached data</li>
+                    </ul>
+                </div>
+                <div class="principle-card">
+                    <h3>4. Minimal Clicks, Maximum Value</h3>
+                    <ul>
+                        <li>Common tasks 1-2 clicks from home</li>
+                        <li>Wizards guide complex flows</li>
+                        <li>Smart defaults</li>
+                        <li>Autosave prevents data loss</li>
+                    </ul>
+                </div>
+                <div class="principle-card">
+                    <h3>5. Consistent Experience</h3>
+                    <ul>
+                        <li>Same navbar on all pages</li>
+                        <li>Same disclaimer everywhere</li>
+                        <li>Consistent styling</li>
+                        <li>Predictable behavior</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Architecture Section -->
+        <section class="architecture-section">
+            <h2>🏗️ Information Architecture</h2>
+            <div class="nav-grid">
+                <div class="nav-card">
+                    <h3>Primary Navigation</h3>
+                    <p style="color: #888; font-size: 0.85em; margin-bottom: 10px;">Always visible in navbar</p>
+                    <ul>
+                        <li>Home → <code>/</code></li>
+                        <li>Library → <code>/library</code></li>
+                        <li>Calendar → <code>/calendar</code></li>
+                        <li>Vault → <code>/vault</code></li>
+                        <li>Help → <code>/help_hub</code></li>
+                    </ul>
+                </div>
+                <div class="nav-card">
+                    <h3>Secondary Navigation</h3>
+                    <p style="color: #888; font-size: 0.85em; margin-bottom: 10px;">Contextual access</p>
+                    <ul>
+                        <li>Research → <code>/research</code></li>
+                        <li>File Complaint → <code>/file-complaint</code></li>
+                        <li>Journey → <code>/journey</code></li>
+                        <li>Admin → <code>/admin</code></li>
+                    </ul>
+                </div>
+                <div class="nav-card">
+                    <h3>User Data Flow</h3>
+                    <p style="color: #888; font-size: 0.85em; margin-bottom: 10px;">Token propagation</p>
+                    <ul>
+                        <li>12-digit anonymous token</li>
+                        <li>SHA-256 hash storage</li>
+                        <li>Query param: <code>?user_token=...</code></li>
+                        <li>JavaScript: <code>goTo(path)</code></li>
+                        <li>Forms: hidden input field</li>
+                    </ul>
+                </div>
+                <div class="nav-card">
+                    <h3>Document Data Flow</h3>
+                    <p style="color: #888; font-size: 0.85em; margin-bottom: 10px;">Vault → Timeline → Cloud</p>
+                    <ul>
+                        <li>Upload → Local storage</li>
+                        <li>OCR → Handwriting extraction</li>
+                        <li>Certificate → SHA-256 proof</li>
+                        <li>Database → Timeline events</li>
+                        <li>Cloud → Drive/Dropbox/R2 sync</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Fixes Section -->
+        <section class="fixes-section">
+            <h2>🔧 Broken Links & Fixes</h2>
+            <div class="fixes-grid">
+                <div class="fix-card">
+                    <div class="issue">Issue: Links missing user_token → Session lost</div>
+                    <div class="solution">Fix: Add user_token to all href</div>
+                    <code>?user_token={{ user_token or request.args.get('user_token') }}</code>
+                </div>
+                <div class="fix-card">
+                    <div class="issue">Issue: Dead-end pages with no navigation</div>
+                    <div class="solution">Fix: Extend base_layout.html for navbar</div>
+                    <code>{% extends "base_layout.html" %}</code>
+                </div>
+                <div class="fix-card">
+                    <div class="issue">Issue: Broken external links</div>
+                    <div class="solution">Fix: Verify .gov URLs, open in new tab</div>
+                    <code>&lt;a href="..." target="_blank"&gt;</code>
+                </div>
+                <div class="fix-card">
+                    <div class="issue">Issue: Forms don't pass user_token</div>
+                    <div class="solution">Fix: Add hidden input field</div>
+                    <code>&lt;input type="hidden" name="user_token" value="..."&gt;</code>
+                </div>
+                <div class="fix-card">
+                    <div class="issue">Issue: JavaScript navigation loses token</div>
+                    <div class="solution">Fix: Use goTo() function instead of location.href</div>
+                    <code>goTo('/path') auto-appends user_token</code>
+                </div>
+                <div class="fix-card">
+                    <div class="issue">Issue: Fixed in this session</div>
+                    <div class="solution">✓ /complaint_filing → /file-complaint</div>
+                    <div class="solution">✓ /ai-help → /copilot</div>
+                    <div class="solution">✓ user_token added to library, research, help pages</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Summary Section -->
+        <section class="summary-section">
+            <h2>🎯 Efficient, Human-Friendly Semptify</h2>
+            <div class="before-after">
+                <div class="before">
+                    <h3>❌ Before</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>❌ Hundreds of pages</li>
+                        <li>❌ Broken links everywhere</li>
+                        <li>❌ Unclear user flows</li>
+                        <li>❌ Dead ends and loops</li>
+                        <li>❌ Inconsistent navigation</li>
+                        <li>❌ Session loss between pages</li>
+                    </ul>
+                </div>
+                <div class="after">
+                    <h3>✓ After</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✓ Streamlined pages</li>
+                        <li>✓ All links working</li>
+                        <li>✓ Clear user journeys</li>
+                        <li>✓ No dead ends</li>
+                        <li>✓ Consistent navbar + disclaimer</li>
+                        <li>✓ Session maintained everywhere</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="improvements">
+                <h3 style="color: #51cf66; text-align: center; margin-bottom: 15px;">Key Improvements</h3>
+                <ul>
+                    <li>Every page leads somewhere useful</li>
+                    <li>All links work and pass user_token</li>
+                    <li>Consistent navbar + disclaimer on all pages</li>
+                    <li>Clear user journeys with no dead ends</li>
+                    <li>Accurate, up-to-date information from verified sources</li>
+                    <li>Minimal clicks for common tasks</li>
+                    <li>Smart defaults and autosave</li>
+                    <li>Mobile-friendly and accessible</li>
+                </ul>
+            </div>
+            <div class="result-highlight">
+                <strong>Result:</strong> Users can accomplish their goals quickly, with confidence, and without frustration.
+            </div>
+        </section>
+    </div>
+</body>
+</html>

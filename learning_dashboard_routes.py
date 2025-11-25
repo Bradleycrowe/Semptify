@@ -414,3 +414,57 @@ def format_action(action: str) -> str:
     """Format action name for display"""
     return action.replace('_', ' ').title()
 
+
+
+@learning_dashboard_bp.route('/dashboard/perspective/<doc_id>')
+def view_perspective(doc_id):
+    """Display 4-perspective analysis for a document"""
+    token = request.args.get('user_token') or request.headers.get('X-User-Token')
+    if not token:
+        return render_template('error.html', message="Token required"), 401
+    
+    from security import validate_user_token
+    user_id = validate_user_token(token)
+    if not user_id:
+        return render_template('error.html', message="Invalid token"), 401
+    
+    # Get perspective analysis from API
+    try:
+        from perspective_reasoning import PerspectiveEngine
+        import json
+        
+        # Get document info
+        doc_path = f"uploads/vault/{user_id}/{doc_id}"
+        if not os.path.exists(doc_path):
+            return render_template('error.html', message="Document not found"), 404
+        
+        # Get intelligence data
+        intel_path = f"uploads/vault/{user_id}/intelligence.json"
+        intelligence = {}
+        if os.path.exists(intel_path):
+            with open(intel_path, 'r') as f:
+                intelligence = json.load(f)
+        
+        # Run perspective analysis
+        engine = PerspectiveEngine()
+        perspectives = engine.analyze(
+            document_path=doc_path,
+            intelligence_data=intelligence,
+            user_id=user_id
+        )
+        
+        return render_template('perspective_view.html',
+                             user_id=user_id,
+                             doc_id=doc_id,
+                             perspectives=perspectives.get('perspectives', {}),
+                             win_probability=perspectives.get('win_probability', 50),
+                             settlement_recommendations=perspectives.get('settlement_recommendations', []),
+                             next_steps=perspectives.get('next_steps', []),
+                             tenant_perspective=perspectives.get('perspectives', {}).get('tenant', {}),
+                             landlord_perspective=perspectives.get('perspectives', {}).get('landlord', {}),
+                             legal_perspective=perspectives.get('perspectives', {}).get('legal', {}),
+                             judge_perspective=perspectives.get('perspectives', {}).get('judge', {}))
+    
+    except Exception as e:
+        print(f"[ERROR] Perspective analysis failed: {e}")
+        return render_template('error.html', message=f"Analysis failed: {e}"), 500

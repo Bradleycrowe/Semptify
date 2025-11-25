@@ -1,0 +1,76 @@
+"""
+modern_gui_routes.py - Human-centered desktop/laptop GUI
+Smooth flow, interactive tooltips, checkboxes, toggles, smart auto-fill
+"""
+from flask import Blueprint, render_template, request, jsonify
+from smart_autofill import suggest, record, predict
+from profile_manager import get_active_profile
+
+modern_gui_bp = Blueprint("modern_gui", __name__, url_prefix="/app")
+
+@modern_gui_bp.route("/")
+def main_app():
+    """Main application interface"""
+    profile = get_active_profile()
+    return render_template("modern_gui/main.html", profile=profile)
+
+@modern_gui_bp.route("/api/autofill/suggest", methods=["POST"])
+def autofill_suggest():
+    """Get auto-fill suggestions (max 3)"""
+    data = request.json
+    field_name = data.get("field")
+    partial = data.get("partial", "")
+    context = data.get("context", "general")
+    profile_id = get_active_profile().get("id", "default")
+    
+    suggestions = suggest(field_name, partial, profile_id, context, max_results=3)
+    return jsonify({"suggestions": suggestions})
+
+@modern_gui_bp.route("/api/autofill/record", methods=["POST"])
+def autofill_record():
+    """Record user input for learning"""
+    data = request.json
+    field_name = data.get("field")
+    value = data.get("value")
+    context = data.get("context", "general")
+    profile_id = get_active_profile().get("id", "default")
+    
+    record(field_name, value, profile_id, context)
+    return jsonify({"success": True})
+
+@modern_gui_bp.route("/api/autofill/predict", methods=["POST"])
+def autofill_predict():
+    """Predict related field value"""
+    data = request.json
+    source_field = data.get("source_field")
+    source_value = data.get("source_value")
+    target_field = data.get("target_field")
+    profile_id = get_active_profile().get("id", "default")
+    
+    prediction = predict(source_field, source_value, target_field, profile_id)
+    return jsonify({"prediction": prediction})
+
+# Module-specific routes
+@modern_gui_bp.route("/complaint")
+def complaint_form():
+    """Complaint filing with smart auto-fill"""
+    profile = get_active_profile()
+    return render_template("modern_gui/complaint.html", profile=profile)
+
+@modern_gui_bp.route("/vault")
+def vault_ui():
+    """Document vault with drag-drop"""
+    profile = get_active_profile()
+    return render_template("modern_gui/vault.html", profile=profile)
+
+@modern_gui_bp.route("/timeline")
+def timeline_ui():
+    """Visual timeline builder"""
+    profile = get_active_profile()
+    return render_template("modern_gui/timeline.html", profile=profile)
+
+@modern_gui_bp.route("/ledger")
+def ledger_ui():
+    """Financial ledger with calculations"""
+    profile = get_active_profile()
+    return render_template("modern_gui/ledger.html", profile=profile)

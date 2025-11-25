@@ -1,30 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library - Semptify</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; }
-        .page-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .page-header { margin-bottom: 30px; }
-        .page-title { font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 10px; }
-        .page-subtitle { font-size: 16px; color: #718096; }
-        .search-box { margin-bottom: 30px; }
-        .search-input { width: 100%; padding: 15px 20px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 8px; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
-        .card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
-        .card-title { font-size: 20px; font-weight: 600; color: #2d3748; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-        .card-icon { font-size: 24px; }
-        .card-description { font-size: 14px; color: #718096; margin-bottom: 16px; line-height: 1.6; }
-        .card-button { display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; transition: opacity 0.2s; }
-        .card-button:hover { opacity: 0.9; }
-        .section-header { font-size: 24px; font-weight: 600; color: #2d3748; margin: 40px 0 20px 0; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
-    </style>
-</head>
-<body>
+{% extends "base_layout.html" %}`n`n{% block content %}
     {% include "includes/navbar.html" %}
     
     <div class="page-container">
@@ -145,5 +119,6 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}
+
+
