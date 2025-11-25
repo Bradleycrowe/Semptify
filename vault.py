@@ -338,13 +338,7 @@ def upload():
             print(f'[CURIOSITY] {question}')
     except Exception as e:
         print(f'[WARN] Curiosity hook failed: {e}')
-    return jsonify({"ok": True, "doc_id": doc_id, "filename": filename, "sha256": sha}), 200
     
-    # PHASE 3: Trigger learning suggestions based on document type
-    try:
-        learning_suggestions = suggest_learning_from_document(uid, {
-            'filename': filename,
-            'doc_id': doc_id,
             'category': 'uploaded'
         })
         if learning_suggestions:
