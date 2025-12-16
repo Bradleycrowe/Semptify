@@ -1,0 +1,27 @@
+{
+  "module_id": "intro",
+  "title": "Understanding Eviction - Knowledge Check",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the minimum notice period for non-payment evictions in Minnesota?",
+      "options": ["7 days", "14 days", "30 days", "60 days"],
+      "correct": 1,
+      "explanation": "Minnesota law requires a 14-day notice for non-payment of rent cases (MN Stat § 504B.135)"
+    },
+    {
+      "id": 2,
+      "question": "Can a landlord lock you out without a court order?",
+      "options": ["Yes, if rent is overdue", "Yes, with 24-hour notice", "No, this is illegal", "Only in emergencies"],
+      "correct": 2,
+      "explanation": "Self-help evictions (lockouts) are illegal in Minnesota. Landlords must go through the court process."
+    },
+    {
+      "id": 3,
+      "question": "How long do you have to respond to an eviction summons?",
+      "options": ["7 days", "14 days", "Within the time stated on the summons", "30 days"],
+      "correct": 2,
+      "explanation": "The summons will specify your answer deadline - usually 7-14 days. Always check your specific summons!"
+    }
+  ]
+}

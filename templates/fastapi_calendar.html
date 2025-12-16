@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 { color: #667eea; font-size: 2em; }
+        .back-btn {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-row input, .form-row select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .submit-btn {
+            padding: 15px 30px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
+        .calendar-event {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f5f5f5;
+            border-left: 4px solid #ff9800;
+            border-radius: 0 8px 8px 0;
+        }
+        .event-date {
+            font-weight: bold;
+            color: #ff9800;
+        }
+        .priority-high { border-left-color: #f44336; }
+        .priority-normal { border-left-color: #ff9800; }
+        .priority-low { border-left-color: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📆 Calendar & Reminders</h1>
+            <button class="back-btn" onclick="location.href='/'">← Back to Home</button>
+        </div>
+        
+        <div class="content">
+            <h3>➕ Add Reminder</h3>
+            <form id="calendarForm">
+                <div class="form-row">
+                    <input type="date" name="date" required>
+                    <input type="text" name="title" placeholder="Reminder Title" required>
+                    <select name="priority">
+                        <option value="Normal">Normal</option>
+                        <option value="High">High Priority</option>
+                        <option value="Low">Low Priority</option>
+                    </select>
+                </div>
+                <input type="text" name="description" placeholder="Description (optional)" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px;">
+                <button type="submit" class="submit-btn">➕ Add Reminder</button>
+            </form>
+            <div id="status"></div>
+        </div>
+        
+        <div class="content">
+            <h3>📅 Upcoming Events ({{ events|length }})</h3>
+            {% for event in events %}
+            <div class="calendar-event priority-{{ event[4]|lower }}">
+                <div class="event-date">📅 {{ event[1] }}</div>
+                <div style="font-size:1.1em; font-weight:bold; margin:5px 0;">{{ event[2] }}</div>
+                {% if event[3] %}
+                <div style="color:#666;">{{ event[3] }}</div>
+                {% endif %}
+                <div style="font-size:0.9em; color:#999; margin-top:5px;">Priority: {{ event[4] }}</div>
+            </div>
+            {% else %}
+            <p style="text-align:center; padding:30px; color:#999;">No reminders set. Add your first reminder above!</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('calendarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                const response = await fetch('/calendar/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = '<p style="color:#4caf50; padding:15px;">✓ ' + result.message + '</p>';
+                    setTimeout(() => location.reload(), 1000);
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<p style="color:#f44336; padding:15px;">Error: ' + error + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

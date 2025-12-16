@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Tier Storage Management</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0a0e27; color: #fff; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; margin-bottom: 30px; }
+        h1 { font-size: 32px; margin-bottom: 10px; }
+        .role-badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: #1a1f3a; border-radius: 12px; padding: 24px; border: 1px solid #2a2f4a; }
+        .card h2 { font-size: 20px; margin-bottom: 16px; color: #667eea; }
+        .tier { background: #252a45; padding: 16px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #667eea; }
+        .tier h3 { font-size: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .tier p { color: #8b92b0; font-size: 14px; margin: 4px 0; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge.green { background: #10b981; color: #fff; }
+        .badge.red { background: #ef4444; color: #fff; }
+        .badge.blue { background: #3b82f6; color: #fff; }
+        .badge.yellow { background: #f59e0b; color: #fff; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+        .stat { background: #252a45; padding: 12px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #667eea; }
+        .stat-label { font-size: 12px; color: #8b92b0; margin-top: 4px; }
+        .activity { max-height: 400px; overflow-y: auto; }
+        .activity-item { background: #252a45; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .activity-time { font-size: 12px; color: #8b92b0; }
+        button { background: #667eea; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        button:hover { background: #5568d3; }
+        .icon { font-size: 24px; margin-right: 8px; }
+        .loading { text-align: center; padding: 40px; color: #8b92b0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗂️ Multi-Tier Storage Management</h1>
+            <span class="role-badge">Role: <strong id="userRole">{{ user_role }}</strong></span>
+        </header>
+
+        <div class="grid">
+            <!-- Local Storage -->
+            <div class="card">
+                <h2>💾 Local Storage</h2>
+                <div class="tier">
+                    <h3>
+                        <span>👔 Manager</span>
+                        <span class="badge blue" id="managerStatus">Loading...</span>
+                    </h3>
+                    <p>📁 <span id="managerFiles">0</span> files</p>
+                    <p>💿 <span id="managerSize">0</span> MB</p>
+                </div>
+                <div class="tier">
+                    <h3>
+                        <span>🤝 Advocate</span>
+                        <span class="badge blue" id="advocateStatus">Loading...</span>
+                    </h3>
+                    <p>📁 <span id="advocateFiles">0</span> files</p>
+                    <p>💿 <span id="advocateSize">0</span> MB</p>
+                </div>
+                <div class="tier">
+                    <h3>
+                        <span>⚖️ Legal</span>
+                        <span class="badge blue" id="legalStatus">Loading...</span>
+                    </h3>
+                    <p>📁 <span id="legalFiles">0</span> files</p>
+                    <p>💿 <span id="legalSize">0</span> MB</p>
+                </div>
+            </div>
+
+            <!-- OAuth Cloud Storage -->
+            <div class="card">
+                <h2>☁️ OAuth Cloud Storage</h2>
+                <div class="tier">
+                    <h3>
+                        <span>📦 Dropbox</span>
+                        <span class="badge" id="dropboxStatus">Loading...</span>
+                    </h3>
+                    <p>For: End users & tenants</p>
+                    <button onclick="connectOAuth('dropbox')" style="margin-top: 8px;">Connect Dropbox</button>
+                </div>
+                <div class="tier">
+                    <h3>
+                        <span>📁 Google Drive</span>
+                        <span class="badge" id="googleStatus">Loading...</span>
+                    </h3>
+                    <p>For: End users & tenants</p>
+                    <button onclick="connectOAuth('google_drive')" style="margin-top: 8px;">Connect Google Drive</button>
+                </div>
+            </div>
+
+            <!-- R2 System Storage -->
+            <div class="card">
+                <h2>🔐 R2 System Storage</h2>
+                <div class="tier">
+                    <h3>
+                        <span>☁️ Cloudflare R2</span>
+                        <span class="badge" id="r2Status">Loading...</span>
+                    </h3>
+                    <p>Admin & System Only</p>
+                    <p>Audit logs, backups, system data</p>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="auditCount">0</div>
+                        <div class="stat-label">Audit Events</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="totalFiles">0</div>
+                        <div class="stat-label">Total Files</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="totalSize">0</div>
+                        <div class="stat-label">Total MB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <h2>📊 Recent Storage Activity</h2>
+            <div class="activity" id="activityLog">
+                <div class="loading">Loading recent activity...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userRole = "{{ user_role }}";
+
+        async function loadStorageOverview() {
+            try {
+                const response = await fetch(`/storage/api/overview?user_role=${userRole}`);
+                const data = await response.json();
+
+                // Local storage
+                updateLocalTier('manager', data.local_storage.manager);
+                updateLocalTier('advocate', data.local_storage.advocate);
+                updateLocalTier('legal', data.local_storage.legal);
+
+                // OAuth
+                document.getElementById('dropboxStatus').textContent = data.oauth_cloud.dropbox.configured ? 'Configured' : 'Not Setup';
+                document.getElementById('dropboxStatus').className = data.oauth_cloud.dropbox.configured ? 'badge green' : 'badge red';
+
+                document.getElementById('googleStatus').textContent = data.oauth_cloud.google_drive.configured ? 'Configured' : 'Not Setup';
+                document.getElementById('googleStatus').className = data.oauth_cloud.google_drive.configured ? 'badge green' : 'badge red';
+
+                // R2
+                document.getElementById('r2Status').textContent = data.r2_system.configured ? 'Connected' : 'Not Setup';
+                document.getElementById('r2Status').className = data.r2_system.configured ? 'badge green' : 'badge red';
+
+                // Stats
+                document.getElementById('auditCount').textContent = data.audit.total_events;
+                const totalFiles = Object.values(data.local_storage).reduce((sum, tier) => sum + tier.files, 0);
+                const totalSize = Object.values(data.local_storage).reduce((sum, tier) => sum + tier.size_mb, 0);
+                document.getElementById('totalFiles').textContent = totalFiles;
+                document.getElementById('totalSize').textContent = totalSize.toFixed(1);
+            } catch (error) {
+                console.error('Failed to load storage overview:', error);
+            }
+        }
+
+        function updateLocalTier(tier, data) {
+            document.getElementById(`${tier}Files`).textContent = data.files;
+            document.getElementById(`${tier}Size`).textContent = data.size_mb;
+            document.getElementById(`${tier}Status`).textContent = data.accessible ? 'Access' : 'No Access';
+            document.getElementById(`${tier}Status`).className = data.accessible ? 'badge green' : 'badge red';
+        }
+
+        async function loadRecentActivity() {
+            try {
+                const response = await fetch('/storage/api/recent-activity?limit=10');
+                const data = await response.json();
+                const activityLog = document.getElementById('activityLog');
+
+                if (data.events.length === 0) {
+                    activityLog.innerHTML = '<div class="loading">No recent activity</div>';
+                    return;
+                }
+
+                activityLog.innerHTML = data.events.map(event => `
+                    <div class="activity-item">
+                        <div>
+                            <strong>${event.event_type.replace('_', ' ').toUpperCase()}</strong>
+                            <p style="font-size: 14px; color: #8b92b0;">${event.filename} (${event.user_role})</p>
+                        </div>
+                        <div class="activity-time">${new Date(event.timestamp).toLocaleString()}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load activity:', error);
+            }
+        }
+
+        function connectOAuth(provider) {
+            window.location.href = `/api/storage/oauth/connect/${provider}?user_id=demo_user`;
+        }
+
+        // Load data on page load
+        loadStorageOverview();
+        loadRecentActivity();
+
+        // Refresh every 30 seconds
+        setInterval(() => {
+            loadStorageOverview();
+            loadRecentActivity();
+        }, 30000);
+    </script>
+</body>
+</html>

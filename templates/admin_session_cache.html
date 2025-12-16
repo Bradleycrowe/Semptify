@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Cache Toggle - Admin</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; background: #f5f7fa; }
+        .card { background: white; border-radius: 8px; padding: 30px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; }
+        h2 { color: #333; margin-top: 0; }
+        h3 { color: #667eea; margin-top: 20px; }
+        .status { font-size: 1.2em; font-weight: bold; color: #48bb78; }
+        .instructions { background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        pre { background: #2d3748; color: #68d391; padding: 12px; border-radius: 4px; overflow-x: auto; }
+        code { background: #e2e8f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th { background: #667eea; color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border: 1px solid #e2e8f0; }
+        ul, ol { margin-left: 20px; }
+        li { margin: 10px 0; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Session Management - Administrator Control</h1>
+    
+    <div class="card">
+        <h2>3-Layer Session Cache System</h2>
+        <p><strong>Current Status:</strong> <span class="status">ENABLED</span> (default)</p>
+        
+        <div class="instructions">
+            <h3>📋 How to Toggle</h3>
+            <ol>
+                <li><strong>To ENABLE caching</strong> (recommended for production):
+                    <pre>$env:USE_SESSION_CACHE = "True"<br>.\.venv\Scripts\python.exe Semptify.py</pre>
+                </li>
+                <li><strong>To DISABLE caching</strong> (troubleshooting only):
+                    <pre>$env:USE_SESSION_CACHE = "False"<br>.\.venv\Scripts\python.exe Semptify.py</pre>
+                </li>
+                <li>Or add to <code>.env</code> file:
+                    <pre>USE_SESSION_CACHE=True</pre>
+                </li>
+            </ol>
+        </div>
+        
+        <h3>⚙️ System Configuration</h3>
+        <table>
+            <tr>
+                <th>Setting</th>
+                <th>Value</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>SESSION_TIMEOUT</code></td>
+                <td>14400 sec (4 hours)</td>
+                <td>How long before session expires</td>
+            </tr>
+            <tr>
+                <td><code>SLIDING_WINDOW</code></td>
+                <td>1800 sec (30 min)</td>
+                <td>Activity extends session</td>
+            </tr>
+            <tr>
+                <td><code>CACHE_TIMEOUT</code></td>
+                <td>3600 sec (1 hour)</td>
+                <td>Storage client cache duration</td>
+            </tr>
+            <tr>
+                <td><code>AUTO_RENEW</code></td>
+                <td>True</td>
+                <td>Auto-reload from storage if session expires</td>
+            </tr>
+        </table>
+        
+        <h3>📊 Performance Comparison</h3>
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Cache DISABLED</th>
+                <th>Cache ENABLED</th>
+            </tr>
+            <tr>
+                <td>Dropbox API calls</td>
+                <td>Every request ❌</td>
+                <td>Once per hour ✅</td>
+            </tr>
+            <tr>
+                <td>Request latency</td>
+                <td>100-300ms</td>
+                <td>~0.1ms</td>
+            </tr>
+            <tr>
+                <td>Memory per user</td>
+                <td>Minimal</td>
+                <td>~5KB</td>
+            </tr>
+            <tr>
+                <td>Network usage</td>
+                <td>High</td>
+                <td>Very low</td>
+            </tr>
+        </table>
+        
+        <h3>🔒 Security & Compliance</h3>
+        <ul>
+            <li>✅ <strong>NIST 800-63B compliant:</strong> 4-hour session timeout meets guidelines</li>
+            <li>✅ <strong>OWASP best practices:</strong> HttpOnly cookies, SameSite protection</li>
+            <li>✅ <strong>Sliding window:</strong> Prevents mid-activity logouts</li>
+            <li>✅ <strong>Auto-renewal:</strong> Seamless user experience without compromising security</li>
+        </ul>
+        
+        <div class="warning">
+            <strong>⚠️ Production Deployment:</strong><br>
+            Set <code>SESSION_COOKIE_SECURE = True</code> in Semptify.py when using HTTPS.<br>
+            Currently set to False for localhost HTTP development.
+        </div>
+        
+        <h3>🎯 When to Disable Caching</h3>
+        <ul>
+            <li>Troubleshooting session-related issues</li>
+            <li>Testing with frequent token changes</li>
+            <li>Low-memory environments (unlikely with 5KB per user)</li>
+            <li>Debugging storage connectivity problems</li>
+        </ul>
+        
+        <h3>📝 Architecture Overview</h3>
+        <p><strong>Layer 1:</strong> Long-term identity in user's Dropbox (<code>/auth_token.enc</code>)</p>
+        <p><strong>Layer 2:</strong> Active session in Flask cookie (4-hour expiry, sliding window)</p>
+        <p><strong>Layer 3:</strong> Storage client cache in memory (1-hour TTL, ~100x faster)</p>
+    </div>
+    
+    <div class="card">
+        <h2>📚 Related Files</h2>
+        <ul>
+            <li><code>Semptify.py</code> - Configuration constants</li>
+            <li><code>storage_autologin.py</code> - Session validation logic</li>
+            <li><code>storage_setup_routes.py</code> - OAuth callbacks set expiry</li>
+            <li><code>config.env.template</code> - Environment variable template</li>
+        </ul>
+    </div>
+</body>
+</html>

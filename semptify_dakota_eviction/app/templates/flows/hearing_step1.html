@@ -1,0 +1,73 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_hearing }} - Step {{ step }}{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">🎯</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_hearing }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 1: Hearing Details{% elif lang == 'es' %}Paso 1: Detalles de la Audiencia{% elif lang == 'so' %}Tallaabada 1: Faahfaahinta Dhageysiga{% else %}الخطوة 1: تفاصيل الجلسة{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <form action="/flows/hearing?step=2&lang={{ lang }}" method="GET">
+        <input type="hidden" name="step" value="2">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Your Name{% elif lang == 'es' %}Su Nombre{% elif lang == 'so' %}Magacaaga{% else %}اسمك{% endif %}
+            </label>
+            <input type="text" name="tenant_name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">{{ strings.hearing_date }}</label>
+            <input type="date" name="hearing_date" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Hearing Time{% elif lang == 'es' %}Hora de la Audiencia{% elif lang == 'so' %}Wakhtiga Dhageysiga{% else %}وقت الجلسة{% endif %}
+            </label>
+            <input type="time" name="hearing_time" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Hearing Format{% elif lang == 'es' %}Formato de la Audiencia{% elif lang == 'so' %}Qaabka Dhageysiga{% else %}شكل الجلسة{% endif %}
+            </label>
+            <div class="checkbox-list">
+                <label class="checkbox-item">
+                    <input type="radio" name="is_zoom" value="false" checked>
+                    <span>{% if lang == 'en' %}In-Person{% elif lang == 'es' %}En Persona{% elif lang == 'so' %}Shakhsi ahaan{% else %}حضوري{% endif %}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="radio" name="is_zoom" value="true">
+                    <span>{% if lang == 'en' %}Zoom (Virtual){% elif lang == 'es' %}Zoom (Virtual){% elif lang == 'so' %}Zoom (Farsamooyinka){% else %}زوم (افتراضي){% endif %}</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <a href="/?lang={{ lang }}" class="btn btn-outline">← {{ strings.btn_back }}</a>
+            <button type="submit" class="btn btn-primary">{{ strings.btn_next }} →</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_motions }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_motions }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Select the type of motion you need to file{% elif lang == 'es' %}Seleccione el tipo de moción que necesita presentar{% elif lang == 'so' %}Dooro nooca codsiga aad u baahan tahay inaad xareysid{% else %}اختر نوع الطلب الذي تريد تقديمه{% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    {% for motion in motions %}
+    <a href="/flows/motions/{{ motion.id }}?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit;">
+        <div class="card-header">
+            <div class="card-icon">
+                {% if motion.id == 'dismiss' %}🚫{% elif motion.id == 'continuance' %}📅{% elif motion.id == 'stay' %}⏸️{% else %}💰{% endif %}
+            </div>
+            <div>
+                <h3 class="card-title">{{ motion.label }}</h3>
+            </div>
+        </div>
+        <p class="card-description">{{ motion.description }}</p>
+        <div class="mt-2">
+            <span class="btn btn-outline">
+                {% if lang == 'en' %}Start{% elif lang == 'es' %}Comenzar{% elif lang == 'so' %}Bilow{% else %}ابدأ{% endif %} →
+            </span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<div class="card" style="background: #fef3c7; border: 1px solid #f59e0b; margin-top: 2rem;">
+    <h3 style="margin-bottom: 0.5rem;">
+        {% if lang == 'en' %}⏰ Timing Matters{% elif lang == 'es' %}⏰ El Tiempo Importa{% elif lang == 'so' %}⏰ Waqtigu Waa Muhiim{% else %}⏰ التوقيت مهم{% endif %}
+    </h3>
+    <ul style="margin-left: 1.5rem; color: #92400e;">
+        <li>{% if lang == 'en' %}Motion to Dismiss: File as soon as possible{% elif lang == 'es' %}Moción para Desestimar: Presente lo antes posible{% elif lang == 'so' %}Codsiga Joojinta: Xaree sida ugu dhakhsaha badan{% else %}طلب الرفض: قدمه في أقرب وقت ممكن{% endif %}</li>
+        <li>{% if lang == 'en' %}Continuance: File at least 3 days before hearing{% elif lang == 'es' %}Aplazamiento: Presente al menos 3 días antes{% elif lang == 'so' %}Dib u Dhigid: Xaree ugu yaraan 3 maalmood ka hor dhageysiga{% else %}التأجيل: قدمه قبل 3 أيام على الأقل{% endif %}</li>
+        <li>{% if lang == 'en' %}Stay of Writ: File immediately after adverse judgment{% elif lang == 'es' %}Suspensión de Orden: Presente inmediatamente después del fallo{% elif lang == 'so' %}Hakinta Amarka: Xaree isla markiiba ka dib go'aanka ka dhan ah{% else %}وقف الأمر: قدمه فورًا بعد الحكم السلبي{% endif %}</li>
+        <li>{% if lang == 'en' %}Fee Waiver: File first, before any other documents{% elif lang == 'es' %}Exención de Tarifas: Presente primero{% elif lang == 'so' %}Cafinta Kharashka: Xaree marka hore{% else %}الإعفاء من الرسوم: قدمه أولاً{% endif %}</li>
+    </ul>
+</div>
+{% endblock %}

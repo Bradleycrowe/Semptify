@@ -6,7 +6,11 @@ main_dashboard_bp = Blueprint('main_dashboard', __name__)
 
 @main_dashboard_bp.route('/')
 def home():
-    """Main Semptify homepage - matches production on Render - REFACTORED: Uses /system/context"""
+    # Save URL token to session if provided
+    if request.args.get('user_token'):
+        session['user_token'] = request.args.get('user_token')
+        session['authenticated'] = True
+        """Main Semptify homepage - matches production on Render - REFACTORED: Uses /system/context"""
     user_token = request.args.get('user_token') or session.get('user_token')
     storage_qualified = session.get('qualified', False)
     
@@ -53,4 +57,7 @@ def settings():
     <p><a href="/">← Back to Home</a></p>
     </body></html>
     ''', 200
+
+
+
 

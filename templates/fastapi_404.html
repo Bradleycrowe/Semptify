@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+        }
+        h1 { color: #667eea; font-size: 72px; margin-bottom: 20px; }
+        h2 { color: #333; margin-bottom: 15px; }
+        p { color: #666; margin-bottom: 30px; line-height: 1.6; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: 600;
+        }
+        .path { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <h2>Page Not Found</h2>
+        <p>The page you're looking for doesn't exist or has been moved.</p>
+        <div class="path">{{ path }}</div>
+        <a href="/hub" class="btn">Go to Hub</a>
+    </div>
+</body>
+</html>

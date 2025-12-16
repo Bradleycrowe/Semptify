@@ -1,0 +1,136 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_zoom }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">💻</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_zoom }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}How to appear professionally in virtual court{% elif lang == 'es' %}Cómo presentarse profesionalmente en tribunal virtual{% elif lang == 'so' %}Sida loo muuqdo si xirfadleh maxkamadda farsamooyinka{% else %}كيفية الظهور باحترافية في المحكمة الافتراضية{% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Pre-Hearing Checklist -->
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">
+        ✅ {{ strings.zoom_checklist }}
+    </h2>
+    <div class="checkbox-list">
+        {% for tip in zoom_tips %}
+        <label class="checkbox-item">
+            <input type="checkbox">
+            <span>{{ tip }}</span>
+        </label>
+        {% endfor %}
+        
+        {% if not zoom_tips %}
+        <label class="checkbox-item">
+            <input type="checkbox">
+            <span>{{ strings.zoom_tip_1 }}</span>
+        </label>
+        <label class="checkbox-item">
+            <input type="checkbox">
+            <span>{{ strings.zoom_tip_2 }}</span>
+        </label>
+        <label class="checkbox-item">
+            <input type="checkbox">
+            <span>{{ strings.zoom_tip_3 }}</span>
+        </label>
+        <label class="checkbox-item">
+            <input type="checkbox">
+            <span>{{ strings.zoom_tip_4 }}</span>
+        </label>
+        <label class="checkbox-item">
+            <input type="checkbox">
+            <span>{{ strings.zoom_tip_5 }}</span>
+        </label>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Technical Setup -->
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">
+        🔧 {% if lang == 'en' %}Technical Setup{% elif lang == 'es' %}Configuración Técnica{% elif lang == 'so' %}Dejinta Farsamada{% else %}الإعداد الفني{% endif %}
+    </h2>
+    
+    <div class="grid grid-2">
+        <div style="padding: 1rem; background: var(--bg); border-radius: 8px;">
+            <h4>💻 {% if lang == 'en' %}Computer/Tablet{% elif lang == 'es' %}Computadora/Tableta{% elif lang == 'so' %}Kombuyuutar/Tablet{% else %}كمبيوتر/جهاز لوحي{% endif %}</h4>
+            <ul style="margin-left: 1rem; margin-top: 0.5rem; font-size: 0.9rem;">
+                <li>{% if lang == 'en' %}Download Zoom from zoom.us{% elif lang == 'es' %}Descargue Zoom de zoom.us{% elif lang == 'so' %}Soo deji Zoom ka zoom.us{% else %}حمّل Zoom من zoom.us{% endif %}</li>
+                <li>{% if lang == 'en' %}Test camera and microphone{% elif lang == 'es' %}Pruebe cámara y micrófono{% elif lang == 'so' %}Tijaabi kamarada iyo makarafoonka{% else %}اختبر الكاميرا والميكروفون{% endif %}</li>
+                <li>{% if lang == 'en' %}Use Chrome, Firefox, or Edge{% elif lang == 'es' %}Use Chrome, Firefox o Edge{% elif lang == 'so' %}Isticmaal Chrome, Firefox, ama Edge{% else %}استخدم Chrome أو Firefox أو Edge{% endif %}</li>
+            </ul>
+        </div>
+        
+        <div style="padding: 1rem; background: var(--bg); border-radius: 8px;">
+            <h4>📱 {% if lang == 'en' %}Phone{% elif lang == 'es' %}Teléfono{% elif lang == 'so' %}Telefoon{% else %}هاتف{% endif %}</h4>
+            <ul style="margin-left: 1rem; margin-top: 0.5rem; font-size: 0.9rem;">
+                <li>{% if lang == 'en' %}Download Zoom app{% elif lang == 'es' %}Descargue la app de Zoom{% elif lang == 'so' %}Soo deji app-ka Zoom{% else %}حمّل تطبيق Zoom{% endif %}</li>
+                <li>{% if lang == 'en' %}Prop phone up steadily{% elif lang == 'es' %}Apoye el teléfono de manera estable{% elif lang == 'so' %}Taag telefoonka si adag{% else %}ثبّت الهاتف بشكل ثابت{% endif %}</li>
+                <li>{% if lang == 'en' %}Use headphones if possible{% elif lang == 'es' %}Use auriculares si es posible{% elif lang == 'so' %}Isticmaal dhegeyste haddii suurtagal tahay{% else %}استخدم سماعات إن أمكن{% endif %}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- During the Hearing -->
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">
+        🎯 {% if lang == 'en' %}During the Hearing{% elif lang == 'es' %}Durante la Audiencia{% elif lang == 'so' %}Inta lagu jiro Dhageysiga{% else %}أثناء الجلسة{% endif %}
+    </h2>
+    
+    <div style="display: grid; gap: 1rem;">
+        <div class="alert alert-success" style="margin: 0;">
+            <div class="alert-icon">✅</div>
+            <div>
+                <strong>{% if lang == 'en' %}DO{% elif lang == 'es' %}HAGA{% elif lang == 'so' %}SAMEE{% else %}افعل{% endif %}:</strong>
+                <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                    <li>{% if lang == 'en' %}Address the judge as "Your Honor"{% elif lang == 'es' %}Diríjase al juez como "Su Señoría"{% elif lang == 'so' %}U wac garsooraha "Sharaftiina"{% else %}خاطب القاضي بـ "سيادتكم"{% endif %}</li>
+                    <li>{% if lang == 'en' %}Speak clearly and slowly{% elif lang == 'es' %}Hable claro y despacio{% elif lang == 'so' %}Ku hadal si cad oo tartiib ah{% else %}تحدث بوضوح وببطء{% endif %}</li>
+                    <li>{% if lang == 'en' %}Wait to be called before speaking{% elif lang == 'es' %}Espere que lo llamen antes de hablar{% elif lang == 'so' %}Sug in lagu yeedho ka hor intaadan hadlin{% else %}انتظر حتى يُنادى عليك قبل التحدث{% endif %}</li>
+                    <li>{% if lang == 'en' %}Mute yourself when not speaking{% elif lang == 'es' %}Silénciese cuando no hable{% elif lang == 'so' %}Iska aamusi markaad hadlin{% else %}اكتم صوتك عندما لا تتحدث{% endif %}</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="alert alert-danger" style="margin: 0;">
+            <div class="alert-icon">❌</div>
+            <div>
+                <strong>{% if lang == 'en' %}DON'T{% elif lang == 'es' %}NO HAGA{% elif lang == 'so' %}HA SAMAYNIN{% else %}لا تفعل{% endif %}:</strong>
+                <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                    <li>{% if lang == 'en' %}Interrupt the judge or landlord{% elif lang == 'es' %}Interrumpa al juez o arrendador{% elif lang == 'so' %}Ha kala jarin garsooraha ama mulkiilaha{% else %}تقاطع القاضي أو المالك{% endif %}</li>
+                    <li>{% if lang == 'en' %}Eat, drink, or smoke during hearing{% elif lang == 'es' %}Coma, beba o fume durante la audiencia{% elif lang == 'so' %}Cun, cab, ama sigaar cab inta lagu jiro dhageysiga{% else %}تأكل أو تشرب أو تدخن أثناء الجلسة{% endif %}</li>
+                    <li>{% if lang == 'en' %}Use virtual backgrounds{% elif lang == 'es' %}Use fondos virtuales{% elif lang == 'so' %}Isticmaal sawiro gadaal farsamooyinka{% else %}تستخدم خلفيات افتراضية{% endif %}</li>
+                    <li>{% if lang == 'en' %}Drive or move around{% elif lang == 'es' %}Conduzca o se mueva{% elif lang == 'so' %}Wadan ama dhaqaaqdo{% else %}تقود أو تتحرك{% endif %}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- If Technical Problems -->
+<div class="card" style="background: #fef3c7; border: 1px solid #f59e0b;">
+    <h2 style="margin-bottom: 1rem;">
+        ⚠️ {% if lang == 'en' %}If You Have Technical Problems{% elif lang == 'es' %}Si Tiene Problemas Técnicos{% elif lang == 'so' %}Haddii Aad Qabto Dhibaatooyin Farsameed{% else %}إذا واجهت مشاكل تقنية{% endif %}
+    </h2>
+    <ol style="margin-left: 1.5rem;">
+        <li>{% if lang == 'en' %}Call the court immediately{% elif lang == 'es' %}Llame al tribunal inmediatamente{% elif lang == 'so' %}Wac maxkamadda isla markiiba{% else %}اتصل بالمحكمة فورًا{% endif %}: <a href="tel:651-438-4325">651-438-4325</a></li>
+        <li>{% if lang == 'en' %}Ask to join by phone instead{% elif lang == 'es' %}Pida unirse por teléfono{% elif lang == 'so' %}Weydii inaad ku soo biirtid telefoon{% else %}اطلب الانضمام عبر الهاتف بدلاً من ذلك{% endif %}</li>
+        <li>{% if lang == 'en' %}Document what happened{% elif lang == 'es' %}Documente lo que pasó{% elif lang == 'so' %}Diiwaangeli waxa dhacay{% else %}وثّق ما حدث{% endif %}</li>
+    </ol>
+</div>
+
+<!-- Download Checklist Button -->
+<div class="text-center mt-4">
+    <a href="/flows/hearing?lang={{ lang }}" class="btn btn-primary" style="font-size: 1.1rem;">
+        📋 {% if lang == 'en' %}Full Hearing Preparation Guide{% elif lang == 'es' %}Guía Completa de Preparación{% elif lang == 'so' %}Hagaha Buuxa ee Diyaarinta{% else %}دليل التحضير الكامل{% endif %}
+    </a>
+</div>
+{% endblock %}

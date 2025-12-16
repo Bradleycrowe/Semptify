@@ -1,0 +1,72 @@
+
+# Calendar Hub - Integrated calendar system
+try:
+    from calendar_hub_routes import calendar_hub_bp
+    app.register_blueprint(calendar_hub_bp)
+    print('[OK] Calendar Hub registered')
+except ImportError as e:
+    print(f'[WARN] Calendar Hub not available: {e}')
+
+# Journey Timeline - User journey tracking
+try:
+    from journey_routes import journey_bp
+    app.register_blueprint(journey_bp)
+    print('[OK] Journey Timeline registered')
+except ImportError as e:
+    print(f'[WARN] Journey Timeline not available: {e}')
+
+# Maintenance - System maintenance tools
+try:
+    from maintenance_routes import maintenance_bp
+    app.register_blueprint(maintenance_bp)
+    print('[OK] Maintenance routes registered')
+except ImportError as e:
+    print(f'[WARN] Maintenance routes not available: {e}')
+
+# Legal Resources - Legal information and tools
+try:
+    from legal_routes import legal_bp
+    app.register_blueprint(legal_bp)
+    print('[OK] Legal routes registered')
+except ImportError as e:
+    print(f'[WARN] Legal routes not available: {e}')
+
+# Rent Calculator - Payment calculation tools
+try:
+    from rent_calculator_routes import rent_calculator_bp
+    app.register_blueprint(rent_calculator_bp)
+    print('[OK] Rent Calculator registered')
+except ImportError as e:
+    print(f'[WARN] Rent Calculator not available: {e}')
+
+# Document Explorer - Advanced document search
+try:
+    from doc_explorer_routes import doc_explorer_bp
+    app.register_blueprint(doc_explorer_bp)
+    print('[OK] Document Explorer registered')
+except ImportError as e:
+    print(f'[WARN] Document Explorer not available: {e}')
+
+# Audio/Video Capture - Multimedia evidence collection
+try:
+    from av_routes import av_routes_bp
+    app.register_blueprint(av_routes_bp)
+    print('[OK] AV Capture registered')
+except ImportError as e:
+    print(f'[WARN] AV Capture not available: {e}')
+
+# AI Orchestrator - AI coordination and routing
+try:
+    from ai_orchestrator_routes import orchestrator_bp
+    app.register_blueprint(orchestrator_bp)
+    print('[OK] AI Orchestrator registered')
+except ImportError as e:
+    print(f'[WARN] AI Orchestrator not available: {e}')
+
+# Timeline API - Timeline data access
+try:
+    from timeline_api_routes import timeline_api_bp
+    app.register_blueprint(timeline_api_bp)
+    print('[OK] Timeline API registered')
+except ImportError as e:
+    print(f'[WARN] Timeline API not available: {e}')

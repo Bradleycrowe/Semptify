@@ -1,3 +1,4 @@
+import pytest
 import os, importlib, json, re, tempfile
 
 def setup_enforced(tmpdir):

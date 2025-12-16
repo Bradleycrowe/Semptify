@@ -1,3 +1,4 @@
+import pytest
 import importlib
 from bs4 import BeautifulSoup
 

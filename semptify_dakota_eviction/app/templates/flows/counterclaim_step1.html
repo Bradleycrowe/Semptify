@@ -1,0 +1,82 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_counterclaim }} - Step {{ step }}{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">⚖️</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_counterclaim }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 1: Basic Information{% elif lang == 'es' %}Paso 1: Información Básica{% elif lang == 'so' %}Tallaabada 1: Macluumaadka Aasaasiga{% else %}الخطوة 1: المعلومات الأساسية{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <div class="alert alert-success">
+        <div class="alert-icon">💡</div>
+        <div>
+            {% if lang == 'en' %}
+            <strong>A counterclaim lets you sue your landlord in the same case.</strong>
+            If your landlord owes you money or violated your rights, you can ask the court to award you damages.
+            {% elif lang == 'es' %}
+            <strong>Una contrademanda le permite demandar a su arrendador en el mismo caso.</strong>
+            {% elif lang == 'so' %}
+            <strong>Dacwad lid ah waxay kuu oggolaanaysaa inaad dacweysid mulkiilahaaga kiiska isku mid ah.</strong>
+            {% else %}
+            <strong>الدعوى المضادة تتيح لك مقاضاة المالك في نفس القضية.</strong>
+            {% endif %}
+        </div>
+    </div>
+    
+    <form action="/flows/counterclaim?step=2&lang={{ lang }}" method="GET">
+        <input type="hidden" name="step" value="2">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Your Full Name{% elif lang == 'es' %}Su Nombre Completo{% elif lang == 'so' %}Magacaaga Buuxa{% else %}اسمك الكامل{% endif %}
+            </label>
+            <input type="text" name="tenant_name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Landlord/Property Manager Name{% elif lang == 'es' %}Nombre del Arrendador{% elif lang == 'so' %}Magaca Mulkiilaha{% else %}اسم المالك{% endif %}
+            </label>
+            <input type="text" name="landlord_name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Case Number{% elif lang == 'es' %}Número de Caso{% elif lang == 'so' %}Lambarka Kiiska{% else %}رقم القضية{% endif %}
+            </label>
+            <input type="text" name="case_number" class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Rental Property Address{% elif lang == 'es' %}Dirección de la Propiedad{% elif lang == 'so' %}Cinwaanka Guriga Kirada{% else %}عنوان العقار{% endif %}
+            </label>
+            <input type="text" name="address" class="form-input" required>
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <a href="/?lang={{ lang }}" class="btn btn-outline">← {{ strings.btn_back }}</a>
+            <button type="submit" class="btn btn-primary">{{ strings.btn_next }} →</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Filing - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { color: #667eea; margin-bottom: 30px; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .btn:hover { opacity: 0.9; }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚖️ Complaint Filing Wizard</h1>
+        
+        <div class="info-box">
+            <strong>Note:</strong> This tool helps generate court-ready legal complaints. Fill out all fields carefully.
+        </div>
+        
+        <form action="/complaint/generate" method="POST">
+            <div class="form-group">
+                <label>Complaint Type</label>
+                <select name="complaint_type">
+                    <option value="repair">Repair & Maintenance</option>
+                    <option value="habitability">Habitability Issues</option>
+                    <option value="retaliation">Landlord Retaliation</option>
+                    <option value="deposit">Security Deposit Dispute</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="discrimination">Discrimination</option>
+                    <option value="eviction">Wrongful Eviction</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" name="plaintiff_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Landlord/Property Manager Name</label>
+                <input type="text" name="defendant_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Property Address</label>
+                <input type="text" name="property_address" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Issue Description</label>
+                <textarea name="issue_description" required placeholder="Describe the issue in detail..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Dates Relevant to Complaint</label>
+                <textarea name="relevant_dates" placeholder="List key dates (e.g., 'Jan 15: First reported issue')"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Desired Outcome</label>
+                <textarea name="desired_outcome" required placeholder="What resolution are you seeking?"></textarea>
+            </div>
+            
+            <button type="submit" class="btn">Generate Complaint</button>
+        </form>
+        
+        <a href="/hub" class="back-link">← Back to Hub</a>
+    </div>
+</body>
+</html>

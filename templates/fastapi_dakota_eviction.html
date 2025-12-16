@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dakota County Eviction Defense - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 18px; }
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .alert strong { color: #856404; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .card li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+        .card li:last-child { border-bottom: none; }
+        .resource-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .resource-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .statute-box {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2196f3;
+        }
+        .statute-title {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .statute-text {
+            color: #555;
+            line-height: 1.6;
+        }
+        .defense-strategy {
+            background: #c8e6c9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4caf50;
+        }
+        .defense-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .timeline-step {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .contact-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .contact-box h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .contact-info {
+            color: #555;
+            line-height: 2;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .emergency {
+            background: #ffcdd2;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .emergency strong {
+            color: #c62828;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚖️ Dakota County Eviction Defense Library</h1>
+            <p class="subtitle">Complete guide to defending against eviction in Dakota County, Minnesota</p>
+        </header>
+        
+        <div class="emergency">
+            <strong>⚠️ EMERGENCY EVICTION NOTICE?</strong>
+            <p style="margin-top: 10px; color: #555;">If you received an eviction notice today, you typically have <strong>7-14 days</strong> to respond. Contact legal aid immediately!</p>
+        </div>
+        
+        <div class="alert">
+            <strong>📅 Important Deadlines:</strong> Missing court deadlines can result in automatic judgment against you. File your Answer within the deadline shown on your Summons and Complaint.
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>📋 Quick Actions</h2>
+                <ul>
+                    <li><a href="#timeline">Eviction Timeline</a></li>
+                    <li><a href="#defenses">Legal Defenses</a></li>
+                    <li><a href="#statutes">MN Statutes</a></li>
+                    <li><a href="#forms">Court Forms</a></li>
+                    <li><a href="#help">Get Legal Help</a></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>🏛️ Dakota County Courts</h2>
+                <ul>
+                    <li>West St. Paul Courthouse</li>
+                    <li>1st Judicial District</li>
+                    <li>Housing Court Division</li>
+                    <li><strong>Address:</strong> 1560 Highway 55, Hastings, MN 55033</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>📞 Emergency Contacts</h2>
+                <ul>
+                    <li><strong>Legal Aid:</strong> 651-224-9023</li>
+                    <li><strong>HOME Line:</strong> 866-866-3546</li>
+                    <li><strong>Dakota County:</strong> 651-438-4438</li>
+                    <li><strong>Emergency Assistance:</strong> 211</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="resource-section" id="timeline">
+            <h2>📅 Dakota County Eviction Timeline</h2>
+            
+            <div class="timeline-step">
+                <div class="step-title">Day 0: Eviction Notice Served</div>
+                <p class="statute-text">
+                    Landlord must serve proper notice:
+                    <br>• Non-payment of rent: 14-day notice
+                    <br>• Lease violation: 30-day notice (or less if material violation)
+                    <br>• No lease/month-to-month: 1 month notice for month-to-month tenancy
+                </p>
+            </div>
+            
+            <div class="timeline-step">
+                <div class="step-title">After Notice Period: Summons & Complaint Filed</div>
+                <p class="statute-text">
+                    If you don't move out or cure the violation, landlord files eviction lawsuit (Unlawful Detainer) with Dakota County Court.
+                    <br><strong>Action Required:</strong> You will be served with court papers showing your court date.
+                </p>
+            </div>
+            
+            <div class="timeline-step">
+                <div class="step-title">Within 7-14 Days: File Your Answer</div>
+                <p class="statute-text">
+                    <strong>CRITICAL:</strong> File written Answer with the court AND serve copy to landlord's attorney.
+                    <br>• Admit or deny each claim
+                    <br>• Raise all defenses
+                    <br>• File fee: $310 (may be waived if low income)
+                </p>
+            </div>
+            
+            <div class="timeline-step">
+                <div class="step-title">Court Hearing: 7-14 Days After Filing</div>
+                <p class="statute-text">
+                    Eviction hearings in Dakota County are typically scheduled quickly.
+                    <br>• Bring all evidence (receipts, photos, communications)
+                    <br>• Bring witnesses if applicable
+                    <br>• Dress professionally and arrive early
+                </p>
+            </div>
+            
+            <div class="timeline-step">
+                <div class="step-title">After Judgment: Writ of Recovery</div>
+                <p class="statute-text">
+                    If you lose, landlord can request Writ of Recovery. Sheriff will post 24-hour notice before lockout.
+                    <br><strong>Appeal:</strong> Must file within 10 days of judgment.
+                </p>
+            </div>
+        </div>
+        
+        <div class="resource-section" id="defenses">
+            <h2>🛡️ Common Legal Defenses in Dakota County</h2>
+            
+            <div class="defense-strategy">
+                <div class="defense-title">1. Improper Notice</div>
+                <p class="statute-text">
+                    Landlord must provide proper written notice with correct timeframe. Notice must include specific reasons and comply with MN Stat. § 504B.135.
+                    <br><strong>Example:</strong> 14-day notice for rent must state exact amount owed and how calculated.
+                </p>
+            </div>
+            
+            <div class="defense-strategy">
+                <div class="defense-title">2. Retaliation (MN Stat. § 504B.285)</div>
+                <p class="statute-text">
+                    Landlord cannot evict in retaliation for:
+                    <br>• Reporting code violations
+                    <br>• Requesting repairs
+                    <br>• Joining tenant organization
+                    <br>• Complaining to government agency
+                    <br><strong>Timeline:</strong> Within 90 days of protected activity creates presumption of retaliation.
+                </p>
+            </div>
+            
+            <div class="defense-strategy">
+                <div class="defense-title">3. Discrimination</div>
+                <p class="statute-text">
+                    Federal and MN fair housing laws prohibit eviction based on:
+                    <br>• Race, color, national origin
+                    <br>• Religion
+                    <br>• Sex (including sexual harassment)
+                    <br>• Disability
+                    <br>• Familial status (children)
+                    <br>• Source of income (Section 8)
+                </p>
+            </div>
+            
+            <div class="defense-strategy">
+                <div class="defense-title">4. Rent Already Paid</div>
+                <p class="statute-text">
+                    Bring proof of payment:
+                    <br>• Bank statements
+                    <br>• Canceled checks
+                    <br>• Money order receipts
+                    <br>• Text/email confirmations
+                    <br>• Venmo/CashApp records
+                </p>
+            </div>
+            
+            <div class="defense-strategy">
+                <div class="defense-title">5. Uninhabitable Conditions (Implied Warranty of Habitability)</div>
+                <p class="statute-text">
+                    Landlord must maintain habitable property. Major defects may reduce/eliminate rent owed:
+                    <br>• No heat in winter
+                    <br>• No hot water
+                    <br>• Severe mold or pest infestation
+                    <br>• Broken locks/no security
+                    <br>• Roof leaks causing damage
+                    <br><strong>Evidence:</strong> Photos, inspection reports, repair requests.
+                </p>
+            </div>
+            
+            <div class="defense-strategy">
+                <div class="defense-title">6. Lease Violation Not True</div>
+                <p class="statute-text">
+                    Deny allegations and provide evidence:
+                    <br>• Witnesses
+                    <br>• Documentation
+                    <br>• Photos/videos
+                    <br>• Communications with landlord
+                </p>
+            </div>
+            
+            <div class="defense-strategy">
+                <div class="defense-title">7. Landlord Breach of Lease</div>
+                <p class="statute-text">
+                    Landlord failed to comply with lease terms:
+                    <br>• Did not provide promised services
+                    <br>• Violated quiet enjoyment
+                    <br>• Entered without proper notice
+                    <br>• Failed to maintain property per lease
+                </p>
+            </div>
+        </div>
+        
+        <div class="resource-section" id="statutes">
+            <h2>📖 Key Minnesota Statutes for Dakota County</h2>
+            
+            <div class="statute-box">
+                <div class="statute-title">MN Stat. § 504B.001-504B.471 - Landlord-Tenant Law</div>
+                <p class="statute-text">
+                    Complete Minnesota landlord-tenant statutes covering leases, evictions, deposits, and tenant rights.
+                </p>
+            </div>
+            
+            <div class="statute-box">
+                <div class="statute-title">MN Stat. § 504B.135 - Security Deposits</div>
+                <p class="statute-text">
+                    • Must be returned within 21 days of move-out
+                    <br>• With itemized list of deductions
+                    <br>• Interest required if deposit > $1,000 and tenancy > 1 year
+                    <br>• Penalty: Tenant may recover deposit plus actual damages or $500, whichever is greater
+                </p>
+            </div>
+            
+            <div class="statute-box">
+                <div class="statute-title">MN Stat. § 504B.161 - Landlord Entry Rights</div>
+                <p class="statute-text">
+                    Landlord must give reasonable notice (typically 24 hours) except emergencies.
+                    <br>Entry must be at reasonable times and for legitimate purposes.
+                </p>
+            </div>
+            
+            <div class="statute-box">
+                <div class="statute-title">MN Stat. § 504B.285 - Retaliation Prohibited</div>
+                <p class="statute-text">
+                    Landlord cannot retaliate within 90 days of tenant asserting rights.
+                    <br>Tenant can recover 3 months' rent plus attorney fees if retaliation proven.
+                </p>
+            </div>
+            
+            <div class="statute-box">
+                <div class="statute-title">MN Stat. § 504B.291 - Residential Tenant's Remedies</div>
+                <p class="statute-text">
+                    Tenant remedies for landlord violations:
+                    <br>• Rent abatement
+                    <br>• Repair and deduct
+                    <br>• Lawsuit for damages
+                    <br>• Termination of lease
+                </p>
+            </div>
+            
+            <div class="statute-box">
+                <div class="statute-title">MN Stat. § 504B.371 - Eviction Action Procedures</div>
+                <p class="statute-text">
+                    Governs eviction procedures in Minnesota including notice requirements, filing procedures, and hearing process.
+                </p>
+            </div>
+        </div>
+        
+        <div class="resource-section" id="forms">
+            <h2>📄 Dakota County Court Forms</h2>            
+            <p style="margin-bottom: 20px;">Forms available at Dakota County Government Center or online:</p>
+            
+            <a href="#" class="btn">Answer to Eviction (Form 2)</a>
+            <a href="#" class="btn">Motion for Continuance</a>
+            <a href="#" class="btn">Fee Waiver (IFP)</a>
+            <a href="#" class="btn">Appeal Notice</a>
+            <a href="#" class="btn">Motion to Stay Writ</a>
+            
+            <p style="margin-top: 20px; color: #666;">
+                <strong>Filing Location:</strong> Dakota County Judicial Center, 1560 Highway 55, Hastings, MN 55033
+                <br><strong>Hours:</strong> Monday-Friday, 8:00 AM - 4:30 PM
+                <br><strong>Filing Fee:</strong> $310 (may be waived for low-income tenants)
+            </p>
+        </div>
+        
+        <div class="resource-section" id="help">
+            <h2>🤝 Get Legal Help in Dakota County</h2>
+            
+            <div class="contact-box">
+                <h3>Legal Aid Organizations</h3>
+                <div class="contact-info">
+                    <strong>Southern Minnesota Regional Legal Services (SMRLS)</strong>
+                    <br>Phone: 651-222-4731 or 888-575-2954
+                    <br>Website: www.smrls.org
+                    <br>Serves: Dakota, Goodhue, Rice, Wabasha, and other counties
+                    <br><br>
+                    <strong>HOME Line (Tenant Hotline)</strong>
+                    <br>Phone: 866-866-3546 (toll-free)
+                    <br>Website: homelinemn.org
+                    <br>Hours: Monday-Friday 9am-12pm and 1pm-3pm
+                    <br>Services: Free legal advice for tenants statewide
+                    <br><br>
+                    <strong>Dakota County Housing Services</strong>
+                    <br>Phone: 651-438-4438
+                    <br>Services: Emergency rental assistance, housing counseling
+                    <br><br>
+                    <strong>Minnesota 2-1-1</strong>
+                    <br>Dial: 211 or text ZIP code to 898-211
+                    <br>Services: Referrals for emergency assistance, food, housing
+                </div>
+            </div>
+            
+            <div class="contact-box">
+                <h3>Tenant Resources</h3>
+                <div class="contact-info">
+                    <strong>MN Attorney General - Tenant Rights</strong>
+                    <br>Phone: 651-296-3353
+                    <br>Website: ag.state.mn.us
+                    <br><br>
+                    <strong>Minnesota Housing Finance Agency</strong>
+                    <br>Phone: 651-296-7608 or 800-657-3663
+                    <br>Emergency Assistance Programs Available
+                    <br><br>
+                    <strong>Dakota County Community Services</strong>
+                    <br>Phone: 952-891-7400
+                    <br>Emergency Financial Assistance Programs
+                </div>
+            </div>
+        </div>
+        
+        <div class="resource-section">
+            <h2>💡 Tips for Court Success</h2>
+            <ul style="line-height: 2; color: #555; margin-left: 20px;">
+                <li>File your Answer on time - this is critical!</li>
+                <li>Bring all evidence: receipts, photos, emails, texts, repair requests</li>
+                <li>Bring copies for the judge and opposing attorney</li>
+                <li>Dress professionally and arrive 30 minutes early</li>
+                <li>Be respectful and only speak when asked</li>
+                <li>Stick to facts, not emotions or personal attacks</li>
+                <li>Bring witnesses who can testify to conditions or payments</li>
+                <li>If you can't afford the filing fee, ask for a fee waiver (IFP form)</li>
+                <li>Consider requesting mediation to negotiate a settlement</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="/hub" class="btn">← Back to Hub</a>
+            <a href="/vault" class="btn btn-secondary">Upload Evidence</a>
+            <a href="/app/complaint" class="btn btn-secondary">File Response</a>
+        </div>
+        
+        <a href="/library/dakota" class="back-link">← Back to Dakota Library</a>
+    </div>
+</body>
+</html>

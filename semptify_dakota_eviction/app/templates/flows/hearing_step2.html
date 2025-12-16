@@ -1,0 +1,58 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_hearing }} - Step {{ step }}{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">📄</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_hearing }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 2: Document Checklist{% elif lang == 'es' %}Paso 2: Lista de Documentos{% elif lang == 'so' %}Tallaabada 2: Liiska Dukumentiyada{% else %}الخطوة 2: قائمة المستندات{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <p class="mb-2">
+        {% if lang == 'en' %}Check off the documents you have ready for your hearing:{% elif lang == 'es' %}Marque los documentos que tiene listos para su audiencia:{% elif lang == 'so' %}Calaameey dukumentiyada aad u diyaar tahay dhageysigaaga:{% else %}حدد المستندات الجاهزة لجلستك:{% endif %}
+    </p>
+    
+    <form action="/flows/hearing?step=3&lang={{ lang }}" method="GET">
+        <input type="hidden" name="step" value="3">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div class="checkbox-list">
+            {% for doc in standard_docs %}
+            <label class="checkbox-item">
+                <input type="checkbox" name="documents_needed" value="{{ doc }}">
+                <span>{{ doc }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group mt-4">
+            <label class="form-label">
+                {% if lang == 'en' %}Other documents you're bringing:{% elif lang == 'es' %}Otros documentos que traerá:{% elif lang == 'so' %}Dukumentiyo kale aad keenayso:{% else %}مستندات أخرى ستحضرها:{% endif %}
+            </label>
+            <textarea name="other_documents" class="form-input" rows="3"></textarea>
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <a href="/flows/hearing?step=1&lang={{ lang }}" class="btn btn-outline">← {{ strings.btn_back }}</a>
+            <button type="submit" class="btn btn-primary">{{ strings.btn_next }} →</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

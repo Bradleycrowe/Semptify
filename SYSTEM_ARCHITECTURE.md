@@ -366,7 +366,8 @@ When making architectural decisions:
 ## 🆘 WHEN YOU LOSE TRACK
 
 **ASK THESE QUESTIONS:**
-1. "Does this feature already exist?" → Search files first
+1. "Does this feature already exist?" → Search files first NEED SOME HELP WITH A COUPLE MODUALS OR ENGINES YIUL SEE
+
 2. "Should this use SQLite?" → YES (unless config/temp)
 3. "Is there a spec file?" → Check `docs/README_*.md`
 4. "Is this registered in Semptify.py?" → Check lines 60-160

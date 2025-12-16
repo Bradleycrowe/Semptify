@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --accent-glow: rgba(6, 182, 212, 0.4);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ============================================
+           ANIMATED BACKGROUND - AURORA BOREALIS
+           ============================================ */
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .aurora-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+            animation: auroraMove 20s ease-in-out infinite;
+        }
+
+        @keyframes auroraMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 2%) rotate(1deg); }
+            50% { transform: translate(-1%, 3%) rotate(-1deg); }
+            75% { transform: translate(3%, -2%) rotate(2deg); }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: floatParticle 15s infinite ease-in-out;
+        }
+
+        @keyframes floatParticle {
+            0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translateY(90vh) scale(1); }
+            90% { opacity: 1; transform: translateY(10vh) scale(1); }
+            100% { transform: translateY(0) scale(0); opacity: 0; }
+        }
+
+        /* Grid overlay */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+            pointer-events: none;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        /* ============================================
+           MAIN CONTAINER
+           ============================================ */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+        }
+
+        /* ============================================
+           SCREEN TRANSITIONS
+           ============================================ */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        .screen.exit {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+        /* ============================================
+           LOGO ANIMATION
+           ============================================ */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            letter-spacing: -2px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo .letter {
+            display: inline-block;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: letterFloat 3s ease-in-out infinite;
+            text-shadow: 0 0 40px var(--primary-glow);
+        }
+
+        .logo .letter:nth-child(1) { animation-delay: 0s; }
+        .logo .letter:nth-child(2) { animation-delay: 0.1s; }
+        .logo .letter:nth-child(3) { animation-delay: 0.2s; }
+        .logo .letter:nth-child(4) { animation-delay: 0.3s; }
+        .logo .letter:nth-child(5) { animation-delay: 0.4s; }
+        .logo .letter:nth-child(6) { animation-delay: 0.5s; }
+        .logo .letter:nth-child(7) { animation-delay: 0.6s; }
+        .logo .letter:nth-child(8) { animation-delay: 0.7s; }
+
+        @keyframes letterFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 100px;
+            background: radial-gradient(ellipse, var(--primary-glow) 0%, transparent 70%);
+            filter: blur(30px);
+            animation: logoGlowPulse 3s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes logoGlowPulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 15px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: fadeInUp 1s ease 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================
+           GLASSMORPHISM CARDS
+           ============================================ */
+        .glass-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 50px var(--primary-glow);
+        }
+
+        /* ============================================
+           WELCOME SCREEN
+           ============================================ */
+        #welcome-screen .content {
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .welcome-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease 0.7s both;
+        }
+
+        .welcome-text strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ============================================
+           BUTTONS
+           ============================================ */
+        .btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 18px 40px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 10px 40px -10px var(--primary-glow);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 60px -15px var(--primary-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-icon {
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover .btn-icon {
+            transform: translateX(5px);
+        }
+
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: rippleEffect 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* ============================================
+           ROLE SELECTION SCREEN
+           ============================================ */
+        #role-screen .content {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .role-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        .role-card:hover::before,
+        .role-card.selected::before {
+            opacity: 0.15;
+        }
+
+        .role-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px -15px var(--primary-glow);
+        }
+
+        .role-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .role-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            animation: checkPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes checkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            position: relative;
+            z-index: 1;
+            animation: iconBounce 2s ease-in-out infinite;
+        }
+
+        .role-card:nth-child(1) .role-icon { animation-delay: 0s; }
+        .role-card:nth-child(2) .role-icon { animation-delay: 0.2s; }
+        .role-card:nth-child(3) .role-icon { animation-delay: 0.4s; }
+        .role-card:nth-child(4) .role-icon { animation-delay: 0.6s; }
+        .role-card:nth-child(5) .role-icon { animation-delay: 0.8s; }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .role-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .role-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============================================
+           NAME SCREEN
+           ============================================ */
+        #name-screen .content {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .user-id-display {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-id-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--primary-glow), transparent);
+            animation: idGlowRotate 4s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes idGlowRotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .user-id-display > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-id-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .user-id-value {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: idPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes idPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .name-prompt {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 20px 25px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            background: var(--bg-glass);
+            border: 2px solid var(--border-glass);
+            border-radius: 16px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .skip-link {
+            display: inline-block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .skip-link:hover {
+            color: var(--text-secondary);
+            background: var(--bg-glass);
+        }
+
+        /* ============================================
+           DASHBOARD
+           ============================================ */
+        #dashboard {
+            padding: 30px;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+        #dashboard .content {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 25px 30px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            animation: avatarGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes avatarGlow {
+            0%, 100% { box-shadow: 0 0 20px var(--primary-glow); }
+            50% { box-shadow: 0 0 40px var(--primary-glow); }
+        }
+
+        .user-details h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .user-details .user-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .role-badge {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            opacity: 0.3;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .stat-card:nth-child(1) .stat-value { color: var(--primary); }
+        .stat-card:nth-child(2) .stat-value { color: var(--accent); }
+        .stat-card:nth-child(3) .stat-value { color: var(--success); }
+        .stat-card:nth-child(4) .stat-value { color: var(--warning); }
+
+        /* Animated counter */
+        .counter {
+            display: inline-block;
+        }
+
+        /* Quick Actions */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .action-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .action-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+        }
+
+        .action-card:active {
+            transform: scale(0.98);
+        }
+
+        .action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .action-card:hover .action-icon {
+            transform: scale(1.1);
+        }
+
+        .action-label {
+            font-weight: 600;
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Activity Feed */
+        .activity-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1000px) {
+            .activity-section { grid-template-columns: 1fr; }
+        }
+
+        .activity-feed {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-glass);
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item:hover {
+            background: rgba(255,255,255,0.02);
+            margin: 0 -15px;
+            padding-left: 15px;
+            padding-right: 15px;
+            border-radius: 12px;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Storage Status */
+        .storage-status {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .storage-ring {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 25px;
+            position: relative;
+        }
+
+        .storage-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .storage-ring .bg {
+            fill: none;
+            stroke: var(--border-glass);
+            stroke-width: 10;
+        }
+
+        .storage-ring .progress {
+            fill: none;
+            stroke: url(#gradient);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 408;
+            stroke-dashoffset: 306;
+            animation: progressFill 2s ease-out forwards;
+        }
+
+        @keyframes progressFill {
+            from { stroke-dashoffset: 408; }
+        }
+
+        .storage-ring .value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .storage-ring .percentage {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .storage-ring .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .storage-details {
+            text-align: center;
+        }
+
+        .storage-details p {
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .storage-details strong {
+            color: var(--text-primary);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 8px 16px;
+            border-radius: 30px;
+            margin-top: 15px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--success); }
+            50% { opacity: 0.5; box-shadow: 0 0 5px var(--success); }
+        }
+
+        /* ============================================
+           CONFETTI ANIMATION
+           ============================================ */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100%) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================
+           LOADING SPINNER
+           ============================================ */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-glass);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============================================
+           TOAST NOTIFICATIONS
+           ============================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--primary); }
+
+        @keyframes toastSlideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast.exit {
+            animation: toastSlideOut 0.3s ease forwards;
+        }
+
+        @keyframes toastSlideOut {
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 600px) {
+            .glass-card { padding: 25px; }
+            .dashboard-header { flex-direction: column; gap: 20px; text-align: center; }
+            .user-info { flex-direction: column; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="aurora-bg"></div>
+    <div class="grid-overlay"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confetti-container"></div>
+
+    <div class="app-container">
+        <!-- Welcome Screen -->
+        <div class="screen active" id="welcome-screen">
+            <div class="content">
+                <div class="logo-container">
+                    <div class="logo-glow"></div>
+                    <div class="logo">
+                        <span class="letter">S</span><span class="letter">e</span><span class="letter">m</span><span class="letter">p</span><span class="letter">t</span><span class="letter">i</span><span class="letter">f</span><span class="letter">y</span>
+                    </div>
+                    <div class="tagline">Your Data • Your Rights • Your Control</div>
+                </div>
+
+                <p class="welcome-text">
+                    Welcome to the future of <strong>tenant rights protection</strong>.<br><br>
+                    No accounts. No passwords. No tracking.<br>
+                    <strong>Your data stays in YOUR storage.</strong>
+                </p>
+
+                <button class="btn btn-primary" onclick="navigateTo('role-screen')">
+                    <span>Get Started</span>
+                    <span class="btn-icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Role Selection Screen -->
+        <div class="screen" id="role-screen">
+            <div class="content">
+                <div class="logo-container">
+                    <div class="logo" style="font-size: 2.5rem;">
+                        <span class="letter">S</span><span class="letter">e</span><span class="letter">m</span><span class="letter">p</span><span class="letter">t</span><span class="letter">i</span><span class="letter">f</span><span class="letter">y</span>
+                    </div>
+                </div>
+
+                <h2 class="section-title">What brings you here?</h2>
+
+                <div class="role-grid">
+                    <div class="role-card" onclick="selectRole(this, 'tenant')">
+                        <span class="role-icon">🏠</span>
+                        <div class="role-title">Tenant</div>
+                        <div class="role-desc">Protect my rental rights</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole(this, 'landlord')">
+                        <span class="role-icon">🔑</span>
+                        <div class="role-title">Landlord</div>
+                        <div class="role-desc">Manage my properties</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole(this, 'advocate')">
+                        <span class="role-icon">⚖️</span>
+                        <div class="role-title">Legal Aid</div>
+                        <div class="role-desc">Help tenants with issues</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole(this, 'researcher')">
+                        <span class="role-icon">📊</span>
+                        <div class="role-title">Researcher</div>
+                        <div class="role-desc">Study housing policy</div>
+                    </div>
+                    <div class="role-card" onclick="selectRole(this, 'explorer')">
+                        <span class="role-icon">🔍</span>
+                        <div class="role-title">Explorer</div>
+                        <div class="role-desc">Just looking around</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Name Screen -->
+        <div class="screen" id="name-screen">
+            <div class="content">
+                <div class="logo-container">
+                    <div class="logo" style="font-size: 2.5rem;">
+                        <span class="letter">S</span><span class="letter">e</span><span class="letter">m</span><span class="letter">p</span><span class="letter">t</span><span class="letter">i</span><span class="letter">f</span><span class="letter">y</span>
+                    </div>
+                </div>
+
+                <div class="user-id-display">
+                    <div class="user-id-label">Your Unique ID</div>
+                    <div class="user-id-value" id="user-id-display">------</div>
+                </div>
+
+                <p class="name-prompt">What should we call you?</p>
+
+                <div class="input-group">
+                    <input type="text" class="input-field" id="user-name-input" 
+                           placeholder="Enter a name or nickname..." maxlength="30">
+                </div>
+
+                <button class="btn btn-primary" onclick="saveName()">
+                    <span>Continue</span>
+                    <span class="btn-icon">→</span>
+                </button>
+
+                <a href="#" class="skip-link" onclick="skipName(); return false;">
+                    Just call me by my User ID
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="screen" id="dashboard">
+            <div class="content">
+                <div class="dashboard-header">
+                    <div class="user-info">
+                        <div class="avatar" id="user-avatar">?</div>
+                        <div class="user-details">
+                            <h2>Hello, <span id="display-name">User</span></h2>
+                            <div class="user-meta">
+                                <span>ID: <span id="display-id">------</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="role-badge" id="display-role">User</div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <span class="stat-icon">📁</span>
+                        <div class="stat-value"><span class="counter" data-target="12">0</span></div>
+                        <div class="stat-label">Documents</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">🔒</span>
+                        <div class="stat-value"><span class="counter" data-target="5">0</span></div>
+                        <div class="stat-label">Vault Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">✅</span>
+                        <div class="stat-value"><span class="counter" data-target="8">0</span></div>
+                        <div class="stat-label">Verified</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">📅</span>
+                        <div class="stat-value"><span class="counter" data-target="3">0</span></div>
+                        <div class="stat-label">Events</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="quick-actions">
+                    <div class="action-card" onclick="showToast('Opening Files...', 'info'); window.location.href='/static/access.html'">
+                        <span class="action-icon">📁</span>
+                        <div class="action-label">My Files</div>
+                        <div class="action-desc">Browse & upload</div>
+                    </div>
+                    <div class="action-card" onclick="showToast('Opening Vault...', 'info')">
+                        <span class="action-icon">🔒</span>
+                        <div class="action-label">Secure Vault</div>
+                        <div class="action-desc">Protected storage</div>
+                    </div>
+                    <div class="action-card" onclick="showToast('Coming soon!', 'info')">
+                        <span class="action-icon">📝</span>
+                        <div class="action-label">New Document</div>
+                        <div class="action-desc">Create & sign</div>
+                    </div>
+                    <div class="action-card" onclick="showToast('Coming soon!', 'info')">
+                        <span class="action-icon">📅</span>
+                        <div class="action-label">Timeline</div>
+                        <div class="action-desc">Track events</div>
+                    </div>
+                    <div class="action-card" onclick="showToast('Coming soon!', 'info')">
+                        <span class="action-icon">📋</span>
+                        <div class="action-label">File Complaint</div>
+                        <div class="action-desc">Report issues</div>
+                    </div>
+                    <div class="action-card" onclick="showToast('Coming soon!', 'info')">
+                        <span class="action-icon">💬</span>
+                        <div class="action-label">Get Help</div>
+                        <div class="action-desc">AI assistant</div>
+                    </div>
+                </div>
+
+                <!-- Activity & Storage -->
+                <div class="activity-section">
+                    <div class="activity-feed">
+                        <div class="section-header">
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">🎉</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Welcome to Semptify!</div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">🔐</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Storage provisioned</div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">👤</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Profile created</div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="storage-status">
+                        <div class="section-header">
+                            <h3>Storage</h3>
+                        </div>
+                        <div class="storage-ring">
+                            <svg width="150" height="150" viewBox="0 0 150 150">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="var(--primary)" />
+                                        <stop offset="100%" stop-color="var(--accent)" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="bg" cx="75" cy="75" r="65" />
+                                <circle class="progress" cx="75" cy="75" r="65" />
+                            </svg>
+                            <div class="value">
+                                <div class="percentage">25%</div>
+                                <div class="label">Used</div>
+                            </div>
+                        </div>
+                        <div class="storage-details">
+                            <p><strong>2.5 MB</strong> of 10 MB used</p>
+                            <div class="status-indicator">
+                                <div class="status-dot"></div>
+                                <span>R2 Cloud Connected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const API = '/api/storage';
+        let userData = {
+            userId: null,
+            storageId: null,
+            token: null,
+            role: null,
+            name: null
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            addRippleEffect();
+            init();
+        });
+
+        async function init() {
+            const saved = localStorage.getItem('semptify_user');
+            if (saved) {
+                userData = JSON.parse(saved);
+                if (userData.storageId && userData.token) {
+                    try {
+                        const resp = await fetch(`${API}/info?storage_id=${userData.storageId}&token=${userData.token}`);
+                        if (resp.ok) {
+                            showDashboard();
+                            return;
+                        }
+                    } catch (e) {}
+                }
+            }
+        }
+
+        // ============================================
+        // PARTICLES
+        // ============================================
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // ============================================
+        // RIPPLE EFFECT
+        // ============================================
+        function addRippleEffect() {
+            document.querySelectorAll('.btn, .action-card, .role-card').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.className = 'ripple';
+                    const rect = this.getBoundingClientRect();
+                    ripple.style.left = (e.clientX - rect.left) + 'px';
+                    ripple.style.top = (e.clientY - rect.top) + 'px';
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function navigateTo(screenId) {
+            const current = document.querySelector('.screen.active');
+            current.classList.add('exit');
+            
+            setTimeout(() => {
+                current.classList.remove('active', 'exit');
+                document.getElementById(screenId).classList.add('active');
+            }, 300);
+        }
+
+        // ============================================
+        // ROLE SELECTION
+        // ============================================
+        async function selectRole(card, role) {
+            // Visual feedback
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            userData.role = role;
+
+            // Show loading
+            showToast('Setting up your storage...', 'info');
+
+            try {
+                const resp = await fetch(`${API}/provision`, { method: 'POST' });
+                const data = await resp.json();
+                
+                userData.storageId = data.storage_id;
+                userData.token = data.token;
+                userData.userId = data.storage_id.replace('store_', '').toUpperCase();
+                
+                document.getElementById('user-id-display').textContent = userData.userId;
+
+                // Save role to storage
+                await fetch(`${API}/json-upload?path=profile.json`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Storage-ID': userData.storageId,
+                        'X-Storage-Token': userData.token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ role: role, created: new Date().toISOString() })
+                });
+
+                showToast('Storage ready!', 'success');
+                setTimeout(() => navigateTo('name-screen'), 800);
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // ============================================
+        // NAME INPUT
+        // ============================================
+        function saveName() {
+            const name = document.getElementById('user-name-input').value.trim();
+            userData.name = name || userData.userId;
+            finishSetup();
+        }
+
+        function skipName() {
+            userData.name = userData.userId;
+            finishSetup();
+        }
+
+        async function finishSetup() {
+            localStorage.setItem('semptify_user', JSON.stringify(userData));
+
+            // Update profile
+            await fetch(`${API}/json-upload?path=profile.json`, {
+                method: 'POST',
+                headers: {
+                    'X-Storage-ID': userData.storageId,
+                    'X-Storage-Token': userData.token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    role: userData.role,
+                    name: userData.name,
+                    userId: userData.userId,
+                    created: new Date().toISOString()
+                })
+            });
+
+            // Confetti celebration!
+            launchConfetti();
+            showToast('Welcome to Semptify! 🎉', 'success');
+            
+            setTimeout(() => {
+                navigateTo('dashboard');
+                setTimeout(animateCounters, 500);
+            }, 1000);
+        }
+
+        // ============================================
+        // DASHBOARD
+        // ============================================
+        function showDashboard() {
+            document.getElementById('display-name').textContent = userData.name || userData.userId;
+            document.getElementById('display-id').textContent = userData.userId;
+            document.getElementById('display-role').textContent = 
+                userData.role ? userData.role.charAt(0).toUpperCase() + userData.role.slice(1) : 'User';
+            document.getElementById('user-avatar').textContent = 
+                (userData.name || userData.userId || '?').charAt(0).toUpperCase();
+            
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('dashboard').classList.add('active');
+            
+            setTimeout(animateCounters, 500);
+        }
+
+        // ============================================
+        // ANIMATED COUNTERS
+        // ============================================
+        function animateCounters() {
+            document.querySelectorAll('.counter').forEach(counter => {
+                const target = parseInt(counter.dataset.target);
+                const duration = 1500;
+                const start = performance.now();
+                
+                function update(now) {
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    counter.textContent = Math.floor(target * eased);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                }
+                
+                requestAnimationFrame(update);
+            });
+        }
+
+        // ============================================
+        // CONFETTI
+        // ============================================
+        function launchConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+                container.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: '✓', error: '✕', info: 'ℹ' };
+            toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Enter key on name input
+        document.getElementById('user-name-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') saveName();
+        });
+    </script>
+</body>
+</html>
+

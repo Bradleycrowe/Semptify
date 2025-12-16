@@ -1,0 +1,57 @@
+INFO:engines.housing_programs_engine:HousingProgramsEngine initialized
+ERROR:Semptify:Exception on /master-admin [GET]
+Traceback (most recent call last):
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\master_admin_routes.py", line 9, in admin_panel
+    return render_template("master_admin.html")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Semptify\Semptify\templates\master_admin.html", line 250, in top-level template code
+    {% include "components/header.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\templates\components\header.html", line 1, in top-level template code
+    <!-- Semptify Header Component - Include in all pages with: {% include 'components/header.html' %} -->
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\templates\components\header.html", line 1, in top-level template code
+    <!-- Semptify Header Component - Include in all pages with: {% include 'components/header.html' %} -->
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\templates\components\header.html", line 1, in top-level template code
+    <!-- Semptify Header Component - Include in all pages with: {% include 'components/header.html' %} -->
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 971 more times]
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\jinja2\environment.py", line 1388, in new_context
+    return new_context(
+           ^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\jinja2\runtime.py", line 117, in new_context
+    return environment.context_class(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\jinja2\runtime.py", line 176, in __init__
+    self.eval_ctx = EvalContext(self.environment, name)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\jinja2\nodes.py", line 81, in __init__
+    self.autoescape = environment.autoescape(template_name)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Semptify\Semptify\.venv\Lib\site-packages\flask\sansio\app.py", line 547, in select_jinja_autoescape
+    return filename.endswith((".html", ".htm", ".xml", ".xhtml", ".svg"))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RecursionError: maximum recursion depth exceeded while calling a Python object

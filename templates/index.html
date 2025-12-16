@@ -1,98 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semptify - Your Tenant Rights Platform</title>
+    <title>Semptify - Dakota County Eviction Defense</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        header { text-align: center; color: white; padding: 3rem 0; }
-        h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 700; }
-        .tagline { font-size: 1.3rem; opacity: 0.95; margin-bottom: 3rem; }
-        .hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 3rem 0; }
-        .hero-card { background: white; border-radius: 20px; padding: 2.5rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
-        .hero-card:hover { transform: translateY(-10px); box-shadow: 0 30px 80px rgba(0,0,0,0.4); }
-        .hero-icon { font-size: 4rem; margin-bottom: 1.5rem; }
-        .hero-card h2 { color: #333; font-size: 1.8rem; margin-bottom: 1rem; }
-        .hero-card p { color: #666; font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem; }
-        .hero-button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: transform 0.2s; }
-        .hero-button:hover { transform: scale(1.05); }
-        .secondary-button { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .features { background: white; border-radius: 20px; padding: 3rem; margin: 3rem 0; }
-        .features h3 { color: #333; font-size: 2rem; margin-bottom: 2rem; text-align: center; }
-        .feature-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
-        .feature-item { padding: 1.5rem; background: #f8f9fa; border-radius: 15px; }
-        .feature-item h4 { color: #667eea; margin-bottom: 0.5rem; }
-        .feature-item p { color: #666; font-size: 0.95rem; }
-        footer { text-align: center; color: white; padding: 2rem 0; opacity: 0.8; }
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 40px auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #2c3e50; text-align: center; }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                color: white; padding: 40px; border-radius: 10px; text-align: center; margin-bottom: 30px; }
+        .modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .module-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .module-card h2 { color: #3498db; margin-top: 0; }
+        .btn { display: inline-block; background: #3498db; color: white; padding: 10px 20px; 
+               text-decoration: none; border-radius: 5px; margin: 5px; }
+        .btn:hover { background: #2980b9; }
+        .learning-badge { background: #2ecc71; color: white; padding: 5px 10px; border-radius: 15px; 
+                         font-size: 12px; font-weight: bold; }
+        .stats { background: #ecf0f1; padding: 20px; border-radius: 8px; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🏠 Semptify</h1>
-            <p class="tagline">Your intelligent tenant rights protection platform</p>
-        </header>
-
-        <div class="hero-grid">
-            <div class="hero-card" onclick="window.location.href='/app'">
-                <div class="hero-icon">🚀</div>
-                <h2>Launch App</h2>
-                <p>Start using Semptify's full-featured application with document vault, timeline, and smart tools</p>
-                <a href="/app" class="hero-button">Open App</a>
-            </div>
-
-            <div class="hero-card" onclick="window.location.href='/calendar'">
-                <div class="hero-icon">📅</div>
-                <h2>Timeline</h2>
-                <p>Track important dates, events, and deadlines in your housing journey</p>
-                <a href="/calendar" class="hero-button">View Timeline</a>
-            </div>
-
-            <div class="hero-card" onclick="window.location.href='/vault'">
-                <div class="hero-icon">🔒</div>
-                <h2>Document Vault</h2>
-                <p>Securely store and manage your housing documents with AI-powered intelligence</p>
-                <a href="/vault" class="hero-button">Open Vault</a>
-            </div>
+    <div class="hero">
+        <h1>🏛 Semptify</h1>
+        <h2>Dakota County Eviction Defense Platform</h2>
+        <p><span class="learning-badge">🧠 Learning-Enabled System</span></p>
+        <p>Every interaction makes the system smarter. We learn from real cases to provide better guidance.</p>
+    </div>
+    
+    <div class="stats">
+        <h3>📊 System Learning Status</h3>
+        <p><a href="/api/learning/stats" class="btn">View Learning Statistics</a></p>
+        <p><a href="/api/learning/recommendations" class="btn">Get Adaptive Recommendations</a></p>
+    </div>
+    
+    <div class="modules">
+        <div class="module-card">
+            <h2>📚 Eviction Defense Guide</h2>
+            <p>Complete guide with timeline, defenses, statutes, and court procedures.</p>
+            <a href="/dakota/eviction/guide" class="btn">Open Guide</a>
         </div>
-
-        <div class="features">
-            <h3>Why Semptify?</h3>
-            <div class="feature-list">
-                <div class="feature-item">
-                    <h4>🤖 AI-Powered</h4>
-                    <p>Smart document analysis, learning suggestions, and adaptive guidance</p>
-                </div>
-                <div class="feature-item">
-                    <h4>🔐 Secure</h4>
-                    <p>Storage-based identity with OAuth - no passwords, you own your data</p>
-                </div>
-                <div class="feature-item">
-                    <h4>📚 Educational</h4>
-                    <p>Learn your rights with context-aware educational content</p>
-                </div>
-                <div class="feature-item">
-                    <h4>🎯 Journey-Driven</h4>
-                    <p>Automatic progress tracking through 5 stages of tenant empowerment</p>
-                </div>
-                <div class="feature-item">
-                    <h4>💡 Curiosity Engine</h4>
-                    <p>Asks smart questions and learns from every interaction</p>
-                </div>
-                <div class="feature-item">
-                    <h4>🌐 Always Growing</h4>
-                    <p>System learns and improves from your usage patterns</p>
-                </div>
-            </div>
+        
+        <div class="module-card">
+            <h2>⚖️ Legal Motions</h2>
+            <p>9 defensive motions with instructions, timing, and success rates.</p>
+            <a href="/dakota/eviction/motions" class="btn">View Motions</a>
         </div>
-
-        <footer>
-            <p>Semptify - Empowering tenants through technology</p>
-            <p style="margin-top: 1rem; font-size: 0.9rem;"><a href="/choose-storage" style="color: white;">Connect Storage</a> | <a href="/journey" style="color: white;">Your Journey</a> | <a href="/help" style="color: white;">Help</a></p>
-        </footer>
+        
+        <div class="module-card">
+            <h2>💰 Countersuits</h2>
+            <p>6 countersuits with damage calculations and filing procedures.</p>
+            <a href="/dakota/eviction/countersuits" class="btn">View Countersuits</a>
+        </div>
+        
+        <div class="module-card">
+            <h2>🖥️ Zoom Hearing Prep</h2>
+            <p>Interactive virtual hearing preparation with certificate generation.</p>
+            <a href="/dakota/eviction/zoom-prep" class="btn">Prepare for Zoom</a>
+        </div>
+        
+        <div class="module-card">
+            <h2>📖 Legal Authorities</h2>
+            <p>Complete MN statutes, federal protections, and court procedures.</p>
+            <a href="/dakota/eviction/authorities" class="btn">View Authorities</a>
+        </div>
+        
+        <div class="module-card">
+            <h2>📞 Local Contacts</h2>
+            <p>Legal aid, housing support, emergency assistance, and court resources.</p>
+            <a href="/dakota/eviction/contacts" class="btn">View Contacts</a>
+        </div>
+        
+        <div class="module-card">
+            <h2>📋 Official Forms</h2>
+            <p>Court forms library with direct links to eFile & eServe.</p>
+            <a href="/dakota/eviction/forms" class="btn">View Forms</a>
+        </div>
+        
+        <div class="module-card">
+            <h2>📦 Document Export <span class="learning-badge">🧠 Smart</span></h2>
+            <p>Generate PDFs and download complete defense bundle. System learns document preferences.</p>
+            <a href="/dakota/export" class="btn">Export Documents</a>
+        </div>
+    </div>
+    
+    <div class="stats" style="margin-top: 40px;">
+        <h3>🔧 System Health</h3>
+        <p><a href="/health" class="btn">Health Check</a></p>
+        <p><a href="/docs" class="btn">API Documentation</a></p>
     </div>
 </body>
 </html>

@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_hearing }} - Download{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card text-center">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🎯</div>
+    <h1 class="card-title" style="font-size: 1.75rem;">
+        {% if lang == 'en' %}Your Hearing Prep Guide is Ready!{% elif lang == 'es' %}¡Su Guía de Preparación Está Lista!{% elif lang == 'so' %}Hagahaaga Diyaarinta Waa Diyaar!{% else %}دليل التحضير جاهز!{% endif %}
+    </h1>
+    <div class="mt-4">
+        <button onclick="downloadHearingPrep()" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+            📥 {{ strings.btn_download }}
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-2 mt-4">
+    <div class="card">
+        <h3>📅 {% if lang == 'en' %}Day Before{% elif lang == 'es' %}El Día Antes{% elif lang == 'so' %}Maalintii Ka Horraysay{% else %}اليوم السابق{% endif %}</h3>
+        <ul style="margin-left: 1rem; line-height: 1.8;">
+            <li>{% if lang == 'en' %}Organize all documents{% elif lang == 'es' %}Organice todos los documentos{% elif lang == 'so' %}Habeey dhammaan dukumentiyada{% else %}نظم جميع المستندات{% endif %}</li>
+            <li>{% if lang == 'en' %}Get directions to courthouse{% elif lang == 'es' %}Obtenga direcciones al tribunal{% elif lang == 'so' %}Hel tilmaamo maxkamadda{% else %}احصل على الاتجاهات للمحكمة{% endif %}</li>
+            <li>{% if lang == 'en' %}Plan what to wear{% elif lang == 'es' %}Planifique qué ponerse{% elif lang == 'so' %}Qorshe waxa aad xiranaysid{% else %}خطط لما سترتديه{% endif %}</li>
+            <li>{% if lang == 'en' %}Get a good night's sleep{% elif lang == 'es' %}Duerma bien{% elif lang == 'so' %}Hurdo wanaagsan{% else %}احصل على نوم جيد{% endif %}</li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <h3>⏰ {% if lang == 'en' %}Day Of{% elif lang == 'es' %}El Día De{% elif lang == 'so' %}Maalinta{% else %}يوم الجلسة{% endif %}</h3>
+        <ul style="margin-left: 1rem; line-height: 1.8;">
+            <li>{% if lang == 'en' %}Arrive 30 minutes early{% elif lang == 'es' %}Llegue 30 minutos antes{% elif lang == 'so' %}Yimaad 30 daqiiqo horrayn{% else %}احضر قبل 30 دقيقة{% endif %}</li>
+            <li>{% if lang == 'en' %}Bring ID{% elif lang == 'es' %}Traiga identificación{% elif lang == 'so' %}Keen aqoonsiga{% else %}أحضر الهوية{% endif %}</li>
+            <li>{% if lang == 'en' %}Turn off phone{% elif lang == 'es' %}Apague el teléfono{% elif lang == 'so' %}Dami telefoonka{% else %}أغلق الهاتف{% endif %}</li>
+            <li>{% if lang == 'en' %}Stay calm{% elif lang == 'es' %}Mantenga la calma{% elif lang == 'so' %}Xasil noqo{% else %}ابق هادئًا{% endif %}</li>
+        </ul>
+    </div>
+</div>
+
+<a href="/zoom-helper?lang={{ lang }}" class="card" style="display: block; text-decoration: none; color: inherit; text-align: center; background: #f0f9ff; border: 1px solid #0ea5e9;">
+    <h3>💻 {% if lang == 'en' %}Appearing by Zoom?{% elif lang == 'es' %}¿Compareciendo por Zoom?{% elif lang == 'so' %}Ma ku muuqanaysaa Zoom?{% else %}ستحضر عبر زوم؟{% endif %}</h3>
+    <p>{% if lang == 'en' %}Check out our Zoom Court Helper{% elif lang == 'es' %}Vea nuestra Guía de Zoom{% elif lang == 'so' %}Eeg Caawiyaha Maxkamadda Zoom{% else %}راجع دليل المحكمة عبر زوم{% endif %} →</p>
+</a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function downloadHearingPrep() {
+    const formData = {
+        tenant_name: localStorage.getItem('tenant_name') || 'Tenant',
+        hearing_date: localStorage.getItem('hearing_date') || '',
+        hearing_time: localStorage.getItem('hearing_time') || '',
+        is_zoom: localStorage.getItem('is_zoom') === 'true',
+        checklist_items: JSON.parse(localStorage.getItem('checklist_items') || '[]'),
+        documents_needed: JSON.parse(localStorage.getItem('documents_needed') || '[]')
+    };
+    
+    try {
+        const response = await fetch('/flows/hearing/generate?lang={{ lang }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Hearing_Preparation.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+    } catch (error) {
+        console.error('Download error:', error);
+    }
+}
+</script>
+{% endblock %}

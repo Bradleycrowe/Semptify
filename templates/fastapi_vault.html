@@ -1,0 +1,183 @@
+# Create all missing FastAPI templates
+
+# Vault template
+@'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document Vault - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 { color: #667eea; font-size: 2em; }
+        .actions button {
+            padding: 12px 25px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-btn { background: #4caf50; color: white; }
+        .back-btn { background: #667eea; color: white; }
+        .upload-btn:hover { background: #45a049; transform: translateY(-2px); }
+        .back-btn:hover { background: #764ba2; transform: translateY(-2px); }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .upload-form {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .upload-form input[type="file"] { margin: 10px 0; }
+        .upload-form input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        tr:hover { background: #f5f5f5; }
+        .action-btn {
+            padding: 8px 15px;
+            margin: 2px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .download-btn { background: #2196f3; color: white; }
+        .delete-btn { background: #f44336; color: white; }
+        .success { background: #4caf50; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 Document Vault</h1>
+            <div class="actions">
+                <button class="back-btn" onclick="location.href='/'">← Back to Home</button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="upload-form">
+                <h3>📤 Upload Document</h3>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" name="file" id="fileInput" required>
+                    <input type="text" name="category" placeholder="Category (e.g., Receipt, Notice)" value="Document">
+                    <button type="submit" class="upload-btn">Upload</button>
+                </form>
+                <div id="uploadStatus"></div>
+            </div>
+            
+            <h3>📋 Your Documents ({{ documents|length }})</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Category</th>
+                        <th>Upload Date</th>
+                        <th>Size</th>
+                        <th>Hash (SHA-256)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td>{{ doc[1] }}</td>
+                        <td>{{ doc[2] }}</td>
+                        <td>{{ doc[3][:10] }}</td>
+                        <td>{{ "%.1f"|format(doc[4]/1024) }} KB</td>
+                        <td>{{ doc[5][:16] if doc[5] else 'N/A' }}...</td>
+                        <td>
+                            <button class="action-btn download-btn" onclick="location.href='/vault/download/{{ doc[0] }}'">Download</button>
+                            <button class="action-btn delete-btn" onclick="deleteDoc({{ doc[0] }})">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" style="text-align:center; padding:30px;">No documents yet. Upload your first document above!</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            statusDiv.innerHTML = '<p style="color:#2196f3;">Uploading...</p>';
+            
+            try {
+                const response = await fetch('/vault/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = '<p class="success">✓ ' + result.message + '</p>';
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    statusDiv.innerHTML = '<p style="color:#f44336;">Error: ' + result.error + '</p>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<p style="color:#f44336;">Upload failed: ' + error + '</p>';
+            }
+        });
+        
+        async function deleteDoc(id) {
+            if (!confirm('Delete this document?')) return;
+            
+            try {
+                const response = await fetch(`/vault/delete/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Document deleted');
+                    location.reload();
+                }
+            } catch (error) {
+                alert('Delete failed: ' + error);
+            }
+        }
+    </script>
+</body>
+</html>

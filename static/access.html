@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semptify - Your Storage</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #00d4ff; margin-bottom: 10px; }
+        .subtitle { color: #888; margin-bottom: 30px; }
+        .card { background: #1a1a1a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
+        .card h2 { color: #00d4ff; margin-bottom: 15px; font-size: 1.2em; }
+        .credentials { background: #0d1117; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0; }
+        .credentials .label { color: #888; font-size: 0.85em; }
+        .credentials .value { color: #58a6ff; word-break: break-all; }
+        .btn { background: #00d4ff; color: #000; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 5px; }
+        .btn:hover { background: #00b8e6; }
+        .btn.secondary { background: #333; color: #fff; }
+        .btn.secondary:hover { background: #444; }
+        .status { padding: 10px; border-radius: 6px; margin: 10px 0; }
+        .status.success { background: #1a4d1a; color: #4ade80; }
+        .status.error { background: #4d1a1a; color: #f87171; }
+        .status.info { background: #1a3d4d; color: #60a5fa; }
+        .files { list-style: none; }
+        .files li { padding: 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .files li:last-child { border-bottom: none; }
+        .file-name { color: #fff; }
+        .file-size { color: #888; font-size: 0.85em; }
+        .upload-zone { border: 2px dashed #333; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-zone:hover { border-color: #00d4ff; background: #1a2a3a; }
+        .upload-zone.dragover { border-color: #00d4ff; background: #1a2a3a; }
+        input[type="file"] { display: none; }
+        .hidden { display: none; }
+        #output { white-space: pre-wrap; font-family: monospace; font-size: 0.9em; max-height: 300px; overflow-y: auto; }
+        .verified { color: #4ade80; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-left: 10px; }
+        .badge.attested { background: #1a4d1a; color: #4ade80; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Semptify</h1>
+        <p class="subtitle">Storage-as-Identity • Your Data, Your Control</p>
+
+        <!-- Credentials Card -->
+        <div class="card">
+            <h2>📋 Your Storage Credentials</h2>
+            <p style="color: #888; margin-bottom: 15px;">These credentials are stored in this file - keep it safe!</p>
+            
+            <div class="credentials">
+                <div class="label">Storage ID</div>
+                <div class="value" id="storageId">store_8eb06ff3e0e3</div>
+            </div>
+            <div class="credentials">
+                <div class="label">Access Token</div>
+                <div class="value" id="token">FRFSBzHxa0vAemva5lF-cuuk-0CtpJXzrtQEtUMXmVM</div>
+            </div>
+            <div class="credentials">
+                <div class="label">API Endpoint</div>
+                <div class="value" id="endpoint">http://localhost:8000</div>
+            </div>
+            
+            <button class="btn" onclick="testConnection()">🔗 Test Connection</button>
+            <button class="btn secondary" onclick="provisionNew()">➕ New Storage</button>
+        </div>
+
+        <!-- Storage Info -->
+        <div class="card">
+            <h2>📁 Your Files</h2>
+            <div id="storageStatus" class="status info">Click "Test Connection" to load files</div>
+            <ul class="files" id="fileList"></ul>
+        </div>
+
+        <!-- Upload -->
+        <div class="card">
+            <h2>📤 Upload to Vault</h2>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                <p>Drop files here or click to upload</p>
+                <p style="color: #888; font-size: 0.85em; margin-top: 10px;">Files are attested with SHA-256 certificate</p>
+            </div>
+            <input type="file" id="fileInput" onchange="uploadFile(this.files[0])">
+            <div style="margin-top: 10px;">
+                <label style="color: #888;">Evidence Type:</label>
+                <select id="evidenceType" style="background: #333; color: #fff; border: none; padding: 8px; border-radius: 4px; margin-left: 10px;">
+                    <option value="document">Document</option>
+                    <option value="lease">Lease Agreement</option>
+                    <option value="notice">Notice</option>
+                    <option value="photo">Photo Evidence</option>
+                    <option value="correspondence">Correspondence</option>
+                    <option value="receipt">Receipt</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Vault -->
+        <div class="card">
+            <h2>🔒 Vault (Attested Documents)</h2>
+            <button class="btn secondary" onclick="loadVault()">🔄 Load Vault</button>
+            <ul class="files" id="vaultList"></ul>
+        </div>
+
+        <!-- Output -->
+        <div class="card">
+            <h2>📋 API Response</h2>
+            <pre id="output" style="color: #888;">Ready...</pre>
+        </div>
+    </div>
+
+    <script>
+        // Your credentials - edit these!
+        const CONFIG = {
+            storageId: 'store_8eb06ff3e0e3',
+            token: 'FRFSBzHxa0vAemva5lF-cuuk-0CtpJXzrtQEtUMXmVM',
+            endpoint: 'http://localhost:8000'
+        };
+
+        // Update display
+        document.getElementById('storageId').textContent = CONFIG.storageId;
+        document.getElementById('token').textContent = CONFIG.token;
+        document.getElementById('endpoint').textContent = CONFIG.endpoint;
+
+        function headers() {
+            return {
+                'X-Storage-ID': CONFIG.storageId,
+                'X-Storage-Token': CONFIG.token
+            };
+        }
+
+        function log(msg) {
+            document.getElementById('output').textContent = typeof msg === 'object' ? JSON.stringify(msg, null, 2) : msg;
+        }
+
+        async function testConnection() {
+            try {
+                const res = await fetch(`${CONFIG.endpoint}/api/storage/info`, { headers: headers() });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    document.getElementById('storageStatus').className = 'status success';
+                    document.getElementById('storageStatus').textContent = `✅ Connected! ${data.file_count} files, ${formatBytes(data.total_size)}`;
+                    
+                    const list = document.getElementById('fileList');
+                    list.innerHTML = data.files.map(f => `
+                        <li>
+                            <span class="file-name">📄 ${f.name}</span>
+                            <span class="file-size">${formatBytes(f.size)}</span>
+                        </li>
+                    `).join('');
+                    
+                    log(data);
+                } else {
+                    throw new Error(data.detail || 'Connection failed');
+                }
+            } catch (e) {
+                document.getElementById('storageStatus').className = 'status error';
+                document.getElementById('storageStatus').textContent = `❌ Error: ${e.message}`;
+                log(e.message);
+            }
+        }
+
+        async function loadVault() {
+            try {
+                const res = await fetch(`${CONFIG.endpoint}/api/storage/vault/list`, { headers: headers() });
+                const data = await res.json();
+                
+                const list = document.getElementById('vaultList');
+                if (data.files.length === 0) {
+                    list.innerHTML = '<li style="color: #888;">No vault files yet</li>';
+                } else {
+                    list.innerHTML = data.files.map(f => `
+                        <li>
+                            <span>
+                                <span class="file-name">🔐 ${f.filename}</span>
+                                ${f.attested ? '<span class="badge attested">✓ Attested</span>' : ''}
+                            </span>
+                            <span>
+                                <button class="btn secondary" style="padding: 5px 10px; font-size: 0.8em;" onclick="verifyFile('${f.filename}')">Verify</button>
+                                <button class="btn secondary" style="padding: 5px 10px; font-size: 0.8em;" onclick="downloadFile('${f.filename}')">Download</button>
+                            </span>
+                        </li>
+                    `).join('');
+                }
+                log(data);
+            } catch (e) {
+                log('Error: ' + e.message);
+            }
+        }
+
+        async function uploadFile(file) {
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('evidence_type', document.getElementById('evidenceType').value);
+            
+            try {
+                const res = await fetch(`${CONFIG.endpoint}/api/storage/vault/upload`, {
+                    method: 'POST',
+                    headers: headers(),
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    log(data);
+                    loadVault();
+                    alert(`✅ Uploaded and attested!\nSHA-256: ${data.certificate.sha256}`);
+                } else {
+                    throw new Error(data.detail);
+                }
+            } catch (e) {
+                log('Upload error: ' + e.message);
+            }
+        }
+
+        async function verifyFile(filename) {
+            try {
+                const res = await fetch(`${CONFIG.endpoint}/api/storage/vault/verify/${filename}`, { headers: headers() });
+                const data = await res.json();
+                log(data);
+                
+                if (data.verified) {
+                    alert(`✅ VERIFIED!\n\nFile: ${filename}\nHash matches certificate.\n\nSHA-256: ${data.current_hash}`);
+                } else {
+                    alert(`❌ VERIFICATION FAILED!\n\nFile may have been modified.\n\nCurrent: ${data.current_hash}\nOriginal: ${data.original_hash}`);
+                }
+            } catch (e) {
+                log('Verify error: ' + e.message);
+            }
+        }
+
+        async function downloadFile(filename) {
+            window.open(`${CONFIG.endpoint}/api/storage/vault/download/${filename}?storage_id=${CONFIG.storageId}&token=${CONFIG.token}`);
+        }
+
+        async function provisionNew() {
+            if (!confirm('Create NEW storage? You will get new credentials.')) return;
+            
+            try {
+                const res = await fetch(`${CONFIG.endpoint}/api/storage/provision`, { method: 'POST' });
+                const data = await res.json();
+                
+                CONFIG.storageId = data.storage_id;
+                CONFIG.token = data.token;
+                
+                document.getElementById('storageId').textContent = data.storage_id;
+                document.getElementById('token').textContent = data.token;
+                
+                log(data);
+                alert(`✅ New storage created!\n\nStorage ID: ${data.storage_id}\n\n⚠️ SAVE YOUR TOKEN - it won't be shown again!`);
+            } catch (e) {
+                log('Error: ' + e.message);
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Drag and drop
+        const zone = document.getElementById('uploadZone');
+        zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+        });
+    </script>
+</body>
+</html>

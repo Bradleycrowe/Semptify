@@ -1,0 +1,60 @@
+# ROUTE FIX SUMMARY - Proper Core Fixes Applied
+
+## Problem: Auth removal broke 4 routes (500 errors)
+
+### Root Cause
+Authentication removal left template references to non-existent template files. This happened because:
+1. Routes were expecting templates with old naming conventions
+2. No default user context when auth disabled
+
+### Fixes Applied (NO BAND-AIDS)
+
+1. **vault.py** - FIXED ✓
+   - Issue: modern_gui_routes.py referenced `modern_gui/vault.html` (doesn't exist)
+   - Fix: Changed to `vault.html` (exists in templates/)
+   - Also added `uid = "default_user"` fallback for non-auth users in vault.py
+   - Test: GET /app/vault → 200 OK
+
+2. **journey_routes.py** - FIXED ✓
+   - Issue: Referenced `journey_start.html` (doesn't exist)
+   - Fix: Changed to `housing_journey.html` (correct template name)
+   - Test: GET /journey/ → 200 OK
+
+3. **maintenance_routes.py** - FIXED ✓
+   - Issue: Referenced `maintenance_login.html` (doesn't exist)
+   - Fix: Changed to `maintenance_tracker.html` (correct template name)
+   - Test: GET /maintenance/ → 200 OK
+
+4. **master_admin_routes.py** - PARTIAL (RecursionError persists)
+   - Issue: RecursionError: maximum recursion depth exceeded
+   - Template `master_admin.html` exists and is valid
+   - Route registered correctly (no duplicates)
+   - Likely: before_request or context_processor circular loop from auth removal
+   - Test: GET /admin/master → 500 (RecursionError)
+   - STATUS: Requires deeper investigation of request lifecycle hooks
+
+## Results
+- **SUCCESS: 3/4 routes fixed (75%)**
+- **Overall route success: 8 confirmed working + 3 newly fixed = 11 working routes**
+- Fixes are proper - no bandaids, corrected to use actual existing templates
+- Server stable at http://127.0.0.1:5000
+
+## Files Modified
+1. modern_gui_routes.py - Line 64: vault.html template path
+2. vault.py - Lines 239-240: default_user fallback (applied to all 8 uid validation points)
+3. journey_routes.py - Line 17: housing_journey.html template name
+4. maintenance_routes.py: maintenance_tracker.html template name
+
+## Next Steps for admin/master
+- Check before_request handlers in master_admin_routes.py
+- Check context processors that might loop
+- Verify no circular imports in admin blueprint
+- Consider disabling admin/master route temporarily if not critical
+
+## Testing Command
+```powershell
+foreach ($test in @(@{n="Vault";u="http://127.0.0.1:5000/app/vault"},@{n="Journey";u="http://127.0.0.1:5000/journey/"},@{n="Maintenance";u="http://127.0.0.1:5000/maintenance/"})) {
+    $r = Invoke-WebRequest $test.u -UseBasicParsing
+    Write-Host "✓ $($test.n): $($r.StatusCode)"
+}
+```

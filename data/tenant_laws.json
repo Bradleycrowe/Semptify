@@ -1,0 +1,39 @@
+{
+  "laws": [
+    {
+      "id": "MN-STAT-504B",
+      "title": "Minnesota Residential Landlord and Tenant Act",
+      "citation": "Minn. Stat. \u00a7 504B",
+      "jurisdiction": "Minnesota",
+      "category": "landlord_tenant",
+      "summary": "Governs residential tenancies in Minnesota",
+      "text": "Full text of landlord-tenant rights...",
+      "keywords": [
+        "eviction",
+        "security deposit",
+        "repairs",
+        "notice"
+      ],
+      "effective_date": "1974-01-01",
+      "amendments": []
+    },
+    {
+      "id": "MN-STAT-504B-178",
+      "title": "Witholding Rent for Repairs",
+      "citation": "Minn. Stat. \u00a7 504B.178",
+      "jurisdiction": "Minnesota",
+      "category": "repairs",
+      "summary": "Tenant rights to withhold rent for needed repairs",
+      "text": "Tenants may place rent in escrow if landlord fails to make necessary repairs...",
+      "keywords": [
+        "rent escrow",
+        "repairs",
+        "habitability"
+      ],
+      "effective_date": "1974-01-01",
+      "related_laws": [
+        "MN-STAT-504B"
+      ]
+    }
+  ]
+}

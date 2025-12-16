@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline | Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0d1f3c 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Aurora effect */
+        .aurora {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .aurora::before, .aurora::after {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(ellipse at 20% 50%, rgba(120, 0, 255, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 50%, rgba(0, 200, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 80%, rgba(255, 0, 150, 0.1) 0%, transparent 50%);
+            animation: aurora 20s ease-in-out infinite;
+        }
+        @keyframes aurora {
+            0%, 100% { transform: translate(-10%, -10%) rotate(0deg); }
+            50% { transform: translate(10%, 10%) rotate(180deg); }
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: #fff;
+        }
+
+        /* Main content */
+        .main {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 2rem 4rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .filter-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .chip {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+        .chip:hover, .chip.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+        }
+        .btn {
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea, #764ba2, #f093fb);
+            border-radius: 3px;
+        }
+
+        .event-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .event-card:hover {
+            transform: translateX(10px);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+        }
+        .event-card::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 1.5rem;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            border: 3px solid #0a0a1a;
+        }
+
+        .event-date {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.5rem;
+        }
+        .event-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        .event-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .event-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .event-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: rgba(20, 20, 40, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+        }
+        .modal h3 {
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="aurora"></div>
+    
+    <header class="header">
+        <div class="logo">Semptify</div>
+        <nav class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="library.html">Library</a>
+            <a href="processor.html">Processor</a>
+            <a href="timeline.html" class="active">Timeline</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h1 class="page-title">Timeline</h1>
+        <p class="page-subtitle">Your document history and key events</p>
+
+        <div class="controls">
+            <div class="filter-chips">
+                <span class="chip active" data-filter="all">All</span>
+                <span class="chip" data-filter="document">Documents</span>
+                <span class="chip" data-filter="attestation">Attestations</span>
+                <span class="chip" data-filter="event">Events</span>
+                <span class="chip" data-filter="note">Notes</span>
+            </div>
+            <button class="btn" onclick="showAddModal()">+ Add Event</button>
+            <button class="btn btn-secondary" onclick="exportTimeline()">Export</button>
+        </div>
+
+        <div class="timeline" id="timeline-container">
+            <div class="empty-state">
+                <div class="icon">📅</div>
+                <h3>No events yet</h3>
+                <p>Upload documents or add events to build your timeline</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Event Modal -->
+    <div class="modal-overlay" id="modal-overlay" onclick="hideModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3>Add Event</h3>
+            <form id="event-form" onsubmit="addEvent(event)">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="event-type">
+                        <option value="event">Event</option>
+                        <option value="note">Note</option>
+                        <option value="document">Document</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="event-title" required placeholder="What happened?">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="event-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="event-desc" placeholder="Details..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+                    <button type="submit" class="btn">Add Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api/storage';
+        let events = [];
+        let currentFilter = 'all';
+
+        // Get user data
+        const userData = JSON.parse(localStorage.getItem('semptify_user') || '{}');
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('event-date').valueAsDate = new Date();
+            loadEvents();
+            setupFilters();
+        });
+
+        // Filter chips
+        function setupFilters() {
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentFilter = chip.dataset.filter;
+                    renderEvents();
+                });
+            });
+        }
+
+        // Load events from multiple sources
+        async function loadEvents() {
+            events = [];
+            
+            // 1. Local events
+            const local = JSON.parse(localStorage.getItem('timeline_events') || '[]');
+            events.push(...local);
+
+            // 2. Try to load from vault
+            if (userData.storageId && userData.token) {
+                try {
+                    const resp = await fetch(`${API}/list/vault`, {
+                        headers: {
+                            'X-Storage-ID': userData.storageId,
+                            'X-Storage-Token': userData.token
+                        }
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.files) {
+                            data.files.forEach(f => {
+                                events.push({
+                                    id: `vault_${f.key}`,
+                                    type: 'attestation',
+                                    title: f.key.split('/').pop(),
+                                    description: `Size: ${(f.size/1024).toFixed(1)}KB`,
+                                    date: f.lastModified || new Date().toISOString(),
+                                    meta: { filename: f.key, size: f.size }
+                                });
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.log('Vault load error:', e);
+                }
+            }
+
+            // 3. Document index
+            const docIndex = JSON.parse(localStorage.getItem('document_index') || '[]');
+            docIndex.forEach(doc => {
+                events.push({
+                    id: `doc_${doc.id}`,
+                    type: 'document',
+                    title: doc.name,
+                    description: `Processed: ${doc.status || 'unknown'}`,
+                    date: doc.processedAt || doc.createdAt || new Date().toISOString(),
+                    meta: doc
+                });
+            });
+
+            // Sort by date desc
+            events.sort((a, b) => new Date(b.date) - new Date(a.date));
+            renderEvents();
+        }
+
+        // Render
+        function renderEvents() {
+            const container = document.getElementById('timeline-container');
+            const filtered = currentFilter === 'all' 
+                ? events 
+                : events.filter(e => e.type === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📅</div>
+                        <h3>No ${currentFilter === 'all' ? 'events' : currentFilter + 's'} yet</h3>
+                        <p>Upload documents or add events to build your timeline</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(event => {
+                const date = new Date(event.date);
+                const dateStr = date.toLocaleDateString('en-US', { 
+                    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' 
+                });
+                
+                html += `
+                    <div class="event-card" data-id="${event.id}">
+                        <div class="event-date">${dateStr}</div>
+                        <span class="event-type">${event.type}</span>
+                        <h3 class="event-title">${event.title}</h3>
+                        <p class="event-desc">${event.description || ''}</p>
+                        <div class="event-actions">
+                            <button class="action-btn" onclick="viewEvent('${event.id}')">View</button>
+                            ${event.type === 'attestation' ? `<button class="action-btn" onclick="verifyAttestation('${event.id}')">Verify</button>` : ''}
+                            ${!event.id.startsWith('vault_') && !event.id.startsWith('doc_') ? `<button class="action-btn" onclick="deleteEvent('${event.id}')">Delete</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Add event
+        function addEvent(e) {
+            e.preventDefault();
+            const event = {
+                id: `evt_${Date.now()}`,
+                type: document.getElementById('event-type').value,
+                title: document.getElementById('event-title').value,
+                description: document.getElementById('event-desc').value,
+                date: new Date(document.getElementById('event-date').value).toISOString(),
+                createdAt: Date.now()
+            };
+
+            const local = JSON.parse(localStorage.getItem('timeline_events') || '[]');
+            local.push(event);
+            localStorage.setItem('timeline_events', JSON.stringify(local));
+
+            hideModal();
+            loadEvents();
+        }
+
+        // Delete event
+        function deleteEvent(id) {
+            if (!confirm('Delete this event?')) return;
+            const local = JSON.parse(localStorage.getItem('timeline_events') || '[]');
+            const filtered = local.filter(e => e.id !== id);
+            localStorage.setItem('timeline_events', JSON.stringify(filtered));
+            loadEvents();
+        }
+
+        // View event
+        function viewEvent(id) {
+            const event = events.find(e => e.id === id);
+            if (event) alert(JSON.stringify(event, null, 2));
+        }
+
+        // Verify attestation
+        async function verifyAttestation(id) {
+            const event = events.find(e => e.id === id);
+            if (!event?.meta?.filename) return;
+            try {
+                const resp = await fetch(`${API}/vault/verify/${encodeURIComponent(event.meta.filename)}`, {
+                    headers: {
+                        'X-Storage-ID': userData.storageId,
+                        'X-Storage-Token': userData.token
+                    }
+                });
+                const data = await resp.json();
+                alert(data.verified ? 'Verified! Document is authentic.' : 'Verification failed');
+            } catch (e) {
+                alert('Verification error: ' + e.message);
+            }
+        }
+
+        // Export timeline
+        function exportTimeline() {
+            const data = JSON.stringify(events, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timeline_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        // Modal
+        function showAddModal() {
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        function hideModal(e) {
+            if (!e || e.target === e.currentTarget) {
+                document.getElementById('modal-overlay').classList.remove('active');
+                document.getElementById('event-form').reset();
+                document.getElementById('event-date').valueAsDate = new Date();
+            }
+        }
+    </script>
+</body>
+</html>

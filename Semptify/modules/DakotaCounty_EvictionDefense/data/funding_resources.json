@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "programs": [
+    {
+      "name": "RentHelpMN (status varies)",
+      "type": "State ERA",
+      "use": "Back rent and utilities where available"
+    },
+    {
+      "name": "Housing Benefits 101",
+      "type": "Guidance",
+      "use": "Cash assistance, utility shutoff help, eviction prevention"
+    },
+    {
+      "name": "Continuum of Care (CoC)",
+      "type": "Federal HUD",
+      "use": "Prevention, rapid rehousing, case management"
+    },
+    {
+      "name": "Emergency Solutions Grants (ESG)",
+      "type": "Federal HUD",
+      "use": "Eviction prevention, shelter diversion"
+    },
+    {
+      "name": "Minnesota Housing Trust Fund",
+      "type": "State/local",
+      "use": "Rental assistance for at-risk households"
+    }
+  ],
+  "tips": [
+    "Ask the landlord to accept pending assistance and pause judgment.",
+    "Bring proof of application or award to court (emails, portal screenshots).",
+    "Request continuance to finalize funding disbursement."
+  ]
+}

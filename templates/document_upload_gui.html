@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Processing & Upload</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0a0e27; color: #fff; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; margin-bottom: 30px; text-align: center; }
+        h1 { font-size: 28px; margin-bottom: 10px; }
+        .role-badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; margin-top: 10px; }
+        .card { background: #1a1f3a; border-radius: 12px; padding: 30px; border: 1px solid #2a2f4a; margin-bottom: 20px; }
+        .upload-zone { border: 3px dashed #667eea; border-radius: 12px; padding: 60px 30px; text-align: center; cursor: pointer; transition: 0.3s; margin: 20px 0; }
+        .upload-zone:hover { border-color: #764ba2; background: rgba(102, 126, 234, 0.05); }
+        .upload-zone.dragover { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .upload-icon { font-size: 48px; margin-bottom: 16px; }
+        input[type="file"] { display: none; }
+        .option-group { margin: 20px 0; }
+        .option-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #8b92b0; }
+        select, input[type="checkbox"] { margin-right: 8px; }
+        select { background: #252a45; color: #fff; border: 1px solid #2a2f4a; padding: 10px; border-radius: 8px; width: 100%; font-size: 14px; }
+        .checkbox-group { display: flex; align-items: center; padding: 12px; background: #252a45; border-radius: 8px; margin-bottom: 12px; }
+        .checkbox-group input { width: 20px; height: 20px; }
+        .checkbox-group label { margin: 0 0 0 12px; cursor: pointer; }
+        button { background: #667eea; color: #fff; border: none; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; width: 100%; transition: 0.2s; }
+        button:hover { background: #5568d3; }
+        button:disabled { background: #3a3f5a; cursor: not-allowed; }
+        .result { margin-top: 20px; padding: 20px; background: #252a45; border-radius: 8px; display: none; }
+        .result.success { border-left: 4px solid #10b981; }
+        .result.error { border-left: 4px solid #ef4444; }
+        .result-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2a2f4a; }
+        .result-row:last-child { border-bottom: none; }
+        .result-label { color: #8b92b0; }
+        .result-value { font-weight: 600; }
+        .path-info { background: #252a45; padding: 16px; border-radius: 8px; margin: 16px 0; }
+        .path-info h3 { color: #667eea; margin-bottom: 12px; }
+        .path-item { padding: 8px 0; font-family: monospace; font-size: 13px; color: #8b92b0; }
+        .loading { text-align: center; padding: 20px; color: #667eea; display: none; }
+        .fraud-result { background: #2a1f3a; border: 1px solid #764ba2; border-radius: 8px; padding: 16px; margin-top: 12px; }
+        .fraud-score { display: flex; justify-content: space-between; padding: 6px 0; }
+        .score-bar { height: 8px; background: #252a45; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+        .score-fill { height: 100%; background: linear-gradient(90deg, #10b981, #667eea); transition: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Document Processing & Upload</h1>
+            <div class="role-badge">Role: <strong id="userRole">{{ user_role }}</strong></div>
+        </header>
+
+        <div class="card">
+            <h2 style="margin-bottom: 20px; color: #667eea;">📤 Upload Document</h2>
+            
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Click or drag file here</div>
+                <div style="color: #8b92b0; font-size: 14px;">Maximum file size depends on your role</div>
+            </div>
+            
+            <input type="file" id="fileInput" accept=".pdf,.jpg,.png,.docx,.txt,.json">
+            
+            <div id="selectedFile" style="display: none; background: #252a45; padding: 12px; border-radius: 8px; margin: 16px 0;">
+                <strong>Selected:</strong> <span id="fileName"></span> (<span id="fileSize"></span>)
+            </div>
+
+            <div class="option-group">
+                <label>Storage Tier</label>
+                <select id="storageTier">
+                    <option value="auto">Auto (based on role)</option>
+                    <option value="manager">Manager Storage</option>
+                    <option value="advocate">Advocate Storage</option>
+                    <option value="legal">Legal Storage</option>
+                    <option value="vault">User Vault</option>
+                </select>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="fraudDetection" checked>
+                <label for="fraudDetection">Enable Fraud Detection (Azure Document Intelligence)</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="ocrExtraction">
+                <label for="ocrExtraction">Enable OCR Text Extraction</label>
+            </div>
+
+            <button id="uploadBtn" onclick="uploadDocument()" disabled>
+                📤 Upload & Process Document
+            </button>
+
+            <div class="loading" id="loading">
+                <div style="font-size: 24px; margin-bottom: 8px;">⏳</div>
+                Processing document...
+            </div>
+
+            <div class="result" id="result"></div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 16px; color: #667eea;">📍 Storage Path Information</h2>
+            <div class="path-info" id="pathInfo">
+                <p style="color: #8b92b0;">Loading storage path information...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userRole = "{{ user_role }}";
+        let selectedFile = null;
+
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('selectedFile').style.display = 'block';
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        });
+
+        // Drag and drop
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('selectedFile').style.display = 'block';
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        });
+
+        async function uploadDocument() {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('user_role', userRole);
+            formData.append('storage_tier', document.getElementById('storageTier').value);
+            formData.append('enable_fraud_detection', document.getElementById('fraudDetection').checked);
+            formData.append('enable_ocr', document.getElementById('ocrExtraction').checked);
+
+            document.getElementById('uploadBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            try {
+                const response = await fetch('/gui/documents/upload/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                displayResult(data, response.ok);
+            } catch (error) {
+                displayResult({ status: 'error', message: error.message }, false);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        }
+
+        function displayResult(data, success) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result ' + (success ? 'success' : 'error');
+            
+            let html = '<h3 style="margin-bottom: 12px; color: ' + (success ? '#10b981' : '#ef4444') + ';">';
+            html += success ? '✅ Upload Successful' : '❌ Upload Failed';
+            html += '</h3>';
+
+            if (success) {
+                html += '<div class="result-row"><span class="result-label">Filename:</span><span class="result-value">' + data.filename + '</span></div>';
+                html += '<div class="result-row"><span class="result-label">Storage Path:</span><span class="result-value" style="font-size: 12px; font-family: monospace;">' + data.storage_path + '</span></div>';
+                html += '<div class="result-row"><span class="result-label">Size:</span><span class="result-value">' + data.size_mb + ' MB</span></div>';
+                html += '<div class="result-row"><span class="result-label">Storage Tier:</span><span class="result-value">' + data.storage_tier + '</span></div>';
+                
+                if (data.fraud_detection) {
+                    html += '<div class="fraud-result">';
+                    html += '<h4 style="color: #764ba2; margin-bottom: 12px;">🔍 Fraud Detection Results</h4>';
+                    if (data.fraud_detection.confidence_scores) {
+                        for (const [key, value] of Object.entries(data.fraud_detection.confidence_scores)) {
+                            html += '<div class="fraud-score">';
+                            html += '<span>' + key.replace('_', ' ').toUpperCase() + ':</span>';
+                            html += '<span>' + (value * 100).toFixed(1) + '%</span>';
+                            html += '</div>';
+                            html += '<div class="score-bar"><div class="score-fill" style="width: ' + (value * 100) + '%"></div></div>';
+                        }
+                    }
+                    html += '<p style="margin-top: 12px; color: #8b92b0; font-size: 13px;">' + data.fraud_detection.message + '</p>';
+                    html += '</div>';
+                }
+            } else {
+                html += '<p style="color: #ef4444;">' + data.message + '</p>';
+            }
+
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+
+        async function loadPathInfo() {
+            try {
+                const response = await fetch('/gui/documents/paths?user_role=' + userRole);
+                const data = await response.json();
+                
+                let html = '<h3>Current Storage Configuration</h3>';
+                html += '<div class="path-item">🔹 Tier: <strong>' + data.storage_tier + '</strong></div>';
+                html += '<div class="path-item">🔹 Provider: <strong>' + data.provider + '</strong></div>';
+                html += '<div class="path-item">🔹 Base Path: <strong>' + data.base_path + '</strong></div>';
+                html += '<div class="path-item">🔹 Max File Size: <strong>' + data.max_size_mb + ' MB</strong></div>';
+                html += '<div class="path-item">🔹 Allowed Types: <strong>' + data.allowed_extensions.join(', ') + '</strong></div>';
+                html += '<div class="path-item">🔹 Encryption: <strong>' + (data.encryption_required ? 'Required' : 'Optional') + '</strong></div>';
+                
+                document.getElementById('pathInfo').innerHTML = html;
+            } catch (error) {
+                console.error('Failed to load path info:', error);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        // Load path info on page load
+        loadPathInfo();
+    </script>
+</body>
+</html>

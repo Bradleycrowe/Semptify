@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Semptify - Adaptive Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f5f7fa; }
+        
+        /* Base user dashboard */
+        .main-content { padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .feature-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
+        .feature-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        
+        /* Role overlay bubbles */
+        .role-overlay { position: fixed; z-index: 1000; }
+        .role-bubble { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .role-bubble:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        
+        /* Overlay popup */
+        .overlay-popup { position: absolute; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); padding: 15px; min-width: 200px; display: none; }
+        .overlay-popup.active { display: block; animation: slideIn 0.2s; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .overlay-popup h3 { margin-bottom: 10px; font-size: 16px; }
+        .overlay-popup a { display: block; padding: 8px 12px; color: #333; text-decoration: none; border-radius: 6px; margin: 4px 0; transition: background 0.2s; }
+        .overlay-popup a:hover { background: #f0f0f0; }
+        
+        /* Position variants */
+        .pos-top-right { top: 20px; right: 20px; }
+        .pos-top-left { top: 20px; left: 20px; }
+        .pos-bottom-right { bottom: 20px; right: 20px; }
+        .pos-bottom-left { bottom: 20px; left: 20px; }
+        
+        /* Admin hover panel */
+        .admin-hover-panel { position: fixed; top: 0; right: -350px; width: 350px; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: -4px 0 20px rgba(0,0,0,0.3); transition: right 0.3s; padding: 20px; overflow-y: auto; z-index: 2000; }
+        .admin-hover-panel.active { right: 0; }
+        .admin-hover-panel h2 { margin-bottom: 20px; }
+        .admin-hover-panel .admin-section { margin-bottom: 25px; }
+        .admin-hover-panel .admin-section h3 { font-size: 14px; opacity: 0.8; margin-bottom: 10px; text-transform: uppercase; }
+        .admin-hover-panel a { color: white; display: block; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; margin: 8px 0; text-decoration: none; transition: background 0.2s; }
+        .admin-hover-panel a:hover { background: rgba(255,255,255,0.2); }
+        
+        /* AI Assistant bubble */
+        .ai-assistant { position: fixed; bottom: 80px; right: 20px; width: 300px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); padding: 20px; display: none; z-index: 1500; }
+        .ai-assistant.active { display: block; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .ai-assistant .ai-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .ai-assistant .ai-icon { font-size: 32px; margin-right: 10px; }
+        .ai-assistant input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <!-- Base User Dashboard -->
+    <div class="main-content">
+        <h1>Welcome to Semptify</h1>
+        <p>Your tenant rights protection platform</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card" onclick="location.href='/vault?user_token={{ user_token }}'">
+                <div style="font-size: 32px;">🔐</div>
+                <h3>My Vault</h3>
+                <p>Secure documents</p>
+            </div>
+            <div class="feature-card" onclick="location.href='/ledger?user_token={{ user_token }}'">
+                <div style="font-size: 32px;">🧾</div>
+                <h3>Rent Ledger</h3>
+                <p>Track payments</p>
+            </div>
+            <div class="feature-card" onclick="location.href='/timeline?user_token={{ user_token }}'">
+                <div style="font-size: 32px;">📅</div>
+                <h3>Timeline</h3>
+                <p>Important dates</p>
+            </div>
+            <div class="feature-card" onclick="location.href='/calendar?user_token={{ user_token }}'">
+                <div style="font-size: 32px;">📆</div>
+                <h3>Calendar</h3>
+                <p>Schedule events</p>
+            </div>
+            <div class="feature-card" onclick="location.href='/complaint?user_token={{ user_token }}'">
+                <div style="font-size: 32px;">📝</div>
+                <h3>File Complaint</h3>
+                <p>Start legal process</p>
+            </div>
+            <div class="feature-card" onclick="location.href='/journey?user_token={{ user_token }}'">
+                <div style="font-size: 32px;">🏘️</div>
+                <h3>My Journey</h3>
+                <p>Track progress</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Overlay Bubbles -->
+    {% for role_name, overlay in overlays.items() %}
+    <div class="role-overlay pos-{{ overlay.position }}" id="{{ role_name }}-overlay">
+        <div class="role-bubble" style="background: {{ overlay.color }};" 
+             {% if overlay.trigger == 'hover' %}
+             onmouseenter="show{{ role_name|capitalize }}Panel()"
+             {% else %}
+             onclick="toggleOverlay('{{ role_name }}')"
+             {% endif %}>
+            {{ overlay.icon }}
+        </div>
+        
+        {% if overlay.trigger != 'hover' %}
+        <div class="overlay-popup" id="{{ role_name }}-popup">
+            <h3>{{ role_name|capitalize }} Tools</h3>
+            {% for feature in overlay.features %}
+            <a href="{{ feature.route }}?user_token={{ user_token }}">
+                {{ feature.icon }} {{ feature.name }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Admin Hover Panel (if admin role) -->
+    {% if 'admin' in roles %}
+    <div class="admin-hover-panel" id="admin-panel" onmouseleave="hideAdminPanel()">
+        <h2>⚙️ Admin Control Center</h2>
+        
+        <div class="admin-section">
+            <h3>System</h3>
+            <a href="/admin/config?user_token={{ user_token }}">🔧 System Config</a>
+            <a href="/admin/users?user_token={{ user_token }}">👥 User Management</a>
+            <a href="/metrics?user_token={{ user_token }}">📊 Metrics & Health</a>
+            <a href="/admin/tokens?user_token={{ user_token }}">🔑 Token Management</a>
+        </div>
+        
+        <div class="admin-section">
+            <h3>AI Assistant</h3>
+            <a href="/admin/ai-assistant?user_token={{ user_token }}" onclick="event.preventDefault(); showAIAssistant();">
+                🤖 Claude Sonnet 4.5<br>
+                <small style="opacity: 0.7;">Coding & Admin Help</small>
+            </a>
+        </div>
+        
+        <div class="admin-section">
+            <h3>Documentation</h3>
+            <a href="/admin/docs/api?user_token={{ user_token }}">📚 API Reference</a>
+            <a href="/admin/docs/architecture?user_token={{ user_token }}">🏗️ Architecture Guide</a>
+            <a href="/admin/docs/security?user_token={{ user_token }}">🔒 Security Manual</a>
+            <a href="/admin/docs/deployment?user_token={{ user_token }}">🚀 Deployment Guide</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Assistant Bubble -->
+    <div class="ai-assistant" id="ai-assistant">
+        <div class="ai-header">
+            <div class="ai-icon">🤖</div>
+            <div>
+                <strong>Claude Sonnet 4.5</strong><br>
+                <small>Admin Assistant</small>
+            </div>
+        </div>
+        <input type="text" placeholder="Ask about code, configs, or systems..." id="ai-input">
+        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            Press Enter to ask
+        </div>
+    </div>
+
+    <script>
+        // Toggle overlay popups (manager, legal, advocate)
+        function toggleOverlay(role) {
+            const popup = document.getElementById(role + '-popup');
+            popup.classList.toggle('active');
+        }
+
+        // Admin hover panel
+        function showAdminPanel() {
+            document.getElementById('admin-panel').classList.add('active');
+        }
+        
+        function hideAdminPanel() {
+            document.getElementById('admin-panel').classList.remove('active');
+        }
+
+        // AI Assistant
+        function showAIAssistant() {
+            document.getElementById('ai-assistant').classList.add('active');
+        }
+
+        document.getElementById('ai-input')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value;
+                // TODO: Call Claude API
+                alert('Sending to Claude: ' + query);
+            }
+        });
+
+        // Close popups when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.role-overlay')) {
+                document.querySelectorAll('.overlay-popup').forEach(p => p.classList.remove('active'));
+            }
+        });
+
+        // Self-building GUI: Fetch contextual UI components
+        async function fetchAdaptiveUI() {
+            const context = {
+                user_id: '{{ user_token }}',
+                current_page: window.location.pathname,
+                time_on_page: performance.now()
+            };
+
+            const response = await fetch('/api/gui/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    context: context,
+                    action: 'page_view',
+                    history: []
+                })
+            });
+
+            const ui = await response.json();
+            if (ui.component_type !== 'none') {
+                injectUIComponent(ui);
+            }
+        }
+
+        function injectUIComponent(ui) {
+            const container = document.createElement('div');
+            container.innerHTML = ui.html;
+            container.style.position = 'fixed';
+            container.style[ui.position.split('-')[0]] = '20px';
+            container.style[ui.position.split('-')[1]] = '20px';
+            document.body.appendChild(container);
+        }
+
+        // Load adaptive UI after 2 seconds
+        setTimeout(fetchAdaptiveUI, 2000);
+    </script>
+</body>
+</html>

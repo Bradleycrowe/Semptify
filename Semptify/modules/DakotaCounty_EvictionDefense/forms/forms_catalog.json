@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "official_sources": [
+    {
+      "name": "Minnesota Judicial Branch – Housing/Landlord-Tenant Forms",
+      "url": "https://www.mncourts.gov/getforms/housing-landlord-tenant",
+      "use": "Eviction Answer, Counterclaim, Rent Escrow, Expungement, Appeals"
+    },
+    {
+      "name": "Minnesota Judicial Branch – Tenant Resources (Forms section)",
+      "url": "https://www.mncourts.gov/help-topics/tenants/forms",
+      "use": "Statewide/district forms for tenant actions"
+    },
+    {
+      "name": "Rent Escrow statute (Minn. Stat. § 504B.385)",
+      "url": "https://www.revisor.mn.gov/statutes/cite/504B.385",
+      "use": "Deposit rent with court and seek repairs/abatement"
+    }
+  ]
+}

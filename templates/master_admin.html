@@ -742,5 +742,133 @@
             });
         });
     </script>
+
+    <!-- Session Management Section -->
+    <div class="card">
+        <h2>🔐 Session Management</h2>
+        <div class="setting-row">
+            <div class="setting-info">
+                <h3>3-Layer Session Cache System</h3>
+                <p><strong>Current Status:</strong> <span id="cache-status">ENABLED</span></p>
+                <p class="description">
+                    Controls the session caching system for performance optimization.<br>
+                    <strong>ENABLED:</strong> Fast (storage + session + cache), 4-hour sessions, auto-renewal<br>
+                    <strong>DISABLED:</strong> Simple mode, downloads from storage every request
+                </p>
+                
+                <div class="admin-instructions">
+                    <h4>📋 Administrator Instructions</h4>
+                    <ol>
+                        <li>To <strong>enable</strong> caching (recommended for production):
+                            <pre>$env:USE_SESSION_CACHE = "True"</pre>
+                        </li>
+                        <li>To <strong>disable</strong> caching (troubleshooting only):
+                            <pre>$env:USE_SESSION_CACHE = "False"</pre>
+                        </li>
+                        <li>Restart the server after changing:
+                            <pre>.\.venv\Scripts\python.exe Semptify.py</pre>
+                        </li>
+                    </ol>
+                    
+                    <h4>⚙️ Configuration (Semptify.py)</h4>
+                    <ul>
+                        <li><code>SESSION_TIMEOUT = 14400</code> (4 hours)</li>
+                        <li><code>SLIDING_WINDOW = 1800</code> (30 min activity extension)</li>
+                        <li><code>CACHE_TIMEOUT = 3600</code> (1 hour client cache)</li>
+                        <li><code>AUTO_RENEW = True</code> (seamless re-auth)</li>
+                    </ul>
+                    
+                    <h4>📊 Performance Impact</h4>
+                    <table style="width: 100%; margin-top: 10px;">
+                        <tr>
+                            <th></th>
+                            <th>Disabled</th>
+                            <th>Enabled</th>
+                        </tr>
+                        <tr>
+                            <td>Storage API calls</td>
+                            <td>Every request</td>
+                            <td>Once per hour</td>
+                        </tr>
+                        <tr>
+                            <td>Request latency</td>
+                            <td>100-300ms</td>
+                            <td>~0.1ms</td>
+                        </tr>
+                        <tr>
+                            <td>Memory usage</td>
+                            <td>Minimal</td>
+                            <td>~5KB per user</td>
+                        </tr>
+                    </table>
+                    
+                    <h4>🔒 Security Compliance</h4>
+                    <ul>
+                        <li>✅ NIST 800-63B compliant (4-hour timeout)</li>
+                        <li>✅ OWASP recommended practices (HttpOnly, SameSite)</li>
+                        <li>⚠️ Set <code>SESSION_COOKIE_SECURE = True</code> for production HTTPS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .admin-instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .admin-instructions h4 {
+            color: #667eea;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .admin-instructions h4:first-child {
+            margin-top: 0;
+        }
+        .admin-instructions pre {
+            background: #2d3748;
+            color: #68d391;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 5px 0;
+        }
+        .admin-instructions code {
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .admin-instructions table {
+            border-collapse: collapse;
+            background: white;
+        }
+        .admin-instructions table th {
+            background: #667eea;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+        .admin-instructions table td {
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .admin-instructions ol, .admin-instructions ul {
+            margin-left: 20px;
+        }
+        .admin-instructions li {
+            margin: 10px 0;
+        }
+        #cache-status {
+            font-weight: bold;
+            color: #48bb78;
+        }
+    </style>
+
 </body>
 </html>
+

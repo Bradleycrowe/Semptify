@@ -1,0 +1,136 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.title_answer }} - Download{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card" style="text-align: center;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+    <h1 class="card-title" style="font-size: 1.75rem; margin-bottom: 0.5rem;">
+        {% if lang == 'en' %}Your Answer is Ready!{% elif lang == 'es' %}¡Su Respuesta Está Lista!{% elif lang == 'so' %}Jawaabta Waa Diyaar!{% else %}ردك جاهز!{% endif %}
+    </h1>
+    <p class="card-description">
+        {% if lang == 'en' %}Download your Answer to Eviction document and filing instructions.{% elif lang == 'es' %}Descargue su documento de Respuesta al Desalojo e instrucciones.{% elif lang == 'so' %}Soo deji dukumentigaaga Jawaabta Ka-saarista iyo tilmaamaha.{% else %}قم بتحميل مستند الرد على الإخلاء والتعليمات.{% endif %}
+    </p>
+    
+    <div class="mt-4">
+        <button onclick="downloadAnswer()" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+            📥 {{ strings.btn_download }}
+        </button>
+    </div>
+</div>
+
+<!-- Next Steps -->
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">
+        {% if lang == 'en' %}📋 Next Steps{% elif lang == 'es' %}📋 Próximos Pasos{% elif lang == 'so' %}📋 Tallaabada Xigta{% else %}📋 الخطوات التالية{% endif %}
+    </h2>
+    
+    <ol style="margin-left: 1.5rem; line-height: 2;">
+        <li>
+            <strong>{% if lang == 'en' %}Print 3 copies{% elif lang == 'es' %}Imprima 3 copias{% elif lang == 'so' %}Daabac 3 nuqul{% else %}اطبع 3 نسخ{% endif %}</strong>
+            - {% if lang == 'en' %}Court, landlord, and your records{% elif lang == 'es' %}Tribunal, arrendador y sus registros{% elif lang == 'so' %}Maxkamadda, mulkiilaha, iyo diiwaannadaada{% else %}المحكمة، المالك، وسجلاتك{% endif %}
+        </li>
+        <li>
+            <strong>{% if lang == 'en' %}Sign and date{% elif lang == 'es' %}Firme y feche{% elif lang == 'so' %}Saxiix oo taariikhee{% else %}وقع وأرخ{% endif %}</strong>
+            - {% if lang == 'en' %}Use blue or black ink{% elif lang == 'es' %}Use tinta azul o negra{% elif lang == 'so' %}Isticmaal khad buluug ama madow{% else %}استخدم حبرًا أزرق أو أسود{% endif %}
+        </li>
+        <li>
+            <strong>{% if lang == 'en' %}File with Court{% elif lang == 'es' %}Presente en el Tribunal{% elif lang == 'so' %}Xaree Maxkamadda{% else %}قدم للمحكمة{% endif %}</strong>
+            - {% if lang == 'en' %}Dakota County Judicial Center{% elif lang == 'es' %}Centro Judicial del Condado de Dakota{% elif lang == 'so' %}Xarunta Garsoorka Degmada Dakota{% else %}مركز داكوتا القضائي{% endif %}
+        </li>
+        <li>
+            <strong>{% if lang == 'en' %}Serve landlord{% elif lang == 'es' %}Notifique al arrendador{% elif lang == 'so' %}U adeeg mulkiilaha{% else %}بلّغ المالك{% endif %}</strong>
+            - {% if lang == 'en' %}Mail or deliver a copy{% elif lang == 'es' %}Envíe o entregue una copia{% elif lang == 'so' %}Boostada ama gaarsi nuqul{% else %}أرسل أو سلم نسخة{% endif %}
+        </li>
+        <li>
+            <strong>{% if lang == 'en' %}File proof of service{% elif lang == 'es' %}Presente prueba de notificación{% elif lang == 'so' %}Xaree caddaynta adeegga{% else %}قدم إثبات التبليغ{% endif %}</strong>
+        </li>
+    </ol>
+</div>
+
+<!-- Also Consider -->
+<div class="card" style="background: #f0fdf4; border: 1px solid #22c55e;">
+    <h3 style="margin-bottom: 1rem;">
+        {% if lang == 'en' %}💡 Also Consider{% elif lang == 'es' %}💡 También Considere{% elif lang == 'so' %}💡 Sidoo kale Tixgeli{% else %}💡 فكر أيضًا في{% endif %}
+    </h3>
+    <div class="grid grid-2">
+        <a href="/flows/counterclaim?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit; margin: 0;">
+            <h4>{{ strings.nav_counterclaim }}</h4>
+            <p style="font-size: 0.9rem; color: var(--text-light);">
+                {% if lang == 'en' %}Sue your landlord for damages{% elif lang == 'es' %}Demande a su arrendador{% elif lang == 'so' %}Dacwee mulkiilahaaga{% else %}قاضِ المالك{% endif %}
+            </p>
+        </a>
+        <a href="/flows/motions?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit; margin: 0;">
+            <h4>{{ strings.nav_motions }}</h4>
+            <p style="font-size: 0.9rem; color: var(--text-light);">
+                {% if lang == 'en' %}File a motion to dismiss or for continuance{% elif lang == 'es' %}Presente una moción{% elif lang == 'so' %}Xaree codsi{% else %}قدم طلب{% endif %}
+            </p>
+        </a>
+    </div>
+</div>
+
+<!-- Court Contact -->
+<div class="alert alert-success">
+    <div class="alert-icon">📞</div>
+    <div>
+        <strong>Dakota County Court Administration</strong><br>
+        {% if lang == 'en' %}Phone{% elif lang == 'es' %}Teléfono{% elif lang == 'so' %}Telefoon{% else %}هاتف{% endif %}: <a href="tel:651-438-4325">651-438-4325</a><br>
+        {% if lang == 'en' %}Address{% elif lang == 'es' %}Dirección{% elif lang == 'so' %}Cinwaan{% else %}عنوان{% endif %}: 1560 Highway 55, Hastings, MN 55033
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function downloadAnswer() {
+    // Collect form data from localStorage/sessionStorage
+    const formData = {
+        tenant_name: localStorage.getItem('tenant_name') || 'Tenant Name',
+        landlord_name: localStorage.getItem('landlord_name') || 'Landlord Name',
+        case_number: localStorage.getItem('case_number') || '',
+        address: localStorage.getItem('address') || '',
+        served_date: localStorage.getItem('served_date') || '',
+        defenses: JSON.parse(localStorage.getItem('defenses') || '[]'),
+        defense_details: localStorage.getItem('defense_details') || ''
+    };
+    
+    try {
+        const response = await fetch('/flows/answer/generate?lang={{ lang }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Answer_to_Eviction.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } else {
+            alert('{% if lang == "en" %}Error generating document. Please try again.{% elif lang == "es" %}Error al generar el documento.{% elif lang == "so" %}Khalad soo saarista dukumentiga.{% else %}خطأ في إنشاء المستند.{% endif %}');
+        }
+    } catch (error) {
+        console.error('Download error:', error);
+        alert('{% if lang == "en" %}Error downloading document.{% elif lang == "es" %}Error al descargar.{% elif lang == "so" %}Khalad soo dejiinta.{% else %}خطأ في التحميل.{% endif %}');
+    }
+}
+</script>
+{% endblock %}

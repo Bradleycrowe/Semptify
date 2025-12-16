@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timeline - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 { color: #667eea; font-size: 2em; }
+        .back-btn {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-row input, .form-row select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .submit-btn {
+            padding: 15px 30px;
+            background: #9c27b0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
+        .timeline-event {
+            border-left: 3px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            background: #f5f5f5;
+            border-radius: 0 8px 8px 0;
+        }
+        .event-date {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .event-category {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .event-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .event-description {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Timeline</h1>
+            <button class="back-btn" onclick="location.href='/'">← Back to Home</button>
+        </div>
+        
+        <div class="content">
+            <h3>➕ Add Event</h3>
+            <form id="timelineForm">
+                <div class="form-row">
+                    <input type="date" name="date" value="{{ '%Y-%m-%d' | strftime }}" required>
+                    <input type="text" name="title" placeholder="Event Title" required>
+                    <select name="category" required>
+                        <option value="Issue">Issue</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Payment">Payment</option>
+                        <option value="Communication">Communication</option>
+                        <option value="Legal">Legal</option>
+                    </select>
+                </div>
+                <input type="text" name="description" placeholder="Description (optional)" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px;">
+                <button type="submit" class="submit-btn">➕ Add Event</button>
+            </form>
+            <div id="status"></div>
+        </div>
+        
+        <div class="content">
+            <h3>📊 Event History ({{ events|length }})</h3>
+            {% for event in events %}
+            <div class="timeline-event">
+                <div>
+                    <span class="event-date">{{ event[1] }}</span>
+                    <span class="event-category">{{ event[3] }}</span>
+                </div>
+                <div class="event-title">{{ event[2] }}</div>
+                {% if event[4] %}
+                <div class="event-description">{{ event[4] }}</div>
+                {% endif %}
+            </div>
+            {% else %}
+            <p style="text-align:center; padding:30px; color:#999;">No events recorded yet. Add your first event above!</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('timelineForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                const response = await fetch('/timeline/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = '<p style="color:#4caf50; padding:15px;">✓ ' + result.message + '</p>';
+                    setTimeout(() => location.reload(), 1000);
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<p style="color:#f44336; padding:15px;">Error: ' + error + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.title_answer }} - Review{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_answer }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 4: Review Your Answer{% elif lang == 'es' %}Paso 4: Revise Su Respuesta{% elif lang == 'so' %}Tallaabada 4: Dib u Eeg Jawaabta{% else %}الخطوة 4: راجع ردك{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <div class="alert alert-warning">
+        <div class="alert-icon">⚠️</div>
+        <div>
+            {% if lang == 'en' %}
+            <strong>Review carefully before generating your document.</strong>
+            Make sure all information is accurate. You can go back to make changes.
+            {% elif lang == 'es' %}
+            <strong>Revise cuidadosamente antes de generar su documento.</strong>
+            Asegúrese de que toda la información sea correcta.
+            {% elif lang == 'so' %}
+            <strong>Si taxadar leh dib u eeg ka hor intaadan soo saarin dukumentiga.</strong>
+            Hubi in dhammaan macluumaadka ay sax yihiin.
+            {% else %}
+            <strong>راجع بعناية قبل إنشاء المستند.</strong>
+            تأكد من دقة جميع المعلومات.
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Review Summary will be populated by JavaScript -->
+    <div id="reviewSummary" style="background: var(--bg); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+        <p style="text-align: center; color: var(--text-light);">
+            {% if lang == 'en' %}Loading your information...{% elif lang == 'es' %}Cargando su información...{% elif lang == 'so' %}Waxaa soo dejinaysa macluumaadkaaga...{% else %}جاري تحميل معلوماتك...{% endif %}
+        </p>
+    </div>
+    
+    <div class="flex justify-between mt-4">
+        <a href="/flows/answer?step=3&lang={{ lang }}" class="btn btn-outline">
+            ← {{ strings.btn_back }}
+        </a>
+        <a href="/flows/answer?step=5&lang={{ lang }}" class="btn btn-success">
+            ✓ {% if lang == 'en' %}Looks Good - Continue{% elif lang == 'es' %}Se Ve Bien - Continuar{% elif lang == 'so' %}Waa Hagaag - Sii Wad{% else %}يبدو جيدًا - متابعة{% endif %}
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load saved form data from session/localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const summary = document.getElementById('reviewSummary');
+    
+    // In a real implementation, this would load from saved state
+    // For now, show a placeholder
+    summary.innerHTML = `
+        <h3 style="margin-bottom: 1rem;">{% if lang == 'en' %}Your Answer Summary{% elif lang == 'es' %}Resumen de Su Respuesta{% elif lang == 'so' %}Kooban Jawaabta{% else %}ملخص ردك{% endif %}</h3>
+        <p style="color: var(--text-light); font-size: 0.9rem;">
+            {% if lang == 'en' %}
+            Your Answer to Eviction document will be generated with the information you provided.
+            Click "Looks Good - Continue" to proceed to download.
+            {% elif lang == 'es' %}
+            Su documento de Respuesta al Desalojo se generará con la información que proporcionó.
+            {% elif lang == 'so' %}
+            Dukumentiga Jawaabta Ka-saarista waxaa lagu soo saari doonaa macluumaadka aad bixisay.
+            {% else %}
+            سيتم إنشاء مستند الرد على الإخلاء بالمعلومات التي قدمتها.
+            {% endif %}
+        </p>
+        <ul style="margin-top: 1rem; margin-left: 1.5rem;">
+            <li>{% if lang == 'en' %}Answer to Eviction Complaint{% elif lang == 'es' %}Respuesta a la Demanda de Desalojo{% elif lang == 'so' %}Jawaabta Dacwadda Ka-saarista{% else %}الرد على شكوى الإخلاء{% endif %}</li>
+            <li>{% if lang == 'en' %}Filing instructions{% elif lang == 'es' %}Instrucciones de presentación{% elif lang == 'so' %}Tilmaamaha xareynta{% else %}تعليمات التقديم{% endif %}</li>
+            <li>{% if lang == 'en' %}Service checklist{% elif lang == 'es' %}Lista de verificación de notificación{% elif lang == 'so' %}Liiska hubinta adeegga{% else %}قائمة التحقق من الخدمة{% endif %}</li>
+        </ul>
+    `;
+});
+</script>
+{% endblock %}

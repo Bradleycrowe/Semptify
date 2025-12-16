@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ motion.name }} Wizard - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .wizard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .checkbox-item:hover {
+            background: #e8ecf1;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .help-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+        .icon { font-size: 3rem; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/motions" class="btn-secondary">← Back to Motion Hub</a>
+        
+        <div class="wizard-card">
+            <div class="icon">{{ motion.icon }}</div>
+            <h1>{{ motion.name }}</h1>
+            <p class="subtitle">{{ motion.description }}</p>
+
+            <form id="motionForm">
+                <div class="form-group">
+                    <label for="tenant_name">Your Full Name *</label>
+                    <input type="text" id="tenant_name" name="tenant_name" required>
+                    <div class="help-text">This is how you'll appear on the document</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Your Current Address *</label>
+                    <input type="text" id="address" name="address" required>
+                    <div class="help-text">Where you live now (for court contact)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Your Phone Number *</label>
+                    <input type="text" id="phone" name="phone" required>
+                    <div class="help-text">Best number to reach you</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="landlord_name">Landlord/Plaintiff Name *</label>
+                    <input type="text" id="landlord_name" name="landlord_name" required>
+                    <div class="help-text">Exactly as shown on the eviction notice</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Grounds for Motion *</label>
+                    <div class="checkbox-group">
+                        {% for ground in motion.grounds %}
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="grounds" value="{{ ground }}">
+                            <span>{{ ground }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <div class="help-text">Check all reasons that apply to your situation</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="facts">Statement of Facts *</label>
+                    <textarea id="facts" name="facts" required placeholder="Describe what happened in detail. Include dates, times, and specific events..."></textarea>
+                    <div class="help-text">
+                        Tell your story clearly. Include:<br>
+                        • Timeline of events<br>
+                        • What the landlord did or failed to do<br>
+                        • How this affected you<br>
+                        • Any evidence you have
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    📄 Generate Motion Document
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('motionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const grounds = Array.from(formData.getAll('grounds'));
+            
+            if (grounds.length === 0) {
+                alert('Please select at least one ground for your motion');
+                return;
+            }
+            
+            const data = {
+                motion_type: '{{ motion_type }}',
+                tenant_name: formData.get('tenant_name'),
+                address: formData.get('address'),
+                phone: formData.get('phone'),
+                landlord_name: formData.get('landlord_name'),
+                grounds: grounds,
+                facts: formData.get('facts')
+            };
+            
+            try {
+                const response = await fetch('/motions/generate/motion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `motion_{{ motion_type }}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    alert('✅ Motion generated! Check your downloads folder.');
+                } else {
+                    alert('Error generating motion. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating motion. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

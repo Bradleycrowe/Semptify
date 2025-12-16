@@ -1,3 +1,4 @@
+import pytest
 import os, importlib, re
 
 def setup_enforced():

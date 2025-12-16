@@ -1,0 +1,266 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.title_main }}{% endblock %}
+
+{% block content %}
+<div class="text-center mb-2">
+    <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">{{ strings.title_main }}</h1>
+    <p style="font-size: 1.1rem; color: var(--text-light);">
+        {% if lang == 'en' %}
+        Your complete guide to fighting eviction in Dakota County, Minnesota
+        {% elif lang == 'es' %}
+        Su guía completa para luchar contra el desalojo en el condado de Dakota, Minnesota
+        {% elif lang == 'so' %}
+        Hagahaaga dhamaystiran ee la dagaalanka ka-saarista ee Degmada Dakota, Minnesota
+        {% else %}
+        دليلك الكامل لمحاربة الإخلاء في مقاطعة داكوتا، مينيسوتا
+        {% endif %}
+    </p>
+</div>
+
+<!-- Deadline Calculator Widget -->
+<div class="card" style="background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%); border: 2px solid #f59e0b;">
+    <div class="card-header">
+        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">⏰</div>
+        <div>
+            <h2 class="card-title">
+                {% if lang == 'en' %}When were you served?{% elif lang == 'es' %}¿Cuándo le notificaron?{% elif lang == 'so' %}Goorma laguu soo gaarsiiey?{% else %}متى تم تبليغك؟{% endif %}
+            </h2>
+            <p class="card-description">
+                {% if lang == 'en' %}Enter the date you received eviction papers to see your deadlines{% elif lang == 'es' %}Ingrese la fecha en que recibió los documentos de desalojo{% elif lang == 'so' %}Geli taariikhda aad heshay waraaqaha ka-saarista{% else %}أدخل تاريخ استلام أوراق الإخلاء{% endif %}
+            </p>
+        </div>
+    </div>
+    <div class="flex gap-2 items-center" style="flex-wrap: wrap;">
+        <input type="date" id="servedDate" class="form-input" style="max-width: 200px;">
+        <button onclick="calculateDeadline()" class="btn btn-primary">
+            {% if lang == 'en' %}Calculate{% elif lang == 'es' %}Calcular{% elif lang == 'so' %}Xisaabi{% else %}احسب{% endif %}
+        </button>
+        <div id="deadlineResult" style="font-weight: 600; font-size: 1.1rem; color: #b45309;"></div>
+    </div>
+</div>
+
+<!-- Main Action Cards -->
+<h2 class="mt-4 mb-2">
+    {% if lang == 'en' %}What do you need help with?{% elif lang == 'es' %}¿Con qué necesita ayuda?{% elif lang == 'so' %}Maxay tahay waxaad caawimaad u baahan tahay?{% else %}ما الذي تحتاج المساعدة فيه؟{% endif %}
+</h2>
+
+<div class="grid grid-2">
+    <!-- File Answer -->
+    <a href="/flows/answer?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit;">
+        <div class="card-header">
+            <div class="card-icon">📝</div>
+            <div>
+                <h3 class="card-title">{{ strings.nav_answer }}</h3>
+            </div>
+        </div>
+        <p class="card-description">
+            {% if lang == 'en' %}
+            Respond to an eviction complaint. Tell the court your side of the story and assert your defenses.
+            {% elif lang == 'es' %}
+            Responda a una demanda de desalojo. Cuente su versión al tribunal y presente sus defensas.
+            {% elif lang == 'so' %}
+            Ka jawaab dacwadda ka-saarista. U sheeg maxkamadda dhinacaaga oo soo bandhig difaacyadaada.
+            {% else %}
+            الرد على شكوى الإخلاء. أخبر المحكمة بجانبك من القصة وقدم دفاعاتك.
+            {% endif %}
+        </p>
+        <div class="mt-2">
+            <span class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </span>
+        </div>
+    </a>
+    
+    <!-- Counterclaim -->
+    <a href="/flows/counterclaim?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit;">
+        <div class="card-header">
+            <div class="card-icon">⚖️</div>
+            <div>
+                <h3 class="card-title">{{ strings.nav_counterclaim }}</h3>
+            </div>
+        </div>
+        <p class="card-description">
+            {% if lang == 'en' %}
+            Sue your landlord back. Claim damages for repairs, deposit issues, illegal fees, or other violations.
+            {% elif lang == 'es' %}
+            Demande a su arrendador. Reclame daños por reparaciones, depósito, cargos ilegales u otras violaciones.
+            {% elif lang == 'so' %}
+            Dacwee mulkiilahaaga. Codsiga khasaaraha dayactirka, lacagta dammaanadda, kharashka sharciga darroga.
+            {% else %}
+            قاضِ المالك. اطلب تعويضات عن الإصلاحات أو التأمين أو الرسوم غير القانونية.
+            {% endif %}
+        </p>
+        <div class="mt-2">
+            <span class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </span>
+        </div>
+    </a>
+    
+    <!-- Motions -->
+    <a href="/flows/motions?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit;">
+        <div class="card-header">
+            <div class="card-icon">📋</div>
+            <div>
+                <h3 class="card-title">{{ strings.nav_motions }}</h3>
+            </div>
+        </div>
+        <p class="card-description">
+            {% if lang == 'en' %}
+            File a motion to dismiss, request a continuance, stay a writ, or waive filing fees.
+            {% elif lang == 'es' %}
+            Presente una moción para desestimar, solicitar aplazamiento, suspender orden o eximir tarifas.
+            {% elif lang == 'so' %}
+            Xaree codsiga joojinta, dib u dhigida, hakinta amarka, ama cafinta kharashka.
+            {% else %}
+            قدم طلب رفض أو تأجيل أو وقف أمر أو إعفاء من الرسوم.
+            {% endif %}
+        </p>
+        <div class="mt-2">
+            <span class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </span>
+        </div>
+    </a>
+    
+    <!-- Hearing Prep -->
+    <a href="/flows/hearing?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit;">
+        <div class="card-header">
+            <div class="card-icon">🎯</div>
+            <div>
+                <h3 class="card-title">{{ strings.nav_hearing }}</h3>
+            </div>
+        </div>
+        <p class="card-description">
+            {% if lang == 'en' %}
+            Get ready for court. Checklists, what to bring, how to present your case, and what to expect.
+            {% elif lang == 'es' %}
+            Prepárese para el tribunal. Listas de verificación, qué traer, cómo presentar su caso.
+            {% elif lang == 'so' %}
+            U diyaargarow maxkamadda. Liisaska, waxa la keenayo, sida loo soo bandhigo kiiskaaga.
+            {% else %}
+            استعد للمحكمة. قوائم المراجعة، ما يجب إحضاره، كيفية تقديم قضيتك.
+            {% endif %}
+        </p>
+        <div class="mt-2">
+            <span class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </span>
+        </div>
+    </a>
+    
+    <!-- Forms Library -->
+    <a href="/forms/library?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit;">
+        <div class="card-header">
+            <div class="card-icon">📚</div>
+            <div>
+                <h3 class="card-title">{{ strings.nav_forms }}</h3>
+            </div>
+        </div>
+        <p class="card-description">
+            {% if lang == 'en' %}
+            Download official Minnesota court forms. Answer forms, motions, fee waivers, and more.
+            {% elif lang == 'es' %}
+            Descargue formularios oficiales del tribunal de Minnesota. Formularios de respuesta, mociones y más.
+            {% elif lang == 'so' %}
+            Soo deji foomamka rasmiga ah ee maxkamadda Minnesota. Foomamka jawaabta, codsiyada, iwm.
+            {% else %}
+            تحميل نماذج محكمة مينيسوتا الرسمية. نماذج الرد، الطلبات، والمزيد.
+            {% endif %}
+        </p>
+        <div class="mt-2">
+            <span class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </span>
+        </div>
+    </a>
+    
+    <!-- Zoom Court -->
+    <a href="/zoom-helper?lang={{ lang }}" class="card" style="text-decoration: none; color: inherit;">
+        <div class="card-header">
+            <div class="card-icon">💻</div>
+            <div>
+                <h3 class="card-title">{{ strings.nav_zoom }}</h3>
+            </div>
+        </div>
+        <p class="card-description">
+            {% if lang == 'en' %}
+            Virtual court appearance guide. Tech tips, etiquette, and how to present yourself professionally.
+            {% elif lang == 'es' %}
+            Guía de comparecencia virtual. Consejos técnicos, etiqueta y cómo presentarse profesionalmente.
+            {% elif lang == 'so' %}
+            Hagaha muuqaalka maxkamadda. Talooyin farsamooyinka, hab-dhaqanka, sida loo soo bandhigo si xirfad leh.
+            {% else %}
+            دليل المثول الافتراضي. نصائح تقنية، آداب، وكيفية تقديم نفسك باحترافية.
+            {% endif %}
+        </p>
+        <div class="mt-2">
+            <span class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </span>
+        </div>
+    </a>
+</div>
+
+<!-- Emergency Resources -->
+<div class="alert alert-danger mt-4">
+    <div class="alert-icon">🚨</div>
+    <div>
+        <strong>
+            {% if lang == 'en' %}Need immediate help?{% elif lang == 'es' %}¿Necesita ayuda inmediata?{% elif lang == 'so' %}Ma u baahan tahay caawimaad degdeg ah?{% else %}هل تحتاج مساعدة فورية؟{% endif %}
+        </strong>
+        <p>
+            {% if lang == 'en' %}
+            Call HomeLine Tenant Hotline: <strong>612-728-5767</strong> (Free legal advice for Minnesota tenants)
+            {% elif lang == 'es' %}
+            Llame a HomeLine: <strong>612-728-5767</strong> (Asesoramiento legal gratuito para inquilinos de Minnesota)
+            {% elif lang == 'so' %}
+            Wac HomeLine: <strong>612-728-5767</strong> (Talo sharci oo bilaash ah oo loogu talagalay kireystayaasha Minnesota)
+            {% else %}
+            اتصل بـ HomeLine: <strong>612-728-5767</strong> (استشارة قانونية مجانية للمستأجرين في مينيسوتا)
+            {% endif %}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function calculateDeadline() {
+    const input = document.getElementById('servedDate');
+    const result = document.getElementById('deadlineResult');
+    
+    if (!input.value) {
+        result.textContent = '{% if lang == "en" %}Please enter a date{% elif lang == "es" %}Por favor ingrese una fecha{% elif lang == "so" %}Fadlan geli taariikh{% else %}يرجى إدخال تاريخ{% endif %}';
+        return;
+    }
+    
+    const served = new Date(input.value);
+    const deadline = new Date(served);
+    deadline.setDate(deadline.getDate() + 7);
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+    
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const deadlineStr = deadline.toLocaleDateString('{% if lang == "es" %}es-ES{% elif lang == "ar" %}ar-SA{% else %}en-US{% endif %}', options);
+    
+    if (daysLeft < 0) {
+        result.innerHTML = '⚠️ {% if lang == "en" %}Deadline PASSED{% elif lang == "es" %}Fecha límite PASADA{% elif lang == "so" %}Wakhtiga wuu DHAAFAY{% else %}انتهى الموعد{% endif %}! ' + deadlineStr;
+        result.style.color = '#dc2626';
+    } else if (daysLeft === 0) {
+        result.innerHTML = '🚨 {% if lang == "en" %}TODAY IS THE DEADLINE{% elif lang == "es" %}HOY ES LA FECHA LÍMITE{% elif lang == "so" %}MAANTA AYAA WAKHTIGA{% else %}اليوم هو الموعد النهائي{% endif %}!';
+        result.style.color = '#dc2626';
+    } else if (daysLeft <= 3) {
+        result.innerHTML = '⏰ ' + daysLeft + ' {% if lang == "en" %}days left{% elif lang == "es" %}días restantes{% elif lang == "so" %}maalmood haray{% else %}أيام متبقية{% endif %} → ' + deadlineStr;
+        result.style.color = '#d97706';
+    } else {
+        result.innerHTML = '📅 ' + deadlineStr + ' (' + daysLeft + ' {% if lang == "en" %}days{% elif lang == "es" %}días{% elif lang == "so" %}maalmood{% else %}أيام{% endif %})';
+        result.style.color = '#059669';
+    }
+}
+</script>
+{% endblock %}

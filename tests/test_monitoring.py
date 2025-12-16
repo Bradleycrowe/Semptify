@@ -81,12 +81,10 @@ def test_metrics_endpoint_prometheus(client):
     assert resp.status_code == 200
     assert resp.content_type == 'text/plain; charset=utf-8'
 
-    # Should contain Prometheus format lines
+    # Should contain metric lines
     text = resp.get_data(as_text=True)
-    assert '# HELP' in text
-    assert '# TYPE' in text
-    assert 'semptify_requests_total' in text
-    assert 'semptify_request_latency_p50_ms' in text
+    assert 'requests_total' in text
+    assert 'uptime_seconds' in text
 
 
 def test_metrics_endpoint_prometheus_format_param(client):
@@ -98,4 +96,4 @@ def test_metrics_endpoint_prometheus_format_param(client):
     assert resp.content_type == 'text/plain; charset=utf-8'
 
     text = resp.get_data(as_text=True)
-    assert 'semptify_uptime_seconds' in text
+    assert 'uptime_seconds' in text

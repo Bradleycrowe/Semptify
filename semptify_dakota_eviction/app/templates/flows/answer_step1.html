@@ -1,0 +1,96 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.title_answer }} - Step {{ step }}{% endblock %}
+
+{% block content %}
+<!-- Progress Steps -->
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">📝</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_answer }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 1: Basic Information{% elif lang == 'es' %}Paso 1: Información Básica{% elif lang == 'so' %}Tallaabada 1: Macluumaadka Aasaasiga{% else %}الخطوة 1: المعلومات الأساسية{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <div class="alert alert-warning">
+        <div class="alert-icon">⏰</div>
+        <div>
+            <strong>{{ strings.deadline_warning|replace('{days}', '7') }}</strong>
+            <p style="font-size: 0.9rem; margin-top: 0.25rem;">
+                {% if lang == 'en' %}You must file your Answer within 7 days of being served with the eviction complaint.{% elif lang == 'es' %}Debe presentar su Respuesta dentro de 7 días de recibir la demanda de desalojo.{% elif lang == 'so' %}Waa inaad xareysaa Jawaabta 7 maalmood gudahood ka dib markii laguu soo gaarsiiyo dacwadda ka-saarista.{% else %}يجب تقديم ردك خلال 7 أيام من تبليغك بشكوى الإخلاء.{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <form action="/flows/answer?step=2&lang={{ lang }}" method="GET" id="answerForm">
+        <input type="hidden" name="step" value="2">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div class="form-group">
+            <label class="form-label">{{ strings.served_date }}</label>
+            <input type="date" name="served_date" class="form-input" required id="servedDate">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Your Full Name{% elif lang == 'es' %}Su Nombre Completo{% elif lang == 'so' %}Magacaaga Buuxa{% else %}اسمك الكامل{% endif %}
+            </label>
+            <input type="text" name="tenant_name" class="form-input" required placeholder="{% if lang == 'en' %}Enter your legal name{% elif lang == 'es' %}Ingrese su nombre legal{% elif lang == 'so' %}Geli magacaaga sharciga{% else %}أدخل اسمك القانوني{% endif %}">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Landlord/Property Manager Name{% elif lang == 'es' %}Nombre del Arrendador{% elif lang == 'so' %}Magaca Mulkiilaha{% else %}اسم المالك{% endif %}
+            </label>
+            <input type="text" name="landlord_name" class="form-input" required placeholder="{% if lang == 'en' %}As shown on eviction papers{% elif lang == 'es' %}Como aparece en los documentos{% elif lang == 'so' %}Sida ku qoran waraaqaha{% else %}كما هو موضح في الأوراق{% endif %}">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Case Number (if known){% elif lang == 'es' %}Número de Caso (si lo sabe){% elif lang == 'so' %}Lambarka Kiiska (haddii la yaqaan){% else %}رقم القضية (إن وجد){% endif %}
+            </label>
+            <input type="text" name="case_number" class="form-input" placeholder="{% if lang == 'en' %}Found on court papers{% elif lang == 'es' %}Se encuentra en los documentos del tribunal{% elif lang == 'so' %}Waxaa laga helayaa waraaqaha maxkamadda{% else %}موجود في أوراق المحكمة{% endif %}">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Rental Property Address{% elif lang == 'es' %}Dirección de la Propiedad{% elif lang == 'so' %}Cinwaanka Guriga Kirada{% else %}عنوان العقار المستأجر{% endif %}
+            </label>
+            <input type="text" name="address" class="form-input" required placeholder="{% if lang == 'en' %}Full address including unit number{% elif lang == 'es' %}Dirección completa incluyendo número de unidad{% elif lang == 'so' %}Cinwaanka buuxa oo ay ku jirto lambarka qolka{% else %}العنوان الكامل بما في ذلك رقم الوحدة{% endif %}">
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <a href="/?lang={{ lang }}" class="btn btn-outline">
+                ← {{ strings.btn_back }}
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Help Box -->
+<div class="card" style="background: #f0f9ff; border: 1px solid #0ea5e9;">
+    <h3 style="margin-bottom: 0.5rem;">
+        {% if lang == 'en' %}💡 Need Help?{% elif lang == 'es' %}💡 ¿Necesita Ayuda?{% elif lang == 'so' %}💡 Ma u Baahan Tahay Caawimaad?{% else %}💡 هل تحتاج مساعدة؟{% endif %}
+    </h3>
+    <p style="font-size: 0.9rem; color: var(--text-light);">
+        {{ strings.help_legal_aid }}
+    </p>
+</div>
+{% endblock %}

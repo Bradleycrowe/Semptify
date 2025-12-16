@@ -334,8 +334,7 @@ def autofill_complaint():
     data = request.json
     user_token = data.get('user_token') or request.headers.get('X-User-Token')
     
-    if not user_token:
-        return jsonify({"error": "user_token required"}), 401
+    # AUTH DISABLED - auth check removed    
     
     # Get context data
     context = get_user_context_data(user_token)
@@ -377,3 +376,6 @@ def autofill_complaint():
         "documents_found": len(context['documents']),
         "timeline_events_found": len(context['timeline'])
     })
+
+
+

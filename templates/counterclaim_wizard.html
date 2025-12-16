@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ claim.name }} Wizard - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .wizard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 1.1rem; }
+        .form-group { margin-bottom: 25px; }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        textarea { min-height: 150px; resize: vertical; }
+        .btn-primary {
+            background: #10b981;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-primary:hover { background: #059669; transform: translateY(-2px); }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .help-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+        .icon { font-size: 3rem; margin-bottom: 15px; }
+        .allegation-inputs { margin-top: 15px; }
+        .allegation-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+        .add-btn {
+            background: #10b981;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .add-btn:hover { background: #059669; }
+        .damages-info {
+            background: #d1fae5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/motions" class="btn-secondary">← Back to Motion Hub</a>
+        
+        <div class="wizard-card">
+            <div class="icon">{{ claim.icon }}</div>
+            <h1>Counterclaim: {{ claim.name }}</h1>
+            <p class="subtitle">{{ claim.description }}</p>
+
+            <div class="damages-info">
+                <strong>💰 Potential Damages:</strong> {{ claim.damages }}
+            </div>
+
+            <form id="counterclaimForm">
+                <div class="form-group">
+                    <label for="tenant_name">Your Full Name *</label>
+                    <input type="text" id="tenant_name" name="tenant_name" required>
+                    <div class="help-text">As Defendant/Counterclaimant</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Your Current Address *</label>
+                    <input type="text" id="address" name="address" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Your Phone Number *</label>
+                    <input type="text" id="phone" name="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="landlord_name">Landlord/Counter-defendant Name *</label>
+                    <input type="text" id="landlord_name" name="landlord_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Allegations (What the Landlord Did Wrong) *</label>
+                    <div class="help-text" style="margin-bottom: 10px;">
+                        Add specific allegations. Each should be a complete statement of fact.
+                    </div>
+                    <div id="allegations-container" class="allegation-inputs">
+                        <div class="allegation-item">
+                            <input type="text" name="allegations[]" placeholder="Example: On June 1, 2024, landlord locked me out without a court order" required>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addAllegation()">+ Add Another Allegation</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="damages">Damages You're Seeking *</label>
+                    <textarea id="damages" name="damages" required placeholder="Specify the amount and type of damages...
+
+Example:
+• Return of $1,500 security deposit
+• $500 statutory penalty for illegal retention
+• $200 in moving costs
+• Actual damages to personal property: $350
+TOTAL: $2,550"></textarea>
+                    <div class="help-text">
+                        Be specific about amounts. Include:<br>
+                        • Security deposit amounts<br>
+                        • Statutory penalties<br>
+                        • Out-of-pocket expenses<br>
+                        • Property damage
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    ⚔️ Generate Counterclaim Document
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function addAllegation() {
+            const container = document.getElementById('allegations-container');
+            const newItem = document.createElement('div');
+            newItem.className = 'allegation-item';
+            newItem.innerHTML = '<input type="text" name="allegations[]" placeholder="Add another allegation..." required>';
+            container.appendChild(newItem);
+        }
+
+        document.getElementById('counterclaimForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const allegations = Array.from(formData.getAll('allegations[]')).filter(a => a.trim());
+            
+            if (allegations.length === 0) {
+                alert('Please add at least one allegation');
+                return;
+            }
+            
+            const data = {
+                claim_type: '{{ claim_type }}',
+                tenant_name: formData.get('tenant_name'),
+                address: formData.get('address'),
+                phone: formData.get('phone'),
+                landlord_name: formData.get('landlord_name'),
+                allegations: allegations,
+                damages: formData.get('damages')
+            };
+            
+            try {
+                const response = await fetch('/motions/generate/counterclaim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `counterclaim_{{ claim_type }}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    alert('✅ Counterclaim generated! Check your downloads folder.');
+                } else {
+                    alert('Error generating counterclaim. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating counterclaim. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

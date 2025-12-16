@@ -14,7 +14,7 @@ def journey_home():
     user_token = request.args.get('user_token') or request.form.get('user_token') or request.headers.get('X-User-Token')
     
     if not user_token:
-        return render_template('journey_start.html')
+        return render_template('housing_journey.html')
     
     # Get user's journey data
     stage = get_user_stage(user_token) or 'newcomer'

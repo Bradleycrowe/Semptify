@@ -1,0 +1,160 @@
+{
+  "version": "1.0.0",
+  "jurisdiction": "Minnesota",
+  "county": "Dakota",
+  "court": "Fourth Judicial District",
+  "last_updated": "2024-12-01",
+  "forms": [
+    {
+      "id": "HOU301",
+      "name": "Answer to Eviction Complaint",
+      "name_es": "Respuesta a Demanda de Desalojo",
+      "name_so": "Jawaabta Dacwadda Ka-saarista",
+      "name_ar": "الرد على شكوى الإخلاء",
+      "category": "answer",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=352",
+      "local": "HOU301_Answer.pdf",
+      "instructions": "File within 7 days of service. Deliver original to court, copy to landlord.",
+      "deadline_days": 7,
+      "required": true
+    },
+    {
+      "id": "HOU302",
+      "name": "Motion to Dismiss Eviction",
+      "name_es": "Moción para Desestimar Desalojo",
+      "name_so": "Codsiga Joojinta Ka-saarista",
+      "name_ar": "طلب رفض الإخلاء",
+      "category": "motion",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=353",
+      "local": "HOU302_Motion_Dismiss.pdf",
+      "instructions": "File before hearing. Must state legal grounds.",
+      "deadline_days": 3
+    },
+    {
+      "id": "HOU303",
+      "name": "Tenant Counterclaim Form",
+      "name_es": "Formulario de Contrademanda del Inquilino",
+      "name_so": "Foomka Dacwadda Dagaallanka Kireystaha",
+      "name_ar": "نموذج الدعوى المضادة للمستأجر",
+      "category": "counterclaim",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=354",
+      "local": "HOU303_Counterclaim.pdf",
+      "instructions": "File with Answer. List all habitability issues, illegal charges, retaliation.",
+      "deadline_days": 7
+    },
+    {
+      "id": "HOU304",
+      "name": "Request for Expungement of Eviction Record",
+      "name_es": "Solicitud de Eliminación de Registro de Desalojo",
+      "name_so": "Codsiga Tirtirida Diiwaanka Ka-saarista",
+      "name_ar": "طلب محو سجل الإخلاء",
+      "category": "expungement",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=355",
+      "local": "HOU304_Expungement.pdf",
+      "instructions": "File after case is dismissed or won. 60-day waiting period may apply."
+    },
+    {
+      "id": "HOU305",
+      "name": "Request for Continuance",
+      "name_es": "Solicitud de Aplazamiento",
+      "name_so": "Codsiga Sii Wadida",
+      "name_ar": "طلب تأجيل",
+      "category": "motion",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=356",
+      "local": "HOU305_Continuance.pdf",
+      "instructions": "File at least 3 days before hearing. Show good cause.",
+      "deadline_days": 3
+    },
+    {
+      "id": "HOU306",
+      "name": "Motion to Stay Writ of Recovery",
+      "name_es": "Moción para Suspender Orden de Recuperación",
+      "name_so": "Codsiga Joojinta Amarka Soo Ceshadda",
+      "name_ar": "طلب وقف أمر الاسترداد",
+      "category": "motion",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=357",
+      "local": "HOU306_Stay_Writ.pdf",
+      "instructions": "File immediately after adverse judgment. Must post bond or show hardship.",
+      "deadline_days": 1
+    },
+    {
+      "id": "HOU307",
+      "name": "Fee Waiver Application (IFP)",
+      "name_es": "Solicitud de Exención de Tarifas",
+      "name_so": "Codsiga Cafinta Kharashka",
+      "name_ar": "طلب الإعفاء من الرسوم",
+      "category": "fee_waiver",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=358",
+      "local": "HOU307_IFP.pdf",
+      "instructions": "File first. Attach proof of income. Covers filing fees.",
+      "required_first": true
+    },
+    {
+      "id": "HOU308",
+      "name": "Habitability Complaint Checklist",
+      "name_es": "Lista de Verificación de Quejas de Habitabilidad",
+      "name_so": "Liiska Hubinta Cabashada Deganaanshaha",
+      "name_ar": "قائمة التحقق من شكاوى الصلاحية للسكن",
+      "category": "evidence",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=359",
+      "local": "HOU308_Habitability.pdf",
+      "instructions": "Use to document housing code violations. Attach photos."
+    },
+    {
+      "id": "HOU309",
+      "name": "Rent Escrow Petition",
+      "name_es": "Petición de Depósito de Alquiler",
+      "name_so": "Dacwadda Kaydinta Kirada",
+      "name_ar": "عريضة حجز الإيجار",
+      "category": "rent_escrow",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=360",
+      "local": "HOU309_Rent_Escrow.pdf",
+      "instructions": "File to pay rent to court instead of landlord due to habitability issues."
+    },
+    {
+      "id": "HOU310",
+      "name": "Affidavit of Service",
+      "name_es": "Declaración Jurada de Notificación",
+      "name_so": "Dhaarta Adeegga",
+      "name_ar": "إفادة خطية بالتبليغ",
+      "category": "service",
+      "url": "https://www.mncourts.gov/GetForms.aspx?c=11&f=361",
+      "local": "HOU310_Service.pdf",
+      "instructions": "Complete after serving documents. Keep copy for records."
+    }
+  ],
+  "resources": [
+    {
+      "name": "Minnesota Legal Aid - Evictions",
+      "url": "https://www.lawhelpmn.org/self-help-library/fact-sheet/evictions"
+    },
+    {
+      "name": "Dakota County Housing Authority",
+      "url": "https://www.dakotacda.org/"
+    },
+    {
+      "name": "HomeLine Tenant Hotline",
+      "phone": "612-728-5767",
+      "url": "https://homelinemn.org/"
+    },
+    {
+      "name": "Southern Minnesota Regional Legal Services",
+      "url": "https://www.smrls.org/"
+    }
+  ],
+  "zoom_court": {
+    "dakota_county": {
+      "join_url_pattern": "https://zoomgov.com/j/{meeting_id}",
+      "support_phone": "651-438-4325",
+      "tips": [
+        "Join 15 minutes early to test audio/video",
+        "Use headphones to reduce echo",
+        "Have all documents ready to screen share",
+        "Dress professionally - visible from waist up",
+        "Find quiet location with neutral background",
+        "Mute when not speaking",
+        "State your name clearly when called"
+      ]
+    }
+  }
+}

@@ -120,6 +120,62 @@ except ImportError as e:
     print(f'[WARN] Vault blueprint not available: {e}')
 
 
+# Law Library - Legal research and statute lookup
+try:
+    from law_library_routes import law_library_bp
+    app.register_blueprint(law_library_bp)
+    print("[OK] Law Library registered (/api/law_library/*)")
+except ImportError as e:
+    print(f"[WARN] Law Library not available: {e}")
+
+# Librarian AI - AI-powered legal research assistant
+try:
+    from librarian_routes import librarian_bp
+    app.register_blueprint(librarian_bp)
+    print("[OK] Librarian AI registered (/api/librarian/*)")
+except ImportError as e:
+    print(f"[WARN] Librarian AI not available: {e}")
+
+# Document Center - Document upload with tamper detection
+try:
+    from document_center_routes import document_center_bp
+    app.register_blueprint(document_center_bp)
+    print("[OK] Document Center registered (/api/document_center/*)")
+except ImportError as e:
+    print(f"[WARN] Document Center not available: {e}")
+
+# Phone Imports - Text, voicemail, call log imports
+try:
+    from phone_import_routes import phone_import_bp
+    app.register_blueprint(phone_import_bp)
+    print("[OK] Phone Imports registered (/api/phone_imports/*)")
+except ImportError as e:
+    print(f"[WARN] Phone Imports not available: {e}")
+
+# Azure Document Intelligence - OCR and document analysis
+try:
+    from azure_doc_intelligence_routes import azure_doc_bp
+    app.register_blueprint(azure_doc_bp)
+    print("[OK] Azure Doc Intelligence registered (/api/azure_doc_intelligence/*)")
+except ImportError as e:
+    print(f"[WARN] Azure Doc Intelligence not available: {e}")
+
+# Help System - User help and documentation
+try:
+    from help_routes import help_bp
+    app.register_blueprint(help_bp)
+    print("[OK] Help System registered (/api/help/*)")
+except ImportError as e:
+    print(f"[WARN] Help System not available: {e}")
+
+# Registration - User registration flow
+try:
+    from register import register_bp
+    app.register_blueprint(register_bp)
+    print("[OK] Registration registered (/register)")
+except ImportError as e:
+    print(f"[WARN] Registration not available: {e}")
+
 # ============================================================================
 # BLUEPRINT REGISTRATION - Auto-discover and register available blueprints
 # ============================================================================
@@ -293,7 +349,7 @@ def metrics():
         for key, value in metrics_data.items():
             if isinstance(value, (int, float)):
                 output.append(f"{key} {value}")
-        return Response("\n".join(output), mimetype="text/plain; charset=utf-8")
+        return Response("\n".join(output), content_type="text/plain; charset=utf-8")
     metrics = get_metrics()
     from security import get_latency_stats
     metrics['latency_stats'] = get_latency_stats()
@@ -366,6 +422,11 @@ def evidence_copilot():
 @app.route('/resources/download/<filename>')
 def resource_download(filename):
     '''Download resource templates'''
+    from werkzeug.utils import secure_filename
+    safe_name = secure_filename(filename)
+    resource_path = os.path.join(os.path.dirname(__file__), 'resources', safe_name)
+    if os.path.exists(resource_path):
+        return send_file(resource_path, mimetype='text/plain', as_attachment=False)
     return jsonify({"error": "not found"}), 404
 @app.route('/readyz')
 def readyz():
@@ -386,5 +447,22 @@ try:
     print("[OK] research_bp registered")
 except ImportError as e:
     print(f"[WARN] Research routes not available: {e}")
+
+# Session API - Token-based session management
+try:
+    from session_api_routes import session_api_bp
+    app.register_blueprint(session_api_bp)
+    print("[OK] Session API registered (/api/session/*)")
+except ImportError as e:
+    print(f"[WARN] Session API not available: {e}")
+
+# OAuth Flask Routes - Google/Dropbox with session integration
+try:
+    from oauth_flask_routes import oauth_bp
+    app.register_blueprint(oauth_bp)
+    print("[OK] OAuth routes registered (/api/oauth/*)")
+except ImportError as e:
+    print(f"[WARN] OAuth routes not available: {e}")
+
 
 

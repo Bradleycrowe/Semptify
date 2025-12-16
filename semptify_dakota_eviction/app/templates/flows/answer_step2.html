@@ -1,0 +1,92 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.title_answer }} - Step {{ step }}{% endblock %}
+
+{% block content %}
+<!-- Progress Steps -->
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">🛡️</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_answer }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 2: Select Your Defenses{% elif lang == 'es' %}Paso 2: Seleccione Sus Defensas{% elif lang == 'so' %}Tallaabada 2: Dooro Difaacyadaada{% else %}الخطوة 2: اختر دفاعاتك{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <p class="mb-2">
+        {% if lang == 'en' %}
+        Select all defenses that apply to your situation. You can select multiple options.
+        {% elif lang == 'es' %}
+        Seleccione todas las defensas que aplican a su situación. Puede seleccionar múltiples opciones.
+        {% elif lang == 'so' %}
+        Dooro dhammaan difaacyada ku khuseeya xaaladdaada. Waxaad dooran kartaa fursado badan.
+        {% else %}
+        اختر جميع الدفاعات التي تنطبق على وضعك. يمكنك اختيار خيارات متعددة.
+        {% endif %}
+    </p>
+    
+    <form action="/flows/answer?step=3&lang={{ lang }}" method="GET" id="defensesForm">
+        <input type="hidden" name="step" value="3">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div class="checkbox-list">
+            {% for defense in defenses %}
+            <label class="checkbox-item">
+                <input type="checkbox" name="defenses" value="{{ defense.id }}">
+                <span>{{ defense.label }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group mt-4">
+            <label class="form-label">
+                {% if lang == 'en' %}Other defenses (optional){% elif lang == 'es' %}Otras defensas (opcional){% elif lang == 'so' %}Difaacyo kale (ikhtiyaari ah){% else %}دفاعات أخرى (اختياري){% endif %}
+            </label>
+            <textarea name="other_defenses" class="form-input" placeholder="{% if lang == 'en' %}Describe any other reasons why the eviction should not proceed...{% elif lang == 'es' %}Describa cualquier otra razón por la que el desalojo no debería proceder...{% elif lang == 'so' %}Sharax sabab kale oo ka-saaristani u tahay inaysan horay u socon...{% else %}صف أي أسباب أخرى لعدم المضي في الإخلاء...{% endif %}"></textarea>
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <a href="/flows/answer?step=1&lang={{ lang }}" class="btn btn-outline">
+                ← {{ strings.btn_back }}
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Defense Explanations -->
+<div class="card" style="background: #f0f9ff; border: 1px solid #0ea5e9;">
+    <h3 style="margin-bottom: 1rem;">
+        {% if lang == 'en' %}📖 Understanding Your Defenses{% elif lang == 'es' %}📖 Entendiendo Sus Defensas{% elif lang == 'so' %}📖 Fahamka Difaacyadaada{% else %}📖 فهم دفاعاتك{% endif %}
+    </h3>
+    
+    <div style="font-size: 0.9rem; color: var(--text-light);">
+        <p><strong>{% if lang == 'en' %}Habitability{% elif lang == 'es' %}Habitabilidad{% elif lang == 'so' %}Deganaansho{% else %}صلاحية السكن{% endif %}:</strong>
+        {% if lang == 'en' %}Landlord failed to maintain safe, livable conditions (no heat, pests, mold, broken locks, etc.){% elif lang == 'es' %}El arrendador no mantuvo condiciones seguras y habitables{% elif lang == 'so' %}Mulkiilahu wuu ku guuldareystey inuu ilaaliyo xaaladaha nabadgelyo{% else %}فشل المالك في الحفاظ على ظروف آمنة وصالحة للسكن{% endif %}</p>
+        
+        <p class="mt-1"><strong>{% if lang == 'en' %}Retaliation{% elif lang == 'es' %}Represalia{% elif lang == 'so' %}Aargoosi{% else %}انتقام{% endif %}:</strong>
+        {% if lang == 'en' %}Eviction filed after you complained about conditions, called inspectors, or joined a tenant organization{% elif lang == 'es' %}Desalojo presentado después de quejarse sobre condiciones o llamar a inspectores{% elif lang == 'so' %}Ka-saarista la xareeyey ka dib markaad ka cabaatay xaaladaha{% else %}تم رفع الإخلاء بعد شكواك من الظروف أو الاتصال بالمفتشين{% endif %}</p>
+        
+        <p class="mt-1"><strong>{% if lang == 'en' %}Improper Notice{% elif lang == 'es' %}Notificación Incorrecta{% elif lang == 'so' %}Ogeysiis Khaldan{% else %}إشعار غير صحيح{% endif %}:</strong>
+        {% if lang == 'en' %}You weren't properly served, notice period was wrong, or papers had errors{% elif lang == 'es' %}No fue notificado correctamente, el período de aviso fue incorrecto{% elif lang == 'so' %}Si sax ah laguu soo ma gaarsiiyin, wakhtiga ogeysiiska waa khalad{% else %}لم يتم تبليغك بشكل صحيح أو كانت فترة الإشعار خاطئة{% endif %}</p>
+        
+        <p class="mt-1"><strong>{% if lang == 'en' %}Discrimination{% elif lang == 'es' %}Discriminación{% elif lang == 'so' %}Takoor{% else %}تمييز{% endif %}:</strong>
+        {% if lang == 'en' %}Based on race, religion, national origin, family status, disability, or other protected class{% elif lang == 'es' %}Basado en raza, religión, origen nacional, estado familiar, discapacidad{% elif lang == 'so' %}Ku salaysan isir, diin, wadaniyad, xaalad qoys, naafonimo{% else %}على أساس العرق أو الدين أو الأصل أو الحالة العائلية أو الإعاقة{% endif %}</p>
+    </div>
+</div>
+{% endblock %}

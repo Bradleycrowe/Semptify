@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to mc²</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #1e3c72, #2a5298); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: white; }
+        .container { text-align: center; max-width: 600px; padding: 40px; }
+        .logo { font-size: 80px; margin-bottom: 20px; animation: glow 2s infinite; }
+        @keyframes glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        .equation { font-size: 36px; margin: 30px 0; font-family: 'Courier New', monospace; }
+        .quote { font-size: 18px; font-style: italic; margin: 30px 0; opacity: 0.9; }
+        .description { font-size: 16px; line-height: 1.6; margin: 30px 0; }
+        .btn { background: white; color: #1e3c72; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 18px; font-weight: bold; display: inline-block; margin-top: 30px; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .progress { display: flex; justify-content: center; gap: 10px; margin-top: 40px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+        .dot.active { background: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">⚡</div>
+        <h1>Welcome to mc²</h1>
+        <div class="equation">E = mc²</div>
+        <div class="quote">"Imagination is more important than knowledge."<br>— Albert Einstein</div>
+        <div class="description">
+            Your dashboard that learns and adapts. Small actions × AI acceleration = Massive results.
+            <br><br>
+            Let's set up your personal mc² dashboard in just a few steps.
+        </div>
+        <a href="/setup/role" class="btn">Get Started ⚡</a>
+        <div class="progress">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+</body>
+</html>

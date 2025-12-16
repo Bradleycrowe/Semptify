@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "jurisdiction": "Minnesota + Federal",
+  "statutes": [
+    {
+      "cite": "Minn. Stat. § 504B.285",
+      "topic": "Eviction grounds and procedure",
+      "use": "Answer defenses and case framing"
+    },
+    {
+      "cite": "Minn. Stat. § 504B.161",
+      "topic": "Habitability covenants",
+      "use": "Counterclaims and Tenant Remedies"
+    },
+    {
+      "cite": "Minn. Stat. § 504B.225",
+      "topic": "Retaliation prohibited",
+      "use": "Defenses and counterclaims"
+    },
+    {
+      "cite": "Minn. Stat. § 504B.231",
+      "topic": "Lockouts/utility shutoffs illegal",
+      "use": "Emergency relief and damages"
+    },
+    {
+      "cite": "Minn. Stat. § 504B.371",
+      "topic": "Tenant Remedies Action",
+      "use": "Motions for repairs and abatement"
+    },
+    {
+      "cite": "Fair Housing Act, 42 U.S.C. § 3601 et seq.",
+      "topic": "Anti-discrimination",
+      "use": "Defenses to discriminatory eviction"
+    },
+    {
+      "cite": "VAWA, 34 U.S.C. § 12491",
+      "topic": "Survivor protections in federal housing",
+      "use": "Defense against eviction based on abuse"
+    },
+    {
+      "cite": "U.S. Const. Amend. XIV",
+      "topic": "Due process",
+      "use": "Notice and fair hearing requirements"
+    }
+  ]
+}

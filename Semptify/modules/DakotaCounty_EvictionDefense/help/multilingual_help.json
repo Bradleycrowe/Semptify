@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "languages": [
+    "en",
+    "es",
+    "so"
+  ],
+  "strings": {
+    "en": {
+      "cta_counterclaim": "Do you want to raise a counterclaim?",
+      "what_is_counterclaim": "A counterclaim is your claim against the landlord, filed in the same eviction case.",
+      "when_to_file": "Include counterclaims in your Answer before or at the first hearing.",
+      "evidence_tip": "Upload photos, notices, receipts. Add dates and short descriptions.",
+      "timeline_tip": "Track deadlines: summons date, answer preparation, first hearing."
+    },
+    "es": {
+      "cta_counterclaim": "¿Desea presentar una contrademanda?",
+      "what_is_counterclaim": "Una contrademanda es su reclamación contra el propietario, presentada en el mismo caso de desalojo.",
+      "when_to_file": "Incluya las contrademandas en su Respuesta antes o en la primera audiencia.",
+      "evidence_tip": "Suba fotos, avisos y recibos. Agregue fechas y descripciones breves.",
+      "timeline_tip": "Controle los plazos: fecha de citación, preparación de la respuesta y primera audiencia."
+    },
+    "so": {
+      "cta_counterclaim": "Ma rabtaa inaad keento dacwad ka hortag ah?",
+      "what_is_counterclaim": "Dacwadda ka hortagga waa sheegashadaada ka dhanka ah mulkiilaha, oo lagu gudbiyo isla kiiska ka saarista.",
+      "when_to_file": "Ku dar dacwooyinka ka hortagga Jawaabtaada ka hor ama kulanka maxkamadda ee ugu horreeya.",
+      "evidence_tip": "Ku soo rar sawirro, ogeysiisyo, iyo rasiidhyo. Ku dar taariikho iyo sharaxaad gaaban.",
+      "timeline_tip": "La soco waqtiyada: taariikhda wacitaanka, diyaargarowga jawaabta, kulanka koowaad."
+    }
+  }
+}

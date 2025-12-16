@@ -1,0 +1,119 @@
+{
+  "articles": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started with Semptify",
+      "category": "basics",
+      "roles": [
+        "user",
+        "admin",
+        "manager",
+        "attorney",
+        "advocate"
+      ],
+      "content": "Semptify is a tenant rights protection platform...",
+      "keywords": [
+        "start",
+        "begin",
+        "new",
+        "setup"
+      ]
+    },
+    {
+      "id": "storage-setup",
+      "title": "Setting Up Your Storage",
+      "category": "setup",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "content": "Connect your Google Drive or Dropbox...",
+      "keywords": [
+        "storage",
+        "oauth",
+        "google",
+        "dropbox"
+      ]
+    },
+    {
+      "id": "document-vault",
+      "title": "Using the Document Vault",
+      "category": "features",
+      "roles": [
+        "user",
+        "admin",
+        "attorney"
+      ],
+      "content": "Upload and organize evidence documents...",
+      "keywords": [
+        "vault",
+        "upload",
+        "evidence",
+        "documents"
+      ]
+    },
+    {
+      "id": "tenant-rights-mn",
+      "title": "Minnesota Tenant Rights Overview",
+      "category": "legal",
+      "roles": [
+        "user",
+        "attorney",
+        "advocate"
+      ],
+      "content": "Minnesota law provides strong protections for tenants...",
+      "keywords": [
+        "rights",
+        "minnesota",
+        "law",
+        "tenant"
+      ]
+    },
+    {
+      "title": "Document Vault Guide",
+      "content": "The Document Vault is your secure space for storing evidence...",
+      "category": "features",
+      "id": "vault",
+      "roles": [
+        "user",
+        "admin",
+        "attorney"
+      ],
+      "keywords": [
+        "vault",
+        "upload",
+        "documents",
+        "storage"
+      ]
+    },
+    {
+      "title": "Document Vault Guide",
+      "content": "The Document Vault is your secure space for storing evidence...",
+      "category": "features",
+      "id": "vault",
+      "roles": [
+        "user",
+        "admin",
+        "attorney"
+      ],
+      "keywords": [
+        "vault",
+        "upload",
+        "documents",
+        "storage"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "How do I upload documents?",
+      "answer": "Use the Document Vault to upload files with automatic notarization.",
+      "category": "vault"
+    },
+    {
+      "question": "Is my data secure?",
+      "answer": "Yes. All data is encrypted with AES-256 and stored in your own cloud.",
+      "category": "security"
+    }
+  ]
+}

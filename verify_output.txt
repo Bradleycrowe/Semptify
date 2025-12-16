@@ -1,0 +1,151 @@
+
+======================================================================
+OK PERSISTENT STORAGE CONFIGURED: Override (DEV)
+======================================================================
+
+WARN: Failed to restore from R2: An error occurred (400) when calling the HeadObject operation: Bad Request
+OK: R2 database persistence enabled (bucket: Semptify)
+[WARN] Dashboard API not available
+[OK] Vault blueprint registered
+[OK] calendar_api_bp registered
+[OK] calendar_hub_bp registered
+[OK] calendar_master_bp registered
+[OK] calendar_storage_bp registered
+[OK] calendar_timeline_bp registered
+[OK] calendar_vault_api registered
+[OK] calendar_vault_ui_bp registered
+[OK] complaint_filing_bp registered
+[OK] data_flow_bp registered
+[OK] legal_bp registered
+[OK] ledger_bp registered
+[OK] learning_bp registered
+[OK] learning_dashboard_bp registered
+[OK] ollama_bp registered
+[OK] brad_bp registered
+[OK] help_hub_bp registered
+[OK] improvement_bp registered
+[OK] journey_bp registered
+[OK] housing_programs_bp registered
+[OK] demo_bp registered
+[OK] library_bp registered
+[OK] library_hub_bp registered
+[OK] main_dashboard_bp registered
+[OK] storage_setup_bp registered
+[OK] storage_autologin_bp registered
+[OK] modern_gui_bp registered
+[OK] ledger_tracking_bp registered
+[OK] ledger_admin_bp registered
+[OK] ledger_calendar_bp registered
+[OK] av_routes_bp registered
+[OK] integration_bp registered
+[OK] system_bp registered
+[OK] orchestrator_bp registered
+[OK] maintenance_bp registered
+[SKIP] migration_bp: No module named 'r2_migration'
+[OK] feature_admin_bp registered
+[OK] doc_explorer_bp registered
+[OK] route_discovery_bp registered
+[OK] Complaint Context API registered (/api/complaint/*)
+[OK] Dakota County Eviction Defense Library registered at /library/dakota
+[OK] Jurisdiction Engine registered at /jurisdiction/*
+     -> Auto-generates modules for any county/state on-demand
+[OK] Dakota County court integration registered
+[OK] Dakota County Interactive Learning registered at /learn/dakota
+[OK] Motion Generator registered at /motions/*
+[EMERGENCY] All-in-one GUI registered at /emergency
+[OK] GUI Hub registered
+[OK] Master Admin registered
+[OK] Context API registered (/api/context/*)
+[OK] research_bp registered
+════════════════════════════════════════════════════════════════════════════════
+SEMPTIFY COMPREHENSIVE ROUTE VERIFICATION
+════════════════════════════════════════════════════════════════════════════════
+
+📍 CORE ROUTES
+────────────────────────────────────────────────────────────────────────────────
+✓ /                                                  [200] Home page
+✓ /hub                                               [200] GUI Hub
+✓ /emergency                                         [200] Emergency access
+✗ /master-admin                                      [500 ERROR] Master admin panel
+
+📚 LEARNING & EDUCATION
+────────────────────────────────────────────────────────────────────────────────
+⚠ /learn/dakota                                      [308] Learning hub
+✓ /learn/dakota/module/intro                         [200] Intro module
+⚠ /library/dakota                                    [308] Dakota library
+
+📝 DOCUMENT GENERATION
+────────────────────────────────────────────────────────────────────────────────
+⚠ /motions                                           [308] Motion hub
+✓ /motions/wizard/dismiss                            [200] Dismiss wizard
+✗ /complaint                                         [404 NOT FOUND] Complaint filing
+
+📂 DOCUMENT & EVIDENCE
+────────────────────────────────────────────────────────────────────────────────
+✗ /vault                                             [500 ERROR] Document vault
+✓ /ledger                                            [200] Payment ledger
+✗ /av                                                [404 NOT FOUND] A/V capture
+
+📅 CALENDAR & TIMELINE
+────────────────────────────────────────────────────────────────────────────────
+✗ /calendar/hub                                      [404 NOT FOUND] Calendar hub
+✗ /calendar/master                                   [404 NOT FOUND] Master calendar
+⚠ /journey                                           [308] Journey tracker
+
+⚖️ LEGAL RESOURCES
+────────────────────────────────────────────────────────────────────────────────
+✗ /legal                                             [404 NOT FOUND] Legal hub
+⚠ /dakota                                            [308] Dakota County court
+✗ /jurisdiction                                      [404 NOT FOUND] Jurisdiction engine
+
+🏘️ HOUSING ASSISTANCE
+────────────────────────────────────────────────────────────────────────────────
+✗ /housing                                           [404 NOT FOUND] Housing programs
+
+🤖 AI FEATURES
+────────────────────────────────────────────────────────────────────────────────
+✗ /orchestrator                                      [404 NOT FOUND] AI orchestrator
+
+🔧 SYSTEM & ADMIN
+────────────────────────────────────────────────────────────────────────────────
+✗ /system                                            [404 NOT FOUND] System dashboard
+⚠ /maintenance                                       [308] Maintenance panel
+✗ /routes                                            [404 NOT FOUND] Route discovery
+
+🔌 API ENDPOINTS
+────────────────────────────────────────────────────────────────────────────────
+✗ /api/context/current                               [404 NOT FOUND] Context API
+✗ /api/timeline/events                               [404 NOT FOUND] Timeline API
+
+📊 HELP & DOCS
+────────────────────────────────────────────────────────────────────────────────
+✓ /help                                              [200] Help hub
+✗ /doc-explorer                                      [404 NOT FOUND] Doc explorer
+
+════════════════════════════════════════════════════════════════════════════════
+VERIFICATION SUMMARY
+════════════════════════════════════════════════════════════════════════════════
+Total Routes Tested: 28
+✓ Successful: 7
+✗ Errors: 15
+⚠ Warnings: 6
+Success Rate: 25.0%
+
+ROUTES WITH ERRORS:
+  ✗ /master-admin                                      [500 ERROR] Master admin panel
+  ✗ /complaint                                         [404 NOT FOUND] Complaint filing
+  ✗ /vault                                             [500 ERROR] Document vault
+  ✗ /av                                                [404 NOT FOUND] A/V capture
+  ✗ /calendar/hub                                      [404 NOT FOUND] Calendar hub
+  ✗ /calendar/master                                   [404 NOT FOUND] Master calendar
+  ✗ /legal                                             [404 NOT FOUND] Legal hub
+  ✗ /jurisdiction                                      [404 NOT FOUND] Jurisdiction engine
+  ✗ /housing                                           [404 NOT FOUND] Housing programs
+  ✗ /orchestrator                                      [404 NOT FOUND] AI orchestrator
+  ✗ /system                                            [404 NOT FOUND] System dashboard
+  ✗ /routes                                            [404 NOT FOUND] Route discovery
+  ✗ /api/context/current                               [404 NOT FOUND] Context API
+  ✗ /api/timeline/events                               [404 NOT FOUND] Timeline API
+  ✗ /doc-explorer                                      [404 NOT FOUND] Doc explorer
+════════════════════════════════════════════════════════════════════════════════
+WARN: Failed to backup to R2: cannot schedule new futures after interpreter shutdown

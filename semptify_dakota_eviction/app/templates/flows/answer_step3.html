@@ -1,0 +1,90 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.title_answer }} - Step {{ step }}{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">✍️</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_answer }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 3: Explain Your Defense{% elif lang == 'es' %}Paso 3: Explique Su Defensa{% elif lang == 'so' %}Tallaabada 3: Sharax Difaacaaga{% else %}الخطوة 3: اشرح دفاعك{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <form action="/flows/answer?step=4&lang={{ lang }}" method="GET">
+        <input type="hidden" name="step" value="4">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Describe the facts supporting your defense{% elif lang == 'es' %}Describa los hechos que apoyan su defensa{% elif lang == 'so' %}Sharax xaqiiqooyinka taageeraya difaacaaga{% else %}صف الحقائق التي تدعم دفاعك{% endif %}
+            </label>
+            <textarea name="defense_details" class="form-input" style="min-height: 200px;" required placeholder="{% if lang == 'en' %}Be specific. Include dates, names, and what happened. For example:
+- 'On January 15, 2024, I reported the broken heater to the landlord by email...'
+- 'I have photos showing mold in the bathroom dated...'
+- 'I paid rent on February 1 by check #1234...'{% elif lang == 'es' %}Sea específico. Incluya fechas, nombres y lo que sucedió...{% elif lang == 'so' %}Ahaaw gaar ah. Ku dar taariikhaha, magacyada, iyo waxa dhacay...{% else %}كن محددًا. اذكر التواريخ والأسماء وما حدث...{% endif %}"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                {% if lang == 'en' %}Do you have evidence to support your defense?{% elif lang == 'es' %}¿Tiene evidencia para apoyar su defensa?{% elif lang == 'so' %}Ma haysataa caddayn aad ku taageerto difaacaaga?{% else %}هل لديك أدلة تدعم دفاعك؟{% endif %}
+            </label>
+            <div class="checkbox-list">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="evidence" value="photos">
+                    <span>{% if lang == 'en' %}Photos/Videos{% elif lang == 'es' %}Fotos/Videos{% elif lang == 'so' %}Sawiro/Muuqaallo{% else %}صور/فيديوهات{% endif %}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="evidence" value="emails">
+                    <span>{% if lang == 'en' %}Emails/Text messages{% elif lang == 'es' %}Correos/Mensajes de texto{% elif lang == 'so' %}Iimaylal/Farriimo{% else %}رسائل بريد إلكتروني/نصية{% endif %}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="evidence" value="receipts">
+                    <span>{% if lang == 'en' %}Receipts/Payment records{% elif lang == 'es' %}Recibos/Registros de pago{% elif lang == 'so' %}Rasiidho/Diiwaanno lacag-bixin{% else %}إيصالات/سجلات دفع{% endif %}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="evidence" value="witnesses">
+                    <span>{% if lang == 'en' %}Witnesses{% elif lang == 'es' %}Testigos{% elif lang == 'so' %}Marqaatiyo{% else %}شهود{% endif %}</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="evidence" value="inspection">
+                    <span>{% if lang == 'en' %}Inspection reports{% elif lang == 'es' %}Informes de inspección{% elif lang == 'so' %}Warbixinno baaritaan{% else %}تقارير التفتيش{% endif %}</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <a href="/flows/answer?step=2&lang={{ lang }}" class="btn btn-outline">
+                ← {{ strings.btn_back }}
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {{ strings.btn_next }} →
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="alert alert-success">
+    <div class="alert-icon">💡</div>
+    <div>
+        <strong>{% if lang == 'en' %}Tip: Be Specific{% elif lang == 'es' %}Consejo: Sea Específico{% elif lang == 'so' %}Talo: Ahaaw Gaar Ah{% else %}نصيحة: كن محددًا{% endif %}</strong>
+        <p style="font-size: 0.9rem;">
+            {% if lang == 'en' %}Courts want facts, not opinions. "The heater broke on January 10" is better than "The apartment was always cold."{% elif lang == 'es' %}Los tribunales quieren hechos, no opiniones. "La calefacción se rompió el 10 de enero" es mejor que "El apartamento siempre estaba frío."{% elif lang == 'so' %}Maxkamadaha waxay rabaan xaqiiqooyin, ma aha ra'yiyo. "Kuleyliyaha wuu jabay Janaayo 10" waa ka fiican "Qolka had iyo jeer way qabowday."{% else %}تريد المحاكم حقائق وليس آراء. "تعطل السخان في 10 يناير" أفضل من "كانت الشقة باردة دائمًا."{% endif %}
+        </p>
+    </div>
+</div>
+{% endblock %}

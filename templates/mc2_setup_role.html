@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Select Your Role - mc²</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #1e3c72, #2a5298); min-height: 100vh; padding: 40px; color: white; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { text-align: center; font-size: 36px; margin-bottom: 40px; }
+        .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .role-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 16px; padding: 30px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .role-card:hover { transform: translateY(-5px); border-color: white; background: rgba(255,255,255,0.2); }
+        .role-icon { font-size: 48px; margin-bottom: 15px; }
+        .role-title { font-size: 22px; font-weight: bold; margin-bottom: 10px; }
+        .role-desc { font-size: 14px; margin-bottom: 15px; opacity: 0.9; }
+        .role-features { font-size: 12px; opacity: 0.8; }
+        .role-features li { margin: 5px 0; }
+        .progress { display: flex; justify-content: center; gap: 10px; margin: 40px 0; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+        .dot.active { background: white; }
+        form { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ What's Your Role?</h1>
+        <div class="roles-grid">
+            {% for role in roles %}
+            <div class="role-card" onclick="selectRole('{{ role.id }}')">
+                <div class="role-icon">{{ role.icon }}</div>
+                <div class="role-title">{{ role.title }}</div>
+                <div class="role-desc">{{ role.desc }}</div>
+                <ul class="role-features">
+                    {% for feature in role.features %}
+                    <li>✓ {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="progress">
+            <div class="dot"></div>
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+    <form id="roleForm" method="POST" action="/setup/role">
+        <input type="hidden" name="role" id="roleInput">
+    </form>
+    <script>
+        function selectRole(roleId) {
+            document.getElementById('roleInput').value = roleId;
+            document.getElementById('roleForm').submit();
+        }
+    </script>
+</body>
+</html>

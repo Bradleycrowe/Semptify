@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dakota County Library - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { color: #667eea; margin-bottom: 30px; }
+        h2 { color: #333; margin-top: 25px; margin-bottom: 15px; }
+        .featured {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .featured h2 { color: white; margin-top: 0; }
+        .featured p { margin-bottom: 20px; line-height: 1.6; }
+        .btn {
+            background: white;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .btn:hover { opacity: 0.9; }
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .resource-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .resource-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .resource-card p {
+            color: #555;
+            line-height: 1.6;
+        }
+        .statute {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .statute-title {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Dakota County Legal Library</h1>
+        
+        <div class="featured">
+            <h2>⚖️ Eviction Defense Center</h2>
+            <p>Comprehensive guide to defending against eviction in Dakota County with timelines, defenses, statutes, court forms, and legal resources.</p>
+            <a href="/library/dakota/eviction" class="btn">Access Eviction Defense Library →</a>
+        </div>
+        
+        <h2>MN Tenant Rights Resources</h2>
+        <div class="resource-grid">
+            <div class="resource-card">
+                <h3>Security Deposits</h3>
+                <p>Minnesota law requires landlords to return security deposits within 21 days of move-out, with itemized deductions.</p>
+                <p style="margin-top: 10px; font-weight: 600;">MN Stat. § 504B.135</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Repairs & Habitability</h3>
+                <p>Tenants have the right to a habitable dwelling. Landlords must make necessary repairs within reasonable time.</p>
+                <p style="margin-top: 10px; font-weight: 600;">Implied Warranty</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Notice Requirements</h3>
+                <p>Different notice periods apply for lease terminations, rent increases, and entry by landlord.</p>
+                <p style="margin-top: 10px; font-weight: 600;">MN Stat. § 504B.161</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Eviction Process</h3>
+                <p>Minnesota evictions require proper legal process. Tenants have rights to respond and contest.</p>
+                <p style="margin-top: 10px; font-weight: 600;">MN Stat. § 504B.371</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Retaliation Protection</h3>
+                <p>Landlords cannot retaliate against tenants for asserting their legal rights.</p>
+                <p style="margin-top: 10px; font-weight: 600;">MN Stat. § 504B.285</p>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Discrimination Laws</h3>
+                <p>Fair Housing laws prohibit discrimination based on protected characteristics.</p>
+                <p style="margin-top: 10px; font-weight: 600;">Federal & State Law</p>
+            </div>
+        </div>
+        
+        <h2>Key MN Statutes</h2>
+        <div class="statute">
+            <div class="statute-title">MN Stat. § 504B.135 - Security Deposits</div>
+            <p>Governs security deposit handling, interest requirements, and return timelines. Must return within 21 days with itemized deductions.</p>
+        </div>
+        
+        <div class="statute">
+            <div class="statute-title">MN Stat. § 504B.161 - Landlord Entry</div>
+            <p>Requires reasonable notice (typically 24 hours) before landlord entry, except in emergencies.</p>
+        </div>
+        
+        <div class="statute">
+            <div class="statute-title">MN Stat. § 504B.285 - Remedies for Landlord Violations</div>
+            <p>Provides remedies when landlords violate tenant rights, including retaliation protections.</p>
+        </div>
+        
+        <div class="statute">
+            <div class="statute-title">MN Stat. § 504B.291 - Residential Tenant's Remedies</div>
+            <p>Tenant remedies for landlord violations including rent abatement, repair and deduct, and lease termination.</p>
+        </div>
+        
+        <div class="statute">
+            <div class="statute-title">MN Stat. § 504B.371 - Eviction Action Procedures</div>
+            <p>Complete eviction procedure requirements including notice, filing, hearings, and appeals.</p>
+        </div>
+        
+        <h2>Quick Links</h2>
+        <div style="margin: 20px 0;">
+            <a href="/library/dakota/eviction" class="btn" style="background: #667eea; color: white;">Eviction Defense</a>
+            <a href="/library/dakota/statutes" class="btn" style="background: #667eea; color: white;">All Statutes</a>
+            <a href="/library/dakota/forms" class="btn" style="background: #667eea; color: white;">Court Forms</a>
+        </div>
+        
+        <a href="/hub" class="back-link">← Back to Hub</a>
+    </div>
+</body>
+</html>

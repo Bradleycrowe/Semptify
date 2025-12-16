@@ -1,19 +1,23 @@
-# Force rebuild: 2025-11-16 engine refactor
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy app
+COPY main.py .
+COPY routers/ routers/
+COPY static/ static/
 
-# Verify engines directory exists
-RUN ls -la /app/engines/ || echo "ERROR: engines directory missing"
+# Create directories
+RUN mkdir -p uploads logs
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Environment
+ENV PORT=8000
+ENV STORAGE_TYPE=r2
 
-CMD ["python", "run_prod.py"]
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

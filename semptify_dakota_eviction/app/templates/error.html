@@ -1,0 +1,24 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Error {{ error_code }}{% endblock %}
+
+{% block content %}
+<div class="card text-center">
+    <div style="font-size: 5rem; margin-bottom: 1rem;">
+        {% if error_code == 404 %}🔍{% else %}⚠️{% endif %}
+    </div>
+    <h1 class="card-title" style="font-size: 2rem;">
+        {% if error_code == 404 %}
+            {% if lang == 'en' %}Page Not Found{% elif lang == 'es' %}Página No Encontrada{% elif lang == 'so' %}Bogga Lama Helin{% else %}الصفحة غير موجودة{% endif %}
+        {% else %}
+            {% if lang == 'en' %}Something Went Wrong{% elif lang == 'es' %}Algo Salió Mal{% elif lang == 'so' %}Wax Baa Qaldamay{% else %}حدث خطأ ما{% endif %}
+        {% endif %}
+    </h1>
+    <p class="card-description" style="margin-bottom: 2rem;">
+        {{ error_message }}
+    </p>
+    <a href="/?lang={{ lang }}" class="btn btn-primary">
+        ← {% if lang == 'en' %}Back to Home{% elif lang == 'es' %}Volver al Inicio{% elif lang == 'so' %}Dib u Noqo Bogga Hore{% else %}العودة للرئيسية{% endif %}
+    </a>
+</div>
+{% endblock %}

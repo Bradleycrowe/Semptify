@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brad AI Assistant - Semptify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+        h1 { color: #667eea; margin-bottom: 20px; }
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+        .bot-message {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        #chat-form {
+            display: flex;
+            gap: 10px;
+        }
+        #message-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .back-link { display: inline-block; margin-top: 20px; color: #667eea; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Brad AI Assistant</h1>
+        
+        <div id="chat-messages">
+            <div class="message bot-message">
+                👋 Hi! I'm Brad, your AI tenant rights assistant. Ask me anything about housing laws, your rights, or how to handle landlord issues.
+            </div>
+        </div>
+        
+        <form id="chat-form">
+            <input type="text" id="message-input" placeholder="Ask Brad a question..." required>
+            <button type="submit" id="send-btn">Send</button>
+        </form>
+        
+        <a href="/hub" class="back-link">← Back to Hub</a>
+    </div>
+    
+    <script>
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('message-input');
+        const messages = document.getElementById('chat-messages');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user-message';
+            userDiv.textContent = message;
+            messages.appendChild(userDiv);
+            
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+            
+            // Call API
+            try {
+                const response = await fetch('/api/copilot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                
+                // Add bot response
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message bot-message';
+                botDiv.textContent = data.response || 'Sorry, I could not process that request.';
+                messages.appendChild(botDiv);
+                messages.scrollTop = messages.scrollHeight;
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message bot-message';
+                errorDiv.textContent = 'Error: ' + error.message;
+                messages.appendChild(errorDiv);
+            }
+        });
+    </script>
+</body>
+</html>

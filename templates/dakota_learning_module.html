@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Module - Dakota County Learning</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 40px 20px; margin: 0; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        h1 { color: #667eea; margin-bottom: 20px; }
+        .lesson { background: #f5f7fa; padding: 20px; margin: 15px 0; border-radius: 10px; cursor: pointer; }
+        .lesson:hover { background: #e8ecf1; }
+        .back { color: white; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/learn/dakota" class="back">← Back</a>
+        <div class="card">
+            <h1>{{ module.icon }} {{ module.title }}</h1>
+            <p>⏱️ {{ module.duration }} | �� {{ module.lessons|length }} lessons</p>
+            <h2>Lessons</h2>
+            {% for lesson in module.lessons %}
+            <div class="lesson" onclick="location.href='/learn/dakota/lesson/{{ module.id }}/{{ lesson.id }}'">
+                <strong>{{ loop.index }}. {{ lesson.title }}</strong><br>
+                <span style="color: #666;">{{ lesson.description }}</span>
+            </div>
+            {% endfor %}
+            {% if module.quiz %}
+            <div style="background: #fff3cd; padding: 20px; margin-top: 30px; border-radius: 10px;">
+                <h2>🎯 Quiz</h2>
+                <p>Test your knowledge!</p>
+                <a href="/motions" style="display: inline-block; background: #ffc107; color: #1a1a1a; padding: 10px 20px; border-radius: 8px; text-decoration: none; margin-top: 10px;">Take Quiz →</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+# SEMPTIFY GUI ACCESS REPORT
+Generated: 2025-11-26 20:43:11
+
+## Summary
+- ✅ **Accessible: 18/23 GUIs (78%)**
+- ✗ Broken: 5/23 (22%)
+
+## Core (4/4) ✓ 100%
+✓ Home Page: /
+✓ GUI Hub: /hub
+✓ Help Center: /help
+✓ Main Dashboard: /dashboard
+
+## Documents & Evidence (2/3) 67%
+✓ Document Vault: /app/vault
+✓ Document Explorer: /docs/
+✗ AV Evidence: /app/av (404)
+
+## Legal Tools (4/5) 80%
+✓ Complaint Filing: /app/complaint
+✓ Dakota Library: /library/dakota/
+✓ Library Hub: /library/
+✓ Housing Programs: /housing-programs
+✗ Jurisdiction Info: /jurisdiction/MN/Dakota (404)
+
+## Financial (1/2) 50%
+✓ Payment Ledger: /ledger
+✗ Rent Calculator: /app/rent-calculator (404)
+
+## Timeline & Calendar (2/2) ✓ 100%
+✓ Journey Timeline: /journey/
+✓ Calendar: /calendar
+
+## AI & Automation (3/4) 75%
+✓ AI Orchestrator: /ai/orchestrator
+✓ Brad AI: /brad/
+✓ Demo Reasoning: /demo/reasoning
+✗ Copilot UI: /copilot/ui (404)
+
+## Admin & System (2/3) 67%
+✓ Maintenance: /maintenance/
+🔒 System Context: /system/context (401 - Auth Required, GUI exists)
+✗ Admin Master: /admin/master (500 - RecursionError)
+
+## Recently Fixed (3 routes)
+✅ Document Vault: Fixed template path (modern_gui/vault.html → vault.html)
+✅ Journey Timeline: Fixed template name (journey_start.html → housing_journey.html)
+✅ Maintenance: Fixed template name (maintenance_login.html → maintenance_tracker.html)
+
+## Known Issues
+1. **Admin Master** - RecursionError (needs request lifecycle investigation)
+2. **AV Evidence** - Route doesn't exist at /app/av (need to find correct path)
+3. **Jurisdiction Info** - 404 (need to verify route exists)
+4. **Rent Calculator** - 404 (need to find correct path)
+5. **Copilot UI** - 404 (need to verify route registration)
+
+## Success Metrics
+- Core functionality: 100% ✓
+- User-facing tools: 78% overall
+- Critical paths working: Vault, Complaint Filing, Ledger, Journey ✓
+
+## Next Steps
+1. Fix Admin Master RecursionError (investigate before_request handlers)
+2. Find correct paths for 404 routes
+3. Test all 129 GUI routes (currently tested 23 key routes)

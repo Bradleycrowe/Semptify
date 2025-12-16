@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Role-Based Auth - Implementation Checklist</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fa; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #2d3748; margin-bottom: 30px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
+        .tab { padding: 12px 24px; cursor: pointer; background: white; border: none; border-bottom: 3px solid transparent; font-size: 16px; font-weight: 500; }
+        .tab.active { border-bottom-color: #667eea; color: #667eea; }
+        .tab:hover { background: #f7fafc; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .section { background: white; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section h2 { color: #667eea; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .section h3 { color: #4a5568; margin: 20px 0 10px; font-size: 18px; }
+        
+        .problem { border-left: 4px solid #fc8181; background: #fff5f5; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .problem.medium { border-left-color: #f6ad55; background: #fffaf0; }
+        .problem.minor { border-left-color: #68d391; background: #f0fff4; }
+        .problem.solved { border-left-color: #48bb78; background: #f0fff4; opacity: 0.7; }
+        
+        .checkbox-item { display: flex; align-items: start; gap: 12px; padding: 12px; margin: 8px 0; background: #f7fafc; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .checkbox-item:hover { background: #edf2f7; }
+        .checkbox-item.checked { background: #c6f6d5; }
+        
+        .checkbox-item input[type="checkbox"] { margin-top: 3px; width: 20px; height: 20px; cursor: pointer; }
+        .checkbox-item label { flex: 1; cursor: pointer; line-height: 1.5; }
+        
+        .priority { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 10px; }
+        .priority.critical { background: #fc8181; color: white; }
+        .priority.medium { background: #f6ad55; color: white; }
+        .priority.minor { background: #68d391; color: white; }
+        
+        .solution { background: #e6fffa; border-left: 4px solid #38b2ac; padding: 12px; margin-top: 8px; border-radius: 4px; font-size: 14px; }
+        
+        .progress-bar { height: 30px; background: #e2e8f0; border-radius: 15px; overflow: hidden; margin: 20px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; transition: width 0.3s; }
+        
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 32px; font-weight: bold; color: #667eea; }
+        .stat-label { color: #718096; margin-top: 5px; }
+        
+        .flow-diagram { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .flow-step { display: flex; align-items: center; margin: 10px 0; }
+        .flow-step .arrow { color: #667eea; margin: 0 15px; font-size: 20px; }
+        .flow-step .step { background: #edf2f7; padding: 10px 20px; border-radius: 6px; flex: 1; }
+        
+        button { background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        button:hover { background: #5a67d8; }
+        
+        .code { background: #2d3748; color: #68d391; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 14px; overflow-x: auto; margin: 10px 0; }
+        
+        .note { background: #fff3cd; border-left: 4px solid: #ffc107; padding: 12px; margin: 10px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Role-Based Authentication - Implementation Checklist</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalProblems">18</div>
+                <div class="stat-label">Total Problems Identified</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="solvedProblems">0</div>
+                <div class="stat-label">Problems Solved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="percentComplete">0%</div>
+                <div class="stat-label">Complete</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="criticalRemaining">4</div>
+                <div class="stat-label">Critical Issues Remaining</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('design')">Design Decisions</button>
+            <button class="tab" onclick="showTab('critical')">Critical Issues (4)</button>
+            <button class="tab" onclick="showTab('medium')">Medium Issues (4)</button>
+            <button class="tab" onclick="showTab('minor')">Minor Issues (2)</button>
+            <button class="tab" onclick="showTab('implementation')">Implementation Steps</button>
+        </div>
+        
+        <!-- Design Decisions Tab -->
+        <div id="design" class="tab-content active">
+            <div class="section">
+                <h2>🎯 Core Design Decisions</h2>
+                <p style="margin-bottom: 20px;">Make these decisions FIRST - they affect everything else:</p>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="design1" onchange="updateProgress()">
+                    <label for="design1">
+                        <strong>Token Prefix Format</strong><br>
+                        Use prefixes to identify roles: ADMIN-, USER-, LEGAL-, MGR-, ADV-<br>
+                        <span class="solution">✓ Prevents token collision, easier validation, clear role identification</span>
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="design2" onchange="updateProgress()">
+                    <label for="design2">
+                        <strong>Admin Storage Location</strong><br>
+                        Store admin vault in system storage (local: security/admin_vault/ OR R2 bucket)<br>
+                        <span class="solution">✓ Admin doesn't use OAuth, keeps admin data separate from user data</span>
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="design3" onchange="updateProgress()">
+                    <label for="design3">
+                        <strong>Role Change Policy</strong><br>
+                        Once authenticated, CANNOT change role without full logout + session clear<br>
+                        <span class="solution">✓ Prevents privilege escalation, clear security boundary</span>
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="design4" onchange="updateProgress()">
+                    <label for="design4">
+                        <strong>Existing User Migration</strong><br>
+                        Auto-detect numeric tokens as role='user', add USER- prefix on next login<br>
+                        <span class="solution">✓ No user lockout, seamless migration, backward compatible</span>
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="design5" onchange="updateProgress()">
+                    <label for="design5">
+                        <strong>OAuth State Management</strong><br>
+                        Include role in OAuth state parameter: {random: 'abc', role: 'user'}<br>
+                        <span class="solution">✓ Prevents race condition between tabs, validates role on callback</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📋 Role Configuration Matrix</h2>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead style="background: #667eea; color: white;">
+                        <tr>
+                            <th style="padding: 12px; text-align: left;">Role</th>
+                            <th style="padding: 12px; text-align: left;">Token Prefix</th>
+                            <th style="padding: 12px; text-align: left;">Storage</th>
+                            <th style="padding: 12px; text-align: left;">Auth Method</th>
+                            <th style="padding: 12px; text-align: left;">Dashboard</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f7fafc;">
+                            <td style="padding: 12px;">Admin</td>
+                            <td style="padding: 12px;"><code>ADMIN-</code></td>
+                            <td style="padding: 12px;">System (local/R2)</td>
+                            <td style="padding: 12px;">Admin token</td>
+                            <td style="padding: 12px;">/admin</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">User/Tenant</td>
+                            <td style="padding: 12px;"><code>USER-</code></td>
+                            <td style="padding: 12px;">OAuth (Dropbox/Drive)</td>
+                            <td style="padding: 12px;">OAuth</td>
+                            <td style="padding: 12px;">/gui</td>
+                        </tr>
+                        <tr style="background: #f7fafc;">
+                            <td style="padding: 12px;">Legal Professional</td>
+                            <td style="padding: 12px;"><code>LEGAL-</code></td>
+                            <td style="padding: 12px;">OAuth (encrypted)</td>
+                            <td style="padding: 12px;">OAuth + audit</td>
+                            <td style="padding: 12px;">/legal/dashboard</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;">Manager</td>
+                            <td style="padding: 12px;"><code>MGR-</code></td>
+                            <td style="padding: 12px;">Organization storage</td>
+                            <td style="padding: 12px;">OAuth</td>
+                            <td style="padding: 12px;">/manager/dashboard</td>
+                        </tr>
+                        <tr style="background: #f7fafc;">
+                            <td style="padding: 12px;">Advocate</td>
+                            <td style="padding: 12px;"><code>ADV-</code></td>
+                            <td style="padding: 12px;">Temporary/limited</td>
+                            <td style="padding: 12px;">Temporary token</td>
+                            <td style="padding: 12px;">/advocate/resources</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Critical Issues Tab -->
+        <div id="critical" class="tab-content">
+            <div class="section">
+                <h2>🔴 Critical Issues<span class="priority critical">MUST FIX</span></h2>
+                
+                <div class="problem">
+                    <h3>1. Role Change Without Re-auth = Security Hole</h3>
+                    <p><strong>Problem:</strong> User logs in as "User", then manually goes to /choose-role and picks "Admin"</p>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="crit1" onchange="updateProgress()">
+                        <label for="crit1">
+                            Block /choose-role if session['authenticated'] = True<br>
+                            <div class="code">if session.get('authenticated'):<br>    return "Role locked. Logout to change role.", 403</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="problem">
+                    <h3>2. Token Format Collision Between Roles</h3>
+                    <p><strong>Problem:</strong> User token "123456789012" could collide with admin token "123456789012"</p>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="crit2" onchange="updateProgress()">
+                        <label for="crit2">
+                            Add role prefixes to ALL tokens (ADMIN-, USER-, LEGAL-, MGR-, ADV-)<br>
+                            <div class="code">token = f"{role.upper()}-{generate_random()}"</div>
+                        </label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="crit2b" onchange="updateProgress()">
+                        <label for="crit2b">
+                            Validate token prefix matches session role<br>
+                            <div class="code">if not token.startswith(f"{session['role'].upper()}-"):<br>    return "Token role mismatch", 401</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="problem">
+                    <h3>3. Existing User Migration (No Role Assigned)</h3>
+                    <p><strong>Problem:</strong> Current token 784410067859 has no role, user gets locked out</p>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="crit3" onchange="updateProgress()">
+                        <label for="crit3">
+                            Auto-detect legacy tokens (numeric only = role='user')<br>
+                            <div class="code">if token.isdigit() and len(token) == 12:<br>    session['role'] = 'user'<br>    # Add USER- prefix on next save</div>
+                        </label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="crit3b" onchange="updateProgress()">
+                        <label for="crit3b">
+                            Update auth_token.enc to include role field<br>
+                            <div class="code">{"token": "USER-784410067859", "role": "user", "created": "2025-11-26"}</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="problem">
+                    <h3>4. OAuth State Doesn't Include Role (Race Condition)</h3>
+                    <p><strong>Problem:</strong> Tab 1 starts OAuth as 'user', Tab 2 changes to 'admin', callback returns wrong role</p>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="crit4" onchange="updateProgress()">
+                        <label for="crit4">
+                            Store role in OAuth state parameter<br>
+                            <div class="code">state = {"random": secrets.token_urlsafe(), "role": session['role']}</div>
+                        </label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="crit4b" onchange="updateProgress()">
+                        <label for="crit4b">
+                            Validate role on OAuth callback<br>
+                            <div class="code">if state_data['role'] != session['role']:<br>    return "Role changed during OAuth", 400</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Medium Issues Tab -->
+        <div id="medium" class="tab-content">
+            <div class="section">
+                <h2>🟡 Medium Issues<span class="priority medium">IMPORTANT</span></h2>
+                
+                <div class="problem medium">
+                    <h3>5. Session Loss Mid-OAuth (Role Lost)</h3>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="med1" onchange="updateProgress()">
+                        <label for="med1">
+                            Store role in OAuth state as backup<br>
+                            If session['role'] missing but state has role, restore from state
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="problem medium">
+                    <h3>6. Bookmark/Direct URL Bypasses Role Selection</h3>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="med2" onchange="updateProgress()">
+                        <label for="med2">
+                            Detect role from token prefix if session missing<br>
+                            <div class="code">if token.startswith('USER-'):<br>    session['role'] = 'user'</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="problem medium">
+                    <h3>7. Multiple Validation Paths Increase Complexity</h3>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="med3" onchange="updateProgress()">
+                        <label for="med3">
+                            Create unified validation function with role routing<br>
+                            <div class="code">def validate_by_role(role, token):<br>    validators = {'admin': validate_admin_token, 'user': validate_user_token, ...}<br>    return validators[role](token)</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="problem medium">
+                    <h3>8. Admin Vault Storage Location</h3>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="med4" onchange="updateProgress()">
+                        <label for="med4">
+                            Create security/admin_vault/ directory with .gitignore<br>
+                            OR use R2 bucket path: /admin_vault/{admin_id}/
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Minor Issues Tab -->
+        <div id="minor" class="tab-content">
+            <div class="section">
+                <h2>🟢 Minor Issues<span class="priority minor">NICE TO HAVE</span></h2>
+                
+                <div class="problem minor">
+                    <h3>9. Legal Audit Logging (Dropbox Doesn't Support)</h3>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="min1" onchange="updateProgress()">
+                        <label for="min1">
+                            Implement app-side audit log for legal users<br>
+                            Log file operations to logs/legal_audit.log with timestamps
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="problem minor">
+                    <h3>10. Error Handling for Failed OAuth with Partial Session</h3>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="min2" onchange="updateProgress()">
+                        <label for="min2">
+                            Add state flag: session['setup_in_progress'] = True during OAuth<br>
+                            Clear on success/failure, redirect to /setup if set
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Implementation Steps Tab -->
+        <div id="implementation" class="tab-content">
+            <div class="section">
+                <h2>🚀 Implementation Order</h2>
+                <p style="margin-bottom: 20px;">Complete these in order for cleanest implementation:</p>
+                
+                <h3>Phase 1: Foundation (Do First)</h3>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl1" onchange="updateProgress()">
+                    <label for="impl1">
+                        <strong>1. Create /choose-role page</strong><br>
+                        5 role cards, no auth required, saves to session['role']
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl2" onchange="updateProgress()">
+                    <label for="impl2">
+                        <strong>2. Update token generation with prefixes</strong><br>
+                        Modify storage_setup_routes.py to add USER-, ADMIN-, etc.
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl3" onchange="updateProgress()">
+                    <label for="impl3">
+                        <strong>3. Add role to auth_token.enc structure</strong><br>
+                        Store {"token": "USER-xxx", "role": "user"} instead of just token
+                    </label>
+                </div>
+                
+                <h3>Phase 2: Middleware & Validation</h3>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl4" onchange="updateProgress()">
+                    <label for="impl4">
+                        <strong>4. Update storage_autologin.py</strong><br>
+                        Add role check, route to different validators, block /choose-role if authenticated
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl5" onchange="updateProgress()">
+                    <label for="impl5">
+                        <strong>5. Create admin token validator</strong><br>
+                        Separate function for admin token vs OAuth token
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl6" onchange="updateProgress()">
+                    <label for="impl6">
+                        <strong>6. Add role to OAuth state</strong><br>
+                        Modify OAuth start to include role, validate on callback
+                    </label>
+                </div>
+                
+                <h3>Phase 3: Storage & Dashboards</h3>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl7" onchange="updateProgress()">
+                    <label for="impl7">
+                        <strong>7. Create admin vault directory</strong><br>
+                        mkdir security/admin_vault/, add .gitignore
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl8" onchange="updateProgress()">
+                    <label for="impl8">
+                        <strong>8. Create role-specific dashboards</strong><br>
+                        /admin, /legal/dashboard, /manager/dashboard, /advocate/resources
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl9" onchange="updateProgress()">
+                    <label for="impl9">
+                        <strong>9. Update homepage routing</strong><br>
+                        Check role → redirect to appropriate dashboard
+                    </label>
+                </div>
+                
+                <h3>Phase 4: Migration & Testing</h3>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl10" onchange="updateProgress()">
+                    <label for="impl10">
+                        <strong>10. Add legacy token detection</strong><br>
+                        Auto-detect numeric tokens, add USER- prefix
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl11" onchange="updateProgress()">
+                    <label for="impl11">
+                        <strong>11. Test all 5 roles end-to-end</strong><br>
+                        Admin, User, Legal, Manager, Advocate - full flow each
+                    </label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input type="checkbox" id="impl12" onchange="updateProgress()">
+                    <label for="impl12">
+                        <strong>12. Test edge cases</strong><br>
+                        Role change, multi-tab, bookmark, session expiry, OAuth failure
+                    </label>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📁 Files to Modify</h2>
+                <ul style="line-height: 2;">
+                    <li><code>templates/choose_role.html</code> - NEW (role selection page)</li>
+                    <li><code>storage_setup_routes.py</code> - Add role logic, token prefixes</li>
+                    <li><code>storage_autologin.py</code> - Role-based validation</li>
+                    <li><code>main_dashboard_routes.py</code> - Role-based routing</li>
+                    <li><code>Semptify.py</code> - Role constants</li>
+                    <li><code>security.py</code> - Admin token validation</li>
+                    <li><code>security/admin_vault/</code> - NEW directory</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const total = checkboxes.length;
+            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const percent = Math.round((checked / total) * 100);
+            
+            document.getElementById('solvedProblems').textContent = checked;
+            document.getElementById('percentComplete').textContent = percent + '%';
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressFill').textContent = percent + '%';
+            
+            // Update critical remaining
+            const criticalCheckboxes = ['crit1', 'crit2', 'crit2b', 'crit3', 'crit3b', 'crit4', 'crit4b'];
+            const criticalRemaining = criticalCheckboxes.filter(id => !document.getElementById(id).checked).length;
+            document.getElementById('criticalRemaining').textContent = criticalRemaining;
+            
+            // Mark parent as checked
+            checkboxes.forEach(cb => {
+                const parent = cb.closest('.checkbox-item');
+                if (cb.checked) {
+                    parent.classList.add('checked');
+                } else {
+                    parent.classList.remove('checked');
+                }
+            });
+            
+            // Save state to localStorage
+            const state = {};
+            checkboxes.forEach(cb => {
+                if (cb.id) state[cb.id] = cb.checked;
+            });
+            localStorage.setItem('roleAuthProgress', JSON.stringify(state));
+        }
+        
+        // Load state from localStorage
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('roleAuthProgress');
+            if (saved) {
+                const state = JSON.parse(saved);
+                Object.keys(state).forEach(id => {
+                    const cb = document.getElementById(id);
+                    if (cb) cb.checked = state[id];
+                });
+                updateProgress();
+            }
+        });
+    </script>
+</body>
+</html>

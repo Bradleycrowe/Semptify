@@ -1,0 +1,51 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_counterclaim }} - Step {{ step }}{% endblock %}
+
+{% block content %}
+<div class="steps">
+    {% for i in range(1, total_steps + 1) %}
+    <div class="step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+        {% if i < step %}✓{% else %}{{ i }}{% endif %}
+    </div>
+    {% if i < total_steps %}
+    <div class="step-line {% if i < step %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+            <h1 class="card-title">{{ strings.title_counterclaim }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Step 2: Select Your Claims{% elif lang == 'es' %}Paso 2: Seleccione Sus Reclamos{% elif lang == 'so' %}Tallaabada 2: Dooro Dacwadahaaga{% else %}الخطوة 2: اختر دعواك{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <p class="mb-2">
+        {% if lang == 'en' %}What did your landlord do wrong? Select all that apply.{% elif lang == 'es' %}¿Qué hizo mal su arrendador? Seleccione todo lo que aplique.{% elif lang == 'so' %}Maxaa mulkiilahaagu qalday? Dooro dhammaan kuwa khuseeya.{% else %}ماذا فعل المالك بشكل خاطئ؟ اختر كل ما ينطبق.{% endif %}
+    </p>
+    
+    <form action="/flows/counterclaim?step=3&lang={{ lang }}" method="GET">
+        <input type="hidden" name="step" value="3">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div class="checkbox-list">
+            {% for claim in claims %}
+            <label class="checkbox-item">
+                <input type="checkbox" name="claims" value="{{ claim.id }}">
+                <span>{{ claim.label }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <a href="/flows/counterclaim?step=1&lang={{ lang }}" class="btn btn-outline">← {{ strings.btn_back }}</a>
+            <button type="submit" class="btn btn-primary">{{ strings.btn_next }} →</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

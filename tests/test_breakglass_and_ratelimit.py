@@ -1,3 +1,4 @@
+import pytest
 import os, json, importlib, time
 
 # We'll simulate enforced mode with a break-glass token

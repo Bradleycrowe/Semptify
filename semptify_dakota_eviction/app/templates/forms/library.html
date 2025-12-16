@@ -1,0 +1,107 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ strings.nav_forms }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">📚</div>
+        <div>
+            <h1 class="card-title">{{ strings.nav_forms }}</h1>
+            <p class="card-description">
+                {% if lang == 'en' %}Official Minnesota court forms for eviction defense{% elif lang == 'es' %}Formularios oficiales de Minnesota para defensa contra desalojo{% elif lang == 'so' %}Foomamka rasmiga ah ee Minnesota ee difaaca ka-saarista{% else %}نماذج محكمة مينيسوتا الرسمية للدفاع عن الإخلاء{% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Category Filter -->
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+        <a href="/forms/library?lang={{ lang }}" class="btn {% if not selected_category %}btn-primary{% else %}btn-outline{% endif %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+            {% if lang == 'en' %}All{% elif lang == 'es' %}Todos{% elif lang == 'so' %}Dhammaan{% else %}الكل{% endif %}
+        </a>
+        {% for cat in categories %}
+        <a href="/forms/library?category={{ cat }}&lang={{ lang }}" class="btn {% if selected_category == cat %}btn-primary{% else %}btn-outline{% endif %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+            {{ cat | title }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Forms List -->
+<div class="grid grid-2">
+    {% for form in forms %}
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon" style="font-size: 1rem; width: 40px; height: 40px;">
+                {% if form.category == 'answer' %}📝{% elif form.category == 'motion' %}📋{% elif form.category == 'counterclaim' %}⚖️{% elif form.category == 'fee_waiver' %}💰{% elif form.category == 'expungement' %}🗑️{% else %}📄{% endif %}
+            </div>
+            <div>
+                <h3 class="card-title" style="font-size: 1rem;">{{ form.display_name }}</h3>
+                <p style="font-size: 0.8rem; color: var(--text-light);">{{ form.id }}</p>
+            </div>
+        </div>
+        
+        {% if form.instructions %}
+        <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+            {{ form.instructions }}
+        </p>
+        {% endif %}
+        
+        {% if form.deadline_days %}
+        <p style="font-size: 0.85rem; color: #b45309; margin-bottom: 1rem;">
+            ⏰ {% if lang == 'en' %}Deadline: {{ form.deadline_days }} days from service{% elif lang == 'es' %}Fecha límite: {{ form.deadline_days }} días desde la notificación{% elif lang == 'so' %}Wakhti dhammaad: {{ form.deadline_days }} maalmood ka dib adeegga{% else %}الموعد النهائي: {{ form.deadline_days }} أيام من التبليغ{% endif %}
+        </p>
+        {% endif %}
+        
+        {% if form.required %}
+        <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+            {% if lang == 'en' %}REQUIRED{% elif lang == 'es' %}REQUERIDO{% elif lang == 'so' %}LAGAMA MAARMAAN{% else %}مطلوب{% endif %}
+        </span>
+        {% endif %}
+        
+        {% if form.required_first %}
+        <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+            {% if lang == 'en' %}FILE FIRST{% elif lang == 'es' %}PRESENTE PRIMERO{% elif lang == 'so' %}MARKA HORE XAREE{% else %}قدم أولاً{% endif %}
+        </span>
+        {% endif %}
+        
+        <div class="mt-2">
+            <a href="{{ form.url }}" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 0.9rem;">
+                📥 {% if lang == 'en' %}Download{% elif lang == 'es' %}Descargar{% elif lang == 'so' %}Soo Deji{% else %}تحميل{% endif %}
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not forms %}
+<div class="card text-center">
+    <p style="color: var(--text-light);">
+        {% if lang == 'en' %}No forms found in this category.{% elif lang == 'es' %}No se encontraron formularios en esta categoría.{% elif lang == 'so' %}Lama helin foomo qaybtan.{% else %}لم يتم العثور على نماذج في هذه الفئة.{% endif %}
+    </p>
+</div>
+{% endif %}
+
+<!-- Legal Resources -->
+{% if resources %}
+<div class="card mt-4">
+    <h2 style="margin-bottom: 1rem;">
+        📞 {% if lang == 'en' %}Legal Aid Resources{% elif lang == 'es' %}Recursos de Asistencia Legal{% elif lang == 'so' %}Ilaha Caawinta Sharciga{% else %}موارد المساعدة القانونية{% endif %}
+    </h2>
+    
+    <div class="grid grid-2">
+        {% for resource in resources %}
+        <div style="padding: 1rem; background: var(--bg); border-radius: 8px;">
+            <h4>{{ resource.name }}</h4>
+            {% if resource.phone %}
+            <p style="font-size: 0.9rem;">📞 <a href="tel:{{ resource.phone }}">{{ resource.phone }}</a></p>
+            {% endif %}
+            {% if resource.url %}
+            <p style="font-size: 0.9rem;">🌐 <a href="{{ resource.url }}" target="_blank">{{ resource.url | replace('https://', '') | replace('http://', '') }}</a></p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -338,8 +338,12 @@ def _require_admin_or_401() -> bool:
 
     return False
 
-def _require_user_or_401() -> bool:
-    """Check if current request has valid user token."""
+def _require_user_or_401():
+    """Check if current request has valid user token. Returns user_id or False."""
+    # In open mode, return default user
+    if SECURITY_MODE == "open":
+        return "default_user"
+    
     t = (request.headers.get("X-User-Token") or
          request.args.get("user_token") or
          request.form.get("user_token"))
@@ -348,4 +352,5 @@ def _require_user_or_401() -> bool:
         return False
 
     uid = validate_user_token(t)
-    return uid is not None
+    return uid if uid else False
+
